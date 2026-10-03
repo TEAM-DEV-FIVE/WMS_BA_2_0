@@ -4,6 +4,7 @@ from tkinter import ttk
 from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
+from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
 from apps.desktop.views.orders import OrderView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
@@ -48,6 +49,8 @@ class DesktopShell:
         notebook.add(self.receipt_view, text="Nhận hàng")
         self.receipt_recovery_view = ReceiptRecoveryView(notebook, self.receipt_view.presenter)
         notebook.add(self.receipt_recovery_view, text="Phục hồi nhận hàng")
+        self.issue_view = IssueView(notebook, self.session_view.presenter.api)
+        notebook.add(self.issue_view, text="Giữ hàng / xuất kho")
         self.admin_view = AdminView(notebook, self.session_view.presenter.api)
         self.admin_view.on_signed_out = self.admin_signed_out
         notebook.add(self.admin_view, text="Quản trị tài khoản / quyền")
@@ -79,6 +82,7 @@ class DesktopShell:
         self.serial_view.session_changed(user, warehouses)
         self.order_view.session_changed(user, warehouses)
         self.receipt_view.session_changed(user, warehouses)
+        self.issue_view.session_changed(user, warehouses)
         self.admin_view.session_changed(user, warehouses)
 
     def admin_signed_out(self, message):
@@ -107,6 +111,7 @@ class DesktopShell:
             self.serial_view.presenter.drain()
             self.order_view.presenter.drain()
             self.receipt_view.presenter.drain()
+            self.issue_view.presenter.drain()
             self.admin_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
@@ -126,6 +131,8 @@ class DesktopShell:
         self.receipt_view.presenter.close()
         self.receipt_view.release_variables()
         self.receipt_recovery_view.release_variables()
+        self.issue_view.presenter.close()
+        self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
         self.session_view.release_variables()
@@ -138,6 +145,7 @@ class DesktopShell:
         self.serial_view.presenter.finish()
         self.order_view.presenter.finish()
         self.receipt_view.presenter.finish()
+        self.issue_view.presenter.finish()
         self.admin_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None

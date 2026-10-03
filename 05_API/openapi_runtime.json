@@ -12022,6 +12022,1166 @@
         }
       }
     },
+    "/api/v1/issues": {
+      "get": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Listing",
+        "operationId": "listing_api_v1_issues_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "warehouse_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Warehouse Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "DRAFT",
+                    "SUBMITTED",
+                    "APPROVED",
+                    "REJECTED",
+                    "PARTIAL",
+                    "COMPLETED",
+                    "CANCELLED"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Create",
+        "operationId": "create_api_v1_issues_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/issues/operations/{key}": {
+      "get": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Operation",
+        "operationId": "operation_api_v1_issues_operations__key__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueOperation"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/issues/{document_id}": {
+      "get": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Read",
+        "operationId": "read_api_v1_issues__document_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueView"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Update",
+        "operationId": "update_api_v1_issues__document_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/issues/{document_id}/reservation-plan": {
+      "get": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Plan",
+        "operationId": "plan_api_v1_issues__document_id__reservation_plan_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "document_line_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Line Id"
+            }
+          },
+          {
+            "name": "quantity_base",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(?:0|[1-9][0-9]{0,13})(?:\\.[0-9]{1,6})?$",
+              "title": "Quantity Base"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationPlan"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/issues/{document_id}/post": {
+      "post": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Post",
+        "operationId": "post_api_v1_issues__document_id__post_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssuePost"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssuePostResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/issues/{document_id}/reservations/reserve": {
+      "post": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Issue Reserve",
+        "operationId": "issue_reserve_api_v1_issues__document_id__reservations_reserve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReserveInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/issues/{document_id}/reservations/release": {
+      "post": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Issue Release",
+        "operationId": "issue_release_api_v1_issues__document_id__reservations_release_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/issues/{document_id}/reservations/expire": {
+      "post": {
+        "tags": [
+          "issues"
+        ],
+        "summary": "Issue Expire",
+        "operationId": "issue_expire_api_v1_issues__document_id__reservations_expire_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderAction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/v1/health": {
       "get": {
         "tags": [
@@ -12266,6 +13426,125 @@
           "version"
         ],
         "title": "AgreementView"
+      },
+      "Allocation": {
+        "properties": {
+          "document_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Line Id"
+          },
+          "stock_item_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Stock Item Id"
+          },
+          "location_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Location Id"
+          },
+          "quantity_base": {
+            "type": "string",
+            "pattern": "^(?:0|[1-9][0-9]{0,13})(?:\\.[0-9]{1,6})?$",
+            "title": "Quantity Base"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document_line_id",
+          "stock_item_id",
+          "location_id",
+          "quantity_base"
+        ],
+        "title": "Allocation"
+      },
+      "AllocationView": {
+        "properties": {
+          "document_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Line Id"
+          },
+          "stock_item_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Stock Item Id"
+          },
+          "location_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Location Id"
+          },
+          "quantity_base": {
+            "type": "string",
+            "pattern": "^(?:0|[1-9][0-9]{0,13})(?:\\.[0-9]{1,6})?$",
+            "title": "Quantity Base"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "location_code": {
+            "type": "string",
+            "title": "Location Code"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Owner Id"
+          },
+          "lot_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Code"
+          },
+          "serial_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial Code"
+          },
+          "expires_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document_line_id",
+          "stock_item_id",
+          "location_id",
+          "quantity_base",
+          "sku",
+          "location_code",
+          "owner_id",
+          "lot_code",
+          "serial_code",
+          "expires_on"
+        ],
+        "title": "AllocationView"
       },
       "ApprovalStepView": {
         "properties": {
@@ -13540,6 +14819,445 @@
         ],
         "title": "ImportView"
       },
+      "IssueInput": {
+        "properties": {
+          "source_order_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Order Id"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/IssueLineInput"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Lines"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_order_id",
+          "business_date",
+          "reason",
+          "lines"
+        ],
+        "title": "IssueInput"
+      },
+      "IssueLineInput": {
+        "properties": {
+          "source_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Line Id"
+          },
+          "quantity_base": {
+            "type": "string",
+            "pattern": "^(?:0|[1-9][0-9]{0,13})(?:\\.[0-9]{1,6})?$",
+            "title": "Quantity Base"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_line_id",
+          "quantity_base"
+        ],
+        "title": "IssueLineInput"
+      },
+      "IssueOperation": {
+        "properties": {
+          "operation_status": {
+            "type": "string",
+            "title": "Operation Status",
+            "default": "COMMITTED"
+          },
+          "command": {
+            "type": "string",
+            "title": "Command"
+          },
+          "result": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command",
+          "result"
+        ],
+        "title": "IssueOperation"
+      },
+      "IssuePost": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/ReservationQuantity"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Lines"
+          },
+          "execution_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Execution Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "reason",
+          "lines",
+          "execution_key"
+        ],
+        "title": "IssuePost"
+      },
+      "IssuePostResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PO",
+              "SO",
+              "RECEIPT",
+              "OPENING",
+              "ISSUE"
+            ],
+            "title": "Kind"
+          },
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Warehouse Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "PARTIAL",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "approval_request_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Request Id"
+          },
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Transaction Id"
+          },
+          "source_order_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Order Id"
+          },
+          "source_order_version": {
+            "type": "integer",
+            "title": "Source Order Version"
+          },
+          "source_order_status": {
+            "type": "string",
+            "title": "Source Order Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "kind",
+          "warehouse_id",
+          "status",
+          "version",
+          "request_id",
+          "transaction_id",
+          "source_order_id",
+          "source_order_version",
+          "source_order_status"
+        ],
+        "title": "IssuePostResult"
+      },
+      "IssueUpdate": {
+        "properties": {
+          "source_order_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Order Id"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/IssueLineInput"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Lines"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_order_id",
+          "business_date",
+          "reason",
+          "lines",
+          "expected_version"
+        ],
+        "title": "IssueUpdate"
+      },
+      "IssueView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PO",
+              "SO",
+              "RECEIPT",
+              "OPENING",
+              "ISSUE"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "PARTIAL",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "title": "Status"
+          },
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Warehouse Id"
+          },
+          "partner_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Id"
+          },
+          "partner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Name"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineView"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "assigned_user_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Assigned User Ids"
+          },
+          "approvals": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalView"
+            },
+            "type": "array",
+            "title": "Approvals"
+          },
+          "allowed_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Actions"
+          },
+          "source_order_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Order Id"
+          },
+          "source_line_ids": {
+            "additionalProperties": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "type": "object",
+            "title": "Source Line Ids"
+          },
+          "reservations": {
+            "items": {
+              "$ref": "#/components/schemas/ReservationView"
+            },
+            "type": "array",
+            "title": "Reservations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "kind",
+          "status",
+          "warehouse_id",
+          "partner_id",
+          "partner_name",
+          "business_date",
+          "created_by",
+          "creator_name",
+          "created_at",
+          "version",
+          "reason",
+          "lines",
+          "assigned_user_ids",
+          "approvals",
+          "allowed_actions",
+          "source_order_id",
+          "source_line_ids",
+          "reservations"
+        ],
+        "title": "IssueView"
+      },
       "LocationCreate": {
         "properties": {
           "code": {
@@ -14114,7 +15832,8 @@
               "PO",
               "SO",
               "RECEIPT",
-              "OPENING"
+              "OPENING",
+              "ISSUE"
             ],
             "title": "Kind"
           },
@@ -14251,7 +15970,8 @@
               "PO",
               "SO",
               "RECEIPT",
-              "OPENING"
+              "OPENING",
+              "ISSUE"
             ],
             "title": "Kind"
           },
@@ -14726,7 +16446,8 @@
               "PO",
               "SO",
               "RECEIPT",
-              "OPENING"
+              "OPENING",
+              "ISSUE"
             ],
             "title": "Kind"
           },
@@ -14800,7 +16521,8 @@
               "PO",
               "SO",
               "RECEIPT",
-              "OPENING"
+              "OPENING",
+              "ISSUE"
             ],
             "title": "Kind"
           },
@@ -14954,7 +16676,8 @@
               "PO",
               "SO",
               "RECEIPT",
-              "OPENING"
+              "OPENING",
+              "ISSUE"
             ],
             "title": "Kind"
           },
@@ -16468,7 +18191,8 @@
               "PO",
               "SO",
               "RECEIPT",
-              "OPENING"
+              "OPENING",
+              "ISSUE"
             ],
             "title": "Kind"
           },
@@ -16608,7 +18332,8 @@
               "PO",
               "SO",
               "RECEIPT",
-              "OPENING"
+              "OPENING",
+              "ISSUE"
             ],
             "title": "Kind"
           },
@@ -16777,6 +18502,242 @@
           "device_id"
         ],
         "title": "RefreshInput"
+      },
+      "ReleaseInput": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/ReservationQuantity"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Lines"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "reason",
+          "lines"
+        ],
+        "title": "ReleaseInput"
+      },
+      "ReservationPlan": {
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/AllocationView"
+            },
+            "type": "array",
+            "title": "Lines"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document_id",
+          "version",
+          "lines"
+        ],
+        "title": "ReservationPlan"
+      },
+      "ReservationQuantity": {
+        "properties": {
+          "reservation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Reservation Id"
+          },
+          "quantity_base": {
+            "type": "string",
+            "pattern": "^(?:0|[1-9][0-9]{0,13})(?:\\.[0-9]{1,6})?$",
+            "title": "Quantity Base"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reservation_id",
+          "quantity_base"
+        ],
+        "title": "ReservationQuantity"
+      },
+      "ReservationView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "document_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Line Id"
+          },
+          "stock_item_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Stock Item Id"
+          },
+          "location_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Location Id"
+          },
+          "location_code": {
+            "type": "string",
+            "title": "Location Code"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Owner Id"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "lot_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Code"
+          },
+          "serial_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial Code"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
+          "consumed": {
+            "type": "string",
+            "title": "Consumed"
+          },
+          "released": {
+            "type": "string",
+            "title": "Released"
+          },
+          "remaining_base": {
+            "type": "string",
+            "title": "Remaining Base"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "expired": {
+            "type": "boolean",
+            "title": "Expired"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "document_line_id",
+          "stock_item_id",
+          "location_id",
+          "location_code",
+          "owner_id",
+          "sku",
+          "lot_code",
+          "serial_code",
+          "quantity",
+          "consumed",
+          "released",
+          "remaining_base",
+          "expires_at",
+          "expired"
+        ],
+        "title": "ReservationView"
+      },
+      "ReserveInput": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/Allocation"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Lines"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "reason",
+          "lines"
+        ],
+        "title": "ReserveInput"
       },
       "RevokeInput": {
         "properties": {
