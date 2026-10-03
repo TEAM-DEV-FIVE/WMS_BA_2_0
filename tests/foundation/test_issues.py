@@ -462,7 +462,7 @@ def test_issue_upgrade_from_010_preserves_legacy_documents_and_policy(empty_data
         ]:
             c.execute(text(sql), ids)
         original = c.execute(text("SELECT * FROM wms.document WHERE id=:document"), ids).one()
-    assert migrations.migrate(empty_database) == ["012_b02_issue_reservation.sql"]
+    assert migrations.migrate(empty_database) == [source[0] for source in sources[len(baseline):]]
     assert migrations.migrate(empty_database) == []
     assert migrations.is_ready(empty_database)
     with empty_database.connect() as c:

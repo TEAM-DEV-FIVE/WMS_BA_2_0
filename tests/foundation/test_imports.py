@@ -639,7 +639,7 @@ def test_imports_upgrade_from_010_preserves_legacy_staging(empty_database, monke
             c.execute(text(statement), ids)
         before = dict(c.execute(text("SELECT * FROM wms.import_job WHERE id=:job"), ids).mappings().one())
         old_row = dict(c.execute(text("SELECT * FROM wms.import_row WHERE id=:row"), ids).mappings().one())
-    assert migrations.migrate(empty_database) == ["011_b01_import_files.sql"]
+    assert migrations.migrate(empty_database) == [source[0] for source in sources[10:]]
     assert migrations.migrate(empty_database) == []
     with empty_database.connect() as c:
         after = dict(c.execute(text("SELECT * FROM wms.import_job WHERE id=:job"), ids).mappings().one())
