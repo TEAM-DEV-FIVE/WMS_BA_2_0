@@ -8,6 +8,7 @@ from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
 from apps.desktop.views.master_details import ProductDetailsView
 from apps.desktop.views.moves import MoveView
+from apps.desktop.views.openings import OpeningView
 from apps.desktop.views.orders import OrderView
 from apps.desktop.views.ownership import OwnershipView
 from apps.desktop.views.quality import QualityView
@@ -57,6 +58,8 @@ class DesktopShell:
         notebook.add(self.order_view, text="PO/SO và duyệt")
         self.receipt_view = ReceiptView(notebook, self.session_view.presenter.api)
         notebook.add(self.receipt_view, text="Nhận hàng")
+        self.opening_view = OpeningView(notebook, self.session_view.presenter.api)
+        notebook.add(self.opening_view, text="Tồn đầu kỳ")
         self.receipt_recovery_view = ReceiptRecoveryView(notebook, self.receipt_view.presenter)
         notebook.add(self.receipt_recovery_view, text="Phục hồi nhận hàng")
         self.issue_view = IssueView(notebook, self.session_view.presenter.api)
@@ -100,6 +103,7 @@ class DesktopShell:
         self.order_view.session_changed(user, warehouses)
         self.receipt_view.session_changed(user, warehouses)
         self.issue_view.session_changed(user, warehouses)
+        self.opening_view.session_changed(user, warehouses)
         self.admin_view.session_changed(user, warehouses)
         self.quality_view.session_changed(user, warehouses)
         self.move_view.session_changed(user, warehouses)
@@ -133,6 +137,7 @@ class DesktopShell:
             self.order_view.presenter.drain()
             self.receipt_view.presenter.drain()
             self.issue_view.presenter.drain()
+            self.opening_view.presenter.drain()
             self.admin_view.presenter.drain()
             self.quality_view.presenter.drain()
             self.move_view.presenter.drain()
@@ -156,6 +161,8 @@ class DesktopShell:
         self.order_view.release_variables()
         self.receipt_view.presenter.close()
         self.receipt_view.release_variables()
+        self.opening_view.presenter.close()
+        self.opening_view.release_variables()
         self.receipt_recovery_view.release_variables()
         self.issue_view.presenter.close()
         self.issue_view.release_variables()
@@ -177,6 +184,7 @@ class DesktopShell:
         self.order_view.presenter.finish()
         self.receipt_view.presenter.finish()
         self.issue_view.presenter.finish()
+        self.opening_view.presenter.finish()
         self.admin_view.presenter.finish()
         self.quality_view.presenter.finish()
         self.move_view.presenter.finish()
