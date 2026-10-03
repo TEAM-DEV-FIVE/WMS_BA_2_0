@@ -16,6 +16,7 @@ from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
 from apps.desktop.views.receipts import ReceiptView
 from apps.desktop.views.serial_lookup import SerialLookupView
 from apps.desktop.views.session import SessionView
+from apps.desktop.views.transfers import TransferView
 from packages.contracts import Health
 
 
@@ -74,6 +75,9 @@ class DesktopShell:
         for view, title in [(self.quality_view, "Kiểm định chất lượng"), (self.move_view, "Cất hàng / di chuyển")]:
             view.on_signed_out = self.admin_signed_out
             notebook.add(view, text=title)
+        self.transfer_view = TransferView(notebook, self.session_view.presenter.api)
+        self.transfer_view.on_signed_out = self.admin_signed_out
+        notebook.add(self.transfer_view, text="Chuyển kho / transit")
         container = ttk.Frame(notebook, padding=24)
         notebook.add(container, text="Kết nối")
         ttk.Label(container, text="WMS · Quản lý kho", font=("Segoe UI", 22, "bold")).pack(anchor="w")
@@ -110,6 +114,7 @@ class DesktopShell:
         self.admin_view.session_changed(user, warehouses)
         self.quality_view.session_changed(user, warehouses)
         self.move_view.session_changed(user, warehouses)
+        self.transfer_view.session_changed(user, warehouses)
 
     def admin_signed_out(self, message):
         # A queued session snapshot/warehouse response must not restore the
@@ -145,6 +150,7 @@ class DesktopShell:
             self.admin_view.presenter.drain()
             self.quality_view.presenter.drain()
             self.move_view.presenter.drain()
+            self.transfer_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -174,7 +180,7 @@ class DesktopShell:
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
-        for view in [self.quality_view, self.move_view]:
+        for view in [self.quality_view, self.move_view, self.transfer_view]:
             view.presenter.close()
             view.release_variables()
         self.session_view.release_variables()
@@ -195,5 +201,6 @@ class DesktopShell:
         self.admin_view.presenter.finish()
         self.quality_view.presenter.finish()
         self.move_view.presenter.finish()
+        self.transfer_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
