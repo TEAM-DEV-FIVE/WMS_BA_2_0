@@ -3,6 +3,7 @@ from tkinter import ttk
 
 from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
+from apps.desktop.views.admin import AdminView
 from apps.desktop.views.master_data import MasterDataView
 from apps.desktop.views.orders import OrderView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
@@ -23,7 +24,16 @@ class DesktopShell:
         self.status = tk.StringVar(value="Chưa kiểm tra kết nối.")
         self.presenter = ConnectionPresenter(self, ApiClient(settings))
 
-        notebook = ttk.Notebook(root)
+        navigation = ttk.Frame(root, padding=(12, 8, 12, 0))
+        navigation.pack(fill="x")
+        ttk.Label(navigation, text="Chức năng").pack(side="left", padx=(0, 8))
+        self.navigation = ttk.Combobox(navigation, state="readonly", width=34)
+        self.navigation.pack(side="left")
+        # A single selector keeps every section reachable at 900×690 even when
+        # the combined notebook tab labels exceed the window width.
+        style = ttk.Style(root)
+        style.layout("WMS.TNotebook.Tab", [])
+        notebook = self.notebook = ttk.Notebook(root, style="WMS.TNotebook")
         notebook.pack(fill="both", expand=True, padx=12, pady=12)
         self.session_view = SessionView(notebook, settings)
         notebook.add(self.session_view, text="Đăng nhập và kho")
@@ -38,6 +48,9 @@ class DesktopShell:
         notebook.add(self.receipt_view, text="Nhận hàng")
         self.receipt_recovery_view = ReceiptRecoveryView(notebook, self.receipt_view.presenter)
         notebook.add(self.receipt_recovery_view, text="Phục hồi nhận hàng")
+        self.admin_view = AdminView(notebook, self.session_view.presenter.api)
+        self.admin_view.on_signed_out = self.admin_signed_out
+        notebook.add(self.admin_view, text="Quản trị tài khoản / quyền")
         container = ttk.Frame(notebook, padding=24)
         notebook.add(container, text="Kết nối")
         ttk.Label(container, text="WMS · Quản lý kho", font=("Segoe UI", 22, "bold")).pack(anchor="w")
@@ -51,6 +64,10 @@ class DesktopShell:
         ttk.Separator(container).pack(fill="x", pady=24)
         ttk.Label(container, text="Đã có đăng nhập, MFA và quyền theo kho.\nCác nghiệp vụ nhập/xuất kho đang được phát triển.",
                   wraplength=720).pack(anchor="w")
+        self.navigation.configure(values=[notebook.tab(tab, "text") for tab in notebook.tabs()])
+        self.navigation.current(0)
+        self.navigation.bind("<<ComboboxSelected>>", lambda event: notebook.select(self.navigation.current()))
+        notebook.bind("<<NotebookTabChanged>>", lambda event: self.navigation.current(notebook.index("current")))
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.poll_id = self.root.after(50, self.poll)
 
@@ -62,6 +79,19 @@ class DesktopShell:
         self.serial_view.session_changed(user, warehouses)
         self.order_view.session_changed(user, warehouses)
         self.receipt_view.session_changed(user, warehouses)
+        self.admin_view.session_changed(user, warehouses)
+
+    def admin_signed_out(self, message):
+        # A queued session snapshot/warehouse response must not restore the
+        # scope just invalidated by the admin worker.
+        session = self.session_view.presenter
+        session.sequence += 1
+        if session.pending:
+            session.pending.cancel()
+        session.pending = None
+        self.session_view.password.set("")
+        self.session_view.code.set("")
+        self.session_view.session_error(message, signed_out=True)
 
     def show_result(self, health: Health) -> None:
         self.status.set("Máy chủ và cơ sở dữ liệu đã sẵn sàng." if health.status == "ready" else "Đã kết nối máy chủ.")
@@ -77,6 +107,7 @@ class DesktopShell:
             self.serial_view.presenter.drain()
             self.order_view.presenter.drain()
             self.receipt_view.presenter.drain()
+            self.admin_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -95,6 +126,8 @@ class DesktopShell:
         self.receipt_view.presenter.close()
         self.receipt_view.release_variables()
         self.receipt_recovery_view.release_variables()
+        self.admin_view.presenter.close()
+        self.admin_view.release_variables()
         self.session_view.release_variables()
         self.status = None
         self.root.destroy()
@@ -105,5 +138,6 @@ class DesktopShell:
         self.serial_view.presenter.finish()
         self.order_view.presenter.finish()
         self.receipt_view.presenter.finish()
+        self.admin_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
