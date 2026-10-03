@@ -85,11 +85,11 @@
     },
     {
       "id": "B11",
-      "status": "IN_PROGRESS",
+      "status": "INTEGRATED",
       "activated_base": "97f9d02796a01fabd6974eec5ff741981c45eb00",
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": "Đủ B02/B03/B09 đã review/tích hợp; người dùng giao đồng bộ, giữ nghiên cứu a2fbf7c/5246f30 rồi triển khai B11."
+      "handoff_commit": "cc45621be81249e229655b1899f76bf1dbf4b313",
+      "integrated_commit": "dce35f92b32015146f23d48229d641b558715b8c",
+      "note": "Người dùng giao tích hợp B11 ngày 2026-10-04; release 015, 523 tests + 10 subtests trên bản ghép, 0 failed/skip; BAN_GIAO/B11_INTEGRATION.md. Windows/UAT chưa chạy; không đổi trạng thái nghiệm thu tổng."
     },
     {
       "id": "B12",

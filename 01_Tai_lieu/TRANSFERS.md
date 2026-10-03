@@ -117,10 +117,11 @@ nâng cấp legacy. Kho thứ hai chỉ là fixture; chưa xác nhận có hai k
 
 ## Migration và giới hạn bàn giao
 
-`015_b11_transfer.sql` là revision phát triển, chỉ cho DB tạm. Thêm 4 bảng typed,
+`015_b11_transfer.sql` là revision release đã được điều phối chọn khi tích hợp B11;
+revision phát triển trước đó là 017, chỉ dùng trên DB tạm. Thêm 4 bảng typed,
 18 cột, 11 FK; tổng 76 bảng/509 cột/159 FK. Model/dictionary/DBML đi cùng migration.
-Không sửa 001–014 đã tích hợp; điều phối chọn số release tiếp theo và chạy fresh/
-upgrade từ release 014 khi tích hợp B11. Không tái dùng DB tạm có lịch sử số cũ.
+Giữ nguyên 001–014; kiểm thử fresh install và upgrade từ release 014 trên DB tạm
+mới. Không tái dùng DB tạm có lịch sử số 017 hoặc sửa lịch sử migration của DB đó.
 
 Chỉ COMPANY được chuyển. CONSIGNOR/UNCLASSIFIED bị từ chối; không đổi chủ hay nới
 agreement một kho của B09. Reversal transfer chưa được mở, cần B14 review source

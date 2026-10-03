@@ -70,4 +70,4 @@ Seed approval chỉ thêm khi chưa có policy cho loại phiếu, không ghi đ
 Test nghiệp vụ: `tests/foundation/test_returns.py`. Test presenter và Tk → HTTP → FastAPI → PG:
 `tests/foundation/test_return_desktop.py`. Kiểm upgrade thêm prefix 014/015 có legacy ledger trong
 `test_postgres.py`, giữ checksums/history/owner. Kết quả thực tế và giới hạn nghiệm thu ở
-[bàn giao B12](PHAN_CONG/BAN_GIAO/B12.md) và báo cáo tích hợp B12.
+[bàn giao B12](PHAN_CONG/BAN_GIAO/B12.md) và [báo cáo tích hợp B12](PHAN_CONG/BAN_GIAO/B12_INTEGRATION.md).

@@ -36,11 +36,7 @@ Tổng schema B09: 72 bảng/491 cột/148 FK. Revision 014 là số release đ�
 
 Xem [contract và thiết kế legacy](../01_Tai_lieu/CONSIGNMENT.md).
 
-## B11 release 015
-
-`015_b11_transfer.sql` thêm kế hoạch chuyển, source link/chứng cứ, biên bản thiếu và liên kết điều chỉnh mất transit
-(4 bảng/18 cột/11 FK). Tổng schema sau B11: 76 bảng/509 cột/159 FK. Revision phát triển trước đó là 017.
-Xem [Chuyển kho](../01_Tai_lieu/TRANSFERS.md).
+B11 release `015_b11_transfer.sql` thêm kế hoạch chuyển, source link/chứng cứ, biên bản thiếu và liên kết điều chỉnh mất transit (4 bảng/18 cột/11 FK). Tổng runtime 76 bảng/509 cột/159 FK. 001–014 giữ nguyên; revision phát triển trước đó là 017 và chỉ dùng trên DB tạm. Điều phối đã chốt số 015 khi tích hợp; tạo DB tạm mới để kiểm thử, không đổi lịch sử migration của DB đã chạy 017. Xem [Chuyển kho](../01_Tai_lieu/TRANSFERS.md).
 
 ## B12 release 016
 

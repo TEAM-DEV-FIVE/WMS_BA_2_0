@@ -1,4 +1,4 @@
-// B11 development revision 017; no changes to released 001–014.
+// B11 release revision 015 (development 017); no changes to released 001–014.
 Table transfer_line {
   document_line_id uuid [pk, not null, ref: > document_line.id]
   stock_item_id uuid [not null, ref: > stock_item.id]

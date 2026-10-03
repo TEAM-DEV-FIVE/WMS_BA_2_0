@@ -7,7 +7,32 @@ Mã nền đã lưu ở commit local `c57a743`. Đã tích hợp [ba nhánh agen
 outbox `849a97a`, desktop quản trị `f126186`, tồn đầu kỳ `0393849`; giữ các worktree để tra cứu.
 Kết quả tích hợp và giới hạn ở [báo cáo kiểm thử](../07_Kiem_tra/IMPLEMENTATION_REVIEW.md); chưa push GitHub.
 
-## Hiện trạng đã đối chiếu
+## Cập nhật tích hợp B12 — 04/10/2026
+
+Bản ghép B12 từ `f37c0bb80fbd9f82c26494a71c9e00574f121039` nối tiếp nền B11 release 015,
+thêm trả khách có nguồn ISSUE và trả NCC có nguồn RECEIPT, QC/cất hàng khách trả và hai tab desktop.
+Runtime có **116 API paths**, **16 migration release (001–016)**, schema **78 bảng/514 cột/164 FK**.
+Revision phát triển B12 018 được đổi thành `016_b12_returns.sql`; giữ nguyên byte 001–015.
+Contract và policy ở [RETURNS.md](RETURNS.md); mốc ghép, kết quả hồi quy và package ở
+[B12_INTEGRATION.md](PHAN_CONG/BAN_GIAO/B12_INTEGRATION.md).
+Hồi quy bản ghép: **551 tests + 10 subtests**, 0 failed/skip; build sdist/wheel, OpenAPI và artifacts đạt.
+
+## Cập nhật tích hợp B11 — 04/10/2026
+
+Nhánh điều phối đã ghép B11 từ `cc45621be81249e229655b1899f76bf1dbf4b313`, trên nền
+B01/B02/B03/B05/B06/B09 đã tích hợp. Ở mốc B11, runtime có 110 API paths, 15 migration
+release (001–015), schema 76 bảng/509 cột/159 FK. B11 gồm chuyển kho, nhận từng
+phần, biên bản thiếu/hỏng, điều chỉnh mất transit có duyệt riêng và desktop tương ứng.
+Contract và giới hạn tại [TRANSFERS.md](TRANSFERS.md); kết quả kiểm chứng tích hợp
+tại [B11_INTEGRATION.md](PHAN_CONG/BAN_GIAO/B11_INTEGRATION.md).
+Merge `dce35f9` đạt **523 tests + 10 subtests**, 0 failed/skip; B11 được ghi
+**INTEGRATED**. Windows/UAT và các bằng chứng môi trường mục tiêu vẫn chưa chạy.
+
+Sổ [integration_log.json](PHAN_CONG/integration_log.json) là nguồn trạng thái tích hợp
+hiện hành. Các bảng và số liệu mốc nền dưới đây được giữ làm lịch sử, không thay
+thế sổ tích hợp mới hoặc nghiệm thu T01–T28.
+
+## Hiện trạng đã đối chiếu tại mốc nền
 
 Repository ban đầu chỉ có hồ sơ, SQL, contract và công cụ kiểm tra. Snapshot GitHub đã đọc có 40 issue, gồm 37 issue mở (không phải trạng thái live);
 #1/#39/#41 đã đóng và #40 là PR đã merge. Các PR đang mở được sử dụng làm đầu vào tại commit:
@@ -19,7 +44,7 @@ Repository ban đầu chỉ có hồ sơ, SQL, contract và công cụ kiểm tr
 Các file đầu vào được đưa vào nhánh local, giữ tác giả/nguồn; thao tác này không merge hay đóng PR trên GitHub.
 Chưa gửi thông báo, đổi assignee hoặc ghi giờ công thay người khác.
 
-## Phần đã có mã chạy
+## Phần đã có mã chạy tại mốc nền
 
 | Issue | Phần triển khai | Giới hạn còn lại |
 | --- | --- | --- |
@@ -42,7 +67,7 @@ Chưa gửi thông báo, đổi assignee hoặc ghi giờ công thay người kh
 | #16 UI06 | Tab nhận hàng nối API thật, duyệt/ghi sổ từng phần và phục hồi receipt.post qua SQLite | Máy quét, workflow kho khác, UAT Windows |
 | #21 QA02 | Workflow unit/contract/Linux+Windows/wheel/PostgreSQL 15+16, runner DB tạm, JUnit | Cần push để chạy CI; chưa có bằng chứng Windows/CI từ đợt này |
 
-Server đã có 65 paths runtime gồm health/readiness, IAM, danh mục, PO/SO/duyệt, nhận hàng, tồn đầu kỳ, tồn theo owner và bảo hành có giới hạn theo quyền.
+Ở mốc nền `06041b7`, server có 65 paths runtime gồm health/readiness, IAM, danh mục, PO/SO/duyệt, nhận hàng, tồn đầu kỳ, tồn theo owner và bảo hành có giới hạn theo quyền.
 [Tồn đầu kỳ](OPENING.md) mô tả revision 010, policy, giới hạn một lần ghi/kho và tối đa 200 dòng.
 [Worker outbox](OUTBOX_WORKER.md) mô tả cấu hình consumer và bảo đảm transaction/retry.
 [Desktop quản trị](ADMIN_DESKTOP.md) mô tả tab user/grant và xử lý lệnh IAM chưa rõ kết quả.
@@ -53,7 +78,7 @@ Server đã có 65 paths runtime gồm health/readiness, IAM, danh mục, PO/SO/
 [Hướng dẫn danh mục](MASTER_DATA.md) mô tả API, màn hình và giới hạn của BE05/UI04.
 [Hướng dẫn IAM](IDENTITY.md) giải thích bootstrap, cấu hình MFA, API quản trị và desktop.
 `05_API/openapi_runtime.json` được sinh/kiểm tra từ code; `05_API/openapi_core.json` vẫn là hợp đồng đích
-cho nghiệp vụ nhận/xuất. CRUD/duyệt PO/SO/RECEIPT/OPENING và hai posting nhận hàng/tồn đầu kỳ đã có; issue/posting khác chưa có.
+cho nghiệp vụ nhận/xuất. Ở mốc nền đó, CRUD/duyệt PO/SO/RECEIPT/OPENING và hai posting nhận hàng/tồn đầu kỳ đã có; issue/posting khác được bổ sung trong các lần tích hợp sau.
 
 ## Cài đặt môi trường phát triển
 
