@@ -1,6 +1,6 @@
 ﻿code,scope_kind,description_vi,conditions
 iam.manage,GLOBAL,"Quản lý user, khóa/thu hồi phiên",MFA; không đọc mật khẩu/token; audit; không mặc nhiên có quyền kho
-role.manage,GLOBAL,Quản lý role và grant,Không tự cấp quyền nghiệp vụ cho chính mình; grant nghiệp vụ cần người thứ hai phê chuẩn qua quy trình vận hành và audit
+role.manage,GLOBAL,Quản lý role và grant,MFA; không tự yêu cầu/cấp quyền; quản trị viên thứ hai không phải người nhận quyền phê duyệt; audit
 config.manage,GLOBAL,Cấu hình máy chủ/client và policy kỹ thuật,MFA; không sửa trực tiếp số dư; thay đổi có version
 master.read,GLOBAL,"Xem sản phẩm, UOM, barcode, nhóm",Ẩn giá nếu thiếu price.read; không trả credential hay thông tin đối tác nhạy cảm
 master.write,GLOBAL,Tạo/sửa/ngừng dùng danh mục,Không xóa bản ghi đã dùng; tracking/base UOM khóa sau phát sinh
@@ -22,7 +22,7 @@ move.draft,WAREHOUSE,Lập/sửa/gửi duyệt Chuyển vị trí,Chỉ DRAFT/RE
 adjustment.draft,WAREHOUSE,Lập/sửa/gửi duyệt Điều chỉnh,Chỉ DRAFT/REJECTED và phiếu của mình/được giao; chuyển cần quyền cả kho nguồn và đích; sửa sau duyệt phải vô hiệu duyệt
 opening.draft,WAREHOUSE,Lập/sửa/gửi duyệt Tồn đầu kỳ,Chỉ DRAFT/REJECTED và phiếu của mình/được giao; chuyển cần quyền cả kho nguồn và đích; sửa sau duyệt phải vô hiệu duyệt
 document.assign,WAREHOUSE,Phân công phiếu,Người được giao phải có quyền tại kho; chuyển giao không mở rộng scope
-document.approve,WAREHOUSE,Duyệt phiếu thông thường,Bước policy đúng role; không là creator/requester; hai bước do hai người khác nhau
+document.approve,WAREHOUSE,Duyệt phiếu thông thường,"Thủ kho/Kế toán kho được duyệt thay phiếu thông thường, không hạn mức; đúng kho/policy/version; không là creator/requester; SOD luôn áp dụng"
 adjustment.approve,WAREHOUSE,Duyệt điều chỉnh/đảo/mất hàng,"Không là người lập/đếm; lý do, phiên bản, chênh lệch đã chốt; policy tối đa 2 bước"
 opening.approve,WAREHOUSE,Duyệt tồn đầu kỳ,Không tự duyệt; chỉ cửa sổ cutover; đối soát đã ký
 document.cancel,WAREHOUSE,Hủy phần chưa thực hiện/đóng thiếu,Giải phóng giữ chỗ; không xóa phần đã post; lý do bắt buộc
@@ -52,3 +52,6 @@ import.commit,GLOBAL,Commit dữ liệu đã dry-run,Cần thêm quyền ghi lo�
 audit.read,WAREHOUSE,Đọc audit nghiệp vụ,Chỉ scope kho; ẩn bí mật; không update/delete
 audit.security.read,GLOBAL,Đọc audit tài khoản/quyền,Không mặc nhiên đọc dữ liệu kho/giá
 backup.operate,GLOBAL,Vận hành sao lưu/khôi phục,Tác vụ hạ tầng có runbook; không cung cấp API sửa kho tùy ý; MFA và biên bản
+ownership.read,,,
+serial.read,,,
+warranty.write,,,

@@ -6,7 +6,7 @@ DDL cung cấp PK/FK, uniqueness, CHECK theo dòng, một số partial indexes v
 
 ## Nhận dạng và số lượng
 
-stock_item = product + lot hoặc serial. NONE không có cả hai; LOT có lot đúng product; SERIAL có serial đúng product và không lot. Product SERIAL chỉ dùng số nguyên và stock_move.quantity_base = 1 cho mỗi serial. Một serial có tối đa một serial_position; balance hiện hữu của serial chỉ có một dòng lượng 1. UNIQUE NULLS NOT DISTINCT trên stock_item chặn hai danh tính NONE hoặc cùng lô do NULL. Serial được trả về sau khi xuất dùng lại cùng serial ID.
+Sau migration 006, stock_item = product + lot hoặc serial + owner + consignment (nếu ký gửi). Owner bắt buộc, danh tính bất biến; sổ/số dư/reservation/kiểm kê giữ chiều này qua stock_item_id. Dữ liệu cũ UNCLASSIFIED không tự coi là hàng doanh nghiệp; chưa có workflow chuyển owner. Hàng ký gửi chỉ nhận/tồn đầu kỳ theo hợp đồng đúng kho/ngày; giữ chỗ/xuất/chuyển/đảo chưa được bật. Xem [TRACEABILITY.md](TRACEABILITY.md). NONE không có cả hai; LOT có lot đúng product; SERIAL có serial đúng product và không lot. Product SERIAL chỉ dùng số nguyên và stock_move.quantity_base = 1 cho mỗi serial. Một serial có tối đa một serial_position; balance hiện hữu của serial chỉ có một dòng lượng 1. UNIQUE NULLS NOT DISTINCT trên stock_item chặn hai danh tính NONE hoặc cùng lô do NULL. Serial được trả về sau khi xuất dùng lại cùng serial ID.
 
 Base UOM và tracking không thay sau phát sinh. Product_uom cũ giữ nguyên factor, tạo revision mới và ngừng revision cũ; dòng phiếu giữ factor_snapshot. base_quantity phải bằng quantity * factor_snapshot một cách chính xác ở scale 6 và bội số độ chính xác UOM; từ chối nếu cần làm tròn ngoài quy tắc đã duyệt, không âm thầm round. Decimal truyền dưới dạng chuỗi API. So sánh lượng không dùng float.
 
@@ -21,10 +21,10 @@ reserved = SUM(reservation.quantity - consumed - released). Tiêu thụ có rese
 ## Thứ tự khóa chung
 
 1. BEGIN; advisory transaction lock theo actor + idempotency key (hash ổn định); nếu đã có kết quả thì so hash rồi trả kết quả, không chạy lại.
-2. Khóa các document liên quan (bao gồm dòng nguồn PO/SO/return) theo UUID tăng dần; kiểm tra version và state. Mọi workflow dùng cùng thứ tự.
+2. Khóa chứng từ nguồn trước chứng từ thực hiện; trong mỗi cấp khóa theo UUID tăng dần, kiểm tra version/state. Runtime PO → RECEIPT cùng dùng thứ tự này ở create/sửa/duyệt/post và kiểm tra phụ thuộc khi hủy/đóng PO. Các workflow nhiều nguồn/chuyển/đảo chưa triển khai phải giữ thứ tự cấp nguồn này, không khóa phiếu con rồi quay lại nguồn.
 3. Khóa stock_period của các kho theo UUID; kiểm tra ngày thuộc đúng một kỳ OPEN. Tạo/chỉnh kỳ cần khóa warehouse và chặn overlap. Close dùng cùng period lock.
 4. Khóa location nguồn/đích theo UUID và kiểm tra count_location_lock. Freeze kiểm kê cũng phải khóa location trước snapshot. Mọi reserve/release/post/reconcile tác động vị trí cùng tuân thủ.
-5. Khóa stock_item theo UUID (bao gồm serial) để tránh hai nơi nhận cùng serial. Tạo stock_item bằng INSERT ON CONFLICT theo unique dimensions, sau đó SELECT FOR UPDATE.
+5. Runtime nhận hàng khóa product theo UUID trước khi tạo/khóa lot/serial và stock_item; mọi receipt có cùng product được tuần tự hóa ở đây. Workflow khác phải dùng cùng product lock hoặc một thứ tự khóa danh tính tương thích. Tạo stock_item bằng INSERT ON CONFLICT theo unique dimensions, sau đó SELECT FOR UPDATE; giữ owner/hợp đồng trong khóa danh tính.
 6. INSERT balance 0 bằng ON CONFLICT DO NOTHING rồi khóa balance theo location_id/stock_item_id; khóa reservation theo UUID. Worker expiry và các lệnh hủy tuân cùng thứ tự.
 7. Kiểm tra toàn bộ dòng trước ghi: kho/product/lot/serial phù hợp, quyền, tồn, lượng nguồn/đã trả/đã chuyển, UOM, khóa kỳ, approval revision. Không gọi HTTP/in máy in trong DB transaction.
 8. Ghi inventory_transaction, stock_move, balance, reservation, serial_position, tiến độ document, audit, outbox và idempotency response trong một transaction. COMMIT xong mới trả thành công.
@@ -48,3 +48,8 @@ Freeze vị trí chỉ khi không còn reservation mở. Khóa vị trí áp d�
 ## Mở rộng
 
 Modules sở hữu bảng: master, iam, documents, inventory, fulfillment, approval, counting, operations, extension. Service khác gọi application interfaces, không tự ghi balance/ledger. Type mới phải có validator, state machine, quyền, API, tests, migration và báo cáo tương ứng. attributes JSONB chỉ lưu thuộc tính mô tả theo custom_field_definition, không đưa tồn/giá lõi/quyền vào blob. Không có plugin chạy mã tùy ý từ DB. Outbox events có version; consumer idempotent. Multi-company/3PL/ghi sổ offline chưa nằm trong schema, cần ADR và migration, không chỉ thêm một cột company_id.
+
+Ngoại lệ có chủ đích từ revision 009: `document.attributes.receipt_plan` là namespace nội bộ của receipt service
+cho kế hoạch tracking/vị trí trước duyệt; approval snapshot giữ toàn bộ namespace. Số lượng chuẩn vẫn lưu
+ở document_line; tồn/giá/quyền không chuyển vào JSON. Custom-field API tương lai phải cấm ghi namespace này.
+Quyết định và giới hạn runtime ở [RECEIVING.md](RECEIVING.md).

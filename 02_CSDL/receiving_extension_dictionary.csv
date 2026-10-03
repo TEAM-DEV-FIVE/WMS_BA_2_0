@@ -1,0 +1,3 @@
+table,column,data_type,nullable,references
+inventory_transaction,request_hash,char(64),YES,
+inventory_transaction,response,jsonb,YES,

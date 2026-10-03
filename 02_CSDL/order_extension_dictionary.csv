@@ -1,0 +1,5 @@
+﻿table,column,data_type,nullable,references
+approval_policy_step,alternative_role_id,uuid,YES,role.id
+approval_step,alternative_role_id,uuid,YES,role.id
+approval_request,content_snapshot,jsonb,YES,
+document_line,closed_base_quantity,"numeric(20,6)",NO,

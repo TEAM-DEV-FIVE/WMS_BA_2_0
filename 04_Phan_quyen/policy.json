@@ -29,7 +29,7 @@
       "roles": [
         "SYSADMIN"
       ],
-      "condition": "Không tự cấp quyền nghiệp vụ cho chính mình; grant nghiệp vụ cần người thứ hai phê chuẩn qua quy trình vận hành và audit"
+      "condition": "MFA; không tự yêu cầu/cấp quyền; quản trị viên thứ hai không phải người nhận quyền phê duyệt; audit"
     },
     {
       "code": "config.manage",
@@ -257,9 +257,10 @@
       "scope": "WAREHOUSE",
       "description": "Duyệt phiếu thông thường",
       "roles": [
-        "WAREHOUSE_MANAGER"
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER"
       ],
-      "condition": "Bước policy đúng role; không là creator/requester; hai bước do hai người khác nhau"
+      "condition": "Thủ kho/Kế toán kho được duyệt thay phiếu thông thường, không hạn mức; đúng kho/policy/version; không là creator/requester; SOD luôn áp dụng"
     },
     {
       "code": "adjustment.approve",
@@ -544,6 +545,42 @@
         "SYSADMIN"
       ],
       "condition": "Tác vụ hạ tầng có runbook; không cung cấp API sửa kho tùy ý; MFA và biên bản"
+    },
+    {
+      "code": "ownership.read",
+      "scope": "WAREHOUSE",
+      "description": "Đọc phân tách tồn theo chủ sở hữu",
+      "roles": [
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER",
+        "DIRECTOR",
+        "AUDITOR"
+      ],
+      "condition": "Đồng thời có stock.read tại kho; stock.read riêng không tiết lộ chủ hàng"
+    },
+    {
+      "code": "serial.read",
+      "scope": "WAREHOUSE",
+      "description": "Tra serial và nguồn bảo hành",
+      "roles": [
+        "RECEIVER",
+        "PICKER",
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER",
+        "DIRECTOR",
+        "AUDITOR"
+      ],
+      "condition": "Cần stock.read tại kho và document.read/assignment cho receipt nguồn; không trả giá"
+    },
+    {
+      "code": "warranty.write",
+      "scope": "WAREHOUSE",
+      "description": "Ghi bổ sung chứng cứ bảo hành",
+      "roles": [
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER"
+      ],
+      "condition": "Append revision có nguồn receipt đã post, version/idempotency/audit; không suy thời hạn"
     }
   ]
 }

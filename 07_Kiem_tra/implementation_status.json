@@ -1,0 +1,862 @@
+{
+  "date": "2026-10-03",
+  "repository": "TEAM-DEV-FIVE/WMS_BA_2_0",
+  "branch": "feat/application-foundation",
+  "current_implementation_owner": "Trần Trung Kiên",
+  "github_counts": {
+    "open": 37,
+    "closed": 3
+  },
+  "remote_changes_performed": false,
+  "source_commits": {
+    "origin/main": "e4de9e54b5e850e3cea0e7234c5db17c47e30846",
+    "origin/docs/api-contracts": "0157240302d5b9d255f977847a583302ed8879ed",
+    "origin/test/acceptance-plan": "799fdfe4e37ecb3af78fa5ca320ca802efd51415",
+    "origin/docs/desktop-flows": "0a4bcdb0eadfa20d71796cc7f2ace634354839c9"
+  },
+  "issues": [
+    {
+      "number": 1,
+      "title": "[TL01] Chốt phạm vi và baseline",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/1",
+      "github_state_at_read": "CLOSED",
+      "local_status": "CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 2,
+      "title": "[BE01] Hoàn thiện hợp đồng API",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/2",
+      "github_state_at_read": "OPEN",
+      "local_status": "CONTRACT_IMPORTED_AWAITING_REVIEW",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T28"
+      ]
+    },
+    {
+      "number": 3,
+      "title": "[TL02] Khởi tạo nền tảng ứng dụng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/3",
+      "github_state_at_read": "OPEN",
+      "local_status": "FOUNDATION_IMPLEMENTED_LOCAL",
+      "dependencies": [
+        1,
+        2
+      ],
+      "tests": [
+        "T01",
+        "T28"
+      ]
+    },
+    {
+      "number": 4,
+      "title": "[BE02] Migration và hạ tầng PostgreSQL",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/4",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_MIGRATIONS_001_009",
+      "dependencies": [
+        3
+      ],
+      "tests": [
+        "T01",
+        "T24",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 5,
+      "title": "[BE03] Đăng nhập, phiên và MFA",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/5",
+      "github_state_at_read": "OPEN",
+      "local_status": "IMPLEMENTED_LOCAL_AUTH_SESSION_MFA",
+      "dependencies": [
+        4
+      ],
+      "tests": [
+        "T01",
+        "T11",
+        "T28"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "[BE04] Phân quyền theo kho",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/6",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_LIVE_RBAC_RECEIPT_SOURCE_ASSIGNMENT",
+      "dependencies": [
+        5
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T11",
+        "T28"
+      ]
+    },
+    {
+      "number": 7,
+      "title": "[TL03] Command, version và idempotency",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/7",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_RECEIPT_POST_LOOKUP_DURABLE_RETRY",
+      "dependencies": [
+        3,
+        4,
+        6
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T24",
+        "T28"
+      ]
+    },
+    {
+      "number": 8,
+      "title": "[BE05] Danh mục hàng, kho và đối tác",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/8",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_MASTER_OWNER_AGREEMENT_TRACEABILITY_API",
+      "dependencies": [
+        4,
+        6
+      ],
+      "tests": [
+        "T01",
+        "T12",
+        "T13",
+        "T28"
+      ]
+    },
+    {
+      "number": 9,
+      "title": "[BE06] Vòng đời chứng từ PO/SO",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/9",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_PO_SO_LIFECYCLE_RECEIPT_INTEGRATION",
+      "dependencies": [
+        8
+      ],
+      "tests": [
+        "T01",
+        "T14",
+        "T17",
+        "T28"
+      ]
+    },
+    {
+      "number": 10,
+      "title": "[BE07] Phê duyệt và phân tách nhiệm vụ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/10",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_PO_SO_RECEIPT_APPROVAL_SNAPSHOT_SOD",
+      "dependencies": [
+        9
+      ],
+      "tests": [
+        "T01",
+        "T10",
+        "T14",
+        "T28"
+      ]
+    },
+    {
+      "number": 11,
+      "title": "[UI01] Thiết kế luồng màn hình",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/11",
+      "github_state_at_read": "OPEN",
+      "local_status": "DESIGN_IMPORTED_AWAITING_REVIEW",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T28"
+      ]
+    },
+    {
+      "number": 12,
+      "title": "[UI02] Khung Tkinter và API client",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/12",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_DESKTOP_SHELL",
+      "dependencies": [
+        11,
+        3
+      ],
+      "tests": [
+        "T01",
+        "T08",
+        "T28"
+      ]
+    },
+    {
+      "number": 13,
+      "title": "[UI03] Giao diện đăng nhập và quản trị",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/13",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_LIVE_LOGIN_MFA_WAREHOUSE_UI",
+      "dependencies": [
+        12,
+        2
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T11",
+        "T28"
+      ]
+    },
+    {
+      "number": 14,
+      "title": "[UI04] Giao diện danh mục",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/14",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_DESKTOP_SIX_MASTER_FORMS_SERIAL_LOOKUP",
+      "dependencies": [
+        13
+      ],
+      "tests": [
+        "T01",
+        "T12",
+        "T13",
+        "T28"
+      ]
+    },
+    {
+      "number": 15,
+      "title": "[UI05] Giao diện chứng từ và duyệt",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/15",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_DESKTOP_PO_SO_APPROVAL",
+      "dependencies": [
+        14,
+        2
+      ],
+      "tests": [
+        "T01",
+        "T14",
+        "T28"
+      ]
+    },
+    {
+      "number": 16,
+      "title": "[UI06] Màn hình vận hành kho",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/16",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_DESKTOP_RECEIVING_POST_RECOVERY",
+      "dependencies": [
+        15
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T04",
+        "T15",
+        "T22",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 17,
+      "title": "[UI07] Giao diện kiểm kê",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/17",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        16
+      ],
+      "tests": [
+        "T01",
+        "T05",
+        "T16",
+        "T28"
+      ]
+    },
+    {
+      "number": 18,
+      "title": "[UI08] Nháp và phục hồi mất LAN",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/18",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_DURABLE_RECEIPT_POST_RECOVERY",
+      "dependencies": [
+        16
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T08",
+        "T28"
+      ],
+      "note": "SQLite v2, stable device identity, process restart, receipt.post checkpoint/lookup/explicit same-key retry and desktop recovery tab implemented; business drafts, other commands and Windows UAT pending."
+    },
+    {
+      "number": 19,
+      "title": "[UI09] Giao diện import và báo cáo",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/19",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        17,
+        18
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T12",
+        "T20",
+        "T21",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 20,
+      "title": "[QA01] Kế hoạch nghiệm thu và fixtures",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/20",
+      "github_state_at_read": "OPEN",
+      "local_status": "PLAN_IMPORTED_AWAITING_REVIEW",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 21,
+      "title": "[QA02] CI cho mã ứng dụng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/21",
+      "github_state_at_read": "OPEN",
+      "local_status": "CI_CONFIGURED_NOT_RUN",
+      "dependencies": [
+        20,
+        3
+      ],
+      "tests": [
+        "T01",
+        "T24",
+        "T28"
+      ]
+    },
+    {
+      "number": 22,
+      "title": "[QA03] Audit, outbox và worker",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/22",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_MASTER_WARRANTY_ORDER_RECEIPT_EVENTS_NO_WORKER",
+      "dependencies": [
+        21,
+        4
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T07",
+        "T24",
+        "T28"
+      ]
+    },
+    {
+      "number": 23,
+      "title": "[TL04] Ledger, balance và danh tính hàng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/23",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_RECEIPT_LEDGER_BALANCE_POSITION",
+      "dependencies": [
+        7,
+        22
+      ],
+      "tests": [
+        "T01",
+        "T03",
+        "T06",
+        "T24",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 24,
+      "title": "[TL05] Nhận hàng và tồn đầu kỳ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/24",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_PO_RECEIVING_NO_OPENING_OR_CONSIGNMENT",
+      "dependencies": [
+        23,
+        8,
+        9,
+        10
+      ],
+      "tests": [
+        "T01",
+        "T14",
+        "T20",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 25,
+      "title": "[TL06] Giữ hàng và xuất kho",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/25",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        24
+      ],
+      "tests": [
+        "T01",
+        "T03",
+        "T15",
+        "T17",
+        "T25",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 26,
+      "title": "[TL07] Chuyển kho và di chuyển nội bộ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/26",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        25
+      ],
+      "tests": [
+        "T01",
+        "T04",
+        "T21",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 27,
+      "title": "[TL08] Trả hàng và đảo giao dịch",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/27",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        26
+      ],
+      "tests": [
+        "T01",
+        "T10",
+        "T18",
+        "T28"
+      ]
+    },
+    {
+      "number": 28,
+      "title": "[TL09] Kiểm kê và khóa kỳ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/28",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_INITIAL_PERIOD_BOOTSTRAP_AND_RECEIPT_GUARDS",
+      "dependencies": [
+        27,
+        10
+      ],
+      "tests": [
+        "T01",
+        "T05",
+        "T16",
+        "T19",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 29,
+      "title": "[BE08] Soạn, đóng kiện và chất lượng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/29",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        10,
+        24
+      ],
+      "tests": [
+        "T01",
+        "T15",
+        "T28"
+      ]
+    },
+    {
+      "number": 30,
+      "title": "[BE09] Định nghĩa trường mở rộng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/30",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        29
+      ],
+      "tests": [
+        "T01",
+        "T28"
+      ]
+    },
+    {
+      "number": 31,
+      "title": "[QA04] Tệp và pipeline nhập dữ liệu",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/31",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        22,
+        8,
+        9
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T12",
+        "T20",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 32,
+      "title": "[QA05] Báo cáo và export",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/32",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        22,
+        24
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T21",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 33,
+      "title": "[QA06] In chứng từ, tem và barcode",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/33",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        22,
+        9
+      ],
+      "tests": [
+        "T01",
+        "T22",
+        "T28"
+      ]
+    },
+    {
+      "number": 34,
+      "title": "[QA07] Triển khai máy chủ LAN",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/34",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        22
+      ],
+      "tests": [
+        "T01",
+        "T23",
+        "T28"
+      ]
+    },
+    {
+      "number": 35,
+      "title": "[QA08] Kiểm thử đồng thời và đối soát",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/35",
+      "github_state_at_read": "OPEN",
+      "local_status": "PARTIAL_RECEIPT_CONCURRENCY_RECONCILIATION_NO_LOAD_TEST",
+      "dependencies": [
+        28,
+        29
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T03",
+        "T06",
+        "T16",
+        "T18",
+        "T19",
+        "T24",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 36,
+      "title": "[QA09] Diễn tập backup và restore",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/36",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        34,
+        24
+      ],
+      "tests": [
+        "T01",
+        "T09",
+        "T28"
+      ]
+    },
+    {
+      "number": 37,
+      "title": "[QA10] Đóng gói và nâng cấp desktop",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/37",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        19,
+        34
+      ],
+      "tests": [
+        "T01",
+        "T23",
+        "T28"
+      ]
+    },
+    {
+      "number": 38,
+      "title": "[QA11] UAT, hiệu năng và bàn giao",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/38",
+      "github_state_at_read": "OPEN",
+      "local_status": "NOT_IMPLEMENTED",
+      "dependencies": [
+        35,
+        36,
+        37,
+        28,
+        30,
+        19,
+        31,
+        32,
+        33
+      ],
+      "tests": [
+        "T01",
+        "T27",
+        "T28"
+      ]
+    },
+    {
+      "number": 39,
+      "title": "OpenAPI, DTO, phân trang, decimal chuỗi, lỗi và payload mẫu cho luồng nhận hàng.",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/39",
+      "github_state_at_read": "CLOSED",
+      "local_status": "CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": []
+    },
+    {
+      "number": 41,
+      "title": "ghi coverage phần chưa có.",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/41",
+      "github_state_at_read": "CLOSED",
+      "local_status": "CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": []
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "T01",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_receipts.py",
+      "note": "Receipt API/desktop/PostgreSQL component evidence; full acceptance, Windows UAT and other workflows remain pending."
+    },
+    {
+      "id": "T02",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py",
+      "note": "Receipt.post recovery component evidence: real child process exits after PostgreSQL commit before local ACK, new desktop looks up original operation with one stock effect; SQLite migration/rollback/disk failures/session separation covered. Other drafts/commands, Windows and full business acceptance pending."
+    },
+    {
+      "id": "T03",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T04",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T05",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T06",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T07",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_identity.py",
+      "note": "Live API + Linux desktop coverage; Windows UAT pending. Export/download/workflow coverage pending for T07."
+    },
+    {
+      "id": "T08",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation; tests/foundation/test_receipt_recovery.py; tests/foundation/test_receipts.py",
+      "note": "Receipt.post recovery component evidence: real child process exits after PostgreSQL commit before local ACK, new desktop looks up original operation with one stock effect; SQLite migration/rollback/disk failures/session separation covered. Other drafts/commands, Windows and full business acceptance pending."
+    },
+    {
+      "id": "T09",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T10",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_orders.py; tests/foundation/test_order_presenter.py",
+      "note": "PO/SO lifecycle, snapshot approval/SOD, race/replay/rollback, partial-close from SQL fixtures and Linux desktop tested. Receipt/issue posting and release races/full business UAT pending."
+    },
+    {
+      "id": "T11",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_identity.py",
+      "note": "Live API + Linux desktop coverage; Windows UAT pending. Export/download/workflow coverage pending for T07."
+    },
+    {
+      "id": "T12",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_master_data.py; tests/foundation/test_master_desktop.py",
+      "note": "Live master APIs + Linux desktop; import and full UAT pending. No complete business acceptance claim."
+    },
+    {
+      "id": "T13",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_master_data.py; tests/foundation/test_master_desktop.py",
+      "note": "Live master APIs + Linux desktop; import and full UAT pending. No complete business acceptance claim."
+    },
+    {
+      "id": "T14",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_orders.py; tests/foundation/test_order_presenter.py; tests/foundation/test_receipts.py",
+      "note": "Receipt API/desktop/PostgreSQL component evidence; full acceptance, Windows UAT and other workflows remain pending."
+    },
+    {
+      "id": "T15",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T16",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T17",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_orders.py; tests/foundation/test_order_presenter.py",
+      "note": "PO/SO lifecycle, snapshot approval/SOD, race/replay/rollback, partial-close from SQL fixtures and Linux desktop tested. Receipt/issue posting and release races/full business UAT pending."
+    },
+    {
+      "id": "T18",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T19",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T20",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T21",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T22",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T23",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T24",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py",
+      "note": "Receipt.post recovery component evidence: real child process exits after PostgreSQL commit before local ACK, new desktop looks up original operation with one stock effect; SQLite migration/rollback/disk failures/session separation covered. Other drafts/commands, Windows and full business acceptance pending."
+    },
+    {
+      "id": "T25",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T26",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T27",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_postgres.py",
+      "note": "Owner balances, guards, serial concurrency, warranty evidence/permissions/API and Linux desktop tested with SQL receipt fixtures. No end-to-end posting/import/report/UAT acceptance."
+    },
+    {
+      "id": "T28",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_postgres.py; tests/foundation/test_receipts.py",
+      "note": "Receipt API/desktop/PostgreSQL component evidence; full acceptance, Windows UAT and other workflows remain pending."
+    }
+  ],
+  "latest_local_validation": {
+    "suite": "xvfb-run -a .venv/bin/python scripts/check_application.py --gui",
+    "passed": 190,
+    "subtests_passed": 10,
+    "runtime_schema": {
+      "tables": 63,
+      "columns": 430,
+      "foreign_keys": 125,
+      "roles": 10,
+      "permissions": 56,
+      "role_permissions": 121
+    },
+    "full_acceptance_completed": false,
+    "runtime_paths": 61,
+    "migrations": 9,
+    "local_sqlite_schema_version": 2
+  },
+  "github_counts_note": "Snapshot at initial issue read; remote state not refreshed for this local implementation report."
+}

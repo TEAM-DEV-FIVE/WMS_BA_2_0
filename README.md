@@ -2,9 +2,11 @@
 
 [![Validate WMS design](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/workflows/validate.yml/badge.svg)](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/workflows/validate.yml)
 
-Bộ hồ sơ phân tích nghiệp vụ (BA) và thiết kế kỹ thuật cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**.
+Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã nền tảng cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**, ứng dụng **0.1.0**.
 
-**Trạng thái: DRAFT, chờ thẩm định nghiệp vụ.** Repository hiện có tài liệu, schema SQL, hợp đồng API, sơ đồ, mẫu nhập liệu và công cụ kiểm tra. **Chưa có backend FastAPI, ứng dụng Tkinter hoặc bộ cài WMS chạy được.** Các công nghệ trên là kiến trúc dự kiến; cài dependencies kiểm tra không khởi động ứng dụng.
+**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã có nền server/desktop, migration, đăng nhập/phiên/MFA, phân quyền theo kho, API quản trị với hai người duyệt cấp quyền, transaction/idempotency kernel và SQLite lưu nháp/phục hồi. Desktop đã đăng nhập/MFA/chọn kho và có sáu form danh mục qua API thật. API danh mục có version/idempotency, quy đổi UOM, barcode và giá tham chiếu có phân quyền. Đã thêm owner/hợp đồng ký gửi, đọc tồn theo owner và tra serial/bảo hành có chứng cứ trên desktop. Đã có PO/SO, phê duyệt và nhận hàng từ PO qua API/desktop, ghi sổ từng phần và chống ghi trùng. Lệnh ghi sổ nhận hàng lưu bền SQLite, có tab [phục hồi sau mất phản hồi/đóng ứng dụng](01_Tai_lieu/RECEIPT_RECOVERY.md). Tồn đầu kỳ, xuất kho và các nghiệp vụ tiếp theo còn thiếu; xem [nhận hàng](01_Tai_lieu/RECEIVING.md). `requirements-dev.txt` vẫn chỉ phục vụ kiểm tra hồ sơ.
+
+**Bắt đầu chạy ứng dụng:** [hướng dẫn cài/chạy/kiểm thử và thứ tự issue](01_Tai_lieu/IMPLEMENTATION.md). Xem [kết quả kiểm tra đợt nền tảng](07_Kiem_tra/IMPLEMENTATION_REVIEW.md) và [trạng thái từng issue/test](07_Kiem_tra/implementation_status.json).
 
 ## Baseline triển khai hiện hành
 
@@ -57,13 +59,21 @@ Chi tiết: [ARCHITECTURE.md](01_Tai_lieu/ARCHITECTURE.md), [INVARIANTS.md](01_T
 | --- | --- |
 | [01_Tai_lieu](01_Tai_lieu) | Tài liệu tổng 61 trang, BRD/SRS, 49 yêu cầu, 33 use case, quy tắc và hồ sơ kỹ thuật |
 | [02_CSDL](02_CSDL) | PostgreSQL DDL/seed, DBML, mô hình 56 bảng/355 cột/105 FK, SQLite local draft và truy vấn đối soát |
+| [iam_extension_model.json](02_CSDL/iam_extension_model.json) | Mở rộng IAM theo migration 003; runtime sau 003: 60 bảng/385 cột/113 FK |
+| [master_extension_model.json](02_CSDL/master_extension_model.json) | Mở rộng danh mục theo migration 005; runtime sau 005: 60 bảng/393 cột/113 FK |
+| [ownership_extension_model.json](02_CSDL/ownership_extension_model.json) | Mở rộng owner/bảo hành theo migration 006; runtime sau 007: 63 bảng/424 cột/123 FK |
+| [order_extension_model.json](02_CSDL/order_extension_model.json) | Mở rộng snapshot duyệt/đóng thiếu theo migration 008; runtime sau 008: 63 bảng/428 cột/125 FK |
+| [receiving_extension_model.json](02_CSDL/receiving_extension_model.json) | Migration 009 thêm execution ACK/hash; runtime hiện tại 63 bảng/430 cột/125 FK |
 | [03_So_do](03_So_do) | Atlas 91 trang, SVG, draw.io, PlantUML; ERD, class, use case, trạng thái, sequence, BPMN và mô hình khái niệm |
-| [04_Phan_quyen](04_Phan_quyen) | 10 vai trò, 53 quyền, 108 ánh xạ role-permission, policy và phạm vi quyền |
-| [05_API](05_API) | OpenAPI 3.0.3 gồm 16 paths lõi; bảng coverage theo use case |
+| [04_Phan_quyen](04_Phan_quyen) | 10 vai trò, 56 quyền, 121 ánh xạ role-permission, policy và phạm vi quyền |
+| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 61 paths; coverage theo use case |
 | [06_Nhap_lieu](06_Nhap_lieu) | Excel, 14 CSV templates, 22 dòng ví dụ và validator offline |
 | [07_Kiem_tra](07_Kiem_tra) | Báo cáo kiểm tra, truy vết và đặc tả acceptance T01–T28 |
 | [scripts](scripts) | Kiểm tra artifact/PostgreSQL và cập nhật ZIP/checksum |
 | [tests](tests) | Test hồi quy CSV và SQL smoke test |
+| [apps](apps) / [packages/contracts](packages/contracts) | Server, desktop và DTO dùng chung |
+| [migrations](migrations) | Migration có phiên bản/checksum, chạy riêng trước server |
+| [.github/workflows/application.yml](.github/workflows/application.yml) | Unit/contract/wheel, Windows Tk và integration PostgreSQL 15/16 |
 | [.github/workflows/validate.yml](.github/workflows/validate.yml) | CI kiểm tra artifact, CSV và SQL trên PostgreSQL 15/16 |
 | [SHA256SUMS.txt](SHA256SUMS.txt) | Checksum các file repository, ngoại trừ chính manifest |
 
@@ -131,9 +141,9 @@ CSV dùng UTF-8 BOM, dấu phẩy phân cột và dấu chấm thập phân. Mã
 
 [openapi_core.json](05_API/openapi_core.json) là hợp đồng thiết kế, có thể mở bằng công cụ hỗ trợ OpenAPI. `https://wms.example.internal/api/v1` là địa chỉ minh họa. Có path trong hợp đồng chưa đồng nghĩa endpoint đã chạy.
 
-Hợp đồng mô tả lệnh ghi sổ, giữ chỗ, chuyển kho, duyệt, kiểm kê, commit nhập và tra cứu operation. Decimal truyền dạng chuỗi; lệnh thay đổi dùng idempotency và kiểm soát version. Coverage của từng UC được ghi rõ tại [BA_COVERAGE.md](05_API/BA_COVERAGE.md); đăng nhập/MFA, nhiều CRUD, báo cáo và các luồng khác còn thiếu hoặc mới một phần.
+Hợp đồng mô tả lệnh ghi sổ, giữ chỗ, chuyển kho, duyệt, kiểm kê, commit nhập và tra cứu operation. Decimal truyền dạng chuỗi; lệnh thay đổi dùng idempotency và kiểm soát version. Coverage của từng UC được ghi rõ tại [BA_COVERAGE.md](05_API/BA_COVERAGE.md); đăng nhập/MFA, CRUD chứng từ, báo cáo và các luồng khác còn thiếu hoặc mới một phần. IAM và danh mục có contract runtime riêng.
 
-Quyền phải kiểm tra ở server theo kho, thời hạn grant, trạng thái tài nguyên và phân tách nhiệm vụ. Vai trò `SYSADMIN` không mặc nhiên được làm nghiệp vụ kho. [policy.json](04_Phan_quyen/policy.json) và [ma trận quyền](04_Phan_quyen/role_permission_matrix.csv) mô tả thiết kế; chưa phải cơ chế authorization đã triển khai.
+Server đã kiểm tra grant/quyền theo kho, hiệu lực, thu hồi và quyền giá cho các API được liệt kê trong [OpenAPI runtime](05_API/openapi_runtime.json). `SYSADMIN` không mặc nhiên có quyền kho; API quản trị yêu cầu MFA. Các nghiệp vụ chưa triển khai vẫn cần tích hợp authorization khi được thêm. [Hướng dẫn IAM](01_Tai_lieu/IDENTITY.md) mô tả bootstrap, phiên và phân tách nhiệm vụ. [Hướng dẫn danh mục](01_Tai_lieu/MASTER_DATA.md) mô tả migration 005, API và các form mới. [Hướng dẫn truy vết](01_Tai_lieu/TRACEABILITY.md) mô tả migration 006/007, tồn theo owner và bảo hành serial. [PO/SO và phê duyệt](01_Tai_lieu/ORDERS_APPROVAL.md) mô tả migration 008, quyền, trạng thái và desktop mới.
 
 ## Chỉnh sửa và đóng góp
 
@@ -162,7 +172,7 @@ Lần rà soát ngày **27/09/2026**: 12 test CSV đạt; JSON/CSV/XML, OpenAPI 
 
 Repository hiện thuộc **TEAM-DEV-FIVE**. Sau khi chuyển repo, CI đã khởi chạy được; [lần chạy 36308545818](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/36308545818) xác nhận hai job PostgreSQL 15/16 đạt và phát hiện thiếu đường dẫn cache cho `requirements-dev.txt`. Cấu hình cache đã được bổ sung; xem badge đầu trang để biết kết quả toàn bộ workflow trên commit mới nhất. Lỗi billing của lần push đầu tại tài khoản cũ được lưu trong báo cáo lịch sử.
 
-Chưa triển khai hoặc nghiệm thu API/Tkinter, concurrency của posting service, benchmark, máy quét/in, backup/restore hay ba hệ điều hành đích. `acceptance_tests.csv` là **đặc tả T01–T28 chưa chạy ở mức ứng dụng**; T27/T28 bổ sung cho ký gửi và tra cứu bảo hành theo Q02. Các báo cáo v1.x và BA trước đây là lịch sử; số liệu/trạng thái trong đó cần đọc theo phiên bản.
+Nền FastAPI/Tkinter đã được chạy và kiểm thử trên Linux; xem [báo cáo triển khai](07_Kiem_tra/IMPLEMENTATION_REVIEW.md). Chưa nghiệm thu luồng nghiệp vụ, concurrency của posting service, benchmark, máy quét/in, backup/restore hoặc Windows client đích. `acceptance_tests.csv` là **đặc tả T01–T28 chưa nghiệm thu đầy đủ**; test thành phần không thay thế kết quả các ca này. T27/T28 bổ sung cho ký gửi và tra cứu bảo hành theo Q02. Các báo cáo v1.x và BA trước đây là lịch sử; số liệu/trạng thái trong đó cần đọc theo phiên bản.
 
 Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lead; xem [baseline TL01](01_Tai_lieu/SCOPE_BASELINE.md) và [sổ câu hỏi](01_Tai_lieu/BA/open_questions.json) để phân biệt câu trả lời, người theo dõi và chi tiết cần làm rõ trước triển khai/production.
 
@@ -173,4 +183,4 @@ Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lea
 3. Triển khai IAM/RBAC, danh mục và CRUD chứng từ; hoàn thiện hợp đồng API.
 4. Triển khai posting service theo bất biến, kiểm thử đồng thời/idempotency/rollback trên PostgreSQL thật.
 5. Thêm nhận/xuất/chuyển kho, phê duyệt, kiểm kê, nhập liệu và báo cáo.
-6. Chạy T01–T26, kiểm tra thiết bị, tải, backup/restore và đóng gói cho từng nền tảng.
+6. Chạy T01–T28, kiểm tra thiết bị, tải, backup/restore và đóng gói cho từng nền tảng.

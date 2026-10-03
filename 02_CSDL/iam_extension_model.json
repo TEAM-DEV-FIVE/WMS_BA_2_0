@@ -1,0 +1,211 @@
+{
+  "revision": "003_identity.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "auth_token",
+      "cols": [
+        {
+          "name": "token_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "auth_session.id"
+        },
+        {
+          "name": "kind",
+          "type": "varchar(10)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "used_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_challenge",
+      "cols": [
+        {
+          "name": "token_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "device_id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "auth_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "consumed_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_throttle",
+      "cols": [
+        {
+          "name": "key",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "failures",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "window_started_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "blocked_until",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "grant_request",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "role_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "role.id"
+        },
+        {
+          "name": "scope_kind",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "warehouse.id"
+        },
+        {
+          "name": "valid_until",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "requested_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "requested_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "approved_by",
+          "type": "uuid",
+          "null": true,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "grant_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "user_role_grant.id"
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "table": "auth_session",
+      "name": "mfa_verified_at",
+      "type": "timestamptz",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "mfa_factor",
+      "name": "last_counter",
+      "type": "bigint",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "mfa_factor",
+      "name": "enrollment_expires_at",
+      "type": "timestamptz",
+      "null": true,
+      "ref": null
+    }
+  ]
+}

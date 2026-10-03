@@ -1,0 +1,63 @@
+{
+  "revision": "005_master_data.sql",
+  "baseline": "model.json",
+  "tables": [],
+  "added_columns": [
+    {
+      "table": "uom",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "uom",
+      "name": "is_active",
+      "type": "boolean",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "product_category",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "product_category",
+      "name": "is_active",
+      "type": "boolean",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "warehouse",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "location",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "partner",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "barcode",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    }
+  ]
+}

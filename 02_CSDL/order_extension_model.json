@@ -1,0 +1,35 @@
+{
+  "revision": "008_order_approval.sql",
+  "baseline": "model.json",
+  "tables": [],
+  "added_columns": [
+    {
+      "table": "approval_policy_step",
+      "name": "alternative_role_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "role.id"
+    },
+    {
+      "table": "approval_step",
+      "name": "alternative_role_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "role.id"
+    },
+    {
+      "table": "approval_request",
+      "name": "content_snapshot",
+      "type": "jsonb",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "document_line",
+      "name": "closed_base_quantity",
+      "type": "numeric(20,6)",
+      "null": false,
+      "ref": null
+    }
+  ]
+}

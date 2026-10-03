@@ -15,7 +15,7 @@
         "eligible_roles": [
           "SYSADMIN"
         ],
-        "conditions": "Không tự cấp quyền nghiệp vụ cho chính mình; grant nghiệp vụ cần người thứ hai phê chuẩn qua quy trình vận hành và audit"
+        "conditions": "MFA; không tự yêu cầu/cấp quyền; quản trị viên thứ hai không phải người nhận quyền phê duyệt; audit"
       }
     ],
     "note": "Vai trò trong UC chỉ làm bước có quyền tương ứng; mọi grant còn phải đúng kho, thời hạn, version và SOD."
@@ -567,9 +567,10 @@
         "permission": "document.approve",
         "scope": "WAREHOUSE",
         "eligible_roles": [
-          "WAREHOUSE_MANAGER"
+          "WAREHOUSE_MANAGER",
+          "CONTROLLER"
         ],
-        "conditions": "Bước policy đúng role; không là creator/requester; hai bước do hai người khác nhau"
+        "conditions": "Thủ kho/Kế toán kho được duyệt thay phiếu thông thường, không hạn mức; đúng kho/policy/version; không là creator/requester; SOD luôn áp dụng"
       }
     ],
     "note": "Vai trò trong UC chỉ làm bước có quyền tương ứng; mọi grant còn phải đúng kho, thời hạn, version và SOD."
@@ -593,13 +594,56 @@
   {
     "use_case": "UC32",
     "actors": "Người vận hành kho / Kiểm soát",
-    "actions": [],
-    "note": "DRAFT: chưa thiết kế quyền mới; BE01/BE04 phải bổ sung mapping và kiểm thử trước bật chức năng. Danh sách trống không có nghĩa cho phép mọi người."
+    "actions": [
+      {
+        "permission": "ownership.read",
+        "scope": "WAREHOUSE",
+        "eligible_roles": [
+          "WAREHOUSE_MANAGER",
+          "CONTROLLER",
+          "DIRECTOR",
+          "AUDITOR"
+        ],
+        "conditions": "Cần stock.read tại cùng kho; stock item/vị trí thuộc scope. Không cấp quyền xuất/chuyển ký gửi."
+      },
+      {
+        "permission": "partner.write",
+        "scope": "GLOBAL",
+        "eligible_roles": [
+          "MASTER_DATA"
+        ],
+        "conditions": "Quản trị owner/hợp đồng qua API; không tự cấp quyền xem tồn theo kho."
+      }
+    ],
+    "note": "Nền dữ liệu/API đã chạy local; posting/import/báo cáo/policy ký gửi chưa hoàn tất. T27 vẫn PLANNED."
   },
   {
     "use_case": "UC33",
     "actors": "Người vận hành kho / Kiểm soát",
-    "actions": [],
-    "note": "DRAFT: chưa thiết kế quyền mới; BE01/BE04 phải bổ sung mapping và kiểm thử trước bật chức năng. Danh sách trống không có nghĩa cho phép mọi người."
+    "actions": [
+      {
+        "permission": "serial.read",
+        "scope": "WAREHOUSE",
+        "eligible_roles": [
+          "RECEIVER",
+          "PICKER",
+          "WAREHOUSE_MANAGER",
+          "CONTROLLER",
+          "DIRECTOR",
+          "AUDITOR"
+        ],
+        "conditions": "Cần stock.read đúng kho; nguồn nhận cần serial.read kho nguồn và document.read với ownership/assignment."
+      },
+      {
+        "permission": "warranty.write",
+        "scope": "WAREHOUSE",
+        "eligible_roles": [
+          "WAREHOUSE_MANAGER",
+          "CONTROLLER"
+        ],
+        "conditions": "Nguồn RECEIVE đã ghi sổ đúng serial và chưa đảo; quyền đọc nguồn; version/idempotency; chỉ append chứng cứ, không tự suy thời hạn."
+      }
+    ],
+    "note": "API và desktop tra cứu đã chạy local; ghi chứng cứ qua API, chưa tích hợp receipt workflow/UAT Windows. T28 vẫn PLANNED."
   }
 ]

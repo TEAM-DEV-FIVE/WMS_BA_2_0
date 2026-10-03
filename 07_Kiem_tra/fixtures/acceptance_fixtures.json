@@ -1,0 +1,274 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "baseline": "TL01",
+    "description": "Bộ dữ liệu fixtures tái lập chuẩn hóa cho 28 ca nghiệm thu WMS T01–T28",
+    "author": "Lê Ngọc Quỳnh Khanh (TV4)",
+    "reviewer": "Trần Trung Kiên (Tech Lead)",
+    "schema_dependency": {
+      "core_tables": "02_CSDL/001_schema.sql (56 tables, 355 cols, 105 FKs - SUPPORTED)",
+      "consignment_stock": "CR-TL01-Q02-20261002 (Phụ thuộc thiết kế/migration BE02/TL04 - MOCK_MANIFEST)",
+      "serial_warranty": "CR-TL01-Q02-20261002 (Phụ thuộc thiết kế/migration BE05/TL04 - MOCK_MANIFEST)"
+    }
+  },
+  "roles_catalog": [
+    "SYSADMIN",
+    "MASTER_DATA",
+    "BUYER",
+    "SELLER",
+    "RECEIVER",
+    "PICKER",
+    "WAREHOUSE_MANAGER",
+    "CONTROLLER",
+    "DIRECTOR",
+    "AUDITOR"
+  ],
+  "users_and_grants": [
+    {
+      "username": "admin",
+      "role": "SYSADMIN",
+      "warehouse_scope": "GLOBAL",
+      "purpose": "Quản trị người dùng, phiên, cấu hình kỹ thuật; không làm nghiệp vụ kho"
+    },
+    {
+      "username": "user_wm_wh01",
+      "role": "WAREHOUSE_MANAGER",
+      "warehouse_scope": "WH01",
+      "purpose": "Quản lý kho WH01: duyệt phiếu thường (document.approve), tạo/submit kiểm kê, quản lý giữ chỗ/xuất kho; không có period.close/adjustment.post"
+    },
+    {
+      "username": "user_controller_wh01",
+      "role": "CONTROLLER",
+      "warehouse_scope": "WH01",
+      "purpose": "Kiểm soát/kế toán kho WH01: duyệt điều chỉnh kiểm kê (adjustment.approve), ghi sổ điều chỉnh (adjustment.post), đóng kỳ (period.close), xem giá (price.read), export báo cáo (report.export)"
+    },
+    {
+      "username": "user_receiver_wh01",
+      "role": "RECEIVER",
+      "warehouse_scope": "WH01",
+      "purpose": "Nhân viên nhận hàng WH01: lập/post receipt, move hàng, đếm kiểm kê lần 1 (count.enter)"
+    },
+    {
+      "username": "user_picker_wh01",
+      "role": "PICKER",
+      "warehouse_scope": "WH01",
+      "purpose": "Nhân viên soạn hàng WH01: xác nhận pick, đóng kiện, xuất hàng, đếm kiểm kê lần 2 (count.enter đối chứng)"
+    },
+    {
+      "username": "user_director",
+      "role": "DIRECTOR",
+      "warehouse_scope": "WH01",
+      "purpose": "Ban điều hành: phê duyệt bước 2 điều chỉnh kiểm kê, mở lại kỳ (period.reopen), duyệt tồn đầu kỳ (opening.approve), xem giá và export"
+    },
+    {
+      "username": "user_auditor",
+      "role": "AUDITOR",
+      "warehouse_scope": "WH01",
+      "purpose": "Kiểm toán: đọc báo cáo, thẻ kho, audit trail, export báo cáo đối soát"
+    },
+    {
+      "username": "user_multi_grant",
+      "grants": [
+        {
+          "role": "WAREHOUSE_MANAGER",
+          "warehouse_scope": "WH01",
+          "purpose": "Được duyệt và quản lý tại WH01"
+        },
+        {
+          "role": "RECEIVER",
+          "warehouse_scope": "WH02",
+          "purpose": "Chỉ được nhận hàng tại WH02, không được duyệt phiếu tại WH02"
+        }
+      ],
+      "out_of_scope_warehouse": "WH03",
+      "purpose": "Thử nghiệm T07 kiểm soát đa grant theo kho, cấm gộp quyền và che kho ngoài scope (404)"
+    }
+  ],
+  "warehouses_and_locations": [
+    {
+      "warehouse_code": "WH01",
+      "name": "Kho trung tâm",
+      "locations": [
+        {
+          "code": "WH01-INB",
+          "type": "RECEIVING",
+          "description": "Vị trí nhận hàng"
+        },
+        {
+          "code": "WH01-STORAGE",
+          "type": "STORAGE",
+          "description": "Vị trí lưu kho chuẩn"
+        },
+        {
+          "code": "WH01-QUARANTINE",
+          "type": "QUARANTINE",
+          "description": "Vị trí cách ly kiểm tra chất lượng"
+        },
+        {
+          "code": "WH01-PICK",
+          "type": "PICKING",
+          "description": "Vị trí soạn hàng"
+        },
+        {
+          "code": "WH01-OUTB",
+          "type": "SHIPPING",
+          "description": "Vị trí xuất hàng"
+        }
+      ]
+    },
+    {
+      "warehouse_code": "WH02",
+      "name": "Kho chi nhánh",
+      "locations": [
+        {
+          "code": "WH02-INB",
+          "type": "RECEIVING",
+          "description": "Nhận hàng chi nhánh"
+        },
+        {
+          "code": "WH02-STORAGE",
+          "type": "STORAGE",
+          "description": "Lưu kho chi nhánh"
+        },
+        {
+          "code": "WH02-OUTB",
+          "type": "SHIPPING",
+          "description": "Xuất hàng chi nhánh"
+        }
+      ]
+    },
+    {
+      "warehouse_code": "WH03",
+      "name": "Kho ngoài phân quyền",
+      "description": "Kho độc lập dùng cho test T07 kiểm tra bảo mật (truy vấn ngoài scope trả về 404 Not Found)"
+    },
+    {
+      "code": "LOC-TRANSIT",
+      "type": "TRANSIT",
+      "description": "Vị trí trung chuyển hàng nội bộ giữa WH01 và WH02 gắn theo chứng từ chuyển kho"
+    },
+    {
+      "code": "LOC-EXTERNAL",
+      "type": "EXTERNAL",
+      "description": "Vị trí đối tác bên ngoài dùng cho đầu vào receipt / đầu ra xuất trả"
+    }
+  ],
+  "products_and_uoms": [
+    {
+      "sku": "SKU-NONE-01",
+      "name": "Dây cáp mạng Cat6 UTP 305m",
+      "base_uom": "ROLL",
+      "tracking_mode": "NONE",
+      "conversion": []
+    },
+    {
+      "sku": "SKU-LOT-01",
+      "name": "Linh kiện pin sạc công nghiệp Li-ion",
+      "base_uom": "PCS",
+      "tracking_mode": "LOT",
+      "conversion": [
+        {
+          "uom": "BOX",
+          "rate": 10.0
+        }
+      ],
+      "lots": [
+        {
+          "lot_number": "LOT-EXP-OK",
+          "expiry_date": "2026-12-31",
+          "status": "ACTIVE"
+        },
+        {
+          "lot_number": "LOT-EXP-BAD",
+          "expiry_date": "2026-10-01",
+          "status": "EXPIRED"
+        }
+      ]
+    },
+    {
+      "sku": "SKU-SERIAL-01",
+      "name": "Thiết bị Switch mạng 24-Port Gigabit",
+      "base_uom": "PCS",
+      "tracking_mode": "SERIAL",
+      "conversion": [],
+      "serials": [
+        "SN-TEST-001",
+        "SN-TEST-002",
+        "SN-TEST-003"
+      ]
+    },
+    {
+      "sku": "SKU-ELEC-01",
+      "name": "Card mạng quang 10Gbps Server",
+      "base_uom": "PCS",
+      "tracking_mode": "NONE",
+      "purpose": "Hàng phục vụ kiểm thử tồn kho ký gửi T27"
+    },
+    {
+      "sku": "SKU-LAPTOP-01",
+      "name": "Máy tính xách tay trạm WMS",
+      "base_uom": "PCS",
+      "tracking_mode": "SERIAL",
+      "purpose": "Hàng phục vụ kiểm thử tra cứu bảo hành serial T28"
+    }
+  ],
+  "idempotency_and_concurrency": {
+    "uuid_key_1": "a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c",
+    "uuid_key_2": "b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d",
+    "execution_key": "exec-doc-rec-001-post",
+    "concurrency_barrier": {
+      "connections": 2,
+      "timeout_seconds": 10,
+      "isolation_level": "SERIALIZABLE"
+    }
+  },
+  "consignment_fixture": {
+    "test_id": "T27",
+    "location": "WH01-STORAGE",
+    "sku": "SKU-ELEC-01",
+    "owned_quantity": 10,
+    "consigned_quantity": 5,
+    "consignor_partner": "PARTNER-CONSIGN",
+    "expected_physical_total": 15,
+    "expected_owned_total": 10,
+    "expected_consigned_total": 5,
+    "policy_rule": "Cấm hòa lẫn số dư; từ chối xuất bán/chuyển quyền hàng ký gửi khi chưa có hợp đồng/policy phê chuẩn"
+  },
+  "serial_warranty_fixture": {
+    "test_id": "T28",
+    "sku": "SKU-LAPTOP-01",
+    "cases": [
+      {
+        "serial_number": "SN-WAR-001",
+        "receipt_doc": "REC-2026-001",
+        "vendor": "NCC-CONG-NGHE-01",
+        "receipt_date": "2026-09-01",
+        "warranty_months": 24,
+        "expected_status": "Còn bảo hành"
+      },
+      {
+        "serial_number": "SN-WAR-002",
+        "receipt_doc": "REC-2024-001",
+        "vendor": "NCC-CONG-NGHE-01",
+        "receipt_date": "2024-01-15",
+        "warranty_months": 12,
+        "expected_status": "Hết hạn"
+      },
+      {
+        "serial_number": "SN-WAR-003",
+        "receipt_doc": "REC-2026-002",
+        "vendor": "NCC-CONG-NGHE-02",
+        "receipt_date": "2026-09-20",
+        "warranty_months": null,
+        "expected_status": "Chưa xác định"
+      }
+    ]
+  },
+  "database_seed_and_reset_instructions": {
+    "step_1_clean_db": "Khởi tạo database PostgreSQL 15+ trống: drop schema public cascade; create schema public;",
+    "step_2_ddl": "psql -f 02_CSDL/001_schema.sql",
+    "step_3_rbac_seed": "psql -f 02_CSDL/002_seed_permissions.sql",
+    "step_4_fixture_data": "Nạp danh mục và user chuẩn qua API/script test runner trước khi chạy bộ kiểm thử.",
+    "step_5_reset_between_tests": "Chạy ROLLBACK sau mỗi ca test hoặc tái lập dữ liệu qua fixture snapshot để đảm bảo tính độc lập."
+  }
+}

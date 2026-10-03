@@ -1,6 +1,6 @@
 ﻿permission,scope,SYSADMIN,MASTER_DATA,BUYER,SELLER,RECEIVER,PICKER,WAREHOUSE_MANAGER,CONTROLLER,DIRECTOR,AUDITOR,conditions
 iam.manage,GLOBAL,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,MFA; không đọc mật khẩu/token; audit; không mặc nhiên có quyền kho
-role.manage,GLOBAL,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,Không tự cấp quyền nghiệp vụ cho chính mình; grant nghiệp vụ cần người thứ hai phê chuẩn qua quy trình vận hành và audit
+role.manage,GLOBAL,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,MFA; không tự yêu cầu/cấp quyền; quản trị viên thứ hai không phải người nhận quyền phê duyệt; audit
 config.manage,GLOBAL,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,MFA; không sửa trực tiếp số dư; thay đổi có version
 master.read,GLOBAL,DENY,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,Ẩn giá nếu thiếu price.read; không trả credential hay thông tin đối tác nhạy cảm
 master.write,GLOBAL,DENY,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,Không xóa bản ghi đã dùng; tracking/base UOM khóa sau phát sinh
@@ -22,7 +22,7 @@ move.draft,WAREHOUSE,DENY,DENY,DENY,DENY,ALLOW,ALLOW,DENY,DENY,DENY,DENY,Chỉ D
 adjustment.draft,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,DENY,Chỉ DRAFT/REJECTED và phiếu của mình/được giao; chuyển cần quyền cả kho nguồn và đích; sửa sau duyệt phải vô hiệu duyệt
 opening.draft,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,Chỉ DRAFT/REJECTED và phiếu của mình/được giao; chuyển cần quyền cả kho nguồn và đích; sửa sau duyệt phải vô hiệu duyệt
 document.assign,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,DENY,Người được giao phải có quyền tại kho; chuyển giao không mở rộng scope
-document.approve,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,DENY,Bước policy đúng role; không là creator/requester; hai bước do hai người khác nhau
+document.approve,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,DENY,DENY,"Thủ kho/Kế toán kho được duyệt thay phiếu thông thường, không hạn mức; đúng kho/policy/version; không là creator/requester; SOD luôn áp dụng"
 adjustment.approve,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,"Không là người lập/đếm; lý do, phiên bản, chênh lệch đã chốt; policy tối đa 2 bước"
 opening.approve,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,DENY,Không tự duyệt; chỉ cửa sổ cutover; đối soát đã ký
 document.cancel,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,DENY,Giải phóng giữ chỗ; không xóa phần đã post; lý do bắt buộc
@@ -52,3 +52,6 @@ import.commit,GLOBAL,DENY,ALLOW,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,Cần t
 audit.read,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,ALLOW,Chỉ scope kho; ẩn bí mật; không update/delete
 audit.security.read,GLOBAL,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,Không mặc nhiên đọc dữ liệu kho/giá
 backup.operate,GLOBAL,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,Tác vụ hạ tầng có runbook; không cung cấp API sửa kho tùy ý; MFA và biên bản
+ownership.read,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,ALLOW,ALLOW,
+serial.read,WAREHOUSE,DENY,DENY,DENY,DENY,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,
+warranty.write,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,DENY,DENY,

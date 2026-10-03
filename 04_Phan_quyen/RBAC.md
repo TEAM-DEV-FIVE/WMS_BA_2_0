@@ -18,7 +18,9 @@ Tạo/sửa/duyệt lệnh chuyển cần quyền tương ứng ở cả kho ngu
 
 ## Phân tách nhiệm vụ
 
-SYSADMIN không có quyền stock/price/approve theo mặc định. SYSADMIN có khả năng quản trị quyền nên tổ chức phải kiểm soát việc cấp grant: cấm tự nâng quyền nghiệp vụ, người thứ hai phê chuẩn và audit. V1 dùng yêu cầu cấp quyền có biên bản bên ngoài, chưa có workflow grant approval trong schema. DB superuser vẫn là quyền hạ tầng mạnh, không thể bị giới hạn bằng RBAC ứng dụng.
+SYSADMIN không có quyền stock/price/approve theo mặc định. Migration 003 bổ sung `grant_request`: người yêu cầu và người duyệt phải là hai tài khoản khác nhau, có `role.manage` GLOBAL và phiên đã xác thực MFA; cả hai khác người nhận quyền. Grant chỉ có hiệu lực sau bước duyệt trong transaction cùng audit. Biên bản vận hành vẫn là bằng chứng tổ chức; API không xác minh danh tính con người đứng sau hai tài khoản. Bootstrap tối đa hai SYSADMIN ban đầu chỉ chạy qua CLI cục bộ. DB superuser vẫn là quyền hạ tầng mạnh, không thể bị giới hạn bằng RBAC ứng dụng.
+
+Theo TL01 Q04, `document.approve` cho phiếu thông thường thuộc WAREHOUSE_MANAGER **hoặc** CONTROLLER, không có hạn mức giá trị. Migration 004, seed và ma trận quyền đã đồng bộ. Điều chỉnh/kiểm kê/tồn đầu kỳ vẫn tuân bước policy và SOD riêng; đã có API duyệt PO/SO theo migration 008; receipt đã có policy/snapshot/posting ở revision 009; kiểm kê/điều chỉnh/tồn đầu kỳ chưa có workflow hoàn chỉnh. Xem [RECEIVING.md](../01_Tai_lieu/RECEIVING.md). Xem [ORDERS_APPROVAL.md](../01_Tai_lieu/ORDERS_APPROVAL.md).
 
 Người tạo hoặc gửi duyệt không được duyệt phiếu của mình. Với kiểm kê, cả người lập và mọi người đã đếm trong phiên không được duyệt điều chỉnh. Hai bước duyệt phải khác người. Không tự động bỏ qua bước khi thiếu người. Quyền giá luôn cần đồng thời quyền đọc đối tượng. return.unlinked là quyền ngoại lệ bổ sung, không tự cấp return.post. import.commit không tự cấp master.write/opening.post.
 
@@ -32,3 +34,14 @@ Người tạo hoặc gửi duyệt không được duyệt phiếu của mình.
 - Tài khoản dịch vụ tương lai phải có permissions riêng và scope; không dùng tài khoản migration cho API.
 
 Ma trận CSV là cấu hình mặc định đề xuất. ALLOW vẫn phải thỏa toàn bộ conditions. DENY biểu thị không có grant, không phải explicit deny override. File seed chỉ tạo role/permission, không tạo user hoặc mật khẩu mặc định.
+
+## Owner và bảo hành serial (migration 007)
+
+Policy hiện hành: 10 role, 56 permissions, 121 ánh xạ. `ownership.read` tại kho cho WAREHOUSE_MANAGER,
+CONTROLLER, DIRECTOR, AUDITOR; `serial.read` thêm RECEIVER/PICKER; `warranty.write` cho WAREHOUSE_MANAGER
+và CONTROLLER. Các API này luôn cần thêm `stock.read` đúng kho. Đọc nguồn nhận/chứng cứ cần `serial.read`
+ở kho nguồn và `document.read` với ownership/assignment; không nhân quyền giữa các kho.
+
+Quản trị owner/hợp đồng dùng `partner.write` GLOBAL cho cả GET và ghi; không tự cho phép xem tồn.
+Quyền đọc owner không cấp quyền xuất/chuyển ký gửi. Các luồng này còn mặc định bị chặn. Đây là scope theo kho,
+chưa phải phân quyền từng đối tác 3PL. [Hướng dẫn và giới hạn](../01_Tai_lieu/TRACEABILITY.md).

@@ -1,0 +1,214 @@
+{
+  "revision": "006_ownership_warranty.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "stock_owner",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "code",
+          "type": "varchar(80)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "name",
+          "type": "varchar(240)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "kind",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "partner_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "partner.id"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "consignment_agreement",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "code",
+          "type": "varchar(80)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "owner_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_owner.id"
+        },
+        {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "warehouse.id"
+        },
+        {
+          "name": "valid_from",
+          "type": "date",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "valid_until",
+          "type": "date",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "source_ref",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "serial_warranty_record",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "serial_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "serial.id"
+        },
+        {
+          "name": "receipt_move_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_move.id"
+        },
+        {
+          "name": "revision",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "starts_on",
+          "type": "date",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "ends_on",
+          "type": "date",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "evidence_ref",
+          "type": "text",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "recorded_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "recorded_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "table": "stock_item",
+      "name": "owner_id",
+      "type": "uuid",
+      "null": false,
+      "ref": "stock_owner.id"
+    },
+    {
+      "table": "stock_item",
+      "name": "consignment_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "consignment_agreement.id"
+    },
+    {
+      "table": "document_line",
+      "name": "owner_id",
+      "type": "uuid",
+      "null": false,
+      "ref": "stock_owner.id"
+    },
+    {
+      "table": "document_line",
+      "name": "consignment_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "consignment_agreement.id"
+    },
+    {
+      "table": "serial",
+      "name": "warranty_version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    }
+  ]
+}
