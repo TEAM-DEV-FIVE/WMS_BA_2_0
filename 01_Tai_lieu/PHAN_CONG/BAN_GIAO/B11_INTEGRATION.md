@@ -12,7 +12,8 @@ Nhánh thực hiện: `feat/application-foundation`, worktree `WMS_BA_2_0`.
 - Merge không xung đột, giữ nguyên toàn bộ code/test nghiệp vụ đã bàn giao.
   Review lại hooks router/shell, lifecycle/snapshot/quyền hai kho, ARRIVE → QC/MOVE,
   khóa parent/location/product, idempotency/remaining/owner và rollback.
-- Commit merge được ghi vào sổ tích hợp sau khi các kiểm tra dưới đây đạt.
+- Commit merge: **`dce35f92b32015146f23d48229d641b558715b8c`**, đã ghi trong
+  sổ tích hợp sau khi các kiểm tra dưới đây đạt.
   Báo cáo [B11.md](B11.md) giữ bằng chứng của nhánh tính năng, bổ sung source hash
   cố định và ghi đường dẫn log local thay vì hyperlink tới file bị Git ignore
   (để checkout mới kiểm tra Markdown không lỗi). Số migration và bằng chứng
@@ -68,7 +69,7 @@ rtk proxy git diff --check
 
 ## Trạng thái và giới hạn
 
-Sau merge, ghi B11 **INTEGRATED** với source/merge hash thực vào
+B11 đã **INTEGRATED** với source/merge hash thực trong
 `integration_log.json`; không tự kích hoạt hoặc sửa worktree nhánh khác.
 Worktree B11 giữ nguyên commit bàn giao để tra cứu.
 

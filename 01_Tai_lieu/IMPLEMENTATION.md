@@ -15,6 +15,8 @@ release (001–015), schema 76 bảng/509 cột/159 FK. B11 gồm chuyển kho, 
 phần, biên bản thiếu/hỏng, điều chỉnh mất transit có duyệt riêng và desktop tương ứng.
 Contract và giới hạn tại [TRANSFERS.md](TRANSFERS.md); kết quả kiểm chứng tích hợp
 tại [B11_INTEGRATION.md](PHAN_CONG/BAN_GIAO/B11_INTEGRATION.md).
+Merge `dce35f9` đạt **523 tests + 10 subtests**, 0 failed/skip; B11 được ghi
+**INTEGRATED**. Windows/UAT và các bằng chứng môi trường mục tiêu vẫn chưa chạy.
 
 Sổ [integration_log.json](PHAN_CONG/integration_log.json) là nguồn trạng thái tích hợp
 hiện hành. Các bảng và số liệu mốc nền dưới đây được giữ làm lịch sử, không thay
