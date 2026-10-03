@@ -49,7 +49,9 @@ Password và mã MFA được xóa khỏi ô nhập ngay sau khi gửi. Token/ch
 không lưu vào SQLite/file/log. HTTP chạy trong worker; widget và hủy tài nguyên Tk trên main thread.
 UUID thiết bị được giữ bền ở `WMS_LOCAL_DATA_DIR/device.sqlite3` (mặc định theo profile OS) để đăng nhập lại
 mở đúng phân vùng phục hồi; không phải credential. Xem [phục hồi nhận hàng](RECEIPT_RECOVERY.md).
-TLS luôn được kiểm tra. UI quản trị user/grant đầy đủ chưa được dựng; thao tác quản trị hiện dùng API/Swagger.
+TLS luôn được kiểm tra. Đã có [desktop quản trị user/grant](ADMIN_DESKTOP.md) nối API thật,
+phân trang, MFA/quyền, hai quản trị duyệt và thu hồi phiên/quyền. IAM write không tự replay sau timeout;
+người dùng tải lại để đối chiếu. Đổi mật khẩu/reset MFA và lookup/lịch sử quản trị nâng cao còn thiếu.
 
 ## Quản trị qua API
 

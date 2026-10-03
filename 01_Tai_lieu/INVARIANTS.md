@@ -22,7 +22,7 @@ reserved = SUM(reservation.quantity - consumed - released). Tiêu thụ có rese
 
 1. BEGIN; advisory transaction lock theo actor + idempotency key (hash ổn định); nếu đã có kết quả thì so hash rồi trả kết quả, không chạy lại.
 2. Khóa chứng từ nguồn trước chứng từ thực hiện; trong mỗi cấp khóa theo UUID tăng dần, kiểm tra version/state. Runtime PO → RECEIPT cùng dùng thứ tự này ở create/sửa/duyệt/post và kiểm tra phụ thuộc khi hủy/đóng PO. Các workflow nhiều nguồn/chuyển/đảo chưa triển khai phải giữ thứ tự cấp nguồn này, không khóa phiếu con rồi quay lại nguồn.
-3. Khóa stock_period của các kho theo UUID; kiểm tra ngày thuộc đúng một kỳ OPEN. Tạo/chỉnh kỳ cần khóa warehouse và chặn overlap. Close dùng cùng period lock.
+3. Khóa warehouse theo UUID trước stock_period: receipt dùng SHARE, OPENING dùng UPDATE để kiểm tra kho chưa có lịch sử mà không chạy đua với nhận hàng. Workflow posting tiếp theo phải dùng cùng rào chắn cutover. Khóa stock_period của các kho theo UUID; kiểm tra ngày thuộc đúng một kỳ OPEN. Tạo/chỉnh kỳ cần khóa warehouse và chặn overlap. Close dùng cùng period lock.
 4. Khóa location nguồn/đích theo UUID và kiểm tra count_location_lock. Freeze kiểm kê cũng phải khóa location trước snapshot. Mọi reserve/release/post/reconcile tác động vị trí cùng tuân thủ.
 5. Runtime nhận hàng khóa product theo UUID trước khi tạo/khóa lot/serial và stock_item; mọi receipt có cùng product được tuần tự hóa ở đây. Workflow khác phải dùng cùng product lock hoặc một thứ tự khóa danh tính tương thích. Tạo stock_item bằng INSERT ON CONFLICT theo unique dimensions, sau đó SELECT FOR UPDATE; giữ owner/hợp đồng trong khóa danh tính.
 6. INSERT balance 0 bằng ON CONFLICT DO NOTHING rồi khóa balance theo location_id/stock_item_id; khóa reservation theo UUID. Worker expiry và các lệnh hủy tuân cùng thứ tự.
@@ -53,3 +53,10 @@ Ngoại lệ có chủ đích từ revision 009: `document.attributes.receipt_pl
 cho kế hoạch tracking/vị trí trước duyệt; approval snapshot giữ toàn bộ namespace. Số lượng chuẩn vẫn lưu
 ở document_line; tồn/giá/quyền không chuyển vào JSON. Custom-field API tương lai phải cấm ghi namespace này.
 Quyết định và giới hạn runtime ở [RECEIVING.md](RECEIVING.md).
+
+Revision 010 lưu kế hoạch OPENING ở bảng typed riêng; batch/biên bản và tracking/vị trí nằm trong snapshot duyệt.
+OPENING hiện chỉ cho COMPANY, một lần ghi toàn bộ/kho chưa có lịch sử, tối đa 200 dòng. Không nạp bổ sung bằng
+nhiều phiếu, không tạo NCC/chứng cứ bảo hành từ tồn đầu kỳ; xem [OPENING.md](OPENING.md).
+Worker outbox giữ khóa event ngoài savepoint; lỗi handler rollback hiệu ứng/consumer receipt trước khi lưu
+retry metadata. Consumer dùng cùng transaction, không commit/rollback hoặc gọi I/O ngoài DB; event không có
+handler được giữ pending. Bảo đảm và giới hạn registry/consumer mới tại [OUTBOX_WORKER.md](OUTBOX_WORKER.md).

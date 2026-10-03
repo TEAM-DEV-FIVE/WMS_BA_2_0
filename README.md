@@ -4,7 +4,7 @@
 
 Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã nền tảng cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**, ứng dụng **0.1.0**.
 
-**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã có nền server/desktop, migration, đăng nhập/phiên/MFA, phân quyền theo kho, API quản trị với hai người duyệt cấp quyền, transaction/idempotency kernel và SQLite lưu nháp/phục hồi. Desktop đã đăng nhập/MFA/chọn kho và có sáu form danh mục qua API thật. API danh mục có version/idempotency, quy đổi UOM, barcode và giá tham chiếu có phân quyền. Đã thêm owner/hợp đồng ký gửi, đọc tồn theo owner và tra serial/bảo hành có chứng cứ trên desktop. Đã có PO/SO, phê duyệt và nhận hàng từ PO qua API/desktop, ghi sổ từng phần và chống ghi trùng. Lệnh ghi sổ nhận hàng lưu bền SQLite, có tab [phục hồi sau mất phản hồi/đóng ứng dụng](01_Tai_lieu/RECEIPT_RECOVERY.md). Tồn đầu kỳ, xuất kho và các nghiệp vụ tiếp theo còn thiếu; xem [nhận hàng](01_Tai_lieu/RECEIVING.md). `requirements-dev.txt` vẫn chỉ phục vụ kiểm tra hồ sơ.
+**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã có nền server/desktop, migration, đăng nhập/phiên/MFA, phân quyền theo kho, API quản trị với hai người duyệt cấp quyền, transaction/idempotency kernel và SQLite lưu nháp/phục hồi. Desktop đã đăng nhập/MFA/chọn kho và có sáu form danh mục qua API thật. API danh mục có version/idempotency, quy đổi UOM, barcode và giá tham chiếu có phân quyền. Đã thêm owner/hợp đồng ký gửi, đọc tồn theo owner và tra serial/bảo hành có chứng cứ trên desktop. Đã có PO/SO, phê duyệt và nhận hàng từ PO qua API/desktop, ghi sổ từng phần và chống ghi trùng. Lệnh ghi sổ nhận hàng lưu bền SQLite, có tab [phục hồi sau mất phản hồi/đóng ứng dụng](01_Tai_lieu/RECEIPT_RECOVERY.md). Đã tích hợp backend [tồn đầu kỳ](01_Tai_lieu/OPENING.md), [desktop quản trị](01_Tai_lieu/ADMIN_DESKTOP.md) và [worker outbox](01_Tai_lieu/OUTBOX_WORKER.md). Import/UI tồn đầu kỳ, consumer nghiệp vụ, xuất kho và các nghiệp vụ tiếp theo còn thiếu. `requirements-dev.txt` vẫn chỉ phục vụ kiểm tra hồ sơ.
 
 **Bắt đầu chạy ứng dụng:** [hướng dẫn cài/chạy/kiểm thử và thứ tự issue](01_Tai_lieu/IMPLEMENTATION.md). Xem [kết quả kiểm tra đợt nền tảng](07_Kiem_tra/IMPLEMENTATION_REVIEW.md) và [trạng thái từng issue/test](07_Kiem_tra/implementation_status.json).
 
@@ -63,10 +63,11 @@ Chi tiết: [ARCHITECTURE.md](01_Tai_lieu/ARCHITECTURE.md), [INVARIANTS.md](01_T
 | [master_extension_model.json](02_CSDL/master_extension_model.json) | Mở rộng danh mục theo migration 005; runtime sau 005: 60 bảng/393 cột/113 FK |
 | [ownership_extension_model.json](02_CSDL/ownership_extension_model.json) | Mở rộng owner/bảo hành theo migration 006; runtime sau 007: 63 bảng/424 cột/123 FK |
 | [order_extension_model.json](02_CSDL/order_extension_model.json) | Mở rộng snapshot duyệt/đóng thiếu theo migration 008; runtime sau 008: 63 bảng/428 cột/125 FK |
-| [receiving_extension_model.json](02_CSDL/receiving_extension_model.json) | Migration 009 thêm execution ACK/hash; runtime hiện tại 63 bảng/430 cột/125 FK |
+| [receiving_extension_model.json](02_CSDL/receiving_extension_model.json) | Migration 009 thêm execution ACK/hash; runtime sau 009: 63 bảng/430 cột/125 FK |
+| [opening_extension_model.json](02_CSDL/opening_extension_model.json) | Migration 010 thêm kế hoạch tồn đầu kỳ; runtime hiện tại 65 bảng/440 cột/129 FK |
 | [03_So_do](03_So_do) | Atlas 91 trang, SVG, draw.io, PlantUML; ERD, class, use case, trạng thái, sequence, BPMN và mô hình khái niệm |
 | [04_Phan_quyen](04_Phan_quyen) | 10 vai trò, 56 quyền, 121 ánh xạ role-permission, policy và phạm vi quyền |
-| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 61 paths; coverage theo use case |
+| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 65 paths; coverage theo use case |
 | [06_Nhap_lieu](06_Nhap_lieu) | Excel, 14 CSV templates, 22 dòng ví dụ và validator offline |
 | [07_Kiem_tra](07_Kiem_tra) | Báo cáo kiểm tra, truy vết và đặc tả acceptance T01–T28 |
 | [scripts](scripts) | Kiểm tra artifact/PostgreSQL và cập nhật ZIP/checksum |

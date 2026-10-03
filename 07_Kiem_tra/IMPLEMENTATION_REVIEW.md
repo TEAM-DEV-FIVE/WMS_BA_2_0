@@ -1,18 +1,19 @@
-# Kết quả kiểm tra nền tảng, IAM, danh mục, PO/SO, nhận hàng và phục hồi
+# Kết quả kiểm tra WMS sau tích hợp ba nhánh agent
 
 Cập nhật ngày 03/10/2026; nhánh local `feat/application-foundation`, nền `e4de9e5` (PR #40 đã merge).
-Mã đã kiểm thử được lưu ở commit local `c57a743` để chia worktree; chưa push/chạy CI/review nghiệm thu mới.
-Phân công đợt tiếp theo tại [hướng dẫn worktree](../01_Tai_lieu/PHAN_CONG/README.md).
+Mốc nền `c57a743`, mốc chia worktree `d5ba723`. Đã tích hợp outbox `849a97a`, admin UI `f126186`
+và opening `0393849` qua ba merge local `e75c939`, `8246e00`, `1463854`; chưa push/chạy CI/nghiệm thu mới.
+Giữ nguyên [các worktree agent](../01_Tai_lieu/PHAN_CONG/README.md) để đối chiếu báo cáo riêng.
 Môi trường: Linux x64, Python 3.12.3, PostgreSQL 16.15, Tkinter qua Xvfb.
 
 ## Kết quả thực chạy
 
 | Kiểm tra | Kết quả | Phạm vi bằng chứng |
 | --- | --- | --- |
-| `xvfb-run -a .venv/bin/python scripts/check_application.py --gui` | 190 tests + 10 subtests đạt | Unit, contract, static acceptance, IAM/RBAC, danh mục, owner/bảo hành, PO/SO/duyệt/nhận hàng/phục hồi, desktop, SQLite và PostgreSQL thật; 0 skip |
+| `xvfb-run -a .venv/bin/python scripts/check_application.py --gui` | 301 tests + 10 subtests đạt, 182,74 giây | Bộ đã ghép gồm toàn bộ test cũ, OPENING, outbox, desktop quản trị và ca nối producer → worker; 0 failed/skip, 3 cảnh báo dependency hiện có |
 | Desktop → HTTP → FastAPI → PostgreSQL | Đạt | Mở cửa sổ Tk, gọi readiness qua socket TCP thật, nhận trạng thái DB sẵn sàng, đóng worker/server |
-| Migration từ DB trống, chạy lại, 2 runner đồng thời | Đạt | 9 revisions; runtime 63 bảng/430 cột/125 FK khớp baseline + IAM/master/ownership/order models; 10 vai trò/56 quyền/121 ánh xạ |
-| Nâng cấp từ revisions 001–002, 001–004, 001–005 hoặc 001–007 lên 009 | Đạt | Giữ user/MFA/UOM/category; ledger/số dư cũ giữ nguyên, owner UNCLASSIFIED, không tạo chứng cứ bảo hành giả; policy/approval cũ giữ nguyên, snapshot legacy null |
+| Migration từ DB trống, chạy lại, 2 runner đồng thời | Đạt | 10 revisions; runtime 65 bảng/440 cột/129 FK khớp baseline và các model bổ sung; 10 vai trò/56 quyền/121 ánh xạ |
+| Nâng cấp từ revisions cũ và 009 → 010 | Đạt | Giữ user/MFA/UOM/category, ledger/số dư, policy tùy chỉnh và dữ liệu legacy; không tạo chứng cứ bảo hành hay dữ liệu cutover giả |
 | Migration lỗi ở revision sau, checksum bị đổi, schema không được quản lý | Đạt | Rollback cả schema/history khi lỗi; từ chối checksum sai/schema unmanaged |
 | Command kernel với 2 connection | Đạt | Cùng actor/key/payload chỉ tạo một hiệu ứng/record/audit/outbox; replay giữ body/status; khác payload bị chặn |
 | Lỗi giữa transaction, FK hoặc stale version | Đạt | Không để lại dữ liệu/audit/outbox/record dở dang; UoW chưa commit tự rollback |
@@ -22,7 +23,7 @@ Môi trường: Linux x64, Python 3.12.3, PostgreSQL 16.15, Tkinter qua Xvfb.
 | `python scripts/check_postgres.py` | Đạt | SQL smoke/trigger, cột model, seed quyền và đối soát DB rỗng |
 | Ruff | Đạt | Mã mới, tests nền tảng, runner |
 | Build sdist/wheel | Đạt | Gói Python 0.1.0 chứa entry points, SQL migration và schema SQLite |
-| Cài wheel ngoài repository | Đạt | Import mã từ thư mục cài tạm, đủ chín migration PostgreSQL/hai schema SQLite, import màn phục hồi, 61 paths runtime; device ID bền và SQLite v2 giữ lệnh khi mở lại |
+| Cài wheel ngoài repository | Đạt | Import từ thư mục cài tạm, đủ 10 migration PostgreSQL/hai schema SQLite, 65 paths, module OPENING/outbox/admin/receipt recovery; device ID bền, SQLite v2 restart và worker CLI --help đạt |
 
 ## Bổ sung IAM / BE03–BE04–UI03
 
@@ -98,12 +99,13 @@ Phiên bản dependencies được khóa trong `requirements-app-lock.txt`.
 - **T12/T13:** API danh mục và desktop có bằng chứng thành phần; import/full UAT còn thiếu.
 - **T08:** receipt.post đã nối SQLite v2, tab tra cứu/retry sau restart, kiểm tra lỗi ổ đĩa/file và đổi user.
   Nháp nghiệp vụ và luồng xuất bị thiếu tồn chưa đủ để xác nhận toàn ca T08.
-- **T24:** schema/FK/UNIQUE/trigger, UoW và failpoint sau receipt ledger/balance/serial/audit/outbox đạt; chưa nghiệm thu toàn bộ các loại posting.
+- **T24:** schema/FK/UNIQUE/trigger, UoW và failpoint receipt/OPENING/outbox đạt; chưa nghiệm thu toàn bộ các loại posting.
+- **T20:** OPENING API có batch/execution dedup, cutover, serial race và rollback; pipeline import file và nghiệm thu dữ liệu thật còn thiếu.
 - **T27/T28:** owner/schema/đối soát/quyền/chứng cứ/desktop có bằng chứng thành phần tại `test_traceability.py`; chưa chạy đủ luồng nhập/xuất/import/báo cáo/UAT.
 - **T10/T14/T17:** có bằng chứng thành phần PO/SO, snapshot/SOD/revise/cancel/close và Linux desktop; đã thêm receipt/posting và tranh chấp nguồn; issue/release và UAT đủ luồng còn thiếu.
 - **T01–T28:** giữ PLANNED trong ma trận nghiệm thu gốc. Các ca còn lại chưa chạy nghiệp vụ.
-- **T07:** có kiểm thử IAM/RBAC thật ở API đọc/quyền/giá/revoke; export/download và duyệt các loại phiếu ngoài PO/SO/receipt chưa triển khai nên chưa nghiệm thu toàn ca.
-- **T11:** có kiểm thử API và desktop qua HTTP thật cho khóa user/phiên/MFA/refresh replay trên Linux. Chưa UAT Windows.
+- **T07:** có kiểm thử IAM/RBAC và desktop quản trị qua HTTP thật; export/download và duyệt ngoài PO/SO/RECEIPT/OPENING còn thiếu.
+- **T11:** desktop quản trị khóa/mở user, thu hồi phiên/grant, MFA/quyền và response phiên cũ đã kiểm thử trên Linux. Chưa UAT Windows.
 - Callback authorization trong test kernel vẫn là fixture; không lấy riêng test kernel làm bằng chứng IAM.
 
 Chưa thực chạy PostgreSQL 15, Windows 10/11, máy in/scanner, tải 15 CCU, backup/WAL restore hoặc bộ cài EXE.
@@ -112,7 +114,7 @@ Windows đạt từ kiểm thử Tk trên Linux. Các cảnh báo deprecation c�
 không làm test thất bại; cần xử lý khi nâng dependencies hoặc sửa contract test đầu vào.
 
 Xem [hướng dẫn IAM](../01_Tai_lieu/IDENTITY.md) và [kế hoạch](../01_Tai_lieu/IMPLEMENTATION.md).
-Tiếp theo: tồn đầu kỳ/import, phục hồi nháp/các lệnh ngoài receipt.post, worker outbox và giữ chỗ/xuất kho. GUI quản trị UI03, form bổ sung UI04 và phân công UI05 còn thiếu.
+Tiếp theo: UI/import tồn đầu kỳ, consumer nghiệp vụ cho outbox, phục hồi nháp/các lệnh ngoài receipt.post và giữ chỗ/xuất kho. Form bổ sung UI04, phân công UI05 và lookup/lịch sử IAM nâng cao còn thiếu.
 Xem [PO/SO và phê duyệt](../01_Tai_lieu/ORDERS_APPROVAL.md) cho API, cách dùng desktop và giới hạn.
 Xem [hướng dẫn owner/bảo hành](../01_Tai_lieu/TRACEABILITY.md) cho giới hạn dữ liệu legacy và policy ký gửi.
 Xem [hướng dẫn danh mục](../01_Tai_lieu/MASTER_DATA.md) để biết giới hạn RAM/recovery, dropdown và các form chưa có.
@@ -132,7 +134,7 @@ Xem [hướng dẫn danh mục](../01_Tai_lieu/MASTER_DATA.md) để biết gi�
 - Tk → HTTP thật → PostgreSQL: tạo receipt từ PO, submit, đổi user duyệt, nhận một phần, logout xóa dữ liệu.
 - Xem ảnh bố cục 900×690 bằng Xvfb với dữ liệu giả. Presenter kiểm tra giữ execution key/body sau timeout và tách user.
 
-Xem [RECEIVING.md](../01_Tai_lieu/RECEIVING.md). Tồn đầu kỳ, ký gửi, scanner, Windows UAT, worker và workflow kỳ/kiểm kê đầy đủ còn thiếu.
+Xem [RECEIVING.md](../01_Tai_lieu/RECEIVING.md). UI/import tồn đầu kỳ, ký gửi, scanner, Windows UAT, consumer nghiệp vụ và workflow kỳ/kiểm kê đầy đủ còn thiếu.
 
 ## Bổ sung phục hồi nhận hàng — UI08/TL03/UI06
 
@@ -155,3 +157,36 @@ Xem [RECEIVING.md](../01_Tai_lieu/RECEIVING.md). Tồn đầu kỳ, ký gửi, s
 
 Xem [RECEIPT_RECOVERY.md](../01_Tai_lieu/RECEIPT_RECOVERY.md). Đợt này chỉ nối lưu bền `receipt.post`;
 các lệnh tạo/sửa/duyệt và nháp nghiệp vụ còn ở RAM. Không đổi API runtime hoặc schema PostgreSQL.
+
+## Tích hợp ba nhánh agent
+
+| Nhánh | Commit bàn giao | Phạm vi được tích hợp |
+| --- | --- | --- |
+| agent/outbox | `849a97a` | Worker/registry/retry, adapter PostgreSQL, 31 tests; không thêm migration |
+| agent/admin-ui | `f126186` | Adapter/presenter/view IAM, navigation tám màn, 42 tests; không đổi backend |
+| agent/opening | `0393849` | Backend OPENING, policy/quyền, migration 010, model/contract và 37 tests |
+
+Review code/contract và báo cáo riêng trước merge. Chỉ xung đột `SHA256SUMS.txt`, đã sinh lại từ cây mã
+được ghép; không chọn một manifest của nhánh để bỏ thay đổi nhánh khác. Migration 001–009 và dependency
+lock giữ nguyên so với mốc phân công. Quyền `opening.approve` tách khỏi quyền duyệt thông thường,
+cutover giữ warehouse lock tương thích với receipt. Registry worker xử lý đúng event version do producer sinh.
+
+Bổ sung [test_integrated_workflows.py](../tests/foundation/test_integrated_workflows.py): tạo/duyệt/post
+OPENING qua API thật, chuyển `opening.post.v1` đến consumer kiểm thử ghi hiệu ứng DB. Inject lỗi sau insert:
+hiệu ứng consumer rollback, tồn 10 và ACK gốc vẫn giữ nguyên. Retry thành công một lần; replay lệnh post
+không tạo thêm event, transaction, move hoặc hiệu ứng consumer. Event không có handler vẫn pending.
+Consumer này chỉ là fixture kiểm thử, không được đóng gói như consumer nghiệp vụ.
+
+Full suite sau ghép: 190 nền + 31 outbox + 42 admin + 37 opening + 1 ca nối luồng = **301 tests**,
+kèm 10 subtests; cùng Linux/Python 3.12/PostgreSQL 16/Xvfb. Không xóa/skip test hoặc đổi T01–T28 sang PASS.
+Ruff, runtime OpenAPI check, build sdist/wheel và cài wheel ngoài repository đạt. Đã xem ảnh bố cục
+tab quản trị bản ghép tại 900×690 với dữ liệu giả; tám màn truy cập qua ô Chức năng.
+
+Các giới hạn review còn giữ: OPENING tối đa 200 dòng, một lần ghi/kho chưa hoạt động, chưa UI/import;
+biên bản chỉ là tham chiếu, chưa xác minh chữ ký. Outbox chưa có consumer nghiệp vụ/service vận hành,
+registry phải đồng nhất giữa các worker. IAM timeout chỉ giữ trạng thái chưa rõ trong RAM, chưa có
+idempotency server hoặc recovery bền cho lệnh quản trị; UI không tự retry. Windows/load/backup UAT chưa chạy.
+
+Chi tiết: [OPENING.md](../01_Tai_lieu/OPENING.md), [OUTBOX_WORKER.md](../01_Tai_lieu/OUTBOX_WORKER.md),
+[ADMIN_DESKTOP.md](../01_Tai_lieu/ADMIN_DESKTOP.md). Báo cáo agent là bằng chứng tại từng nhánh riêng;
+kết quả 301 tests ở trên mới là lần chạy trên cây mã đã tích hợp.

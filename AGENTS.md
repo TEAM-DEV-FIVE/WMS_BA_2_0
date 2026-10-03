@@ -15,8 +15,9 @@ Trước khi sửa mã, kiểm tra `pwd`, `git branch --show-current`, `git stat
 | `agent/admin-ui` | [Desktop quản trị](01_Tai_lieu/PHAN_CONG/AGENT_ADMIN_UI.md) |
 | `feat/application-foundation` | Điều phối, review, tích hợp và kiểm thử tổng |
 
-Không switch/reset/rebase nhánh của agent khác, không sửa file ở worktree khác. Không tự push, merge,
-đóng issue hoặc gửi thông báo GitHub. Có thể commit local phần việc đã được giao; bàn giao commit hash.
+Không switch/reset/rebase nhánh của agent khác, không sửa file ở worktree khác. Agent ở nhánh tính năng
+không tự merge; agent điều phối tích hợp theo nhiệm vụ được giao. Không tự push, đóng issue hoặc gửi
+thông báo GitHub. Có thể commit local phần việc đã được giao; bàn giao commit hash.
 Nếu cần sửa ngoài phạm vi, ghi rõ đề xuất trong báo cáo bàn giao và tiếp tục phần độc lập còn làm được.
 
 ## Bất biến và kiểm thử
@@ -24,7 +25,7 @@ Nếu cần sửa ngoài phạm vi, ghi rõ đề xuất trong báo cáo bàn gi
 - Đọc `01_Tai_lieu/INVARIANTS.md`, hướng dẫn module liên quan và mã hiện có trước khi mở rộng.
 - PostgreSQL là dữ liệu chính thức. Không ghi DB từ desktop. Không lưu credential vào SQLite/log.
 - Lệnh ghi phải kiểm tra quyền hiện tại, version, chống trùng; ledger/balance/audit/outbox/ACK cùng transaction.
-- Giữ migration `001`–`009` bất biến. Đợt này chỉ nhánh opening được thêm `010_opening.sql`.
+- Giữ migration đã tích hợp `001`–`010` bất biến. Đợt worktree đầu đã hoàn tất; migration tiếp theo cần phân công số revision trước.
 - Không đổi requirement/acceptance test sang PASS để né kiểm thử. T01–T28 vẫn PLANNED đến khi nghiệm thu đủ.
 - Kiểm thử DB dùng runner tạo cluster/database tạm; không dùng `WMS_DATABASE_URL` vận hành.
 - GUI và hủy tài nguyên Tk ở main thread; HTTP/SQLite qua worker và loại response thuộc phiên cũ.

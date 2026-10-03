@@ -2,9 +2,11 @@
 
 Runtime 0.1.0 có health/readiness, auth/MFA/session, quản trị user/grant, danh sách kho theo quyền và đọc chứng từ có che giá.
 [openapi_runtime.json](openapi_runtime.json) được sinh từ code và kiểm tra bằng test; Swagger ở `/api/v1/docs`.
-Runtime hiện có 61 paths. Danh mục chạy tại `/api/v1/master/*`, gồm owner/hợp đồng; thêm tồn theo owner và bảo hành serial. Xem [danh mục](../01_Tai_lieu/MASTER_DATA.md) và [truy vết](../01_Tai_lieu/TRACEABILITY.md).
+Runtime hiện có 65 paths. Danh mục chạy tại `/api/v1/master/*`, gồm owner/hợp đồng; thêm tồn theo owner và bảo hành serial. Xem [danh mục](../01_Tai_lieu/MASTER_DATA.md) và [truy vết](../01_Tai_lieu/TRACEABILITY.md).
 Desktop đã nối SQLite và `GET /operations/{key}` để [phục hồi receipt.post](../01_Tai_lieu/RECEIPT_RECOVERY.md) sau mất phản hồi/đóng process; không thay đổi API runtime.
-PO/SO có create/PUT/read/list, assignment, submit/decide/revise/cancel/close; xem [hướng dẫn](../01_Tai_lieu/ORDERS_APPROVAL.md). Runtime dùng keyset `after`, mặc định 50; không có snapshot `as_of` như thiết kế lõi. Receipt.post đã có runtime với DTO kế hoạch trước duyệt; các posting khác còn thiếu. Xem [RECEIVING.md](../01_Tai_lieu/RECEIVING.md) để biết khác biệt PUT/post/operation. Xem [hướng dẫn IAM](../01_Tai_lieu/IDENTITY.md).
+PO/SO có create/PUT/read/list, assignment, submit/decide/revise/cancel/close; xem [hướng dẫn](../01_Tai_lieu/ORDERS_APPROVAL.md). Runtime dùng keyset `after`, mặc định 50; không có snapshot `as_of` như thiết kế lõi. Receipt.post và opening.post đã có runtime với kế hoạch trước duyệt; xuất/chuyển/đảo còn thiếu. Xem [RECEIVING.md](../01_Tai_lieu/RECEIVING.md) để biết khác biệt PUT/post/operation. Xem [hướng dẫn IAM](../01_Tai_lieu/IDENTITY.md).
+
+OPENING dùng `/openings` và `/openings/operations/{key}`; xem [hướng dẫn tồn đầu kỳ](../01_Tai_lieu/OPENING.md). Quyền duyệt riêng `opening.approve`, không dùng `document.approve`.
 
 openapi_core.json là hợp đồng các lệnh trọng yếu, có thể import Swagger Editor hoặc Postman hỗ trợ OpenAPI. Đây là thiết kế, không phải server đang chạy và chưa bao gồm schema toàn bộ CRUD. URL example phải thay bằng DNS nội bộ thật.
 

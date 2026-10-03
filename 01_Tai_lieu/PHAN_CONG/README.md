@@ -1,8 +1,12 @@
-# Phân công worktree — đợt tiếp theo
+# Phân công worktree — đợt đã tích hợp
 
-Ngày 03/10/2026. Người dùng điều động agent; bảng này chuẩn bị 3 nhánh độc lập, chưa tự khởi chạy agent.
-Mốc mã ứng dụng: `c57a743`, đã có 190 tests + 10 subtests đạt ở lần chạy trước. Commit phân công tiếp sau
-mốc đó là HEAD chung khi tạo ba worktree. Trạng thái này là local; không phải cập nhật issue trên GitHub.
+Ngày 03/10/2026. Người dùng đã điều động và nhận bàn giao ba agent. Mốc ứng dụng `c57a743`, mốc chia
+nhánh `d5ba723`. Điều phối đã merge outbox `849a97a`, admin UI `f126186`, opening `0393849` vào
+`feat/application-foundation`, giữ nguyên nhánh/worktree bàn giao. Bản ghép đạt 301 tests + 10 subtests;
+xem [báo cáo tích hợp](../../07_Kiem_tra/IMPLEMENTATION_REVIEW.md). Chưa push/cập nhật issue GitHub.
+
+Phạm vi và prompt dưới đây là hồ sơ đợt đã hoàn tất. Khi giao đợt mới cần lấy mốc tích hợp mới và phân
+lại phạm vi; không tự tiếp tục từ nhánh agent cũ đang thiếu hai nhánh còn lại.
 
 ## Bảng giao việc
 

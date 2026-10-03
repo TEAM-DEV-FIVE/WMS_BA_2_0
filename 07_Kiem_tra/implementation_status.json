@@ -60,7 +60,7 @@
       "title": "[BE02] Migration và hạ tầng PostgreSQL",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/4",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_MIGRATIONS_001_009",
+      "local_status": "PARTIAL_MIGRATIONS_001_010",
       "dependencies": [
         3
       ],
@@ -69,7 +69,8 @@
         "T24",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "Opening typed plan/policy added; legacy data retained. Other workflow migrations and production upgrades remain pending."
     },
     {
       "number": 5,
@@ -107,7 +108,7 @@
       "title": "[TL03] Command, version và idempotency",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/7",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_RECEIPT_POST_LOOKUP_DURABLE_RETRY",
+      "local_status": "PARTIAL_RECEIPT_OPENING_POST_LOOKUP_DURABLE_RECEIPT_RETRY",
       "dependencies": [
         3,
         4,
@@ -118,7 +119,8 @@
         "T02",
         "T24",
         "T28"
-      ]
+      ],
+      "note": "Receipt/opening posting and ACK lookup integrated; only receipt.post has durable desktop recovery."
     },
     {
       "number": 8,
@@ -158,7 +160,7 @@
       "title": "[BE07] Phê duyệt và phân tách nhiệm vụ",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/10",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_PO_SO_RECEIPT_APPROVAL_SNAPSHOT_SOD",
+      "local_status": "PARTIAL_PO_SO_RECEIPT_OPENING_APPROVAL",
       "dependencies": [
         9
       ],
@@ -167,7 +169,8 @@
         "T10",
         "T14",
         "T28"
-      ]
+      ],
+      "note": "OPENING uses opening.approve and independent policy/SOD. Counting/adjustment and full UAT remain pending."
     },
     {
       "number": 11,
@@ -202,7 +205,7 @@
       "title": "[UI03] Giao diện đăng nhập và quản trị",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/13",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_LIVE_LOGIN_MFA_WAREHOUSE_UI",
+      "local_status": "PARTIAL_DESKTOP_LOGIN_MFA_USER_GRANT_ADMIN",
       "dependencies": [
         12,
         2
@@ -212,7 +215,8 @@
         "T07",
         "T11",
         "T28"
-      ]
+      ],
+      "note": "Desktop user/grant administration, two-person approval, pagination and one-shot IAM writes integrated; password/reset MFA, advanced lookups and Windows UAT pending."
     },
     {
       "number": 14,
@@ -352,7 +356,7 @@
       "title": "[QA03] Audit, outbox và worker",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/22",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_MASTER_WARRANTY_ORDER_RECEIPT_EVENTS_NO_WORKER",
+      "local_status": "PARTIAL_OUTBOX_ENGINE_NO_PRODUCTION_CONSUMERS",
       "dependencies": [
         21,
         4
@@ -363,14 +367,15 @@
         "T07",
         "T24",
         "T28"
-      ]
+      ],
+      "note": "PostgreSQL worker, atomic DB consumers/receipts, bounded retry/backoff and shutdown integrated; no production consumer configured."
     },
     {
       "number": 23,
       "title": "[TL04] Ledger, balance và danh tính hàng",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/23",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_RECEIPT_LEDGER_BALANCE_POSITION",
+      "local_status": "PARTIAL_RECEIPT_OPENING_LEDGER_BALANCE_POSITION",
       "dependencies": [
         7,
         22
@@ -382,14 +387,15 @@
         "T24",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "Atomic receipt and company opening posting tested; issue/transfer/reversal engines and load benchmark pending."
     },
     {
       "number": 24,
       "title": "[TL05] Nhận hàng và tồn đầu kỳ",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/24",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_PO_RECEIVING_NO_OPENING_OR_CONSIGNMENT",
+      "local_status": "PARTIAL_PO_RECEIVING_COMPANY_OPENING_NO_IMPORT_OR_CONSIGNMENT",
       "dependencies": [
         23,
         8,
@@ -402,7 +408,8 @@
         "T20",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "OPENING backend integrated: approved full-document cutover, maximum 200 lines and one posting per unused warehouse. Opening UI/import and consignment pending."
     },
     {
       "number": 25,
@@ -579,7 +586,7 @@
       "title": "[QA08] Kiểm thử đồng thời và đối soát",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/35",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_RECEIPT_CONCURRENCY_RECONCILIATION_NO_LOAD_TEST",
+      "local_status": "PARTIAL_RECEIPT_OPENING_OUTBOX_CONCURRENCY_NO_LOAD_TEST",
       "dependencies": [
         28,
         29
@@ -595,7 +602,8 @@
         "T24",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "Real PostgreSQL concurrency and reconciliation covered for receipt/opening/outbox; no 15 CCU production load test."
     },
     {
       "number": 36,
@@ -681,8 +689,8 @@
     {
       "id": "T02",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py",
-      "note": "Receipt.post recovery component evidence: real child process exits after PostgreSQL commit before local ACK, new desktop looks up original operation with one stock effect; SQLite migration/rollback/disk failures/session separation covered. Other drafts/commands, Windows and full business acceptance pending."
+      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py; tests/foundation/test_outbox.py; tests/foundation/test_openings.py; tests/foundation/test_integrated_workflows.py",
+      "note": "Component coverage now includes receipt recovery, opening idempotency and producer-to-outbox retry without duplicate inventory/effects. Full LAN/Windows business acceptance pending."
     },
     {
       "id": "T03",
@@ -711,8 +719,8 @@
     {
       "id": "T07",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_identity.py",
-      "note": "Live API + Linux desktop coverage; Windows UAT pending. Export/download/workflow coverage pending for T07."
+      "component_evidence": "tests/foundation/test_identity.py; tests/foundation/test_admin_desktop.py; tests/foundation/test_admin_presenter.py; tests/foundation/test_openings.py",
+      "note": "IAM desktop administration, MFA/scope/SOD/revocation and opening permission checked. Export/download and complete business acceptance pending."
     },
     {
       "id": "T08",
@@ -735,8 +743,8 @@
     {
       "id": "T11",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_identity.py",
-      "note": "Live API + Linux desktop coverage; Windows UAT pending. Export/download/workflow coverage pending for T07."
+      "component_evidence": "tests/foundation/test_identity.py; tests/foundation/test_admin_desktop.py; tests/foundation/test_admin_presenter.py",
+      "note": "Linux Tk/HTTP/PostgreSQL user/grant administration, session revocation and stale response handling tested. Windows UAT and full acceptance pending."
     },
     {
       "id": "T12",
@@ -789,8 +797,8 @@
     {
       "id": "T20",
       "acceptance_status": "PLANNED",
-      "component_evidence": null,
-      "note": "Business acceptance not executed."
+      "component_evidence": "tests/foundation/test_openings.py; tests/foundation/test_integrated_workflows.py",
+      "note": "Opening API batch/execution dedup, cutover/serial concurrency, rollback and worker integration tested. File import/dry-run/hash/chunk pipeline and real cutover UAT not implemented."
     },
     {
       "id": "T21",
@@ -813,8 +821,8 @@
     {
       "id": "T24",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py",
-      "note": "Receipt.post recovery component evidence: real child process exits after PostgreSQL commit before local ACK, new desktop looks up original operation with one stock effect; SQLite migration/rollback/disk failures/session separation covered. Other drafts/commands, Windows and full business acceptance pending."
+      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py; tests/foundation/test_outbox.py; tests/foundation/test_openings.py; tests/foundation/test_integrated_workflows.py",
+      "note": "Atomic receipt/opening posting plus outbox savepoint/crash/retry and real opening producer integration tested. Other posting types and full acceptance pending."
     },
     {
       "id": "T25",
@@ -837,26 +845,50 @@
     {
       "id": "T28",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_postgres.py; tests/foundation/test_receipts.py",
-      "note": "Receipt API/desktop/PostgreSQL component evidence; full acceptance, Windows UAT and other workflows remain pending."
+      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_postgres.py; tests/foundation/test_receipts.py; tests/foundation/test_openings.py; tests/foundation/test_admin_desktop.py",
+      "note": "Additional local opening/admin component evidence; Windows, import/report/issue and complete UAT remain pending."
     }
   ],
   "latest_local_validation": {
     "suite": "xvfb-run -a .venv/bin/python scripts/check_application.py --gui",
-    "passed": 190,
+    "passed": 301,
     "subtests_passed": 10,
     "runtime_schema": {
-      "tables": 63,
-      "columns": 430,
-      "foreign_keys": 125,
+      "tables": 65,
+      "columns": 440,
+      "foreign_keys": 129,
       "roles": 10,
       "permissions": 56,
       "role_permissions": 121
     },
     "full_acceptance_completed": false,
-    "runtime_paths": 61,
-    "migrations": 9,
-    "local_sqlite_schema_version": 2
+    "runtime_paths": 65,
+    "migrations": 10,
+    "local_sqlite_schema_version": 2,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 182.74,
+    "installed_wheel_checked": true
   },
-  "github_counts_note": "Snapshot at initial issue read; remote state not refreshed for this local implementation report."
+  "github_counts_note": "Snapshot at initial issue read; remote state not refreshed for this local implementation report.",
+  "integrated_agent_branches": [
+    {
+      "branch": "agent/outbox",
+      "source_commit": "849a97a9b4d0fb9b1094f3c0f50aa172c1df2d9e",
+      "merge_commit": "e75c939",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/admin-ui",
+      "source_commit": "f126186183509fb145c75d00c735177959437201",
+      "merge_commit": "8246e00",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/opening",
+      "source_commit": "039384987f402884151bcc736cf57505cd1407e5",
+      "merge_commit": "1463854",
+      "worktree_retained": true
+    }
+  ]
 }

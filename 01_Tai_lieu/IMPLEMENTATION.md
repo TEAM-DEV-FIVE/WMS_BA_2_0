@@ -3,8 +3,9 @@
 Ngày bắt đầu: 02/10/2026. Nhánh: `feat/application-foundation`.
 Người thực hiện hiện tại: Trần Trung Kiên, có Codex hỗ trợ theo yêu cầu.
 Phân công nhiều thành viên trong issue/hồ sơ cũ là lịch sử kế hoạch, không phải năng lực thực hiện hiện tại.
-Mã ứng dụng đã lưu ở commit local `c57a743`; theo yêu cầu mới đã chuẩn bị
-[ba worktree cho agent](PHAN_CONG/README.md) làm tồn đầu kỳ, outbox và desktop quản trị, điều phối giữ nhánh này.
+Mã nền đã lưu ở commit local `c57a743`. Đã tích hợp [ba nhánh agent](PHAN_CONG/README.md):
+outbox `849a97a`, desktop quản trị `f126186`, tồn đầu kỳ `0393849`; giữ các worktree để tra cứu.
+Kết quả tích hợp và giới hạn ở [báo cáo kiểm thử](../07_Kiem_tra/IMPLEMENTATION_REVIEW.md); chưa push GitHub.
 
 ## Hiện trạng đã đối chiếu
 
@@ -23,24 +24,28 @@ Chưa gửi thông báo, đổi assignee hoặc ghi giờ công thay người kh
 | Issue | Phần triển khai | Giới hạn còn lại |
 | --- | --- | --- |
 | #3 TL02 | Cấu trúc server/domain/application/infrastructure, desktop, contracts; cấu hình; health/readiness; entry point; lỗi/request ID | Nghiệm thu chính thức và tích hợp module tiếp theo |
-| #4 BE02 | Migration 001–009, IAM/danh mục/owner/hợp đồng/chứng cứ bảo hành; nâng cấp giữ sổ cũ ở UNCLASSIFIED | Phân loại/chuyển owner dữ liệu cũ và kiểm chứng đầy đủ với posting còn thiếu |
+| #4 BE02 | Migration 001–010, IAM/danh mục/owner/bảo hành/tồn đầu kỳ; nâng cấp giữ dữ liệu cũ | Phân loại/chuyển owner dữ liệu cũ và kiểm chứng đầy đủ với posting còn thiếu |
 | #5 BE03 | Login/refresh/logout, phiên live, TOTP/enrollment, throttle và audit; mã hóa secret | Recovery/reset MFA, đổi mật khẩu và UAT Windows còn thiếu |
 | #6 BE04 | Grant theo kho/thời hạn/role; đọc chứng từ và che giá; user/grant APIs, hai quản trị viên duyệt cấp quyền | Export/download và tích hợp các nghiệp vụ còn chưa xây dựng |
-| #7 TL03 | Command kernel, receipt.post/execution ACK/operation lookup, retry deadlock và desktop phục hồi cùng key/body | Posting khác và recovery cho các loại lệnh còn lại |
+| #7 TL03 | Command kernel, receipt/opening post, execution ACK/operation lookup, retry deadlock và desktop phục hồi receipt.post | Posting khác và recovery cho các loại lệnh còn lại |
 | #8 BE05 | API danh mục/owner/hợp đồng, UOM/barcode/giá, tồn theo owner, serial/bảo hành có chứng cứ và scope | Import, policy xuất/chuyển ký gửi và UAT |
 | #9 BE06 | PO/SO create/read/list/update, quy đổi snapshot, assignment, lượng ròng và đóng thiếu | Đã nối receipt và khóa nguồn; issue, release reservation và UAT còn thiếu |
-| #10 BE07 | Submit/approve/reject/revise, snapshot nội dung/role, SOD một/hai bước | Đã nối PO/SO/receipt; policy kiểm kê/điều chỉnh/tồn đầu kỳ còn thiếu |
+| #10 BE07 | Submit/approve/reject/revise, snapshot nội dung/role, SOD một/hai bước cho PO/SO/RECEIPT/OPENING | Policy kiểm kê/điều chỉnh và nghiệm thu đủ luồng |
 | #15 UI05 | Tab PO/SO tạo/sửa/gửi/duyệt/từ chối, giữ form khi stale, retry đúng key và lịch sử duyệt | GUI phân công, issue, so sánh revision, recovery SQLite và UAT Windows |
 | #14 UI04 | Sáu form danh mục và tab tra serial/bảo hành qua API thật | Form owner/hợp đồng/ghi chứng cứ/barcode/quy đổi/giá, dropdown lớn, SQLite recovery và UAT Windows |
 | #12 UI02 | Tk shell, HTTP worker/queue, bỏ response cũ, timeout, TLS, presenter tests | Navigation nghiệp vụ, phân trang và các màn hình tiếp theo |
-| #13 UI03 | Login/MFA/logout, đăng ký MFA, chọn kho, refresh token trong RAM, xóa dữ liệu phiên bị thu hồi | GUI quản trị user/grant và nghiệm thu Windows |
+| #13 UI03 | Login/MFA/chọn kho, tab quản trị user/grant, hai quản trị duyệt cấp quyền, phân trang và xử lý timeout không tự replay | Đổi mật khẩu/reset MFA, lookup kho/lịch sử IAM nâng cao và nghiệm thu Windows |
 | #18 UI08 | Device ID bền, SQLite v2 tách server/user/device, checkpoint receipt.post, tab tra cứu/gửi lại sau crash, khóa file | Phục hồi nháp và lệnh ngoài receipt.post, UAT Windows |
-| #23 TL04 | Resolver ownership và nhận hàng nguyên tử: ledger/balance/serial position/tiến độ/audit/outbox | Chưa có các engine xuất/chuyển/đảo và benchmark tải |
-| #24 TL05 | Nhận từ PO đã duyệt, kế hoạch lô/serial/vị trí, nhận từng phần, source lock, kỳ/kiểm kê, execution dedup | Tồn đầu kỳ/import và nhận ký gửi chưa có |
+| #22 QA03 | Worker outbox riêng, nhiều consumer, khóa hàng đợi, receipt/hiệu ứng DB nguyên tử, retry/backoff và dừng sạch | Chưa có consumer nghiệp vụ thực tế; service vận hành/monitoring/retention còn thiếu |
+| #23 TL04 | Resolver ownership, nhận hàng và tồn đầu kỳ nguyên tử: ledger/balance/serial position/audit/outbox | Chưa có các engine xuất/chuyển/đảo và benchmark tải |
+| #24 TL05 | Nhận từ PO; backend OPENING có duyệt, batch, đối ứng, chặn kho đã hoạt động và chống ghi trùng | Import/UI tồn đầu kỳ, khối lượng lớn và nhận ký gửi chưa có |
 | #16 UI06 | Tab nhận hàng nối API thật, duyệt/ghi sổ từng phần và phục hồi receipt.post qua SQLite | Máy quét, workflow kho khác, UAT Windows |
 | #21 QA02 | Workflow unit/contract/Linux+Windows/wheel/PostgreSQL 15+16, runner DB tạm, JUnit | Cần push để chạy CI; chưa có bằng chứng Windows/CI từ đợt này |
 
-Server đã có 61 paths runtime gồm health/readiness, IAM, danh mục, PO/SO/duyệt, tồn theo owner và bảo hành có giới hạn theo quyền.
+Server đã có 65 paths runtime gồm health/readiness, IAM, danh mục, PO/SO/duyệt, nhận hàng, tồn đầu kỳ, tồn theo owner và bảo hành có giới hạn theo quyền.
+[Tồn đầu kỳ](OPENING.md) mô tả revision 010, policy, giới hạn một lần ghi/kho và tối đa 200 dòng.
+[Worker outbox](OUTBOX_WORKER.md) mô tả cấu hình consumer và bảo đảm transaction/retry.
+[Desktop quản trị](ADMIN_DESKTOP.md) mô tả tab user/grant và xử lý lệnh IAM chưa rõ kết quả.
 [Nhận hàng](RECEIVING.md) mô tả revision 009, setup kỳ kho đầu tiên và giới hạn.
 [Phục hồi nhận hàng](RECEIPT_RECOVERY.md) mô tả lưu bền lệnh post, tab tra cứu/retry và thư mục dữ liệu desktop.
 [PO/SO và phê duyệt](ORDERS_APPROVAL.md) mô tả phần thêm ngày 03/10/2026, migration 008 và giới hạn của BE06/BE07/UI05.
@@ -48,7 +53,7 @@ Server đã có 61 paths runtime gồm health/readiness, IAM, danh mục, PO/SO/
 [Hướng dẫn danh mục](MASTER_DATA.md) mô tả API, màn hình và giới hạn của BE05/UI04.
 [Hướng dẫn IAM](IDENTITY.md) giải thích bootstrap, cấu hình MFA, API quản trị và desktop.
 `05_API/openapi_runtime.json` được sinh/kiểm tra từ code; `05_API/openapi_core.json` vẫn là hợp đồng đích
-cho nghiệp vụ nhận/xuất. CRUD/duyệt PO/SO và receipt.post đã có; issue/posting khác chưa có.
+cho nghiệp vụ nhận/xuất. CRUD/duyệt PO/SO/RECEIPT/OPENING và hai posting nhận hàng/tồn đầu kỳ đã có; issue/posting khác chưa có.
 
 ## Cài đặt môi trường phát triển
 
@@ -134,7 +139,9 @@ CommandBus nhận callback authorization bắt buộc, chạy **trước khi tr�
 kiểm tra version và bất biến, ghi dữ liệu/audit/outbox cùng connection; bus ghi idempotency rồi commit.
 Thoát UoW khi chưa commit luôn rollback. Không gọi HTTP, gửi thông báo hay in trong transaction.
 Test kernel dùng thao tác tạo organization giả; test_receipts.py bổ sung posting thực tế, rollback và đối soát.
-IAM/RBAC đã chạy thật; receipt.post có execution dedup/operation lookup/retry deadlock, còn phải nối các posting khác.
+IAM/RBAC đã chạy thật; receipt.post và opening.post có execution dedup/operation lookup/retry deadlock.
+Worker outbox xử lý hậu kỳ, không ghi lại tồn của giao dịch đã commit; consumer DB và consumer_receipt
+cùng transaction. Chưa có consumer nghiệp vụ mặc định; xem OUTBOX_WORKER.md trước vận hành.
 
 LocalStore dùng một connection trên storage worker, lưu trong `WMS_LOCAL_DATA_DIR` hoặc profile OS mặc định.
 Giữ device.sqlite3 và receipts/ khi nâng cấp; không đặt trên network share. Khóa OS chặn mở đồng thời
@@ -143,9 +150,9 @@ và retry khi người dùng chủ động chọn. Các lệnh khác chưa nối
 
 ## Thứ tự thực hiện tiếp khi chỉ còn một người
 
-1. **Hoàn thiện nhập kho và phục hồi:** receipt từ PO, UI #16 và phục hồi receipt.post #18 đã có; tiếp tục tồn đầu kỳ/import #24/#31, worker #22 và recovery nháp/lệnh còn lại #18.
-   Tiếp tục GUI quản trị #13, form owner/hợp đồng/chứng cứ #14 và tích hợp quyền từng endpoint; hoàn thiện T07/T11 trên môi trường đích.
-2. **Nghiệm thu luồng nhập và triển khai xuất:** kiểm thử đích #8 → #9 → #10 → #23 → receipt #24 đã có bằng chứng local; hoàn thiện worker/outbox và UI phụ trợ.
+1. **Hoàn thiện nhập kho và phục hồi:** triển khai UI/import tồn đầu kỳ #24/#31, consumer nghiệp vụ cho worker #22 và recovery nháp/lệnh còn lại #18.
+   Tiếp tục form owner/hợp đồng/chứng cứ #14, phân công phiếu và tích hợp quyền từng endpoint; hoàn thiện T07/T11 trên môi trường đích.
+2. **Nghiệm thu luồng nhập và triển khai xuất:** receipt/OPENING #24, desktop quản trị và outbox engine đã có bằng chứng local; hoàn thiện consumer và UI phụ trợ.
    Sau đó giữ chỗ/xuất #25 dùng cùng khóa nguồn/vị trí/product, version, owner và kiểm tra quyền.
    Nghiệm thu T01/T02/T06/T13/T14/T20/T24 trước mở rộng xuất kho.
 3. **Nghiệp vụ còn lại:** #25–#30, #31–#33 cùng UI #17–#19; mỗi luồng phải có kiểm thử transaction,

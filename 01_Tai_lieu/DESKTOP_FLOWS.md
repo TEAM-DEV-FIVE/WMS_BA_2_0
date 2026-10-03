@@ -4,6 +4,7 @@
 > là trạng thái lúc soạn bản đó; hiện đã có yêu cầu, schema/API owner/bảo hành và tab tra serial.
 > Ngày 03/10/2026 bổ sung tab [PO/SO và duyệt](ORDERS_APPROVAL.md) qua API thật; đã thêm tab [Nhận hàng](RECEIVING.md) tạo kế hoạch/duyệt/post từng phần. Phần dưới vẫn là thiết kế đích, chưa phải toàn bộ màn đã triển khai.
 > Tab [Phục hồi nhận hàng](RECEIPT_RECOVERY.md) đã nối SQLite v2 và operation lookup/retry cho receipt.post sau đóng process; nháp và các loại lệnh khác chưa phục hồi bền qua UI.
+> Đã tích hợp [Quản trị tài khoản/quyền](ADMIN_DESKTOP.md); ô **Chức năng** truy cập tám màn ở 900×690. OPENING mới có backend, chưa có màn desktop.
 > Xem [TRACEABILITY.md](TRACEABILITY.md) cho cách dùng và giới hạn runtime; chưa có GUI tồn theo owner/ghi chứng cứ.
 
 

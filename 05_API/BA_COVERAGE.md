@@ -5,7 +5,7 @@ Có path không đồng nghĩa đủ luồng, authorization hoặc đã triển 
 | UC | Path hiện có | Coverage |
 |---|---|---|
 |UC01|Runtime: /api/v1/auth/login, /auth/mfa, /auth/refresh, /auth/logout, /auth/me|IMPLEMENTED_LOCAL - đăng nhập/rotation/revoke/MFA được kiểm thử API và desktop; chưa UAT Windows|
-|UC02|Runtime: /api/v1/users, /roles, /grants, /grant-requests và approve/revoke|PARTIAL - API quản trị/two-person grant chạy thật; GUI quản trị chưa có|
+|UC02|Runtime: /api/v1/users, /roles, /grants, /grant-requests và approve/revoke|PARTIAL - API và desktop quản trị/two-person grant chạy thật; reset MFA, lookup/lịch sử nâng cao và Windows UAT còn thiếu|
 |UC03|Runtime: /api/v1/master/products,uoms,categories,product-uoms,barcodes,scan|PARTIAL - API có validation/version/idempotency, form sản phẩm/UOM/category; còn import và GUI quy đổi/barcode|
 |UC04|Runtime: /api/v1/master/warehouses,locations|PARTIAL - API/form cây kho, chặn chu kỳ/sai kho/phát sinh; UAT Windows chưa chạy|
 |UC05|Runtime /api/v1/purchase-orders, /purchase-orders/{id}, /documents/{id} actions|PARTIAL - CRUD/list PO, assignment, submit/duyệt/revise/cancel/close đã chạy API và desktop; posting còn thiếu|
@@ -26,14 +26,14 @@ Có path không đồng nghĩa đủ luồng, authorization hoặc đã triển 
 |UC20|/adjustments/{id}/post|PARTIAL - chưa đủ toàn luồng UC|
 |UC21|Chưa có|MISSING - chưa đặc tả trong OpenAPI lõi|
 |UC22|/imports/{id}/commit|PARTIAL - chưa đủ toàn luồng UC|
-|UC23|/openings/{id}/post|PARTIAL - chưa đủ toàn luồng UC|
+|UC23|Runtime /api/v1/openings, /openings/{id}, /openings/{id}/post, /openings/operations/{key}|PARTIAL - backend draft/duyệt/post toàn phiếu, chống batch/execution trùng và cutover đã có; import/UI và nghiệm thu còn thiếu|
 |UC24|Chưa có|MISSING - chưa đặc tả trong OpenAPI lõi|
 |UC25|Runtime /api/v1/operations/{key}|PARTIAL - receipt.post có SQLite checkpoint, lookup và explicit retry cùng key/body qua desktop sau restart; nháp/lệnh khác và Windows UAT còn thiếu|
 |UC26|Chưa có|MISSING - chưa đặc tả trong OpenAPI lõi|
 |UC27|Chưa có|MISSING - chưa đặc tả trong OpenAPI lõi|
 |UC28|Chưa có|MISSING - chưa đặc tả trong OpenAPI lõi|
 |UC29|Chưa có|MISSING - chưa đặc tả trong OpenAPI lõi|
-|UC30|Runtime /api/v1/approval-requests/{id}, /decide và /documents/{id}/submit|PARTIAL - snapshot/SOD/duyệt thay cho PO/SO/receipt; policy khác chưa có|
+|UC30|Runtime /api/v1/approval-requests/{id}, /decide và /documents/{id}/submit|PARTIAL - snapshot/SOD/duyệt theo policy cho PO/SO/receipt/opening; policy kiểm kê/điều chỉnh chưa có|
 |UC31|Chưa có|MISSING - chưa đặc tả trong OpenAPI lõi|
 |UC32|Runtime: /api/v1/master/stock-owners, /master/consignment-agreements, /stock-ownership|PARTIAL - owner/hợp đồng/schema/API đọc và quyền đã chạy local; posting/import/báo cáo/kiểm kê/policy xuất chuyển còn thiếu|
 |UC33|Runtime: /api/v1/serials/lookup, /serials/{id}/warranty, /serials/{id}/warranty-records|PARTIAL - API chứng cứ/nguồn/quyền, desktop tra cứu và nguồn receipt.post đã chạy; GUI ghi chứng cứ/UAT Windows còn thiếu|
@@ -86,4 +86,11 @@ Chi tiết runtime PO/SO, phân trang live và phần T10/T14/T17 chưa nghiệm
 
 [RECEIVING.md](../01_Tai_lieu/RECEIVING.md) là mô tả hiện hành cho receipt. Các câu hỏi/core payload trong bảng lịch sử ở trên không thay thế runtime contract.
 Đã chọn kế hoạch tracking/vị trí trước duyệt, nhập UOM cơ sở và tính QUARANTINE vào lượng PO đã nhận theo T01.
-Tồn đầu kỳ/import, policy ký gửi, chất lượng/trả NCC, barcode/scanner, snapshot pagination và Windows UAT còn thiếu.
+Backend tồn đầu kỳ đã có ở revision 010; import/UI tồn đầu kỳ, policy ký gửi, chất lượng/trả NCC, barcode/scanner, snapshot pagination và Windows UAT còn thiếu.
+
+## Tích hợp tồn đầu kỳ, outbox và desktop quản trị
+
+Backend [OPENING](../01_Tai_lieu/OPENING.md) dùng bảng kế hoạch typed và khóa warehouse độc quyền khi cutover.
+[Desktop quản trị](../01_Tai_lieu/ADMIN_DESKTOP.md) nối API IAM có sẵn, không tự retry write khi timeout.
+[Worker outbox](../01_Tai_lieu/OUTBOX_WORKER.md) có engine/adapter DB; consumer nghiệp vụ chưa được cấu hình.
+Các phần này chưa thay trạng thái nghiệm thu T01–T28.
