@@ -22,7 +22,7 @@ def csv_bytes(kind, rows):
     stream = io.StringIO(newline="")
     writer = csv.writer(stream)
     writer.writerow([x[0] for x in TEMPLATES[kind]])
-    writer.writerows(rows)
+    writer.writerows([list(r) + ["COMPANY", ""] if kind == "11_opening" and len(r) == 8 else r for r in rows])
     return stream.getvalue().encode("utf-8-sig")
 
 

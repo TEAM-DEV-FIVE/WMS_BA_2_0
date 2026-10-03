@@ -142,6 +142,13 @@ def parse(data, filename, kind):
                 if len(raw_rows) > MAX_ROWS + 1:
                     raise DomainError("ROW_LIMIT", "Mỗi tệp tối đa 500 dòng; chứng từ tối đa 200 dòng.")
         expected = TEMPLATES[kind]
+        # v1 opening was explicitly COMPANY-only. Preserve that published contract,
+        # while v2 requires an explicit owner and never infers owner from agreement.
+        legacy_opening = kind == "11_opening" and raw_rows and [v[0] for v in raw_rows[0][1]] == [c[0] for c in expected[:-2]]
+        if legacy_opening:
+            raw_rows = [(n, cells + [("owner_code", "str"), ("consignment_code", "str")]
+                         if index == 0 else cells + [("COMPANY", "str"), ("", "str")])
+                        for index, (n, cells) in enumerate(raw_rows)]
         if not raw_rows or [v[0] for v in raw_rows[0][1]] != [c[0] for c in expected]:
             return [], [issue(1, "header", "HEADER", "Header/thứ tự cột phải đúng mẫu.")]
         raw_rows = [(n, r) for n, r in raw_rows[1:] if any(v[0].strip() for v in r)]

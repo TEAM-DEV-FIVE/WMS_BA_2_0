@@ -1,4 +1,4 @@
-"""Runtime template v1 columns, kept in sync with the published import manifest."""
+"""Runtime templates (opening v2; legacy v1 company header explicitly supported), kept in sync with the published import manifest."""
 
 TEMPLATES = {
     "01_uom": [("code", "text", True), ("name", "text", True), ("decimal_places", "integer", True)],
@@ -65,6 +65,8 @@ TEMPLATES = {
         ("lot_code", "text", False),
         ("serial_code", "text", False),
         ("quantity_base", "decimal", True),
+        ("owner_code", "text", True),
+        ("consignment_code", "text", False),
     ],
     "12_open_orders": [
         ("external_number", "text", True),

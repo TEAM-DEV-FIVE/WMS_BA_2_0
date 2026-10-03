@@ -2,7 +2,7 @@
 
 Đợt triển khai local ngày 02/10/2026 bổ sung nền dữ liệu, API và màn tra serial cho BE02/BE05/TL04/UI04.
 Contract chạy thật: [OpenAPI runtime](../05_API/openapi_runtime.json), Swagger `/api/v1/docs`.
-Chưa có luồng PO → duyệt → nhận hàng/ghi sổ hoàn chỉnh; các fixture receipt đã post trong test được dựng bằng SQL.
+Nền 006/007 được mở rộng bằng luồng PO/nhận hàng và [B09 ký gửi](CONSIGNMENT.md): nhận/tồn đầu kỳ/import/QC/cất hàng đã dùng API thật. Thiết kế phân loại UNCLASSIFIED nằm trong tài liệu B09; chưa có endpoint phân loại.
 
 ## Nâng cấp dữ liệu
 
@@ -37,11 +37,11 @@ Owner không đổi loại/đối tác; hợp đồng đã tham chiếu không �
 
 Danh tính hàng là `(product, lot, serial, owner, consignment)`. Balance, ledger, reservation và kiểm kê mang chiều
 này qua `stock_item_id`. Cùng SKU/lô/vị trí nhưng khác chủ hàng không hòa chung danh tính. Resolver nội bộ kiểm tra
-tracking/owner/hợp đồng theo kho/ngày, INSERT ON CONFLICT rồi khóa; caller tương lai vẫn phải authorize và khóa
+tracking/owner/hợp đồng theo kho/ngày, INSERT ON CONFLICT rồi khóa; caller phải authorize và khóa
 chứng từ/vị trí. Một serial chỉ được có tối đa một balance dương (lượng 1), kể cả khác owner/vị trí.
 
-Move/reservation phải khớp owner của dòng phiếu. Hiện chỉ cho dữ liệu ký gửi theo operation RECEIVE/OPEN với hợp đồng
-đúng kho/ngày còn hiệu lực; giữ chỗ, xuất, chuyển, đảo và đổi owner ký gửi bị từ chối cho tới khi có policy/workflow.
+Move/reservation phải khớp owner của dòng phiếu. B09 cho ký gửi RECEIVE/OPEN và MOVE nội bộ giữ nguyên identity,
+đúng kho/ngày hợp đồng. Giữ chỗ, xuất, chuyển kho, đảo và đổi owner ký gửi bị từ chối khi chưa có policy/workflow.
 Trigger là lớp bảo vệ dữ liệu, chưa thay thế posting service và các bất biến kỳ/duyệt/nguồn/số dư.
 
 ## Tra tồn theo chủ sở hữu

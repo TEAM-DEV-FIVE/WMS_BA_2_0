@@ -7,11 +7,11 @@ from apps.server.application.commands import CommandResult
 from apps.server.application.master_data import active_reference, one
 from apps.server.application.move_safety import location_tree
 from apps.server.application.orders import amount
+from apps.server.application.stock_identity import validate_ownership
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.quality import QualityDecision, QualityHistory, QualityResult, QualitySource
-from packages.contracts.traceability import COMPANY_OWNER
 
-SOURCE_SQL = """SELECT m.id,t.document_id AS receipt_id,d.number AS receipt_number,d.version,d.warehouse_id,
+SOURCE_SQL = """SELECT m.id,t.document_id AS receipt_id,d.number AS receipt_number,d.version,d.warehouse_id,t.business_date,
     m.stock_item_id,i.product_id,p.sku,p.tracking,lot.code AS lot_code,s.code AS serial_code,
     i.owner_id,o.code AS owner_code,i.consignment_id,m.destination_location_id AS source_location_id,
     l.code AS location_code,m.quantity_base AS received,
@@ -97,8 +97,8 @@ class QualityService:
             locations = location_tree(c, source["warehouse_id"], [source["source_location_id"]], lock=True)
             if locations[source["source_location_id"]]["kind"] not in {"RECEIVING", "QUARANTINE"}:
                 raise DomainError("INVALID_LOCATION", "Chỉ kiểm định nguồn nhận/cách ly.")
-            if source["owner_id"] != COMPANY_OWNER or source["consignment_id"]:
-                raise DomainError("OWNERSHIP_UNSUPPORTED", "Chưa có policy xử lý hàng ký gửi/chưa phân loại; không đổi owner.")
+            validate_ownership(c, owner_id=source["owner_id"], consignment_id=source["consignment_id"],
+                               warehouse_id=source["warehouse_id"], business_date=source["business_date"])
             product = active_reference(c, "product", source["product_id"], "product_id")
             unit = active_reference(c, "uom", product["base_uom_id"], "uom_id")
             quantities = [Decimal(payload.accepted_base), Decimal(payload.rejected_base)]

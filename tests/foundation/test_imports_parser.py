@@ -147,3 +147,16 @@ def test_imports_runtime_templates_match_published_manifest():
             assert TEMPLATES[sheet["name"]] == [
                 (c["name"], c["type"], c["required"]) for c in sheet["columns"]
             ]
+
+
+def test_consignment_import_v1_is_company_only_and_v2_requires_explicit_owner():
+    legacy = "batch_code,business_date,warehouse_code,location_code,sku,lot_code,serial_code,quantity_base\nB,2026-10-02,WH,BIN,SKU,,,5\n"
+    rows, errors = parse(legacy.encode(), "11_opening.csv", "11_opening")
+    assert not errors and rows[0]["payload"]["owner_code"] == "COMPANY"
+    assert rows[0]["payload"]["consignment_code"] is None
+    header = ",".join(c[0] for c in TEMPLATES["11_opening"])
+    rows, errors = parse((header + "\nB,2026-10-02,WH,BIN,SKU,,,5,,CG-01\n").encode(), "11_opening.csv", "11_opening")
+    assert any(e["column"] == "owner_code" and e["code"] == "REQUIRED" for e in errors)
+    assert rows[0]["payload"]["owner_code"] is None
+    rows, errors = parse((header + "\nB,2026-10-02,WH,BIN,SKU,,,5,OWNER,CG-01\n").encode(), "11_opening.csv", "11_opening")
+    assert not errors and rows[0]["payload"]["owner_code"] == "OWNER"

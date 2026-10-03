@@ -403,7 +403,7 @@ def test_move_quality_edit_reapprove_cancel_and_paginated_queries(movement):
     reconcile(f)
 
 
-def test_move_quality_blocks_consigned_and_new_unclassified_stock(movement):
+def test_move_quality_preserves_consigned_owner_and_blocks_new_unclassified_stock(movement):
     f = movement
     owner = f.master("stock-owners", code="MOVE-OWNER", name="Chủ hàng ký gửi", partner_id=f.partner["id"])
     agreement = f.master("consignment-agreements", code="MOVE-AGREEMENT", owner_id=owner["id"],
@@ -417,7 +417,15 @@ def test_move_quality_blocks_consigned_and_new_unclassified_stock(movement):
         with f.engine.begin() as c:
             c.execute(text("INSERT INTO wms.stock_item(id,product_id,owner_id) VALUES (:id,:product,:owner)"),
                       {"id": unclassified, "product": f.product["id"], "owner": UNCLASSIFIED_OWNER})
-    assert f.move_request("POST", "moves", f.move_body({**source, "stock_item_id": str(consigned)})).json()["code"] == "OWNERSHIP_UNSUPPORTED"
+    # B09 permits same-owner internal moves, but an empty consigned identity
+    # cannot borrow the 80 COMPANY units stored at exactly the same source.
+    f.putaway("80", "0", source)
+    doc = f.move_approve(f.move_body({**source, "stock_item_id": str(consigned)}))
+    line = ok(f.read(doc, kind="moves"))["lines"][0]
+    assert (line["owner_id"], line["consignment_id"]) == (owner["id"], agreement["id"])
+    assert f.move_post(doc).json()["code"] == "INSUFFICIENT_STOCK"
+    with f.engine.connect() as c:
+        assert c.execute(text("SELECT sum(on_hand) FROM wms.stock_balance")).scalar_one() == 80
     reconcile(f)
 
 

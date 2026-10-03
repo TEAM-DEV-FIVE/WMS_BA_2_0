@@ -1,0 +1,79 @@
+{
+  "revision": "015_b09_consignment.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "consignment_receipt",
+      "purpose": "Consignment custody delivery evidence; unique delivery batch per warehouse.",
+      "cols": [
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "warehouse.id"
+        },
+        {
+          "name": "batch_key",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "delivery_reference",
+          "type": "varchar(2000)",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "consignment_receipt_line",
+      "purpose": "Typed location and tracking plan, included in approval snapshot.",
+      "cols": [
+        {
+          "name": "document_line_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document_line.id"
+        },
+        {
+          "name": "destination_location_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "location.id"
+        },
+        {
+          "name": "lot_code",
+          "type": "varchar(100)",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "serial_code",
+          "type": "varchar(160)",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "manufactured_on",
+          "type": "date",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "expires_on",
+          "type": "date",
+          "null": true,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

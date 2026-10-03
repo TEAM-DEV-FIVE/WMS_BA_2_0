@@ -1,1 +1,1 @@
-﻿batch_code,business_date,warehouse_code,location_code,sku,lot_code,serial_code,quantity_base
+﻿batch_code,business_date,warehouse_code,location_code,sku,lot_code,serial_code,quantity_base,owner_code,consignment_code

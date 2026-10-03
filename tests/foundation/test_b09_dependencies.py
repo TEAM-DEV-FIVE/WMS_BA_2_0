@@ -13,7 +13,7 @@ from test_receipts import receiving  # noqa: F401
 pytestmark = pytest.mark.integration
 
 
-@pytest.mark.parametrize("prefix_length", [10, 11, 12])
+@pytest.mark.parametrize("prefix_length", [10, 11, 12, 13])
 def test_b09_dependency_upgrade_preserves_prefix_and_distinct_policies(empty_database, monkeypatch, prefix_length):
     import apps.server.infrastructure.migrations as migrations
 

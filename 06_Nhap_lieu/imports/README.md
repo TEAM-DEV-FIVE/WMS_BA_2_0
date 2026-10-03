@@ -13,11 +13,11 @@ Có thể kiểm tra một phần trong 14 mẫu bằng cách đặt các CSV c�
 
 ## Quy ước dữ liệu
 
-Mau_nhap_lieu_WMS.xlsx là workbook trống, 14 sheet theo mẫu. Nhập từ dòng 2, giữ header dòng 1. CSV trong templates là file chỉ có header; examples là dữ liệu giả, không nạp production. Thứ tự 01..14 giải quyết phần lớn phụ thuộc; 13_grants chỉ là đề nghị cấp quyền, cần quy trình phê chuẩn riêng. Các user phải được tạo an toàn trong ứng dụng trước khi cấp quyền.
+Mau_nhap_lieu_WMS.xlsx là workbook v1 trống, 14 sheet; sheet 11_opening v1 chỉ dùng COMPANY theo đường tương thích runtime. CSV v2/manifest 1.1 đã thêm owner_code và consignment_code cho ký gửi. Khi dùng XLSX v2, thêm đúng hai header này theo CSV v2; không nhập ký gửi bằng header v1. Nhập từ dòng 2, giữ header dòng 1. CSV trong templates là file chỉ có header; examples là dữ liệu giả, không nạp production. Thứ tự 01..14 giải quyết phần lớn phụ thuộc; 13_grants chỉ là đề nghị cấp quyền, cần quy trình phê chuẩn riêng. Các user phải được tạo an toàn trong ứng dụng trước khi cấp quyền.
 
 Mã/barcode/serial/tax_code là text: giữ số 0 đầu. Không chèn công thức. CSV UTF-8 BOM, dấu phẩy phân cột, dấu chấm thập phân, không có dấu phân cách hàng nghìn. Ngày YYYY-MM-DD, datetime có offset. Boolean TRUE/FALSE. Excel có thể hiển thị dấu phẩy thập phân theo máy nhưng giá trị phải numeric hoặc decimal string hợp lệ khi importer chuẩn hóa. Các cột mã trong workbook đã định dạng text.
 
-File 11_opening dùng quantity_base, không cần UOM nhập. Một dòng mỗi batch/kho/vị trí/SKU/lô/serial; serial quantity=1 và chỉ xuất hiện một vị trí. Không nạp dòng số lượng 0. Tồn đầu kỳ đi qua phiếu OPENING và approval, không UPDATE stock_balance. Mặc định chỉ nạp khi kho mới chưa phát sinh. Nếu bổ sung lần hai, phải có đợt điều chỉnh được duyệt riêng.
+File 11_opening v2 dùng quantity_base, không cần UOM nhập; owner_code bắt buộc, consignment_code bắt buộc với CONSIGNOR và để trống với COMPANY. Một dòng mỗi batch/kho/vị trí/SKU/lô/serial/owner/hợp đồng; serial quantity=1 và chỉ xuất hiện một vị trí. Không nạp dòng số lượng 0. Tồn đầu kỳ đi qua phiếu OPENING và approval, không UPDATE stock_balance. Mặc định chỉ nạp khi kho mới chưa phát sinh. Nếu bổ sung lần hai, phải có đợt điều chỉnh được duyệt riêng.
 
 12_open_orders nạp phần CÒN MỞ của PO/SO, tạo DRAFT để đối soát rồi duyệt. Không giả định đã chuyển toàn lịch sử. Cùng external_number/kind có cùng kho/đối tác/ngày, line_no không trùng. Mapping external_number -> document.number phải lưu trong import_row và audit; number server vẫn duy nhất.
 

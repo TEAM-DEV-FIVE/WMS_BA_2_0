@@ -16,12 +16,11 @@ from apps.server.application.move_safety import (
 )
 from apps.server.application.orders import amount, encode
 from apps.server.application.quality import decision_moved
-from apps.server.application.stock_identity import resolve_stock_identity
+from apps.server.application.stock_identity import resolve_stock_identity, validate_ownership
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.moves import MoveLineInput, MovePlan, MovePostResult, MoveView
 from packages.contracts.orders import OrderResult
 from packages.contracts.receipts import OperationView
-from packages.contracts.traceability import COMPANY_OWNER
 
 
 class MoveService:
@@ -79,7 +78,8 @@ class MoveService:
             receipt = self.orders.document(auth, source["document_id"], "RECEIPT")
             parent = self.orders.receipts.source(auth, receipt)
             receipts.add(receipt["id"])
-            parents.add(parent["id"])
+            if parent:
+                parents.add(parent["id"])
         for tier in [parents, receipts]:
             for doc_id in sorted(tier):
                 auth.connection.execute(text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": doc_id})
@@ -100,8 +100,8 @@ class MoveService:
             stock = one(c, "SELECT * FROM wms.stock_item WHERE id=:id", id=item_id)
             if not stock:
                 raise DomainError("NOT_FOUND", "Không tìm thấy danh tính tồn.")
-            if stock["owner_id"] != COMPANY_OWNER or stock["consignment_id"]:
-                raise DomainError("OWNERSHIP_UNSUPPORTED", "Chưa có policy di chuyển ký gửi/chưa phân loại. Không đổi chủ hàng.")
+            validate_ownership(c, owner_id=stock["owner_id"], consignment_id=stock["consignment_id"],
+                               warehouse_id=warehouse_id, business_date=business_date)
             stocks[item_id] = stock
         if lock:
             for product_id in sorted({r["product_id"] for r in stocks.values()}):
@@ -117,7 +117,7 @@ class MoveService:
                 raise DomainError("INVALID_QUANTITY", "Lượng chuyển không đúng độ chính xác đơn vị cơ sở.")
             if lock:
                 resolved = resolve_stock_identity(c, product_id=stock["product_id"], owner_id=stock["owner_id"],
-                    warehouse_id=warehouse_id, business_date=business_date, lot_id=stock["lot_id"], serial_id=stock["serial_id"])
+                    warehouse_id=warehouse_id, business_date=business_date, lot_id=stock["lot_id"], serial_id=stock["serial_id"], consignment_id=stock["consignment_id"])
                 if resolved != spec.stock_item_id:
                     raise DomainError("TRACKING_MISMATCH", "Danh tính tồn không khớp lô/serial/chủ hàng.")
             source, destination = locations[spec.source_location_id], locations[spec.destination_location_id]

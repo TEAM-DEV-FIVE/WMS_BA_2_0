@@ -27,3 +27,10 @@ Tài liệu đầy đủ: [hướng dẫn triển khai](../01_Tai_lieu/IMPLEMENT
 [PO/SO và duyệt](../01_Tai_lieu/ORDERS_APPROVAL.md) giải thích giới hạn nâng cấp 008: giữ policy cũ, snapshot request cũ null, không tự hợp thức hóa duyệt.
 [Tồn đầu kỳ](../01_Tai_lieu/OPENING.md) mô tả revision 010 và model `opening_extension*`.
 Worker outbox dùng schema hiện có; tích hợp desktop quản trị không thêm migration.
+
+## B09 phát triển
+
+`015_b09_consignment.sql` thêm typed consignment_receipt/consignment_receipt_line và mở MOVE nội bộ
+cùng owner/hợp đồng/kho bằng guard forward. Không sửa 001–013, không backfill hay phân loại lại ledger cũ.
+Tổng schema B09: 72 bảng/491 cột/148 FK. Số 015 là số phát triển; điều phối chốt số release trước tích hợp.
+Xem [contract và thiết kế legacy](../01_Tai_lieu/CONSIGNMENT.md).
