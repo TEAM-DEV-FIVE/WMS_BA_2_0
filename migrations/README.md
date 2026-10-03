@@ -33,4 +33,8 @@ Worker outbox dùng schema hiện có; tích hợp desktop quản trị không t
 `014_b09_consignment.sql` thêm typed consignment_receipt/consignment_receipt_line và mở MOVE nội bộ
 cùng owner/hợp đồng/kho bằng guard forward. Không sửa 001–013, không backfill hay phân loại lại ledger cũ.
 Tổng schema B09: 72 bảng/491 cột/148 FK. Revision 014 là số release đã được điều phối chọn khi tích hợp; revision phát triển trước đó là 015.
+
+`018_b12_returns.sql` là revision phát triển B12: thêm return_document/return_line (nguồn phiếu,
+move nguồn và vị trí typed), policy duyệt hai loại trả nếu chưa có. Không thay 001–014 hoặc policy đã chỉnh.
+Tổng schema B12: 74 bảng/496 cột/153 FK. Điều phối chọn số release tiếp khi ghép; xem [returns](../01_Tai_lieu/RETURNS.md).
 Xem [contract và thiết kế legacy](../01_Tai_lieu/CONSIGNMENT.md).

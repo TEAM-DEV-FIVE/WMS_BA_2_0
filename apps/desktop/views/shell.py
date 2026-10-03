@@ -14,6 +14,7 @@ from apps.desktop.views.ownership import OwnershipView
 from apps.desktop.views.quality import QualityView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
 from apps.desktop.views.receipts import ReceiptView
+from apps.desktop.views.returns import ReturnView
 from apps.desktop.views.serial_lookup import SerialLookupView
 from apps.desktop.views.session import SessionView
 from packages.contracts import Health
@@ -74,6 +75,12 @@ class DesktopShell:
         for view, title in [(self.quality_view, "Kiểm định chất lượng"), (self.move_view, "Cất hàng / di chuyển")]:
             view.on_signed_out = self.admin_signed_out
             notebook.add(view, text=title)
+        self.customer_return_view = ReturnView(notebook, self.session_view.presenter.api, "CUSTOMER_RETURN")
+        self.supplier_return_view = ReturnView(notebook, self.session_view.presenter.api, "SUPPLIER_RETURN")
+        self.return_views = [self.customer_return_view, self.supplier_return_view]
+        for view, title in zip(self.return_views, ["Khách trả hàng", "Trả nhà cung cấp"]):
+            view.on_signed_out = self.admin_signed_out
+            notebook.add(view, text=title)
         container = ttk.Frame(notebook, padding=24)
         notebook.add(container, text="Kết nối")
         ttk.Label(container, text="WMS · Quản lý kho", font=("Segoe UI", 22, "bold")).pack(anchor="w")
@@ -110,6 +117,8 @@ class DesktopShell:
         self.admin_view.session_changed(user, warehouses)
         self.quality_view.session_changed(user, warehouses)
         self.move_view.session_changed(user, warehouses)
+        for view in self.return_views:
+            view.session_changed(user, warehouses)
 
     def admin_signed_out(self, message):
         # A queued session snapshot/warehouse response must not restore the
@@ -145,6 +154,8 @@ class DesktopShell:
             self.admin_view.presenter.drain()
             self.quality_view.presenter.drain()
             self.move_view.presenter.drain()
+            for view in self.return_views:
+                view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -174,7 +185,7 @@ class DesktopShell:
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
-        for view in [self.quality_view, self.move_view]:
+        for view in [self.quality_view, self.move_view, *self.return_views]:
             view.presenter.close()
             view.release_variables()
         self.session_view.release_variables()
@@ -195,5 +206,7 @@ class DesktopShell:
         self.admin_view.presenter.finish()
         self.quality_view.presenter.finish()
         self.move_view.presenter.finish()
+        for view in self.return_views:
+            view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
