@@ -51,6 +51,9 @@ PO/SO/approval chưa có journal bền sau khi thoát ứng dụng; B19 sở h�
 Không ghi token/password vào bộ nhớ phục hồi. Receipt.post vẫn dùng journal riêng
 của receipt hiện có. HTTP chạy trên worker; queue được drain trên Tk main thread.
 Response bị loại nếu sequence hoặc session generation đã thay đổi.
+Đóng shell phải gọi `close()` rồi `finish()` trên Tk main thread. Sau khi join worker,
+`finish()` giải phóng tham chiếu interpreter của các widget đã hủy; việc Python thu
+gom các wrapper còn được giữ ở nơi khác sẽ không hủy Tcl từ luồng HTTP.
 
 ## Contract bổ sung chỉ đọc
 

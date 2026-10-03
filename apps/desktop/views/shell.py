@@ -22,6 +22,7 @@ class DesktopShell:
         self.root.geometry("900x690")
         self.root.minsize(800, 620)
         self.closed = False
+        self.destroyed_widgets = []
         self.status = tk.StringVar(value="Chưa kiểm tra kết nối.")
         self.presenter = ConnectionPresenter(self, ApiClient(settings))
 
@@ -173,6 +174,11 @@ class DesktopShell:
         self.admin_view.release_variables()
         self.session_view.release_variables()
         self.status = None
+        pending = [self.root]
+        while pending:
+            widget = pending.pop()
+            pending.extend(widget.winfo_children())
+            self.destroyed_widgets.append(widget)
         self.root.destroy()
 
     def finish(self):
@@ -185,3 +191,10 @@ class DesktopShell:
         self.admin_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
+        # Destroy removes Tcl commands but Python widget cycles may outlive this
+        # window (queued callbacks, callers, test fixtures). Drop their native
+        # interpreter references here, on the Tk thread, before a HTTP worker's
+        # cyclic GC can become the last owner of the destroyed Tcl interpreter.
+        for widget in self.destroyed_widgets:
+            widget.tk = None
+        self.destroyed_widgets.clear()

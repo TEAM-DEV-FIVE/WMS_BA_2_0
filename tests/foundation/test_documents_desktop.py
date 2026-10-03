@@ -1,4 +1,6 @@
 import socket
+import subprocess
+import sys
 import threading
 import time
 
@@ -301,3 +303,37 @@ def test_tk_partial_close_cancel_and_unknown_survive_navigation(desktop, monkeyp
     h.root.update()
     assert view.retry_button.winfo_ismapped() and view.retry_button.winfo_height() > 10
     assert view.retry_button.winfo_rooty() + view.retry_button.winfo_height() <= view.winfo_rooty() + view.winfo_height()
+
+
+def test_closed_shell_can_be_collected_on_worker(tmp_path):
+    # Exercise the real Tcl interpreter in a subprocess: a wrong-thread finalizer
+    # aborts Python, so an ordinary exception assertion cannot catch the regression.
+    script = '''
+import gc
+import sys
+import threading
+import tkinter as tk
+from pathlib import Path
+from apps.desktop.api.client import DesktopSettings
+from apps.desktop.views.shell import DesktopShell
+retained = []
+for _ in range(3):
+    root = tk.Tk()
+    shell = DesktopShell(root, DesktopSettings(local_data_dir=Path(sys.argv[1])))
+    root.update()
+    shell.close()
+    shell.finish()
+    retained.append((root, shell, shell.approval_view.review_panel, shell.order_view))
+del root, shell
+def collect():
+    retained.clear()
+    gc.collect()
+worker = threading.Thread(target=collect)
+worker.start()
+worker.join(5)
+assert not worker.is_alive()
+print("closed windows safely collected on worker")
+'''
+    result = subprocess.run([sys.executable, "-c", script, str(tmp_path)], capture_output=True, text=True, timeout=20)
+    assert result.returncode == 0, result.stderr
+    assert "safely collected" in result.stdout
