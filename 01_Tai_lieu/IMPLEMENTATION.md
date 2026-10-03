@@ -7,10 +7,20 @@ Mã nền đã lưu ở commit local `c57a743`. Đã tích hợp [ba nhánh agen
 outbox `849a97a`, desktop quản trị `f126186`, tồn đầu kỳ `0393849`; giữ các worktree để tra cứu.
 Kết quả tích hợp và giới hạn ở [báo cáo kiểm thử](../07_Kiem_tra/IMPLEMENTATION_REVIEW.md); chưa push GitHub.
 
+## Cập nhật tích hợp B12 — 04/10/2026
+
+Bản ghép B12 từ `f37c0bb80fbd9f82c26494a71c9e00574f121039` nối tiếp nền B11 release 015,
+thêm trả khách có nguồn ISSUE và trả NCC có nguồn RECEIPT, QC/cất hàng khách trả và hai tab desktop.
+Runtime có **116 API paths**, **16 migration release (001–016)**, schema **78 bảng/514 cột/164 FK**.
+Revision phát triển B12 018 được đổi thành `016_b12_returns.sql`; giữ nguyên byte 001–015.
+Contract và policy ở [RETURNS.md](RETURNS.md); mốc ghép, kết quả hồi quy và package ở
+[B12_INTEGRATION.md](PHAN_CONG/BAN_GIAO/B12_INTEGRATION.md).
+Hồi quy bản ghép: **551 tests + 10 subtests**, 0 failed/skip; build sdist/wheel, OpenAPI và artifacts đạt.
+
 ## Cập nhật tích hợp B11 — 04/10/2026
 
 Nhánh điều phối đã ghép B11 từ `cc45621be81249e229655b1899f76bf1dbf4b313`, trên nền
-B01/B02/B03/B05/B06/B09 đã tích hợp. Runtime hiện có 110 API paths, 15 migration
+B01/B02/B03/B05/B06/B09 đã tích hợp. Ở mốc B11, runtime có 110 API paths, 15 migration
 release (001–015), schema 76 bảng/509 cột/159 FK. B11 gồm chuyển kho, nhận từng
 phần, biên bản thiếu/hỏng, điều chỉnh mất transit có duyệt riêng và desktop tương ứng.
 Contract và giới hạn tại [TRANSFERS.md](TRANSFERS.md); kết quả kiểm chứng tích hợp

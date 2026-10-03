@@ -18,6 +18,7 @@ from apps.server.api.openings import incoming_router, opening_router
 from apps.server.api.orders import order_router
 from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
+from apps.server.api.returns import return_router
 from apps.server.api.traceability import traceability_router
 from apps.server.api.transfers import transfer_router
 from apps.server.application.consignments import ConsignmentReceiptService
@@ -30,6 +31,7 @@ from apps.server.application.openings import OpeningService
 from apps.server.application.orders import OrderService
 from apps.server.application.quality import QualityService
 from apps.server.application.receipts import ReceiptService
+from apps.server.application.returns import ReturnService
 from apps.server.application.traceability import TraceabilityService
 from apps.server.application.transfers import TransferService
 from apps.server.domain.errors import DomainError
@@ -83,6 +85,8 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(quality_router(app.state.quality))
     app.state.moves = MoveService(app.state.orders)
     app.include_router(move_router(app.state.moves))
+    app.state.returns = ReturnService(app.state.orders)
+    app.include_router(return_router(app.state.returns))
     app.state.transfers = TransferService(app.state.orders)
     app.include_router(transfer_router(app.state.transfers))
 

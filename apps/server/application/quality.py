@@ -16,8 +16,10 @@ SOURCE_SQL = """SELECT m.id,t.document_id AS receipt_id,d.number AS receipt_numb
     i.owner_id,o.code AS owner_code,i.consignment_id,m.destination_location_id AS source_location_id,
     l.code AS location_code,m.quantity_base AS received,
     COALESCE((SELECT SUM(q.quantity) FROM wms.quality_decision q WHERE q.receipt_move_id=m.id),0) AS decided
-    FROM wms.stock_move m JOIN wms.inventory_transaction t ON t.id=m.transaction_id AND t.operation IN ('RECEIVE','ARRIVE')
-    JOIN wms.document d ON d.id=t.document_id AND d.kind IN ('RECEIPT','TRANSFER')
+    FROM wms.stock_move m JOIN wms.inventory_transaction t ON t.id=m.transaction_id
+    JOIN wms.document d ON d.id=t.document_id AND
+        ((t.operation='RECEIVE' AND d.kind IN ('RECEIPT','CUSTOMER_RETURN')) OR
+         (t.operation='ARRIVE' AND d.kind='TRANSFER'))
     JOIN wms.stock_item i ON i.id=m.stock_item_id JOIN wms.product p ON p.id=i.product_id
     JOIN wms.stock_owner o ON o.id=i.owner_id LEFT JOIN wms.lot lot ON lot.id=i.lot_id
     LEFT JOIN wms.serial s ON s.id=i.serial_id JOIN wms.location l ON l.id=m.destination_location_id
@@ -44,9 +46,11 @@ class QualityService:
             self.orders.transfers.document(auth, row["receipt_id"], lock=lock)
             auth.require("document.read", row["warehouse_id"], hidden=True)
         else:
-            self.orders.document(auth, row["receipt_id"], "RECEIPT", lock=lock)
+            self.orders.document(auth, row["receipt_id"], row["document_kind"], lock=lock)
         if lock:
             row = one(auth.connection, SOURCE_SQL + " AND m.id=:id", id=source_id)
+            if not row:
+                raise DomainError("SOURCE_MISMATCH", "Nguồn kiểm định đã bị đảo; tải lại.")
         return row
 
     @staticmethod
