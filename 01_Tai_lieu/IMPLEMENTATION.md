@@ -3,6 +3,8 @@
 Ngày bắt đầu: 02/10/2026. Nhánh: `feat/application-foundation`.
 Người thực hiện hiện tại: Trần Trung Kiên, có Codex hỗ trợ theo yêu cầu.
 Phân công nhiều thành viên trong issue/hồ sơ cũ là lịch sử kế hoạch, không phải năng lực thực hiện hiện tại.
+Mã ứng dụng đã lưu ở commit local `c57a743`; theo yêu cầu mới đã chuẩn bị
+[ba worktree cho agent](PHAN_CONG/README.md) làm tồn đầu kỳ, outbox và desktop quản trị, điều phối giữ nhánh này.
 
 ## Hiện trạng đã đối chiếu
 

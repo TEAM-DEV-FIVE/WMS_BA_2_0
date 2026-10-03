@@ -1,7 +1,8 @@
 # Kết quả kiểm tra nền tảng, IAM, danh mục, PO/SO, nhận hàng và phục hồi
 
 Cập nhật ngày 03/10/2026; nhánh local `feat/application-foundation`, nền `e4de9e5` (PR #40 đã merge).
-Đây là bằng chứng kiểm thử mã nền tảng trong working tree; chưa có commit/CI/review nghiệm thu mới.
+Mã đã kiểm thử được lưu ở commit local `c57a743` để chia worktree; chưa push/chạy CI/review nghiệm thu mới.
+Phân công đợt tiếp theo tại [hướng dẫn worktree](../01_Tai_lieu/PHAN_CONG/README.md).
 Môi trường: Linux x64, Python 3.12.3, PostgreSQL 16.15, Tkinter qua Xvfb.
 
 ## Kết quả thực chạy
