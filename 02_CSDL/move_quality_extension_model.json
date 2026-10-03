@@ -1,0 +1,16 @@
+{
+  "revision": "013_b03_move_quality.sql",
+  "baseline": "model.json",
+  "tables": [{
+    "name": "move_line",
+    "purpose": "Typed internal move plan and receipt quality evidence; included in approval snapshot.",
+    "cols": [
+      {"name": "document_line_id", "type": "uuid", "null": false, "ref": "document_line.id"},
+      {"name": "stock_item_id", "type": "uuid", "null": false, "ref": "stock_item.id"},
+      {"name": "source_location_id", "type": "uuid", "null": false, "ref": "location.id"},
+      {"name": "destination_location_id", "type": "uuid", "null": false, "ref": "location.id"},
+      {"name": "quality_decision_id", "type": "uuid", "null": true, "ref": "quality_decision.id"}
+    ]
+  }],
+  "added_columns": []
+}

@@ -1,0 +1,7 @@
+// Development revision 012_b02_issue_reservation.sql; baseline document is external.
+Table issue_document {
+  document_id uuid [pk, not null]
+  source_order_id uuid [not null]
+}
+Ref: issue_document.document_id > document.id
+Ref: issue_document.source_order_id > document.id

@@ -4,8 +4,14 @@ from tkinter import ttk
 from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
+from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
+from apps.desktop.views.master_details import ProductDetailsView
+from apps.desktop.views.moves import MoveView
+from apps.desktop.views.openings import OpeningView
 from apps.desktop.views.orders import OrderView
+from apps.desktop.views.ownership import OwnershipView
+from apps.desktop.views.quality import QualityView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
 from apps.desktop.views.receipts import ReceiptView
 from apps.desktop.views.serial_lookup import SerialLookupView
@@ -37,8 +43,14 @@ class DesktopShell:
         notebook.pack(fill="both", expand=True, padx=12, pady=12)
         self.session_view = SessionView(notebook, settings)
         notebook.add(self.session_view, text="Đăng nhập và kho")
-        self.master_view = MasterDataView(notebook, self.session_view.presenter.api)
-        notebook.add(self.master_view, text="Danh mục")
+        self.master_container = ttk.Notebook(notebook)
+        notebook.add(self.master_container, text="Danh mục")
+        self.master_view = MasterDataView(self.master_container, self.session_view.presenter.api)
+        self.master_container.add(self.master_view, text="Danh mục cơ sở")
+        self.product_details_view = ProductDetailsView(self.master_container, self.session_view.presenter.api)
+        self.master_container.add(self.product_details_view, text="Quy đổi / barcode / giá")
+        self.ownership_view = OwnershipView(self.master_container, self.session_view.presenter.api)
+        self.master_container.add(self.ownership_view, text="Chủ hàng / ký gửi")
         self.serial_view = SerialLookupView(notebook, self.session_view.presenter.api)
         self.session_view.on_session_change = self.session_changed
         notebook.add(self.serial_view, text="Tra serial / bảo hành")
@@ -46,11 +58,20 @@ class DesktopShell:
         notebook.add(self.order_view, text="PO/SO và duyệt")
         self.receipt_view = ReceiptView(notebook, self.session_view.presenter.api)
         notebook.add(self.receipt_view, text="Nhận hàng")
+        self.opening_view = OpeningView(notebook, self.session_view.presenter.api)
+        notebook.add(self.opening_view, text="Tồn đầu kỳ")
         self.receipt_recovery_view = ReceiptRecoveryView(notebook, self.receipt_view.presenter)
         notebook.add(self.receipt_recovery_view, text="Phục hồi nhận hàng")
+        self.issue_view = IssueView(notebook, self.session_view.presenter.api)
+        notebook.add(self.issue_view, text="Giữ hàng / xuất kho")
         self.admin_view = AdminView(notebook, self.session_view.presenter.api)
         self.admin_view.on_signed_out = self.admin_signed_out
         notebook.add(self.admin_view, text="Quản trị tài khoản / quyền")
+        self.quality_view = QualityView(notebook, self.session_view.presenter.api)
+        self.move_view = MoveView(notebook, self.session_view.presenter.api)
+        for view, title in [(self.quality_view, "Kiểm định chất lượng"), (self.move_view, "Cất hàng / di chuyển")]:
+            view.on_signed_out = self.admin_signed_out
+            notebook.add(view, text=title)
         container = ttk.Frame(notebook, padding=24)
         notebook.add(container, text="Kết nối")
         ttk.Label(container, text="WMS · Quản lý kho", font=("Segoe UI", 22, "bold")).pack(anchor="w")
@@ -76,10 +97,16 @@ class DesktopShell:
 
     def session_changed(self, user=None, warehouses=None):
         self.master_view.session_changed(user)
+        self.product_details_view.session_changed(user, warehouses)
+        self.ownership_view.session_changed(user, warehouses)
         self.serial_view.session_changed(user, warehouses)
         self.order_view.session_changed(user, warehouses)
         self.receipt_view.session_changed(user, warehouses)
+        self.issue_view.session_changed(user, warehouses)
+        self.opening_view.session_changed(user, warehouses)
         self.admin_view.session_changed(user, warehouses)
+        self.quality_view.session_changed(user, warehouses)
+        self.move_view.session_changed(user, warehouses)
 
     def admin_signed_out(self, message):
         # A queued session snapshot/warehouse response must not restore the
@@ -104,10 +131,16 @@ class DesktopShell:
             self.presenter.drain()
             self.session_view.presenter.drain()
             self.master_view.presenter.drain()
+            self.product_details_view.presenter.drain()
+            self.ownership_view.drain()
             self.serial_view.presenter.drain()
             self.order_view.presenter.drain()
             self.receipt_view.presenter.drain()
+            self.issue_view.presenter.drain()
+            self.opening_view.presenter.drain()
             self.admin_view.presenter.drain()
+            self.quality_view.presenter.drain()
+            self.move_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -119,15 +152,25 @@ class DesktopShell:
         self.session_view.presenter.close()
         self.master_view.presenter.close()
         self.master_view.release_variables()
+        self.product_details_view.presenter.close()
+        self.product_details_view.release_variables()
+        self.ownership_view.close()
         self.serial_view.presenter.close()
         self.serial_view.release_variables()
         self.order_view.presenter.close()
         self.order_view.release_variables()
         self.receipt_view.presenter.close()
         self.receipt_view.release_variables()
+        self.opening_view.presenter.close()
+        self.opening_view.release_variables()
         self.receipt_recovery_view.release_variables()
+        self.issue_view.presenter.close()
+        self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
+        for view in [self.quality_view, self.move_view]:
+            view.presenter.close()
+            view.release_variables()
         self.session_view.release_variables()
         self.status = None
         self.root.destroy()
@@ -135,9 +178,15 @@ class DesktopShell:
     def finish(self):
         self.presenter.finish()
         self.master_view.presenter.finish()
+        self.product_details_view.presenter.finish()
+        self.ownership_view.finish()
         self.serial_view.presenter.finish()
         self.order_view.presenter.finish()
         self.receipt_view.presenter.finish()
+        self.issue_view.presenter.finish()
+        self.opening_view.presenter.finish()
         self.admin_view.presenter.finish()
+        self.quality_view.presenter.finish()
+        self.move_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
