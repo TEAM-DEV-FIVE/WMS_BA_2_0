@@ -15,7 +15,8 @@ Runtime có **116 API paths**, **16 migration release (001–016)**, schema **78
 Revision phát triển B12 018 được đổi thành `016_b12_returns.sql`; giữ nguyên byte 001–015.
 Contract và policy ở [RETURNS.md](RETURNS.md); mốc ghép, kết quả hồi quy và package ở
 [B12_INTEGRATION.md](PHAN_CONG/BAN_GIAO/B12_INTEGRATION.md).
-Hồi quy bản ghép: **551 tests + 10 subtests**, 0 failed/skip; build sdist/wheel, OpenAPI và artifacts đạt.
+Merge `97947c9` ghi B12 **INTEGRATED**. Hồi quy bản ghép: **551 tests + 10 subtests**,
+0 failed/skip; build sdist/wheel, OpenAPI và artifacts đạt. Windows/UAT chưa chạy.
 
 ## Cập nhật tích hợp B11 — 04/10/2026
 

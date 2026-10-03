@@ -37,7 +37,7 @@ chỉ gồm tài liệu/DBML/checksum, không đổi mã, tests hoặc SQL đã 
 
 - Hồi quy toàn bộ: **551 passed + 10 subtests, 0 failed/errors/skipped**, 639.09s.
   JUnit tại `.reports/b12-integration-full.xml` trong worktree tích hợp, sao chép nguyên byte sang điều phối
-  khi chốt merge. Có 3 deprecation warnings của thư viện; không skip hoặc xóa test.
+  khi chốt merge; không gọi đây là lượt chạy riêng tại điều phối. Có 3 deprecation warnings của thư viện; không skip hoặc xóa test.
 - Ruff apps/packages/tests/foundation/runner: PASS.
 - Runtime OpenAPI export/check: PASS, 116 paths.
 - Build sdist/wheel: PASS; gói ở `.reports/b12-integration-dist/`. Cả hai chứa đúng 16 migrations
@@ -60,8 +60,9 @@ rtk proxy git diff --check
 
 ## Trạng thái và giới hạn
 
-Sau khi đưa bản kiểm chứng vào `feat/application-foundation`, ghi **INTEGRATED** cùng source và commit
-thực vào `integration_log.json`. Giữ worktree/commit B12 tính năng để review; không kích hoạt nhánh khác.
+Đã merge vào `feat/application-foundation` tại **`97947c9d0202e73ef56a67b19535f7e105adb5d1`**,
+ghi **INTEGRATED** cùng source và commit thực vào `integration_log.json`. Tree của merge khớp hoàn toàn
+với commit bản ghép đã kiểm chứng `5ddf830`; sau đó chỉ cập nhật báo cáo/sổ tích hợp/checksum. Giữ worktree/commit B12 tính năng để review; không kích hoạt nhánh khác.
 Bằng chứng lịch sử trước tích hợp ở [B12.md](B12.md); contract ở [RETURNS.md](../../RETURNS.md).
 
 Windows, thiết bị, LAN mục tiêu, 15 CCU, DR, hosted CI và UAT: **NOT_RUN**.

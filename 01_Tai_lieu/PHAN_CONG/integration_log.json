@@ -93,11 +93,11 @@
     },
     {
       "id": "B12",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "ef99946038539483ed3e740b2dbd60594c7394c5",
+      "handoff_commit": "f37c0bb80fbd9f82c26494a71c9e00574f121039",
+      "integrated_commit": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+      "note": "Người dùng cho phép đồng bộ/triển khai và giao tích hợp B12 ngày 2026-10-04; nối nền B11 release 015, B12 release 016; hồi quy 551 tests + 10 subtests, 0 failed/skip. BAN_GIAO/B12_INTEGRATION.md. Windows/UAT chưa chạy; không đổi trạng thái nghiệm thu tổng."
     },
     {
       "id": "B13",
