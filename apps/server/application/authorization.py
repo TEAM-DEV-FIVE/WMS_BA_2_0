@@ -72,8 +72,9 @@ class Authorization:
 
     def require_approval(self, document: dict, *, requester_id: UUID | None = None,
                          previous_approvers: tuple[UUID, ...] = (), counters: tuple[UUID, ...] = ()) -> None:
-        self.require("document.approve", document["warehouse_id"])
+        permission = "opening.approve" if document["kind"] == "OPENING" else "document.approve"
+        self.require(permission, document["warehouse_id"])
         if self.principal.user_id in {document["created_by"], requester_id, *previous_approvers, *counters}:
             raise DomainError("SELF_APPROVAL", "Người lập/gửi/đếm hoặc đã duyệt bước trước không được duyệt.")
         if document["destination_warehouse_id"]:
-            self.require("document.approve", document["destination_warehouse_id"])
+            self.require(permission, document["destination_warehouse_id"])

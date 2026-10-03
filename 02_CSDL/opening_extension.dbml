@@ -1,0 +1,18 @@
+// Additive schema, migration 010. Existing baseline remains unchanged.
+Table opening_document {
+  document_id uuid [pk, not null, ref: > document.id]
+  warehouse_id uuid [not null, ref: > warehouse.id]
+  batch_key uuid [not null]
+  signed_count_reference varchar(2000) [not null]
+  indexes {
+    (warehouse_id, batch_key) [unique]
+  }
+}
+Table opening_line {
+  document_line_id uuid [pk, not null, ref: > document_line.id]
+  destination_location_id uuid [not null, ref: > location.id]
+  lot_code varchar(100)
+  serial_code varchar(160)
+  manufactured_on date
+  expires_on date
+}

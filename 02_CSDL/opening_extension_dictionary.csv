@@ -1,0 +1,11 @@
+table,column,data_type,nullable,references
+opening_document,document_id,uuid,NO,document.id
+opening_document,warehouse_id,uuid,NO,warehouse.id
+opening_document,batch_key,uuid,NO,
+opening_document,signed_count_reference,varchar(2000),NO,
+opening_line,document_line_id,uuid,NO,document_line.id
+opening_line,destination_location_id,uuid,NO,location.id
+opening_line,lot_code,varchar(100),YES,
+opening_line,serial_code,varchar(160),YES,
+opening_line,manufactured_on,date,YES,
+opening_line,expires_on,date,YES,
