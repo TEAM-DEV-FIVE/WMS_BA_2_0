@@ -50,7 +50,7 @@ def test_migrations_seed_schema_smoke_and_reconciliation(database):
     raw = database.raw_connection()
     try:
         with raw.cursor() as cursor:
-            cursor.execute("SET wms.test.expected_tables='65'; SET wms.test.expected_columns='440'; SET wms.test.expected_fks='129';")
+            cursor.execute("SET wms.test.expected_tables='66'; SET wms.test.expected_columns='442'; SET wms.test.expected_fks='131';")
             cursor.execute((ROOT / "tests/sql/schema_smoke.sql").read_text())
             while cursor.nextset():
                 pass

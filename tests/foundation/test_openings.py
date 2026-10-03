@@ -664,7 +664,7 @@ def test_opening_upgrade_from_009_preserves_custom_policy_and_legacy_data(
         original = dict(
             c.execute(text("SELECT * FROM wms.document WHERE id=:document"), ids).mappings().one()
         )
-    assert migrations.migrate(empty_database) == ["010_opening.sql"]
+    assert migrations.migrate(empty_database) == [source[0] for source in sources[9:]]
     assert migrations.migrate(empty_database) == []
     with empty_database.connect() as c:
         assert (

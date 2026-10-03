@@ -1,0 +1,13 @@
+{
+  "revision": "012_b02_issue_reservation.sql",
+  "baseline": "model.json",
+  "tables": [{
+    "name": "issue_document",
+    "purpose": "Immutable ISSUE to approved SO source link; quantities remain on document_line.",
+    "cols": [
+      {"name": "document_id", "type": "uuid", "null": false, "ref": "document.id"},
+      {"name": "source_order_id", "type": "uuid", "null": false, "ref": "document.id"}
+    ]
+  }],
+  "added_columns": []
+}

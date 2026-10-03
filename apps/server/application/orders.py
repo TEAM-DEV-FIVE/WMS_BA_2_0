@@ -14,7 +14,7 @@ from apps.server.infrastructure.database import PostgresUnitOfWork
 from packages.contracts.orders import ApprovalView, OrderResult, OrderView
 from packages.contracts.traceability import COMPANY_OWNER
 
-DRAFT_PERMISSION = {"PO": "po.draft", "SO": "so.draft", "RECEIPT": "receipt.draft", "OPENING": "opening.draft"}
+DRAFT_PERMISSION = {"PO": "po.draft", "SO": "so.draft", "RECEIPT": "receipt.draft", "OPENING": "opening.draft", "ISSUE": "issue.draft"}
 SUMMARY_SQL = """SELECT d.*,p.name AS partner_name,u.display_name AS creator_name FROM wms.document d
     LEFT JOIN wms.partner p ON p.id=d.partner_id JOIN wms.app_user u ON u.id=d.created_by"""
 
@@ -37,8 +37,8 @@ class OrderService:
         if doc["kind"] not in DRAFT_PERMISSION or (kind and doc["kind"] != kind):
             raise DomainError("NOT_FOUND", "Không tìm thấy PO/SO.")
         if lock:
-            if doc["kind"] == "RECEIPT":
-                source = self.receipts.source(auth, doc)
+            if doc["kind"] in {"RECEIPT", "ISSUE"}:
+                source = (self.receipts if doc["kind"] == "RECEIPT" else self.issues).source(auth, doc)
                 auth.connection.execute(
                     text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": source["id"]}
                 )
@@ -108,9 +108,9 @@ class OrderService:
             WHERE l.document_id=:doc ORDER BY l.line_no"""),
                 {
                     "doc": doc["id"],
-                    "operation": {"SO": "ISSUE", "OPENING": "OPEN"}.get(doc["kind"], "RECEIVE"),
-                    "child_kind": {"SO": "ISSUE", "OPENING": "OPENING"}.get(doc["kind"], "RECEIPT"),
-                    "direct": doc["kind"] in {"RECEIPT", "OPENING"},
+                    "operation": {"SO": "ISSUE", "ISSUE": "ISSUE", "OPENING": "OPEN"}.get(doc["kind"], "RECEIVE"),
+                    "child_kind": {"SO": "ISSUE", "ISSUE": "ISSUE", "OPENING": "OPENING"}.get(doc["kind"], "RECEIPT"),
+                    "direct": doc["kind"] in {"RECEIPT", "OPENING", "ISSUE"},
                 },
             )
             .mappings()
@@ -159,6 +159,7 @@ class OrderService:
                     "lines": [dict(r) for r in lines],
                     "assigned_user_ids": assignments,
                     **({"opening": self.openings.snapshot(connection, doc)} if doc["kind"] == "OPENING" else {}),
+                    **({"issue": self.issues.snapshot(connection, doc)} if doc["kind"] == "ISSUE" else {}),
                 }
             )
         )
@@ -278,7 +279,7 @@ class OrderService:
                 invalid("partner_id", "Tồn đầu kỳ không có nhà cung cấp nguồn.")
             return
         row = active_reference(connection, "partner", partner, "partner_id")
-        if not row["is_customer" if kind == "SO" else "is_supplier"]:
+        if not row["is_customer" if kind in {"SO", "ISSUE"} else "is_supplier"]:
             invalid("partner_id", "PO cần nhà cung cấp; SO cần khách hàng.")
 
     def prepare_lines(self, connection, payload):
@@ -333,6 +334,8 @@ class OrderService:
         return result
 
     def no_dependencies(self, connection, doc_id, *, edit=False, closing=False):
+        if one(connection, "SELECT id FROM wms.document WHERE id=:id AND kind='ISSUE'", id=doc_id):
+            return self.issues.no_dependencies(connection, doc_id, edit=edit, closing=closing)
         if one(
             connection, "SELECT id FROM wms.inventory_transaction WHERE document_id=:id LIMIT 1", id=doc_id
         ):
@@ -370,8 +373,8 @@ class OrderService:
         )
 
     def effects(self, connection, actor, doc, action, result, reason, request_id):
-        prefix = {"RECEIPT": "receipt.", "OPENING": "opening."}.get(doc["kind"], "order.")
-        event = action if action.startswith(("receipt.", "opening.")) else prefix + action
+        prefix = {"RECEIPT": "receipt.", "OPENING": "opening.", "ISSUE": "issue."}.get(doc["kind"], "order.")
+        event = action if action.startswith(("receipt.", "opening.", "issue.")) else prefix + action
         params = {
             "id": uuid4(),
             "actor": actor,
@@ -471,6 +474,8 @@ class OrderService:
                     self.receipts.validate_saved(auth, doc)
                 if doc["kind"] == "OPENING" and action in {"submit", "decide"}:
                     self.openings.validate_saved(auth, doc)
+                if doc["kind"] == "ISSUE" and action in {"submit", "decide"}:
+                    self.issues.validate_saved(auth, doc)
                 if doc["kind"] in {"RECEIPT", "OPENING"} and action == "close":
                     raise DomainError("INVALID_STATE", "Loại phiếu này không hỗ trợ đóng thiếu.")
                 if action in {"update", "submit", "revise"}:
