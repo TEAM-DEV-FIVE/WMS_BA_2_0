@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "encoding": "UTF-8 BOM",
   "csv_delimiter": ",",
   "decimal_separator": ".",
@@ -527,6 +527,18 @@
           "type": "decimal",
           "required": true,
           "rule": ">0; SERIAL=1; theo base UOM, tối đa 6 số lẻ"
+        },
+        {
+          "name": "owner_code",
+          "type": "text",
+          "required": true,
+          "rule": "COMPANY hoặc chủ CONSIGNOR đang hoạt động; không nhận UNCLASSIFIED"
+        },
+        {
+          "name": "consignment_code",
+          "type": "text",
+          "required": false,
+          "rule": "Bắt buộc với CONSIGNOR; đúng chủ/kho/ngày; COMPANY để trống"
         }
       ],
       "example": [
@@ -538,7 +550,9 @@
           "SKU001",
           "LOT001",
           "",
-          "100"
+          "100",
+          "COMPANY",
+          ""
         ],
         [
           "OPEN-DEMO",
@@ -548,7 +562,9 @@
           "SKU002",
           "",
           "SN0001",
-          "1"
+          "1",
+          "COMPANY",
+          ""
         ]
       ]
     },
