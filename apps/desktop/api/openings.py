@@ -3,6 +3,7 @@
 from urllib.parse import urlencode
 
 from apps.desktop.api.client import ApiError
+from packages.contracts.consignments import ConsignmentReceiptView, IncomingOwner
 from packages.contracts.master_data import LocationData, Page, ProductData, UomData, entity_models
 from packages.contracts.openings import OpeningPostResult, OpeningView
 from packages.contracts.orders import OrderPage, OrderResult
@@ -23,8 +24,11 @@ def validated(model, data):
 
 
 class OpeningApi:
-    def __init__(self, client):
+    def __init__(self, client, *, consignment=False):
         self.client = client
+        self.route = "consignment-receipts" if consignment else "openings"
+        self.kind = "RECEIPT" if consignment else "OPENING"
+        self.view_model = ConsignmentReceiptView if consignment else OpeningView
 
     def page(self, warehouse, status="", after=None):
         params = {"warehouse_id": warehouse, "limit": 25}
@@ -32,13 +36,13 @@ class OpeningApi:
             params["status"] = status
         if after:
             params["after"] = after
-        return validated(OrderPage, self.client.get("openings?" + urlencode(params)))
+        return validated(OrderPage, self.client.get(self.route + "?" + urlencode(params)))
 
     def read(self, doc_id):
-        result = validated(OpeningView, self.client.get("openings/" + doc_id))
+        result = validated(self.view_model, self.client.get(self.route + "/" + doc_id))
         if (
             result["id"] != doc_id
-            or result["kind"] != "OPENING"
+            or result["kind"] != self.kind
             or len(result["lines"]) != len(result["plan"])
             or {line["id"] for line in result["lines"]}
             != {line["document_line_id"] for line in result["plan"]}
@@ -47,7 +51,7 @@ class OpeningApi:
         return result
 
     def operation(self, key):
-        result = validated(OperationView, self.client.get("openings/operations/" + str(key)))
+        result = validated(OperationView, self.client.get(self.route + "/operations/" + str(key)))
         if result["operation_status"] != "COMMITTED" or result["status"] != "COMPLETED":
             raise ApiError("INVALID_RESPONSE", "Chưa nhận được ACK ghi sổ hoàn tất.")
         return result
@@ -55,7 +59,7 @@ class OpeningApi:
     def execute(self, command):
         result = self.client.command(command.method, command.path, command.body, command.key)
         result = validated(OpeningPostResult if command.post else OrderResult, result)
-        if result["kind"] != "OPENING" or result["warehouse_id"] != command.warehouse:
+        if result["kind"] != self.kind or result["warehouse_id"] != command.warehouse:
             raise ApiError("INVALID_RESPONSE", "Phản hồi không thuộc phiếu/kho tồn đầu kỳ đang gửi.")
         if command.doc_id and result["id"] != command.doc_id:
             raise ApiError("INVALID_RESPONSE", "Phản hồi không thuộc phiếu đang gửi.")
@@ -90,6 +94,10 @@ class OpeningApi:
             params["warehouse_id"] = warehouse
         if after:
             params["after"] = after
+        if resource == "owners":
+            return validated(
+                Page[IncomingOwner], self.client.get(self.route + "/owners?" + urlencode(params))
+            )
         model = PRODUCT_VIEW if resource == "products" else LOCATION_VIEW
         return validated(Page[model], self.client.get("master/" + resource + "?" + urlencode(params)))
 
@@ -97,7 +105,7 @@ class OpeningApi:
         try:
             products = self.catalog("products")
             locations = self.catalog("locations", warehouse)
-            return {"products": products, "locations": locations}
+            return {"products": products, "locations": locations, "owners": self.catalog("owners", warehouse)}
         except ApiError as error:
             if error.code != "FORBIDDEN":
                 raise

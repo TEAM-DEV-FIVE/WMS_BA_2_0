@@ -1,6 +1,8 @@
 # Import runtime B01
 
-Migration phát triển `011_b01_import_files.sql`, nền ứng dụng `06041b7`, mapping `b01.v1`.
+Nền import từ `011_b01_import_files.sql`; B09 nâng mapping runtime lên `b09.v2`.
+Job đã VALIDATED theo mapping cũ cần validate lại. [Owner/hợp đồng B09](CONSIGNMENT.md)
+mở tồn đầu kỳ ký gửi qua service thật.
 Mẫu và thứ tự cột lấy từ [manifest](../06_Nhap_lieu/imports/template_manifest.json); runtime có bản đóng gói
 trong `import_templates.py`, test kiểm tra hai bản trùng nhau. Không cần thư mục tài liệu khi cài wheel.
 
@@ -27,7 +29,10 @@ kiểm tra lại master, tracking và quy tắc service hiện tại.
 PO/SO nhóm theo `(kind, external_number)` trong kho chọn, ngày/đối tác thống nhất, line_no dương và
 không trùng. Chỉ nạp remaining_quantity, tạo DRAFT; không tự duyệt, nhận hàng, giữ chỗ hoặc ghi stock.
 OPENING cũng tạo DRAFT qua OpeningService, sau đó dùng quy trình submit/approval/post hiện hành.
-Import chỉ hỗ trợ COMPANY theo các mẫu hiện có. Không suy owner ký gửi từ ghi chú.
+PO/SO chỉ hỗ trợ COMPANY. Mẫu OPENING v2 thêm owner_code bắt buộc và consignment_code cho
+CONSIGNOR; COMPANY không gắn hợp đồng. Dry-run/commit bind cả owner/agreement/partner và
+kiểm lại dữ liệu hiện hành. Header OPENING v1 8 cột được nhận theo contract cũ COMPANY-only;
+không suy ký gửi từ ghi chú. Header v2 thiếu owner bị từ chối.
 
 `import_row` giữ payload gốc đã chuẩn hóa, row_no và target_id; `import_document_source` giữ khóa nguồn
 và ID chứng từ lâu dài. Số chứng từ thực tế do server cấp. `12_open_orders.note` và số dòng nguồn vẫn

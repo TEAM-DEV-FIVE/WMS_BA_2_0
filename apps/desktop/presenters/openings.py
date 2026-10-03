@@ -13,7 +13,7 @@ from uuid import uuid4
 from apps.desktop.api.client import ApiError
 from apps.desktop.api.openings import OpeningApi
 from packages.contracts.openings import OpeningLineInput
-from packages.contracts.traceability import COMPANY_OWNER
+from packages.contracts.traceability import COMPANY_OWNER, UNCLASSIFIED_OWNER
 
 UNKNOWN_CODES = {
     "TIMEOUT",
@@ -32,8 +32,10 @@ def validate_lines(lines, products=None, units=None):
     serials = set()
     for index, line in enumerate(lines, 1):
         spec = OpeningLineInput.model_validate(line)
-        if spec.owner_id != COMPANY_OWNER:
-            raise ValueError("Chỉ hỗ trợ chủ hàng COMPANY.")
+        if spec.owner_id == UNCLASSIFIED_OWNER:
+            raise ValueError("Chưa phân loại chủ hàng; cần chứng cứ và đối soát trước.")
+        if (spec.owner_id == COMPANY_OWNER) == bool(spec.consignment_id):
+            raise ValueError("Chọn hợp đồng cho chủ ký gửi; COMPANY không gắn hợp đồng.")
         product = (products or {}).get(str(spec.product_id))
         if product:
             qty, tracking = Decimal(spec.quantity_base), product["tracking"]
@@ -72,9 +74,10 @@ class OpeningCommand:
 
 
 class OpeningPresenter:
-    def __init__(self, view, api):
+    def __init__(self, view, api, *, consignment=False):
         self.view, self.api = view, api
-        self.openings = OpeningApi(api)
+        self.openings = OpeningApi(api, consignment=consignment)
+        self.draft_permission = "receipt.draft" if consignment else "opening.draft"
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="wms-openings")
         self.results = Queue()
         self.sequence = 0
@@ -120,7 +123,7 @@ class OpeningPresenter:
         def run():
             permissions = self.api.permissions(warehouse)
             page = self.openings.page(warehouse, status, after)
-            refs = self.openings.references(warehouse) if "opening.draft" in permissions else {}
+            refs = self.openings.references(warehouse) if self.draft_permission in permissions else {}
             return page, refs, permissions
 
         self.submit("load", run)
@@ -129,7 +132,7 @@ class OpeningPresenter:
         self.submit("stale" if stale else "read", lambda: self.openings.read(doc_id))
 
     def catalog(self, resource, query="", after=None):
-        warehouse = self.warehouse if resource == "locations" else None
+        warehouse = self.warehouse if resource in {"locations", "owners"} else None
         self.submit("catalog", lambda: self.openings.catalog(resource, warehouse, query, after), resource)
 
     def product(self, product_id):

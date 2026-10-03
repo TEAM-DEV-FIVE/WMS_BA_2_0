@@ -14,11 +14,12 @@ from apps.server.api.imports import import_router
 from apps.server.api.issues import issue_router
 from apps.server.api.master_data import master_data_router
 from apps.server.api.moves import move_router
-from apps.server.api.openings import opening_router
+from apps.server.api.openings import incoming_router, opening_router
 from apps.server.api.orders import order_router
 from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
 from apps.server.api.traceability import traceability_router
+from apps.server.application.consignments import ConsignmentReceiptService
 from apps.server.application.identity import IdentityService
 from apps.server.application.imports import ImportService
 from apps.server.application.issues import IssueService
@@ -34,6 +35,11 @@ from apps.server.infrastructure.config import Settings
 from apps.server.infrastructure.database import make_engine
 from apps.server.infrastructure.migrations import is_ready
 from packages.contracts import Error, FieldError, Health
+from packages.contracts.consignments import (
+    ConsignmentReceiptInput,
+    ConsignmentReceiptUpdate,
+    ConsignmentReceiptView,
+)
 
 logger = logging.getLogger("wms.api")
 
@@ -62,6 +68,9 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(order_router(app.state.orders))
     app.state.receipts = ReceiptService(app.state.orders)
     app.include_router(receipt_router(app.state.receipts))
+    app.state.consignment_receipts = ConsignmentReceiptService(app.state.orders)
+    app.include_router(incoming_router(app.state.consignment_receipts, "consignment-receipts",
+                                       ConsignmentReceiptInput, ConsignmentReceiptUpdate, ConsignmentReceiptView))
     app.state.openings = OpeningService(app.state.orders)
     app.include_router(opening_router(app.state.openings))
     app.state.imports = ImportService(app.state.identity)

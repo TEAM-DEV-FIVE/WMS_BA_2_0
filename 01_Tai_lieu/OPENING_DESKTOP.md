@@ -16,7 +16,10 @@ Chọn **Tồn đầu kỳ** trong thanh Chức năng. Màn hình dùng các API
 4. NONE không nhập lô/serial; LOT nhập lô, NSX/HSD nếu có; SERIAL mỗi dòng lượng 1.
    Mã lô/serial giữ nguyên hoa/thường và số 0 đầu. Form kiểm tra lượng dương, precision
    khi đã tải UOM, trùng serial, ngày và giới hạn 1–200 dòng trước gửi. Server kiểm tra lại toàn bộ.
-   Hàng chỉ thuộc COMPANY; không có import hoặc chọn chủ ký gửi.
+   B09 thêm selector Chủ/HĐ: COMPANY hoặc chủ CONSIGNOR kèm hợp đồng. Cùng SKU khác owner
+   được hiển thị thành dòng riêng; server kiểm lại owner/hợp đồng khi gửi và ghi sổ. Import B01
+   chạy riêng qua staging. Màn **Nhận ký gửi** dùng cùng cơ chế form/ACK, chứng từ giao nhận
+   và vị trí nhận/cách ly, không áp dụng cutover; xem [B09](CONSIGNMENT.md).
 5. **Lưu nháp** → **Gửi duyệt**. Người khác có `opening.approve` theo đúng role/bước
    của policy chọn **Duyệt** hoặc **Từ chối**, nhập lý do. Lịch sử hiển thị phiên bản,
    vai trò từng bước, người quyết định và nhận xét. Nút thao tác lấy từ `allowed_actions`;

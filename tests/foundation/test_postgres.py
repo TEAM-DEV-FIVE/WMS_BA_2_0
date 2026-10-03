@@ -50,7 +50,7 @@ def test_migrations_seed_schema_smoke_and_reconciliation(database):
     raw = database.raw_connection()
     try:
         with raw.cursor() as cursor:
-            cursor.execute("SET wms.test.expected_tables='70'; SET wms.test.expected_columns='481'; SET wms.test.expected_fks='144';")
+            cursor.execute("SET wms.test.expected_tables='72'; SET wms.test.expected_columns='491'; SET wms.test.expected_fks='148';")
             cursor.execute((ROOT / "tests/sql/schema_smoke.sql").read_text())
             while cursor.nextset():
                 pass
@@ -122,7 +122,8 @@ def test_master_upgrade_preserves_catalog_and_adds_versions(empty_database, monk
         assert tuple(connection.execute(text("SELECT code,version,is_active FROM wms.product_category WHERE id=:id"), {"id": category}).one()) == ("LEGACY", 1, True)
 
 
-def test_ownership_upgrade_preserves_legacy_ledger_without_assuming_company(empty_database, monkeypatch):
+@pytest.mark.parametrize("prefix_length", [5, 10, 13])
+def test_ownership_upgrade_preserves_legacy_ledger_without_assuming_company(empty_database, monkeypatch, prefix_length):
     import apps.server.infrastructure.migrations as migrations
     from packages.contracts.traceability import UNCLASSIFIED_OWNER
     sources = migrations.migration_sources()
@@ -148,7 +149,14 @@ def test_ownership_upgrade_preserves_legacy_ledger_without_assuming_company(empt
         for sql in statements:
             c.execute(text(sql), ids)
         original_move = dict(c.execute(text('SELECT * FROM wms.stock_move')).mappings().one())
-    assert migrate(empty_database) == [source[0] for source in sources[5:]]
+    with monkeypatch.context() as patch:
+        patch.setattr(migrations, "migration_sources", lambda: sources[:prefix_length])
+        migrate(empty_database)
+    with empty_database.connect() as c:
+        before = c.execute(text("SELECT version,sha256 FROM public.wms_schema_migration ORDER BY version")).all()
+    assert migrate(empty_database) == [source[0] for source in sources[prefix_length:]]
+    with empty_database.connect() as c:
+        assert c.execute(text("SELECT version,sha256 FROM public.wms_schema_migration ORDER BY version")).all()[:prefix_length] == before
     with empty_database.connect() as c:
         assert dict(c.execute(text('SELECT * FROM wms.stock_move')).mappings().one()) == original_move
         for table in ['stock_item','document_line']:

@@ -32,7 +32,7 @@ from packages.contracts.orders import OrderInput
 from packages.contracts.receipts import ReceiptLineInput
 from packages.contracts.traceability import COMPANY_OWNER
 
-MAPPING_VERSION = "b01.v1"
+MAPPING_VERSION = "b09.v2"
 NAMESPACE = UUID("44809b73-5cf7-4d4c-bc46-cf836a4354cc")
 REFERENCE_TABLES = {
     "warehouse",
@@ -45,6 +45,7 @@ REFERENCE_TABLES = {
     "lot",
     "serial",
     "stock_owner",
+    "consignment_agreement",
 }
 
 
@@ -350,10 +351,16 @@ class ImportTargets:
                     id=location["id"],
                 ):
                     raise DomainError("LOCATION_FROZEN", "Vị trí đang khóa kiểm kê.", field="location_code")
+                owner = self.resolve("stock_owner", data["owner_code"])
+                agreement = self.resolve("consignment_agreement", data["consignment_code"], optional=True)
+                if owner["partner_id"]:
+                    partner = active_reference(self.c, "partner", owner["partner_id"], "owner_code")
+                    self.remember("partner", partner)
                 spec = dict(
                     product_id=product["id"],
                     quantity_base=data["quantity_base"],
-                    owner_id=COMPANY_OWNER,
+                    owner_id=owner["id"],
+                    consignment_id=agreement["id"] if agreement else None,
                     destination_location_id=location["id"],
                     lot_code=data["lot_code"],
                     serial_code=data["serial_code"],

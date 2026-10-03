@@ -9,6 +9,7 @@ from sqlalchemy import text
 from apps.server.application.authorization import Authorization, Principal
 from apps.server.application.commands import CommandBus, CommandResult
 from apps.server.application.master_data import active_reference, invalid, one
+from apps.server.application.stock_identity import is_consignment_receipt, ownership_snapshot
 from apps.server.domain.errors import DomainError, require_version
 from apps.server.infrastructure.database import PostgresUnitOfWork
 from packages.contracts.orders import ApprovalView, OrderResult, OrderView
@@ -42,9 +43,10 @@ class OrderService:
                 self.moves.lock_sources(auth, doc)
             if doc["kind"] in {"RECEIPT", "ISSUE"}:
                 source = (self.receipts if doc["kind"] == "RECEIPT" else self.issues).source(auth, doc)
-                auth.connection.execute(
-                    text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": source["id"]}
-                )
+                if source:
+                    auth.connection.execute(
+                        text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": source["id"]}
+                    )
             auth.connection.execute(
                 text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": doc_id}
             )
@@ -61,7 +63,7 @@ class OrderService:
         ):
             raise DomainError("FORBIDDEN", "Chỉ người lập hoặc được giao mới sửa/gửi phiếu.")
 
-    def listing(self, auth, kind, warehouse_id, status=None, after=None, limit=50):
+    def listing(self, auth, kind, warehouse_id, status=None, after=None, limit=50, *, consignment_only=None):
         auth.require("document.read", warehouse_id, hidden=True)
         grants = auth.grants("document.read", warehouse_id)
         broad = any(g["role_code"] not in {"RECEIVER", "PICKER"} for g in grants)
@@ -70,6 +72,8 @@ class OrderService:
                 text(
                     SUMMARY_SQL
                     + """ WHERE d.kind=:kind AND d.warehouse_id=:warehouse
+            AND (CAST(:consignment_only AS boolean) IS NULL OR
+                 EXISTS(SELECT 1 FROM wms.consignment_receipt cr WHERE cr.document_id=d.id)=:consignment_only)
             AND (CAST(:status AS text) IS NULL OR d.status=:status)
             AND (CAST(:after AS uuid) IS NULL OR d.id>:after)
             AND (:broad OR d.created_by=:user OR EXISTS(SELECT 1 FROM wms.document_assignment a
@@ -77,6 +81,7 @@ class OrderService:
                 ),
                 {
                     "kind": kind,
+                    "consignment_only": consignment_only,
                     "warehouse": warehouse_id,
                     "status": status,
                     "after": after,
@@ -161,6 +166,9 @@ class OrderService:
                     },
                     "lines": [dict(r) for r in lines],
                     "assigned_user_ids": assignments,
+                    **ownership_snapshot(connection, lines),
+                    **({"consignment_receipt": self.consignment_receipts.snapshot(connection, doc)}
+                       if doc["kind"] == "RECEIPT" and is_consignment_receipt(connection, doc["id"]) else {}),
                     **({"opening": self.openings.snapshot(connection, doc)} if doc["kind"] == "OPENING" else {}),
                     **({"issue": self.issues.snapshot(connection, doc)} if doc["kind"] == "ISSUE" else {}),
                     **({"move": self.moves.snapshot(connection, doc)} if doc["kind"] == "INTERNAL_MOVE" else {}),
@@ -378,7 +386,9 @@ class OrderService:
 
     def effects(self, connection, actor, doc, action, result, reason, request_id):
         prefix = {"RECEIPT": "receipt.", "OPENING": "opening.", "ISSUE": "issue.", "INTERNAL_MOVE": "move."}.get(doc["kind"], "order.")
-        event = action if action.startswith(("receipt.", "opening.", "issue.", "move.", "quality.")) else prefix + action
+        if doc["kind"] == "RECEIPT" and is_consignment_receipt(connection, doc["id"]):
+            prefix = "consignment_receipt."
+        event = action if action.startswith(("receipt.", "opening.", "issue.", "move.", "quality.", "consignment_receipt.")) else prefix + action
         params = {
             "id": uuid4(),
             "actor": actor,
@@ -516,13 +526,19 @@ class OrderService:
                 elif action == "submit":
                     if doc["status"] not in {"DRAFT", "REJECTED"}:
                         raise DomainError("INVALID_STATE", "Phiếu không ở trạng thái gửi duyệt.")
-                    self.validate_header(c, doc["kind"], doc["warehouse_id"], doc["partner_id"])
+                    if doc["kind"] not in {"OPENING", "INTERNAL_MOVE"} and not (
+                        doc["kind"] == "RECEIPT" and is_consignment_receipt(c, doc["id"])
+                    ):
+                        self.validate_header(c, doc["kind"], doc["warehouse_id"], doc["partner_id"])
                     saved = self.lines(c, doc)
                     if not saved:
                         raise DomainError("EMPTY_DOCUMENT", "Cần ít nhất một dòng hàng.")
                     for line in saved:
                         active_reference(c, "product", line["product_id"], "product_id")
-                        if line["owner_id"] != COMPANY_OWNER:
+                        if line["owner_id"] != COMPANY_OWNER and not (
+                            doc["kind"] in {"OPENING", "INTERNAL_MOVE"} or
+                            (doc["kind"] == "RECEIPT" and is_consignment_receipt(c, doc["id"]))
+                        ):
                             invalid("owner_id", "Chưa hỗ trợ duyệt đơn ký gửi hoặc chưa phân loại.")
                     policy = one(
                         c,

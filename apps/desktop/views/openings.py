@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 from pydantic import ValidationError
 
 from apps.desktop.presenters.openings import OpeningPresenter, validate_lines
+from packages.contracts.consignments import ConsignmentReceiptInput, ConsignmentReceiptUpdate
 from packages.contracts.openings import OpeningInput, OpeningPost, OpeningUpdate
 from packages.contracts.orders import DecisionInput, OrderAction
 from packages.contracts.traceability import COMPANY_OWNER
@@ -23,6 +24,7 @@ LINE_FIELDS = (
     "product_id",
     "quantity_base",
     "owner_id",
+    "consignment_id",
     "destination_location_id",
     "lot_code",
     "serial_code",
@@ -32,9 +34,13 @@ LINE_FIELDS = (
 
 
 class OpeningView(ttk.Frame):
-    def __init__(self, parent, api):
+    def __init__(self, parent, api, *, consignment=False):
         super().__init__(parent)
-        self.presenter = OpeningPresenter(self, api)
+        self.consignment = consignment
+        self.route = "consignment-receipts" if consignment else "openings"
+        self.draft_permission = "receipt.draft" if consignment else "opening.draft"
+        self.reference_field = "delivery_reference" if consignment else "signed_count_reference"
+        self.presenter = OpeningPresenter(self, api, consignment=consignment)
         self.variables = {
             name: tk.StringVar()
             for name in (
@@ -50,6 +56,8 @@ class OpeningView(ttk.Frame):
                 "location",
                 "product_query",
                 "location_query",
+                "owner",
+                "owner_query",
                 "unit",
                 "qty",
                 "lot",
@@ -65,9 +73,9 @@ class OpeningView(ttk.Frame):
         self.doc = self.ack = None
         self.lines, self.warehouses, self.permissions = [], [], []
         self.products, self.locations, self.units = {}, {}, {}
-        self.catalogs = {"products": [], "locations": []}
-        self.cursors = {"products": None, "locations": None}
-        self.queries = {"products": "", "locations": ""}
+        self.catalogs = {"products": [], "locations": [], "owners": []}
+        self.cursors = {"products": None, "locations": None, "owners": None}
+        self.queries = {"products": "", "locations": "", "owners": ""}
         self.next_after = None
         self.busy = self.catalog_ready = self.dirty = False
         self.edit_index = None
@@ -98,15 +106,21 @@ class OpeningView(ttk.Frame):
         header = self.row()
         self.batch = self.entry(header, "batch", "Batch UUID", 37)
         self.day = self.entry(header, "day", "Ngày", 12)
-        self.reference = self.entry(self.row(), "reference", "Biên bản đã ký", 65)
+        self.reference = self.entry(
+            self.row(), "reference", "Chứng từ giao nhận" if consignment else "Biên bản đã ký", 65
+        )
         self.line_table = self.tree(
-            ["sku", "unit", "qty", "location", "tracking", "posted", "remaining"],
-            ["SKU", "ĐVT cơ sở", "Lượng", "Vị trí", "Lô / Serial", "Đã ghi", "Còn"],
+            ["sku", "unit", "qty", "location", "owner", "tracking", "posted", "remaining"],
+            ["SKU", "ĐVT cơ sở", "Lượng", "Vị trí", "Chủ / Hợp đồng", "Lô / Serial", "Đã ghi", "Còn"],
             4,
         )
         self.line_table.bind("<<TreeviewSelect>>", self.edit_line)
         self.search_widgets = []
-        for resource, name, label in [("products", "product", "SKU"), ("locations", "location", "Vị trí")]:
+        for resource, name, label in [
+            ("products", "product", "SKU"),
+            ("locations", "location", "Vị trí"),
+            ("owners", "owner", "Chủ/HĐ"),
+        ]:
             row = self.row()
             query = self.entry(row, name + "_query", label, 17)
             search = self.button(row, "Tìm", lambda r=resource, n=name: self.search(r, n))
@@ -151,8 +165,12 @@ class OpeningView(ttk.Frame):
         self.label("reconciliation")
         ttk.Label(
             content,
-            text="COMPANY · Tối đa 200 dòng · Chỉ một lần ghi toàn bộ/kho chưa có lịch sử.\n"
-            "DRAFT: nháp trên màn hình · SYNCED: máy chủ đã lưu · UNKNOWN: chưa rõ kết quả · "
+            text=(
+                "Ký gửi theo hợp đồng · Nhận đủ phiếu vào khu nhận/cách ly.\n"
+                if consignment
+                else "Chọn chủ/hợp đồng từng dòng · Tồn đầu kỳ ghi đủ một lần/kho chưa có lịch sử.\n"
+            )
+            + "DRAFT: nháp trên màn hình · SYNCED: máy chủ đã lưu · UNKNOWN: chưa rõ kết quả · "
             "POSTED: đã nhận ACK ghi sổ.\nYêu cầu chưa rõ kết quả chỉ được giữ trong lần mở ứng dụng này.",
             wraplength=740,
             justify="left",
@@ -232,9 +250,9 @@ class OpeningView(ttk.Frame):
         self.doc = self.ack = None
         self.lines, self.permissions = [], []
         self.products, self.locations, self.units = {}, {}, {}
-        self.catalogs = {"products": [], "locations": []}
-        self.cursors = {"products": None, "locations": None}
-        self.queries = {"products": "", "locations": ""}
+        self.catalogs = {"products": [], "locations": [], "owners": []}
+        self.cursors = {"products": None, "locations": None, "owners": None}
+        self.queries = {"products": "", "locations": "", "owners": ""}
         self.next_after = self.edit_index = None
         self.busy = self.catalog_ready = self.dirty = False
         self.table.delete(*self.table.get_children())
@@ -244,6 +262,7 @@ class OpeningView(ttk.Frame):
                 variable.set("")
         self.product.configure(values=[])
         self.location.configure(values=[])
+        self.owner.configure(values=[])
         self.enable()
 
     @property
@@ -252,7 +271,11 @@ class OpeningView(ttk.Frame):
             self.catalog_ready
             and not self.busy
             and not self.presenter.uncertain
-            and ("edit" in self.doc["allowed_actions"] if self.doc else "opening.draft" in self.permissions)
+            and (
+                "edit" in self.doc["allowed_actions"]
+                if self.doc
+                else self.draft_permission in self.permissions
+            )
         )
 
     def enable(self):
@@ -263,7 +286,7 @@ class OpeningView(ttk.Frame):
         self.next_button.state(["!disabled"] if active and self.next_after else ["disabled"])
         self.new_button.state(
             ["!disabled"]
-            if active and self.catalog_ready and not uncertain and "opening.draft" in self.permissions
+            if active and self.catalog_ready and not uncertain and self.draft_permission in self.permissions
             else ["disabled"]
         )
         for widget in [
@@ -313,7 +336,7 @@ class OpeningView(ttk.Frame):
     def opening_loaded(self, page, refs, permissions):
         self.opening_clear()
         self.permissions = permissions
-        self.catalog_ready = all(key in refs for key in ("products", "locations"))
+        self.catalog_ready = all(key in refs for key in ("products", "locations", "owners"))
         self.next_after = page["next_after"]
         for resource, values in refs.items():
             self.set_catalog(resource, values)
@@ -346,6 +369,12 @@ class OpeningView(ttk.Frame):
             ]
         self.catalogs[resource] = rows
         self.cursors[resource] = page.get("next_after")
+        if resource == "owners":
+            self.owner.configure(
+                values=[f"{r['owner_code']} · {r['consignment_code'] or 'Doanh nghiệp'}" for r in rows]
+            )
+            self.variables["owner"].set("")
+            return
         cache = self.products if resource == "products" else self.locations
         cache.update({r["id"]: r for r in rows})
         name = "product" if resource == "products" else "location"
@@ -392,7 +421,7 @@ class OpeningView(ttk.Frame):
         self.enable()
 
     def new(self):
-        if self.presenter.uncertain or self.busy or "opening.draft" not in self.permissions:
+        if self.presenter.uncertain or self.busy or self.draft_permission not in self.permissions:
             return
         self.doc = self.ack = None
         self.lines = []
@@ -413,7 +442,15 @@ class OpeningView(ttk.Frame):
         self.variables["batch"].set(str(uuid4()))
         self.variables["day"].set(date.today().isoformat())
         self.variables["qty"].set("1")
-        self.variables["heading"].set("Phiếu mới · COMPANY")
+        self.variables["owner"].set("")
+        if not self.consignment:
+            index = next(
+                (i for i, r in enumerate(self.catalogs["owners"]) if r["owner_id"] == str(COMPANY_OWNER)),
+                None,
+            )
+            if index is not None:
+                self.owner.current(index)
+        self.variables["heading"].set("Phiếu nhận ký gửi mới" if self.consignment else "Phiếu tồn đầu kỳ mới")
         self.mark_dirty()
         self.render_lines()
 
@@ -437,7 +474,7 @@ class OpeningView(ttk.Frame):
         self.lines = [{**line, **plans[line["id"]]} for line in doc["lines"]]
         self.variables["batch"].set(doc["batch_key"])
         self.variables["day"].set(doc["business_date"])
-        self.variables["reference"].set(doc["signed_count_reference"])
+        self.variables["reference"].set(doc[self.reference_field])
         self.variables["reason"].set("")
         self.variables["heading"].set(
             f"{doc['number']} · {STATUS.get(doc['status'], doc['status'])} · v{doc['version']} · {doc['creator_name']}"
@@ -492,10 +529,19 @@ class OpeningView(ttk.Frame):
         if not product or not unit or not location_id:
             self.opening_error("Chọn SKU, tải đơn vị cơ sở và chọn vị trí trong kho.")
             return
+        index = self.owner.current()
+        options = self.catalogs["owners"]
+        if not 0 <= index < len(options):
+            self.opening_error("Chọn chủ hàng và hợp đồng từ danh sách; tìm mã nếu chưa thấy.")
+            return
+        owner = options[index]
         line = dict(
             product_id=product_id,
             quantity_base=self.variables["qty"].get(),
-            owner_id=str(COMPANY_OWNER),
+            owner_id=owner["owner_id"],
+            consignment_id=owner["consignment_id"],
+            owner_code=owner["owner_code"],
+            consignment_code=owner["consignment_code"],
             destination_location_id=location_id,
             sku=product["sku"],
             base_uom_code=unit["code"],
@@ -541,6 +587,24 @@ class OpeningView(ttk.Frame):
             self.variables[name].set("")
             if index is not None:
                 getattr(self, name).current(index)
+        owner_key = line.get("consignment_id") or line["owner_id"]
+        options = self.catalogs["owners"]
+        index = next((i for i, r in enumerate(options) if r["id"] == owner_key), None)
+        if index is None:
+            options.append(
+                dict(
+                    id=owner_key,
+                    owner_id=line["owner_id"],
+                    owner_code=line["owner_code"],
+                    consignment_id=line.get("consignment_id"),
+                    consignment_code=line.get("consignment_code") or line.get("consignment_id"),
+                )
+            )
+            self.owner.configure(
+                values=[f"{r['owner_code']} · {r['consignment_code'] or 'Doanh nghiệp'}" for r in options]
+            )
+            index = len(options) - 1
+        self.owner.current(index)
         for field, name in [
             ("quantity_base", "qty"),
             ("lot_code", "lot"),
@@ -572,6 +636,9 @@ class OpeningView(ttk.Frame):
                     line["base_uom_code"],
                     line["quantity_base"],
                     line["location_code"],
+                    (line.get("owner_code") or line["owner_id"])
+                    + " / "
+                    + (line.get("consignment_code") or line.get("consignment_id") or "—"),
                     line.get("lot_code") or line.get("serial_code") or "—",
                     line["posted_base"],
                     line["remaining_base"],
@@ -592,25 +659,31 @@ class OpeningView(ttk.Frame):
                     warehouse_id=self.warehouse_id(),
                     batch_key=self.variables["batch"].get(),
                     business_date=self.variables["day"].get(),
-                    signed_count_reference=self.variables["reference"].get(),
+                    **{self.reference_field: self.variables["reference"].get()},
                     reason=reason,
                     lines=lines,
                 )
                 if self.doc:
                     body["expected_version"] = self.doc["version"]
                 body = (
-                    (OpeningUpdate if self.doc else OpeningInput).model_validate(body).model_dump(mode="json")
+                    (
+                        (ConsignmentReceiptUpdate if self.doc else ConsignmentReceiptInput)
+                        if self.consignment
+                        else (OpeningUpdate if self.doc else OpeningInput)
+                    )
+                    .model_validate(body)
+                    .model_dump(mode="json")
                 )
                 doc_id = self.doc["id"] if self.doc else None
                 self.presenter.command(
-                    "PUT" if doc_id else "POST", "openings" + ("/" + doc_id if doc_id else ""), body, doc_id
+                    "PUT" if doc_id else "POST", self.route + ("/" + doc_id if doc_id else ""), body, doc_id
                 )
             elif self.doc and action in self.doc["allowed_actions"]:
                 # Reason is an action comment, but other unsaved edits must not
                 # silently disappear when submitting/approving a server version.
                 if self.editable and (
                     self.line_payloads() != self.line_payloads(self.doc["plan"])
-                    or self.variables["reference"].get() != self.doc["signed_count_reference"]
+                    or self.variables["reference"].get() != self.doc[self.reference_field]
                     or self.variables["day"].get() != self.doc["business_date"]
                 ):
                     raise ValueError("Lưu các thay đổi nháp trước khi chuyển trạng thái.")
@@ -623,7 +696,7 @@ class OpeningView(ttk.Frame):
                     path, contract = "approval-requests/" + pending["id"] + "/decide", DecisionInput
                     body["decision"] = action.upper()
                 elif action == "post":
-                    path, contract = "openings/" + self.doc["id"] + "/post", OpeningPost
+                    path, contract = self.route + "/" + self.doc["id"] + "/post", OpeningPost
                     body["execution_key"] = str(uuid4())
                 body = contract.model_validate(body).model_dump(mode="json")
                 self.presenter.command("POST", path, body, self.doc["id"], post=action == "post")
