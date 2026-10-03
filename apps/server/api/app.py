@@ -10,12 +10,14 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 
 from apps.server.api.identity import identity_router
+from apps.server.api.imports import import_router
 from apps.server.api.master_data import master_data_router
 from apps.server.api.openings import opening_router
 from apps.server.api.orders import order_router
 from apps.server.api.receipts import receipt_router
 from apps.server.api.traceability import traceability_router
 from apps.server.application.identity import IdentityService
+from apps.server.application.imports import ImportService
 from apps.server.application.master_data import MasterDataService
 from apps.server.application.openings import OpeningService
 from apps.server.application.orders import OrderService
@@ -56,6 +58,8 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(receipt_router(app.state.receipts))
     app.state.openings = OpeningService(app.state.orders)
     app.include_router(opening_router(app.state.openings))
+    app.state.imports = ImportService(app.state.identity)
+    app.include_router(import_router(app.state.imports))
 
     def error(request: Request, status: int, code: str, message: str, **kwargs):
         body = Error(code=code, message=message, request_id=request.state.request_id, **kwargs)
@@ -91,7 +95,7 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     async def domain_error(request, exc):
         statuses = {"NOT_FOUND": 404, "FORBIDDEN": 403, "UNAUTHENTICATED": 401,
                     "MFA_INVALID": 401, "REFRESH_REPLAY": 401, "MFA_REQUIRED": 403,
-                    "RATE_LIMITED": 429, "MFA_UNAVAILABLE": 503, "DATABASE_BUSY": 503}
+                    "RATE_LIMITED": 429, "MFA_UNAVAILABLE": 503, "DATABASE_BUSY": 503, "FILE_LIMIT": 413}
         fields = [FieldError(field=exc.field, code=exc.code, message=exc.message)] if exc.field else []
         return error(request, statuses.get(exc.code, 409), exc.code, exc.message, retryable=exc.retryable,
                      field_errors=fields)
