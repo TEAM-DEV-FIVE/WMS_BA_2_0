@@ -14,7 +14,7 @@ from apps.server.infrastructure.database import PostgresUnitOfWork
 from packages.contracts.orders import ApprovalView, OrderResult, OrderView
 from packages.contracts.traceability import COMPANY_OWNER
 
-DRAFT_PERMISSION = {"PO": "po.draft", "SO": "so.draft", "RECEIPT": "receipt.draft", "OPENING": "opening.draft"}
+DRAFT_PERMISSION = {"PO": "po.draft", "SO": "so.draft", "RECEIPT": "receipt.draft", "OPENING": "opening.draft", "INTERNAL_MOVE": "move.draft"}
 SUMMARY_SQL = """SELECT d.*,p.name AS partner_name,u.display_name AS creator_name FROM wms.document d
     LEFT JOIN wms.partner p ON p.id=d.partner_id JOIN wms.app_user u ON u.id=d.created_by"""
 
@@ -37,6 +37,8 @@ class OrderService:
         if doc["kind"] not in DRAFT_PERMISSION or (kind and doc["kind"] != kind):
             raise DomainError("NOT_FOUND", "Không tìm thấy PO/SO.")
         if lock:
+            if doc["kind"] == "INTERNAL_MOVE":
+                self.moves.lock_sources(auth, doc)
             if doc["kind"] == "RECEIPT":
                 source = self.receipts.source(auth, doc)
                 auth.connection.execute(
@@ -108,9 +110,9 @@ class OrderService:
             WHERE l.document_id=:doc ORDER BY l.line_no"""),
                 {
                     "doc": doc["id"],
-                    "operation": {"SO": "ISSUE", "OPENING": "OPEN"}.get(doc["kind"], "RECEIVE"),
-                    "child_kind": {"SO": "ISSUE", "OPENING": "OPENING"}.get(doc["kind"], "RECEIPT"),
-                    "direct": doc["kind"] in {"RECEIPT", "OPENING"},
+                    "operation": {"SO": "ISSUE", "OPENING": "OPEN", "INTERNAL_MOVE": "MOVE"}.get(doc["kind"], "RECEIVE"),
+                    "child_kind": {"SO": "ISSUE", "OPENING": "OPENING", "INTERNAL_MOVE": "INTERNAL_MOVE"}.get(doc["kind"], "RECEIPT"),
+                    "direct": doc["kind"] in {"RECEIPT", "OPENING", "INTERNAL_MOVE"},
                 },
             )
             .mappings()
@@ -159,6 +161,7 @@ class OrderService:
                     "lines": [dict(r) for r in lines],
                     "assigned_user_ids": assignments,
                     **({"opening": self.openings.snapshot(connection, doc)} if doc["kind"] == "OPENING" else {}),
+                    **({"move": self.moves.snapshot(connection, doc)} if doc["kind"] == "INTERNAL_MOVE" else {}),
                 }
             )
         )
@@ -273,7 +276,7 @@ class OrderService:
 
     def validate_header(self, connection, kind, warehouse, partner):
         active_reference(connection, "warehouse", warehouse, "warehouse_id")
-        if kind == "OPENING":
+        if kind in {"OPENING", "INTERNAL_MOVE"}:
             if partner is not None:
                 invalid("partner_id", "Tồn đầu kỳ không có nhà cung cấp nguồn.")
             return
@@ -370,8 +373,8 @@ class OrderService:
         )
 
     def effects(self, connection, actor, doc, action, result, reason, request_id):
-        prefix = {"RECEIPT": "receipt.", "OPENING": "opening."}.get(doc["kind"], "order.")
-        event = action if action.startswith(("receipt.", "opening.")) else prefix + action
+        prefix = {"RECEIPT": "receipt.", "OPENING": "opening.", "INTERNAL_MOVE": "move."}.get(doc["kind"], "order.")
+        event = action if action.startswith(("receipt.", "opening.", "move.", "quality.")) else prefix + action
         params = {
             "id": uuid4(),
             "actor": actor,
@@ -471,7 +474,9 @@ class OrderService:
                     self.receipts.validate_saved(auth, doc)
                 if doc["kind"] == "OPENING" and action in {"submit", "decide"}:
                     self.openings.validate_saved(auth, doc)
-                if doc["kind"] in {"RECEIPT", "OPENING"} and action == "close":
+                if doc["kind"] == "INTERNAL_MOVE" and action in {"submit", "decide"}:
+                    self.moves.validate_saved(auth, doc)
+                if doc["kind"] in {"RECEIPT", "OPENING", "INTERNAL_MOVE"} and action == "close":
                     raise DomainError("INVALID_STATE", "Loại phiếu này không hỗ trợ đóng thiếu.")
                 if action in {"update", "submit", "revise"}:
                     self.may_edit(auth, doc)
