@@ -11,11 +11,13 @@ from starlette.exceptions import HTTPException
 
 from apps.server.api.identity import identity_router
 from apps.server.api.master_data import master_data_router
+from apps.server.api.openings import opening_router
 from apps.server.api.orders import order_router
 from apps.server.api.receipts import receipt_router
 from apps.server.api.traceability import traceability_router
 from apps.server.application.identity import IdentityService
 from apps.server.application.master_data import MasterDataService
+from apps.server.application.openings import OpeningService
 from apps.server.application.orders import OrderService
 from apps.server.application.receipts import ReceiptService
 from apps.server.application.traceability import TraceabilityService
@@ -52,6 +54,8 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(order_router(app.state.orders))
     app.state.receipts = ReceiptService(app.state.orders)
     app.include_router(receipt_router(app.state.receipts))
+    app.state.openings = OpeningService(app.state.orders)
+    app.include_router(opening_router(app.state.openings))
 
     def error(request: Request, status: int, code: str, message: str, **kwargs):
         body = Error(code=code, message=message, request_id=request.state.request_id, **kwargs)
