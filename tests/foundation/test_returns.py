@@ -346,7 +346,7 @@ def test_returns_parallel_execution_and_no_repost(returning):
     reconcile(f)
 
 
-@pytest.mark.parametrize("prefix", [10, 14])
+@pytest.mark.parametrize("prefix", [10, 14, 15])
 def test_returns_upgrade_preserves_operator_policy_and_prior_history(empty_database, monkeypatch, prefix):
     import apps.server.infrastructure.migrations as migrations
     sources = migrations.migration_sources()

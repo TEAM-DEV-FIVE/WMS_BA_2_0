@@ -70,19 +70,24 @@ class MoveService:
             ids.update(r["quality_decision_id"] for r in self.snapshot(auth.connection, doc) if r["quality_decision_id"])
         tiers = {0: set(), 1: set(), 2: set()}
         for qid in sorted(ids):
-            source = one(auth.connection, """SELECT t.document_id FROM wms.quality_decision q
+            source = one(auth.connection, """SELECT t.document_id,d.kind FROM wms.quality_decision q
                 JOIN wms.stock_move m ON m.id=q.receipt_move_id JOIN wms.inventory_transaction t ON t.id=m.transaction_id
-                WHERE q.id=:id""", id=qid)
+                JOIN wms.document d ON d.id=t.document_id WHERE q.id=:id""", id=qid)
             if not source:
                 raise DomainError("NOT_FOUND", "Không tìm thấy quyết định chất lượng.")
-            document = self.orders.document(auth, source["document_id"])
-            if document["kind"] == "CUSTOMER_RETURN":
-                tiers[2].add(document["id"])
-                document = self.orders.returns.source(auth, document)
-            if document["kind"] not in {"RECEIPT", "ISSUE"}:
-                raise DomainError("SOURCE_MISMATCH", "Nguồn kiểm định không hợp lệ.")
-            tiers[1].add(document["id"])
-            parent = (self.orders.receipts if document["kind"] == "RECEIPT" else self.orders.issues).source(auth, document)
+            if source["kind"] == "TRANSFER":
+                document = self.orders.transfers.document(auth, source["document_id"])
+                tiers[1].add(document["id"])
+                parent = None
+            else:
+                document = self.orders.document(auth, source["document_id"])
+                if document["kind"] == "CUSTOMER_RETURN":
+                    tiers[2].add(document["id"])
+                    document = self.orders.returns.source(auth, document)
+                if document["kind"] not in {"RECEIPT", "ISSUE"}:
+                    raise DomainError("SOURCE_MISMATCH", "Nguồn kiểm định không hợp lệ.")
+                tiers[1].add(document["id"])
+                parent = (self.orders.receipts if document["kind"] == "RECEIPT" else self.orders.issues).source(auth, document)
             if parent:
                 tiers[0].add(parent["id"])
         for tier in tiers.values():

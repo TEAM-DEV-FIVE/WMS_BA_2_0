@@ -7,7 +7,7 @@ from pydantic import Field, model_validator
 from packages.contracts import Contract, PositiveQuantity
 from packages.contracts.master_data import Reason
 
-OrderKind = Literal["PO", "SO", "RECEIPT", "OPENING", "ISSUE", "INTERNAL_MOVE", "CUSTOMER_RETURN", "SUPPLIER_RETURN"]
+OrderKind = Literal["PO", "SO", "RECEIPT", "OPENING", "ISSUE", "INTERNAL_MOVE", "TRANSFER", "ADJUSTMENT", "CUSTOMER_RETURN", "SUPPLIER_RETURN"]
 OrderStatus = Literal["DRAFT", "SUBMITTED", "APPROVED", "REJECTED", "PARTIAL", "COMPLETED", "CANCELLED"]
 
 

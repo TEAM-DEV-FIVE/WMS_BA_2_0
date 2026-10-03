@@ -20,6 +20,7 @@ from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
 from apps.server.api.returns import return_router
 from apps.server.api.traceability import traceability_router
+from apps.server.api.transfers import transfer_router
 from apps.server.application.consignments import ConsignmentReceiptService
 from apps.server.application.identity import IdentityService
 from apps.server.application.imports import ImportService
@@ -32,6 +33,7 @@ from apps.server.application.quality import QualityService
 from apps.server.application.receipts import ReceiptService
 from apps.server.application.returns import ReturnService
 from apps.server.application.traceability import TraceabilityService
+from apps.server.application.transfers import TransferService
 from apps.server.domain.errors import DomainError
 from apps.server.infrastructure.config import Settings
 from apps.server.infrastructure.database import make_engine
@@ -85,6 +87,8 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(move_router(app.state.moves))
     app.state.returns = ReturnService(app.state.orders)
     app.include_router(return_router(app.state.returns))
+    app.state.transfers = TransferService(app.state.orders)
+    app.include_router(transfer_router(app.state.transfers))
 
     def error(request: Request, status: int, code: str, message: str, **kwargs):
         body = Error(code=code, message=message, request_id=request.state.request_id, **kwargs)

@@ -1,4 +1,4 @@
--- B12 development revision; coordinator chooses the next release number.
+-- Release 016: integrated B12 returns workflow (development revision was 018).
 CREATE TABLE wms.return_document (
   document_id uuid PRIMARY KEY REFERENCES wms.document(id),
   source_document_id uuid NOT NULL REFERENCES wms.document(id),

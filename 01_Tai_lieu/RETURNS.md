@@ -62,12 +62,12 @@ Yêu cầu chưa rõ kết quả giữ nguyên key/body theo người/kho trong 
 
 ## Schema và kiểm chứng
 
-Revision phát triển `018_b12_returns.sql` thêm `return_document` (nguồn phiếu) và `return_line`
-(move nguồn/vị trí), tổng 2 bảng/5 cột/5 FK. Nền 001–014 giữ nguyên. Schema phát triển B12:
-74 bảng/496 cột/153 FK. Điều phối chọn số release khi tích hợp; chỉ dùng PostgreSQL test riêng.
+Revision release `016_b12_returns.sql` thêm `return_document` (nguồn phiếu) và `return_line`
+(move nguồn/vị trí), tổng 2 bảng/5 cột/5 FK. Nền release 001–015 giữ nguyên. Schema sau tích hợp B11/B12:
+78 bảng/514 cột/164 FK. Revision phát triển trước đó là 018; chỉ kiểm thử trên PostgreSQL tạm riêng.
 Seed approval chỉ thêm khi chưa có policy cho loại phiếu, không ghi đè policy vận hành đã chỉnh.
 
 Test nghiệp vụ: `tests/foundation/test_returns.py`. Test presenter và Tk → HTTP → FastAPI → PG:
-`tests/foundation/test_return_desktop.py`. Kiểm upgrade thêm prefix 014 có legacy ledger trong
+`tests/foundation/test_return_desktop.py`. Kiểm upgrade thêm prefix 014/015 có legacy ledger trong
 `test_postgres.py`, giữ checksums/history/owner. Kết quả thực tế và giới hạn nghiệm thu ở
-[bàn giao B12](PHAN_CONG/BAN_GIAO/B12.md).
+[bàn giao B12](PHAN_CONG/BAN_GIAO/B12.md) và báo cáo tích hợp B12.

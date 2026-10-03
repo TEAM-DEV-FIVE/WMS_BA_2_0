@@ -1,5 +1,5 @@
 {
-  "revision": "018_b12_returns.sql",
+  "revision": "016_b12_returns.sql",
   "baseline": "model.json",
   "tables": [
     {

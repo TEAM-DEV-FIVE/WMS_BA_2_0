@@ -1,4 +1,4 @@
-// Development revision 018_b12_returns.sql
+// Release revision 016_b12_returns.sql
 Table return_document {
   document_id uuid [pk, not null, ref: > document.id]
   source_document_id uuid [not null, ref: > document.id]
