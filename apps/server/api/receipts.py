@@ -33,7 +33,7 @@ def receipt_router(service):
         limit: int = Query(default=50, ge=1, le=200),
         auth=Depends(authorization),
     ):
-        return service.orders.listing(auth, "RECEIPT", warehouse_id, status, after, limit)
+        return service.orders.listing(auth, "RECEIPT", warehouse_id, status, after, limit, consignment_only=False)
 
     @router.get("/receipts/locations")
     def locations(warehouse_id: UUID, auth=Depends(authorization)):

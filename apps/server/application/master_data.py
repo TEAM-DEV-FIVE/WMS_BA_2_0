@@ -137,6 +137,11 @@ class MasterDataService:
                 invalid(code, "Mã định danh không đổi; ngừng dùng bản ghi cũ nếu cần mã mới.", "IMMUTABLE_FIELD")
             if old:
                 values[code] = old[code]
+                if name == "partners":
+                    # Older clients omit these newly exposed import fields; preserve them.
+                    for field in ("tax_code", "address"):
+                        if field not in payload.model_fields_set:
+                            values[field] = old[field]
             equality = "code=:code" if name == "barcodes" else f"upper({code})=upper(:code)"
             if one(connection, f"SELECT id FROM wms.{entity.table} WHERE {equality} AND id<>:id", code=values[code], id=target):
                 invalid(code, "Mã đã tồn tại, kể cả danh mục đã ngừng dùng.", "DUPLICATE_CODE")
