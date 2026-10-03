@@ -8,12 +8,17 @@ Khi được yêu cầu tạo ảnh/bản vẽ/CAD, ưu tiên công cụ MCP ph�
 Trước khi sửa mã, kiểm tra `pwd`, `git branch --show-current`, `git status --short` và đọc
 [phân công worktree](01_Tai_lieu/PHAN_CONG/README.md). Mỗi agent chỉ làm trong worktree/nhánh được giao:
 
-| Nhánh | Nhiệm vụ |
-| --- | --- |
-| `agent/opening` | [Backend tồn đầu kỳ](01_Tai_lieu/PHAN_CONG/AGENT_OPENING.md) |
-| `agent/outbox` | [Worker outbox](01_Tai_lieu/PHAN_CONG/AGENT_OUTBOX.md) |
-| `agent/admin-ui` | [Desktop quản trị](01_Tai_lieu/PHAN_CONG/AGENT_ADMIN_UI.md) |
-| `feat/application-foundation` | Điều phối, review, tích hợp và kiểm thử tổng |
+Đợt hiện tại có 26 nhánh `agent/b01-*` đến `agent/b26-*`; tra đúng tên trong
+[catalog](01_Tai_lieu/PHAN_CONG/backlog.json) và [bảng toàn bộ phần còn lại](01_Tai_lieu/PHAN_CONG/KE_HOACH_CON_LAI.md).
+Mỗi nhánh có brief Bxx riêng, phạm vi file/API/UI, dependency, kiểm thử và báo cáo bàn giao.
+Đọc [quy trình agent](01_Tai_lieu/PHAN_CONG/QUY_TRINH_AGENT.md) trước khi bắt đầu.
+
+- Giao ngay B01/B02/B03/B04/B05/B06/B08/B15. Các nhánh khác phải chờ dependency được review/tích hợp
+  và đồng bộ worktree đến commit chứa dependency; không triển khai trên các API giả từ checkout ban đầu.
+- Kiểm tra sổ `integration_log.json` trên nhánh điều phối mới nhất, không chỉ bản trong worktree cũ.
+- `feat/application-foundation` là nhánh điều phối, review, tích hợp và kiểm thử tổng.
+- `agent/opening`, `agent/outbox`, `agent/admin-ui` là hồ sơ đợt đã ghép; không tiếp tục giao việc mới
+  trên ba nhánh này. Xem [lịch sử đợt trước](01_Tai_lieu/PHAN_CONG/DOT_1_DA_TICH_HOP.md).
 
 Không switch/reset/rebase nhánh của agent khác, không sửa file ở worktree khác. Agent ở nhánh tính năng
 không tự merge; agent điều phối tích hợp theo nhiệm vụ được giao. Không tự push, đóng issue hoặc gửi
@@ -25,7 +30,10 @@ Nếu cần sửa ngoài phạm vi, ghi rõ đề xuất trong báo cáo bàn gi
 - Đọc `01_Tai_lieu/INVARIANTS.md`, hướng dẫn module liên quan và mã hiện có trước khi mở rộng.
 - PostgreSQL là dữ liệu chính thức. Không ghi DB từ desktop. Không lưu credential vào SQLite/log.
 - Lệnh ghi phải kiểm tra quyền hiện tại, version, chống trùng; ledger/balance/audit/outbox/ACK cùng transaction.
-- Giữ migration đã tích hợp `001`–`010` bất biến. Đợt worktree đầu đã hoàn tất; migration tiếp theo cần phân công số revision trước.
+- Giữ migration đã tích hợp `001`–`010` bất biến. Revision phát triển đã phân tên riêng trong catalog,
+  chỉ dùng DB tạm riêng worktree. Điều phối chốt số tăng tiếp khi merge và kiểm thử upgrade từ mốc tổng;
+  không sửa revision đã tích hợp/phát hành. Đọc quy tắc prefix migration trong quy trình agent.
+- B19 sở hữu SQLite revision003 và recovery chung sau các domain; không ghi secret vào journal.
 - Không đổi requirement/acceptance test sang PASS để né kiểm thử. T01–T28 vẫn PLANNED đến khi nghiệm thu đủ.
 - Kiểm thử DB dùng runner tạo cluster/database tạm; không dùng `WMS_DATABASE_URL` vận hành.
 - GUI và hủy tài nguyên Tk ở main thread; HTTP/SQLite qua worker và loại response thuộc phiên cũ.

@@ -148,17 +148,21 @@ Giữ device.sqlite3 và receipts/ khi nâng cấp; không đặt trên network 
 hai process cùng partition. Receipt.post lưu key/payload trước HTTP; UNKNOWN giữ nguyên lệnh để tra cứu
 và retry khi người dùng chủ động chọn. Các lệnh khác chưa nối nhật ký bền; xem hướng dẫn phục hồi ở trên.
 
-## Thứ tự thực hiện tiếp khi chỉ còn một người
+## Phân công phần còn lại cho nhiều agent
 
-1. **Hoàn thiện nhập kho và phục hồi:** triển khai UI/import tồn đầu kỳ #24/#31, consumer nghiệp vụ cho worker #22 và recovery nháp/lệnh còn lại #18.
-   Tiếp tục form owner/hợp đồng/chứng cứ #14, phân công phiếu và tích hợp quyền từng endpoint; hoàn thiện T07/T11 trên môi trường đích.
-2. **Nghiệm thu luồng nhập và triển khai xuất:** receipt/OPENING #24, desktop quản trị và outbox engine đã có bằng chứng local; hoàn thiện consumer và UI phụ trợ.
-   Sau đó giữ chỗ/xuất #25 dùng cùng khóa nguồn/vị trí/product, version, owner và kiểm tra quyền.
-   Nghiệm thu T01/T02/T06/T13/T14/T20/T24 trước mở rộng xuất kho.
-3. **Nghiệp vụ còn lại:** #25–#30, #31–#33 cùng UI #17–#19; mỗi luồng phải có kiểm thử transaction,
-   quyền và retry; hoàn thiện T03–T05/T10/T12/T15–T19/T21/T25/T27/T28.
-4. **Vận hành và nghiệm thu:** #34 LAN → #35 concurrency/reconcile → #36 restore → #37 Windows packaging
-   → #38 UAT/performance. Chạy T08/T09/T22/T23/T26 trên thiết bị/môi trường đích và tổng hợp đủ T01–T28.
+Sau mốc tích hợp `06041b7`, toàn bộ công việc còn lại được chia thành **26 nhánh/worktree** theo
+[kế hoạch B01–B26](PHAN_CONG/KE_HOACH_CON_LAI.md). Kế hoạch liên kết đủ 37 issue OPEN trong snapshot local,
+49 yêu cầu và T01–T28; mỗi nhánh có brief, phạm vi file, dependency và điều kiện kiểm thử/bàn giao.
+
+1. Giao ngay B01 import/tệp, B02 giữ/xuất hàng, B03 quality/move, B04 IAM, B05 danh mục/truy vết UI,
+   B06 opening UI, B08 CI/contract và B15 chứng từ/duyệt UI.
+2. Sau tích hợp nền tương ứng, tiếp tục ký gửi, soạn/đóng kiện, chuyển/trả, kiểm kê/kỳ, đảo giao dịch,
+   import UI, báo cáo/in, phục hồi toàn bộ lệnh và consumer/vận hành worker. Custom fields B07 giữ P3.
+3. Triển khai LAN, backup/restore, bộ cài Windows, tải/an toàn, tài liệu và UAT; nghiệm thu phụ thuộc
+   bằng chứng môi trường thực. Agent không tự báo PASS cho Windows/hardware/DR chưa chạy.
+
+Các worktree chờ dependency được tạo sẵn để giao sau, không phải code đã có. Điều phối cập nhật
+[sổ tích hợp](PHAN_CONG/integration_log.json) bằng commit thực; không tiếp tục từ ba nhánh cũ thiếu bản ghép.
 
 780 giờ trong lịch nhóm cũ không chuyển thành cam kết hoàn thành của một người. Hạn 22/10 được giữ làm
 mốc kế hoạch; phạm vi chưa làm hoặc chưa kiểm thử phải hiển thị rõ. Không tự đóng issue, ghi %/giờ giả,

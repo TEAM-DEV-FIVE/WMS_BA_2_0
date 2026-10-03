@@ -890,5 +890,25 @@
       "merge_commit": "1463854",
       "worktree_retained": true
     }
-  ]
+  ],
+  "remaining_work_plan": {
+    "date": "2026-10-03",
+    "code_baseline": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+    "catalog": "01_Tai_lieu/PHAN_CONG/backlog.json",
+    "board": "01_Tai_lieu/PHAN_CONG/KE_HOACH_CON_LAI.md",
+    "integration_log": "01_Tai_lieu/PHAN_CONG/integration_log.json",
+    "task_count": 26,
+    "initial_ready": [
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B08",
+      "B15"
+    ],
+    "initial_waiting": 18,
+    "note": "Assignment only; no application code or acceptance status changed. GitHub counts remain the prior local snapshot."
+  }
 }

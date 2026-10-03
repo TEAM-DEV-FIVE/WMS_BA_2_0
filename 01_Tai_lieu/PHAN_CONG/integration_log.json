@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "code_baseline": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+  "note": "Chỉ điều phối cập nhật. NOT_STARTED không có nghĩa chức năng hiện có bị mất; đây là trạng thái nhiệm vụ bổ sung. integrated_commit phải là commit thật đã chứa toàn bộ nhiệm vụ và được review.",
+  "tasks": [
+    {
+      "id": "B01",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B02",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B03",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B04",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B05",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B06",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B07",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B08",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B09",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B10",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B11",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B12",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B13",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B14",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B15",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B16",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B17",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B18",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B19",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B20",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B21",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B22",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B23",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B24",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B25",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    },
+    {
+      "id": "B26",
+      "status": "NOT_STARTED",
+      "activated_base": null,
+      "handoff_commit": null,
+      "integrated_commit": null,
+      "note": ""
+    }
+  ]
+}
