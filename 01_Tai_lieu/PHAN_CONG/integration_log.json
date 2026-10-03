@@ -69,11 +69,11 @@
     },
     {
       "id": "B09",
-      "status": "IN_PROGRESS",
+      "status": "INTEGRATED",
       "activated_base": "bd15277c7142708b595ac9d16aa77b5a4db90745",
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": "Đủ 5 dependency; điều phối đồng bộ worktree, giữ nghiên cứu 593359e. Tiếp tục triển khai B09 theo yêu cầu người dùng."
+      "handoff_commit": "94bd7232173b60bf899ca5001f1687464011899a",
+      "integrated_commit": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "note": "Người dùng giao review/tích hợp để mở B11 ngày 2026-10-03; release 014, 491 tests + 10 subtests; BAN_GIAO/B11_DEPENDENCIES.md. Chưa thay thế UAT/chính sách thương mại ký gửi."
     },
     {
       "id": "B10",
@@ -85,11 +85,11 @@
     },
     {
       "id": "B11",
-      "status": "NOT_STARTED",
-      "activated_base": null,
+      "status": "IN_PROGRESS",
+      "activated_base": "97f9d02796a01fabd6974eec5ff741981c45eb00",
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": ""
+      "note": "Đủ B02/B03/B09 đã review/tích hợp; người dùng giao đồng bộ, giữ nghiên cứu a2fbf7c/5246f30 rồi triển khai B11."
     },
     {
       "id": "B12",
