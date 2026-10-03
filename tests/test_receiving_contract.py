@@ -1,14 +1,13 @@
 """Check receiving examples against the published OpenAPI schemas."""
 
 import json
-from pathlib import Path
 import unittest
 from decimal import Decimal
+from pathlib import Path
 
 from jsonschema import RefResolver
 from jsonschema.exceptions import ValidationError
 from openapi_schema_validator import OAS30Validator
-
 
 API = json.loads((Path(__file__).resolve().parents[1] / "05_API/openapi_core.json").read_text(encoding="utf-8"))
 RESOLVER = RefResolver.from_schema(API)

@@ -1,9 +1,9 @@
 """Rebuild the import ZIP and checksums after reviewing intentional changes."""
 
 import hashlib
-from pathlib import Path
 import subprocess
 import zipfile
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
