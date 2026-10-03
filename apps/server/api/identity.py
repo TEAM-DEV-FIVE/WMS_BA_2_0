@@ -14,12 +14,21 @@ from packages.contracts.identity import (
     Enrollment,
     EnrollmentConfirmation,
     GrantCreate,
+    IdentityEvent,
     LoginInput,
     MfaChallenge,
     MfaInput,
+    PasswordChange,
     PasswordConfirmation,
+    PasswordResetComplete,
+    PasswordResetIssue,
+    PasswordResetToken,
+    Reauthentication,
+    RecoveryCodes,
+    RecoveryInput,
     RefreshInput,
     RevokeInput,
+    SessionSummary,
     SessionTokens,
     UserActivation,
     UserCreate,
@@ -172,7 +181,7 @@ def identity_router(service: IdentityService) -> APIRouter:
                                 {"id": request_id, "user": payload.user_id, "role": role["id"], "scope": payload.scope_kind,
                                  "warehouse": payload.warehouse_id, "until": payload.valid_until, "reason": payload.reason,
                                  "actor": auth.principal.user_id, "now": now})
-        audit(auth.connection, auth.principal.user_id, "iam.grant.requested", request_id, request.state.request_id, now)
+        audit(auth.connection, auth.principal.user_id, "iam.grant.requested", request_id, request.state.request_id, now, payload.reason)
         return {"id": request_id, "status": "PENDING"}
 
     @router.get("/grant-requests")
@@ -215,7 +224,7 @@ def identity_router(service: IdentityService) -> APIRouter:
                                  "until": pending["valid_until"], "now": now, "actor": auth.principal.user_id})
         auth.connection.execute(text("UPDATE wms.grant_request SET approved_by=:actor,grant_id=:grant WHERE id=:id"),
                                 {"actor": auth.principal.user_id, "grant": grant_id, "id": grant_request_id})
-        audit(auth.connection, auth.principal.user_id, "iam.grant.approved", grant_id, request.state.request_id, now)
+        audit(auth.connection, auth.principal.user_id, "iam.grant.approved", grant_id, request.state.request_id, now, pending["reason"])
         return {"id": grant_id, "status": "APPROVED"}
 
     @router.post("/grants/{grant_id}/revoke")
@@ -226,5 +235,84 @@ def identity_router(service: IdentityService) -> APIRouter:
             raise DomainError("NOT_FOUND", "Không tìm thấy grant.")
         audit(auth.connection, auth.principal.user_id, "iam.grant.revoked", grant_id, request.state.request_id, service.clock(), payload.reason)
         return {"status": "REVOKED"}
+
+    @router.post("/auth/password/change")
+    def change_password(payload: PasswordChange, request: Request, access: Annotated[str, Depends(token)]):
+        service.change_password(access, payload.password.get_secret_value(),
+                                payload.code.get_secret_value() if payload.code else None,
+                                payload.new_password.get_secret_value(), request.state.request_id)
+        return {"status": "SIGNED_OUT"}
+
+    @router.post("/auth/password/reset")
+    def complete_reset(payload: PasswordResetComplete, request: Request):
+        service.complete_password_reset(payload.username, payload.reset_token.get_secret_value(),
+                                        payload.new_password.get_secret_value(), request.state.request_id)
+        return {"status": "SIGNED_OUT"}
+
+    @router.post("/users/{user_id}/password-reset", response_model=PasswordResetToken)
+    def issue_reset(user_id: UUID, payload: PasswordResetIssue, request: Request, access: Annotated[str, Depends(token)]):
+        return service.issue_password_reset(access, user_id, payload.password.get_secret_value(),
+                                            payload.code.get_secret_value() if payload.code else None,
+                                            payload.reason, request.state.request_id)
+
+    @router.post("/auth/mfa/reset")
+    def reset_mfa(payload: Reauthentication, request: Request, access: Annotated[str, Depends(token)]):
+        service.reset_mfa(access, payload.password.get_secret_value(),
+                          payload.code.get_secret_value() if payload.code else None, request.state.request_id)
+        return {"status": "SIGNED_OUT"}
+
+    @router.post("/auth/mfa/recovery-codes", response_model=RecoveryCodes)
+    def recovery_codes(payload: Reauthentication, request: Request, access: Annotated[str, Depends(token)]):
+        return service.recovery_codes(access, payload.password.get_secret_value(),
+                                      payload.code.get_secret_value() if payload.code else None, request.state.request_id)
+
+    @router.post("/auth/mfa/recover")
+    def recover(payload: RecoveryInput, request: Request):
+        service.recover_mfa(payload.challenge_token.get_secret_value(), payload.recovery_code.get_secret_value(), request.state.request_id)
+        return {"status": "SIGNED_OUT"}
+
+    @router.get("/iam/lookup/users", response_model=list[UserSummary])
+    def lookup_users(auth=Depends(authorization), q: str = Query(default="", max_length=100),
+                     after: str = "", limit: int = Query(default=100, ge=1, le=200)):
+        auth.require("role.manage")
+        return auth.connection.execute(text("""SELECT id,username,display_name,is_active FROM wms.app_user
+            WHERE is_active AND username>:after AND (strpos(lower(username),lower(:q))>0 OR strpos(lower(display_name),lower(:q))>0)
+            ORDER BY username LIMIT :limit"""), {"after": after, "q": q, "limit": limit}).mappings().all()
+
+    @router.get("/iam/lookup/warehouses", response_model=list[WarehouseSummary])
+    def lookup_warehouses(auth=Depends(authorization), q: str = Query(default="", max_length=100),
+                          after: str = "", limit: int = Query(default=100, ge=1, le=200)):
+        # Identity lookup conveys no stock/document access.
+        auth.require("role.manage")
+        return auth.connection.execute(text("""SELECT id,code,name FROM wms.warehouse
+            WHERE is_active AND code>:after AND (strpos(lower(code),lower(:q))>0 OR strpos(lower(name),lower(:q))>0)
+            ORDER BY code LIMIT :limit"""), {"after": after, "q": q, "limit": limit}).mappings().all()
+
+    @router.get("/iam/sessions", response_model=list[SessionSummary])
+    def sessions(auth=Depends(authorization), user_id: UUID | None = None,
+                 after: UUID | None = None, limit: int = Query(default=100, ge=1, le=200)):
+        auth.require("iam.manage")
+        return auth.connection.execute(text("""SELECT s.id,s.user_id,u.username,s.device_id,
+            (SELECT min(t.created_at) FROM wms.auth_token t WHERE t.session_id=s.id) AS created_at,
+            s.expires_at,s.revoked_at,s.mfa_verified_at,
+            (u.is_active AND u.auth_version=s.auth_version AND s.revoked_at IS NULL AND s.expires_at>:now) AS is_active
+            FROM wms.auth_session s JOIN wms.app_user u ON u.id=s.user_id
+            WHERE (CAST(:user AS uuid) IS NULL OR s.user_id=:user)
+              AND (CAST(:after AS uuid) IS NULL OR s.id>:after)
+            ORDER BY s.id LIMIT :limit"""),
+            {"user": user_id, "after": after, "limit": limit, "now": service.clock()}).mappings().all()
+
+    @router.get("/iam/events", response_model=list[IdentityEvent])
+    def events(auth=Depends(authorization), after: UUID | None = None,
+               limit: int = Query(default=100, ge=1, le=200)):
+        auth.require("audit.security.read")
+        if auth.principal.mfa_verified_at is None:
+            raise DomainError("MFA_REQUIRED", "Cần MFA để đọc lịch sử tài khoản/quyền.")
+        # Deliberate allowlist: never project before_data/after_data or auth rows.
+        return auth.connection.execute(text("""SELECT e.id,e.actor_id,u.username AS actor_name,
+            e.action,e.entity_id,e.occurred_at,e.request_id,e.reason
+            FROM wms.audit_event e LEFT JOIN wms.app_user u ON u.id=e.actor_id
+            WHERE e.entity_type='identity' AND (CAST(:after AS uuid) IS NULL OR e.id>:after)
+            ORDER BY e.id LIMIT :limit"""), {"after": after, "limit": limit}).mappings().all()
 
     return router

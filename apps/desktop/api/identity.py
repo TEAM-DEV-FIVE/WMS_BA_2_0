@@ -6,7 +6,14 @@ import httpx
 from apps.desktop.api.client import ApiClient, ApiError
 from apps.desktop.local_store.device import device_identity
 from packages.contracts import Error
-from packages.contracts.identity import CurrentUser, Enrollment, MfaChallenge, SessionTokens, WarehouseSummary
+from packages.contracts.identity import (
+    CurrentUser,
+    Enrollment,
+    MfaChallenge,
+    RecoveryCodes,
+    SessionTokens,
+    WarehouseSummary,
+)
 
 
 class IdentityClient(ApiClient):
@@ -124,6 +131,32 @@ class IdentityClient(ApiClient):
     def confirm_enrollment(self, factor_id, code):
         with self._lock:
             return self._request("POST", "auth/mfa/confirm", body={"factor_id": str(factor_id), "code": code}, authenticated=True)
+
+    def lifecycle(self, action, body):
+        paths = {"change_password": "auth/password/change", "reset_password": "auth/password/reset",
+                 "reset_mfa": "auth/mfa/reset", "recovery_codes": "auth/mfa/recovery-codes",
+                 "recover_mfa": "auth/mfa/recover"}
+        with self._lock:
+            try:
+                if action == "recover_mfa":
+                    if not self._challenge:
+                        raise ApiError("UNAUTHENTICATED", "Đăng nhập bằng mật khẩu trước khi khôi phục MFA.")
+                    body["challenge_token"] = self._challenge
+                data = self._request("POST", paths[action], body=body,
+                                     authenticated=action not in {"reset_password", "recover_mfa"})
+                if action == "recovery_codes":
+                    return RecoveryCodes.model_validate(data)
+                if data != {"status": "SIGNED_OUT"}:
+                    raise ValueError("Unexpected credential status")
+                self.clear()
+                return "SIGNED_OUT"
+            except Exception:
+                # No credential write is replayable. Even a lost response to code
+                # rotation requires fresh login before an explicit new operation.
+                self.clear()
+                raise
+            finally:
+                body.clear()
 
     def logout(self):
         with self._lock:
