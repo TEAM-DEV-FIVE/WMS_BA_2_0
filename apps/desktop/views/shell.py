@@ -6,8 +6,10 @@ from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
 from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
+from apps.desktop.views.master_details import ProductDetailsView
 from apps.desktop.views.moves import MoveView
 from apps.desktop.views.orders import OrderView
+from apps.desktop.views.ownership import OwnershipView
 from apps.desktop.views.quality import QualityView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
 from apps.desktop.views.receipts import ReceiptView
@@ -40,8 +42,14 @@ class DesktopShell:
         notebook.pack(fill="both", expand=True, padx=12, pady=12)
         self.session_view = SessionView(notebook, settings)
         notebook.add(self.session_view, text="Đăng nhập và kho")
-        self.master_view = MasterDataView(notebook, self.session_view.presenter.api)
-        notebook.add(self.master_view, text="Danh mục")
+        self.master_container = ttk.Notebook(notebook)
+        notebook.add(self.master_container, text="Danh mục")
+        self.master_view = MasterDataView(self.master_container, self.session_view.presenter.api)
+        self.master_container.add(self.master_view, text="Danh mục cơ sở")
+        self.product_details_view = ProductDetailsView(self.master_container, self.session_view.presenter.api)
+        self.master_container.add(self.product_details_view, text="Quy đổi / barcode / giá")
+        self.ownership_view = OwnershipView(self.master_container, self.session_view.presenter.api)
+        self.master_container.add(self.ownership_view, text="Chủ hàng / ký gửi")
         self.serial_view = SerialLookupView(notebook, self.session_view.presenter.api)
         self.session_view.on_session_change = self.session_changed
         notebook.add(self.serial_view, text="Tra serial / bảo hành")
@@ -86,6 +94,8 @@ class DesktopShell:
 
     def session_changed(self, user=None, warehouses=None):
         self.master_view.session_changed(user)
+        self.product_details_view.session_changed(user, warehouses)
+        self.ownership_view.session_changed(user, warehouses)
         self.serial_view.session_changed(user, warehouses)
         self.order_view.session_changed(user, warehouses)
         self.receipt_view.session_changed(user, warehouses)
@@ -117,6 +127,8 @@ class DesktopShell:
             self.presenter.drain()
             self.session_view.presenter.drain()
             self.master_view.presenter.drain()
+            self.product_details_view.presenter.drain()
+            self.ownership_view.drain()
             self.serial_view.presenter.drain()
             self.order_view.presenter.drain()
             self.receipt_view.presenter.drain()
@@ -135,6 +147,9 @@ class DesktopShell:
         self.session_view.presenter.close()
         self.master_view.presenter.close()
         self.master_view.release_variables()
+        self.product_details_view.presenter.close()
+        self.product_details_view.release_variables()
+        self.ownership_view.close()
         self.serial_view.presenter.close()
         self.serial_view.release_variables()
         self.order_view.presenter.close()
@@ -156,6 +171,8 @@ class DesktopShell:
     def finish(self):
         self.presenter.finish()
         self.master_view.presenter.finish()
+        self.product_details_view.presenter.finish()
+        self.ownership_view.finish()
         self.serial_view.presenter.finish()
         self.order_view.presenter.finish()
         self.receipt_view.presenter.finish()
