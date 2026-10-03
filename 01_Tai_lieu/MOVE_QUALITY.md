@@ -144,3 +144,7 @@ Client xác thực ACK command theo DTO/kho/nguồn hoặc phiếu; ACK sai cấ
 bị thu hồi khi replay không được coi là bằng chứng lệnh trước chưa commit, nên vẫn giữ lệnh cũ.
 Recovery sau đóng ứng dụng chưa bền vững: B19 sở hữu SQLite003/journal chung; phải nối vào
 module đó khi tích hợp. Kiểm chứng hiện tại là Linux/Xvfb; Windows/DPI thật chưa chạy.
+
+## Nguồn nhận chuyển B11
+
+ARRIVE của TRANSFER nay là nguồn quality.decide ở kho đích. INTERNAL_MOVE dẫn chiếu quyết định này khóa TRANSFER trước phiếu move, giữ nguyên owner/stock_item và nguồn bảo hành. Người nhận chỉ có quyền kho đích vẫn đọc được nguồn đã giao; không mở quyền kho nguồn. Hàng tốt nhận vào RECEIVING, hàng hỏng vào QUARANTINE, sau đó dùng đúng kiểm định/cất hàng B03. Xem [Chuyển kho](TRANSFERS.md).

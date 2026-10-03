@@ -34,3 +34,5 @@ Worker outbox dùng schema hiện có; tích hợp desktop quản trị không t
 cùng owner/hợp đồng/kho bằng guard forward. Không sửa 001–013, không backfill hay phân loại lại ledger cũ.
 Tổng schema B09: 72 bảng/491 cột/148 FK. Revision 014 là số release đã được điều phối chọn khi tích hợp; revision phát triển trước đó là 015.
 Xem [contract và thiết kế legacy](../01_Tai_lieu/CONSIGNMENT.md).
+
+B11 phát triển `017_b11_transfer.sql` thêm kế hoạch chuyển, source link/chứng cứ, biên bản thiếu và liên kết điều chỉnh mất transit (4 bảng/18 cột/11 FK). Tổng runtime 76 bảng/509 cột/159 FK. 001–014 bất biến; 017 chỉ trên DB tạm, điều phối chọn số release kế tiếp trước tích hợp. Xem [Chuyển kho](../01_Tai_lieu/TRANSFERS.md).

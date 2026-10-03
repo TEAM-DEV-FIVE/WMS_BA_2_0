@@ -1,0 +1,139 @@
+{
+  "revision": "017_b11_transfer.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "transfer_line",
+      "purpose": "Approved source allocation",
+      "cols": [
+        {
+          "name": "document_line_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document_line.id"
+        },
+        {
+          "name": "stock_item_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_item.id"
+        },
+        {
+          "name": "source_location_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "location.id"
+        }
+      ]
+    },
+    {
+      "name": "transfer_move",
+      "purpose": "Immutable dispatch/arrival/loss source links and evidence",
+      "cols": [
+        {
+          "name": "move_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_move.id"
+        },
+        {
+          "name": "dispatch_move_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "stock_move.id"
+        },
+        {
+          "name": "disposition",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "evidence_ref",
+          "type": "varchar(2000)",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "transfer_discrepancy",
+      "purpose": "Evidence without inventory effects",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "transfer_document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "dispatch_move_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_move.id"
+        },
+        {
+          "name": "kind",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "quantity",
+          "type": "numeric(20,6)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "evidence_ref",
+          "type": "varchar(2000)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "recorded_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "recorded_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "transfer_adjustment",
+      "purpose": "Separately approved transit loss reference",
+      "cols": [
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "source_transfer_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "discrepancy_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "transfer_discrepancy.id"
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

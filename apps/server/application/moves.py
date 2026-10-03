@@ -70,13 +70,17 @@ class MoveService:
             ids.update(r["quality_decision_id"] for r in self.snapshot(auth.connection, doc) if r["quality_decision_id"])
         receipts, parents = set(), set()
         for qid in sorted(ids):
-            source = one(auth.connection, """SELECT t.document_id FROM wms.quality_decision q
+            source = one(auth.connection, """SELECT t.document_id,d.kind FROM wms.quality_decision q
                 JOIN wms.stock_move m ON m.id=q.receipt_move_id JOIN wms.inventory_transaction t ON t.id=m.transaction_id
-                WHERE q.id=:id""", id=qid)
+                JOIN wms.document d ON d.id=t.document_id WHERE q.id=:id""", id=qid)
             if not source:
                 raise DomainError("NOT_FOUND", "Không tìm thấy quyết định chất lượng.")
-            receipt = self.orders.document(auth, source["document_id"], "RECEIPT")
-            parent = self.orders.receipts.source(auth, receipt)
+            if source["kind"] == "TRANSFER":
+                receipt = self.orders.transfers.document(auth, source["document_id"])
+                parent = None
+            else:
+                receipt = self.orders.document(auth, source["document_id"], "RECEIPT")
+                parent = self.orders.receipts.source(auth, receipt)
             receipts.add(receipt["id"])
             if parent:
                 parents.add(parent["id"])

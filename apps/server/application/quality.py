@@ -11,13 +11,13 @@ from apps.server.application.stock_identity import validate_ownership
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.quality import QualityDecision, QualityHistory, QualityResult, QualitySource
 
-SOURCE_SQL = """SELECT m.id,t.document_id AS receipt_id,d.number AS receipt_number,d.version,d.warehouse_id,t.business_date,
+SOURCE_SQL = """SELECT m.id,t.document_id AS receipt_id,d.number AS receipt_number,d.version,l.warehouse_id,t.business_date,d.kind AS document_kind,
     m.stock_item_id,i.product_id,p.sku,p.tracking,lot.code AS lot_code,s.code AS serial_code,
     i.owner_id,o.code AS owner_code,i.consignment_id,m.destination_location_id AS source_location_id,
     l.code AS location_code,m.quantity_base AS received,
     COALESCE((SELECT SUM(q.quantity) FROM wms.quality_decision q WHERE q.receipt_move_id=m.id),0) AS decided
-    FROM wms.stock_move m JOIN wms.inventory_transaction t ON t.id=m.transaction_id AND t.operation='RECEIVE'
-    JOIN wms.document d ON d.id=t.document_id AND d.kind='RECEIPT'
+    FROM wms.stock_move m JOIN wms.inventory_transaction t ON t.id=m.transaction_id AND t.operation IN ('RECEIVE','ARRIVE')
+    JOIN wms.document d ON d.id=t.document_id AND d.kind IN ('RECEIPT','TRANSFER')
     JOIN wms.stock_item i ON i.id=m.stock_item_id JOIN wms.product p ON p.id=i.product_id
     JOIN wms.stock_owner o ON o.id=i.owner_id LEFT JOIN wms.lot lot ON lot.id=i.lot_id
     LEFT JOIN wms.serial s ON s.id=i.serial_id JOIN wms.location l ON l.id=m.destination_location_id
@@ -40,7 +40,11 @@ class QualityService:
         row = one(auth.connection, SOURCE_SQL + " AND m.id=:id", id=source_id)
         if not row:
             raise DomainError("NOT_FOUND", "Không tìm thấy lần nhận để kiểm định.")
-        self.orders.document(auth, row["receipt_id"], "RECEIPT", lock=lock)
+        if row["document_kind"] == "TRANSFER":
+            self.orders.transfers.document(auth, row["receipt_id"], lock=lock)
+            auth.require("document.read", row["warehouse_id"], hidden=True)
+        else:
+            self.orders.document(auth, row["receipt_id"], "RECEIPT", lock=lock)
         if lock:
             row = one(auth.connection, SOURCE_SQL + " AND m.id=:id", id=source_id)
         return row
@@ -55,7 +59,7 @@ class QualityService:
     def listing(self, auth, warehouse_id, after=None, limit=50):
         auth.require("document.read", warehouse_id, hidden=True)
         broad = any(g["role_code"] not in {"RECEIVER", "PICKER"} for g in auth.grants("document.read", warehouse_id))
-        rows = auth.connection.execute(text(SOURCE_SQL + """ AND d.warehouse_id=:warehouse
+        rows = auth.connection.execute(text(SOURCE_SQL + """ AND l.warehouse_id=:warehouse
             AND (CAST(:after AS uuid) IS NULL OR m.id>:after)
             AND (:broad OR d.created_by=:actor OR EXISTS(SELECT 1 FROM wms.document_assignment a
                 WHERE a.document_id=d.id AND a.user_id=:actor)) ORDER BY m.id LIMIT :limit"""),
@@ -122,7 +126,7 @@ class QualityService:
             c.execute(text("UPDATE wms.document SET version=version+1 WHERE id=:id"), {"id": source["receipt_id"]})
             result = QualityResult(id=source["receipt_id"], receipt_move_id=source_id, warehouse_id=source["warehouse_id"],
                                    version=source["version"] + 1, decision_ids=ids, request_id=request_id).model_dump(mode="json")
-            self.orders.effects(c, actor, {"id": source["receipt_id"], "kind": "RECEIPT", "warehouse_id": source["warehouse_id"]},
+            self.orders.effects(c, actor, {"id": source["receipt_id"], "kind": source["document_kind"], "warehouse_id": source["warehouse_id"]},
                                 "quality.decide", result, payload.reason, request_id)
             return CommandResult(result)
 
