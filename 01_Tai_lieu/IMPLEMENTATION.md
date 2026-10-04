@@ -7,6 +7,18 @@ Mã nền đã lưu ở commit local `c57a743`. Đã tích hợp [ba nhánh agen
 outbox `849a97a`, desktop quản trị `f126186`, tồn đầu kỳ `0393849`; giữ các worktree để tra cứu.
 Kết quả tích hợp và giới hạn ở [báo cáo kiểm thử](../07_Kiem_tra/IMPLEMENTATION_REVIEW.md); chưa push GitHub.
 
+## Cập nhật kiểm tra các nhánh — 04/10/2026
+
+Đã ghép thêm B04 IAM lifecycle, B08 CI/contract, B10 picking/packing và B15 UI chứng từ lên nền B12.
+Tổng **12/26 nhánh có code đã tích hợp**, còn B07/B13/B14/B16 mới chuẩn bị, B17–B26 chưa triển khai.
+B13/B16 đủ dependency để đồng bộ và giao tiếp. Sổ tiến độ được đối chiếu với ancestry và code thực,
+không dựa chỉ vào sự tồn tại của nhánh/báo cáo.
+
+Bản `1386b2419dfa` đạt **823 tests + 10 subtests**, 0 failed/skip; PostgreSQL 16/HTTP/Tk thật,
+141 API paths, 18 migration release, 81 bảng/542 cột/172 FK và 18 mục desktop. Build/cài wheel ngoài source,
+lint, contract và artifacts đạt. [Báo cáo đầy đủ](../07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md) giữ cả lỗi OpenAPI phát hiện và đã sửa.
+Chưa nghiệm thu Windows/thiết bị/LAN/15 CCU/DR/UAT; T01–T28 vẫn PLANNED.
+
 ## Cập nhật tích hợp B12 — 04/10/2026
 
 Bản ghép B12 từ `f37c0bb80fbd9f82c26494a71c9e00574f121039` nối tiếp nền B11 release 015,
