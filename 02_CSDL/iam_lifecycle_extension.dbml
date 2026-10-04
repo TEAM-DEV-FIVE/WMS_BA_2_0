@@ -1,0 +1,18 @@
+// B04 additive credential lifecycle. High-entropy digests only.
+Table auth_recovery_code {
+  code_hash char(64) [not null, pk]
+  user_id uuid [not null, ref: > app_user.id]
+  created_at timestamptz [not null]
+  consumed_at timestamptz [null]
+  revoked_at timestamptz [null]
+}
+
+Table auth_password_reset {
+  token_hash char(64) [not null, pk]
+  user_id uuid [not null, ref: > app_user.id]
+  issued_by uuid [not null, ref: > app_user.id]
+  auth_version integer [not null]
+  created_at timestamptz [not null]
+  expires_at timestamptz [not null]
+  consumed_at timestamptz [null]
+}

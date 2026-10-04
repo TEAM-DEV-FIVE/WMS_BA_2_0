@@ -5,131 +5,135 @@
   "tasks": [
     {
       "id": "B01",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "b70d43ac8e16b2744b023091e42fa56f9068a6a5",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
     },
     {
       "id": "B02",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "9d3fbd1177d27350c73163885ab65260b9d72ec2",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
     },
     {
       "id": "B03",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "dd659b620a9160854f24aa09cc40718414703574",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
     },
     {
       "id": "B04",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "handoff_commit": "2e844a02845a8e96da6b9ca598a48696fa6de355",
+      "integrated_commit": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
     },
     {
       "id": "B05",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "784e6697c72c741e78a635995174503231d3c287",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
     },
     {
       "id": "B06",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "cb1c99d632cbe58facd97039ccb2ee28b1d37523",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
     },
     {
       "id": "B07",
-      "status": "NOT_STARTED",
+      "status": "PREPARED_WAITING_DEPENDENCIES",
       "activated_base": null,
-      "handoff_commit": null,
+      "handoff_commit": "53974bde67afc567c707d34e76668d9461dbe552",
       "integrated_commit": null,
-      "note": ""
+      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Còn chờ: B14 Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
     },
     {
       "id": "B08",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "handoff_commit": "b5e2685a10e41a8e7c037c4ebe2fff6a98972bc4",
+      "integrated_commit": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
     },
     {
       "id": "B09",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "handoff_commit": "94bd7232173b60bf899ca5001f1687464011899a",
+      "integrated_commit": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "note": "Người dùng giao review/tích hợp để mở B11 ngày 2026-10-03; release 014, 491 tests + 10 subtests; BAN_GIAO/B11_DEPENDENCIES.md. Chưa thay thế UAT/chính sách thương mại ký gửi."
     },
     {
       "id": "B10",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "1a17cc5b13377bbaafd70f025756aa8d23717ccb",
+      "handoff_commit": "238a30bcd43936ad2973540672dccbc5ef40e783",
+      "integrated_commit": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
     },
     {
       "id": "B11",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "handoff_commit": "cc45621be81249e229655b1899f76bf1dbf4b313",
+      "integrated_commit": "dce35f92b32015146f23d48229d641b558715b8c",
+      "note": "Người dùng giao tích hợp B11 ngày 2026-10-04; release 015, 523 tests + 10 subtests trên bản ghép, 0 failed/skip; BAN_GIAO/B11_INTEGRATION.md. Windows/UAT chưa chạy; không đổi trạng thái nghiệm thu tổng."
     },
     {
       "id": "B12",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "ef99946038539483ed3e740b2dbd60594c7394c5",
+      "handoff_commit": "f37c0bb80fbd9f82c26494a71c9e00574f121039",
+      "integrated_commit": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+      "note": "Người dùng cho phép đồng bộ/triển khai và giao tích hợp B12 ngày 2026-10-04; nối nền B11 release 015, B12 release 016; hồi quy 551 tests + 10 subtests, 0 failed/skip. BAN_GIAO/B12_INTEGRATION.md. Windows/UAT chưa chạy; không đổi trạng thái nghiệm thu tổng."
     },
     {
       "id": "B13",
-      "status": "NOT_STARTED",
+      "status": "READY_FOR_SYNC",
       "activated_base": null,
-      "handoff_commit": null,
+      "handoff_commit": "07a6f55f580c8b180021b740bdd858e294d8c0b0",
       "integrated_commit": null,
-      "note": ""
+      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Đã đủ dependency tích hợp; đồng bộ worktree giữ commit nghiên cứu trước khi giao triển khai. Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
     },
     {
       "id": "B14",
-      "status": "NOT_STARTED",
+      "status": "PREPARED_WAITING_DEPENDENCIES",
       "activated_base": null,
-      "handoff_commit": null,
+      "handoff_commit": "d95bf75b70788dad94fea80e5c8ddacbfd774866",
       "integrated_commit": null,
-      "note": ""
+      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Còn chờ: B13 Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
     },
     {
       "id": "B15",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "handoff_commit": "8bb824ce4e84180d0b167805b2d9e0fa12c05b28",
+      "integrated_commit": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
     },
     {
       "id": "B16",
-      "status": "NOT_STARTED",
+      "status": "READY_FOR_SYNC",
       "activated_base": null,
-      "handoff_commit": null,
+      "handoff_commit": "90773d976ae440ec55d80df2937c3ae8f73f1178",
       "integrated_commit": null,
-      "note": ""
+      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Đã đủ dependency tích hợp; đồng bộ worktree giữ commit nghiên cứu trước khi giao triển khai. Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
     },
     {
       "id": "B17",
@@ -211,5 +215,14 @@
       "integrated_commit": null,
       "note": ""
     }
-  ]
+  ],
+  "last_review": {
+    "date": "2026-10-04",
+    "tested_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696",
+    "report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md",
+    "next_ready_for_sync": [
+      "B13",
+      "B16"
+    ]
+  }
 }

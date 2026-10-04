@@ -12,6 +12,7 @@ class OpeningLineInput(Contract):
     product_id: UUID
     quantity_base: PositiveQuantity
     owner_id: UUID
+    consignment_id: UUID | None = None
     destination_location_id: UUID
     lot_code: str | None = Field(default=None, min_length=1, max_length=100, pattern=r"^\S(?:.*\S)?$")
     serial_code: str | None = Field(default=None, min_length=1, max_length=160, pattern=r"^\S(?:.*\S)?$")

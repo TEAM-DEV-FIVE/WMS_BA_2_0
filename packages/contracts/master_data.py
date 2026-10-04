@@ -58,6 +58,8 @@ class PartnerData(Contract):
     name: Name
     is_customer: bool = Field(default=False, strict=True)
     is_supplier: bool = Field(default=False, strict=True)
+    tax_code: str | None = Field(default=None, max_length=40)
+    address: str | None = Field(default=None, max_length=2000)
     is_active: bool = Field(default=True, strict=True)
 
     @model_validator(mode="after")

@@ -1,14 +1,17 @@
-# Phân công phần còn lại — 26 nhánh
+# Phân công phần còn lại — trạng thái 04/10/2026
 
-Đọc [bảng công việc đầy đủ](KE_HOACH_CON_LAI.md) để chọn nhiệm vụ; mỗi dòng liên kết tới brief riêng
-có nhánh, worktree, phạm vi, dependency, kiểm thử và prompt giao agent.
+Đã kiểm tra lịch sử nhánh, code bàn giao và kiểm thử bản ghép. Xem
+[báo cáo hiện tại](../../07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md) và [sổ tích hợp](integration_log.json).
 
-- **Giao ngay:** B01, B02, B03, B04, B05, B06, B08, B15.
-- **Chờ tích hợp dependency:** 18 nhánh còn lại; worktree được tạo sẵn nhưng chưa có code phụ thuộc.
-- **Quy trình bắt buộc:** [QUY_TRINH_AGENT.md](QUY_TRINH_AGENT.md), đặc biệt migration/DB tạm, import đúng worktree và bàn giao.
-- **Dữ liệu điều phối:** [backlog.json](backlog.json), [integration_log.json](integration_log.json).
-- **Lịch sử:** [ba nhánh đợt trước đã tích hợp](DOT_1_DA_TICH_HOP.md); giữ nguyên worktree cũ để review.
+- **12 nhánh đã tích hợp code local:** B01/B02/B03/B04/B05/B06/B08/B09/B10/B11/B12/B15.
+- **Có thể đồng bộ để giao tiếp:** B13 kiểm kê/kỳ và B16 giao diện import. Hai nhánh chỉ có báo cáo
+  chuẩn bị; cần giữ commit nghiên cứu khi đồng bộ worktree lên bản tổng đã kiểm chứng.
+- **Đã chuẩn bị, còn chờ:** B14 chờ B13; B07 chờ B14, ưu tiên P3.
+- **10 nhánh chưa có code riêng:** B17–B26; tiếp tục theo dependency trong catalog.
 
-Mốc mã trước khi chia nhánh: `06041b7`, 301 tests + 10 subtests local. Kế hoạch mới phủ 37 issue OPEN
-trong snapshot local, 49 yêu cầu và 28 acceptance tests; đây không phải kết quả nghiệm thu hoặc trạng thái
-GitHub vừa cập nhật. Các agent chỉ commit local, điều phối review/tích hợp; không tự push/đóng issue.
+Mỗi nhánh có brief, worktree, phạm vi, kiểm thử và prompt trong [kế hoạch đầy đủ](KE_HOACH_CON_LAI.md).
+Trạng thái READY trong catalog/brief là **mốc phân công ban đầu**, không phải trạng thái hiện tại.
+Đọc [quy trình agent](QUY_TRINH_AGENT.md), đặc biệt revision/DB tạm, import đúng nguồn và bàn giao.
+Ba nhánh opening/outbox/admin-ui đợt trước vẫn được giữ; [hồ sơ lịch sử](DOT_1_DA_TICH_HOP.md).
+
+Chưa push/đổi issue GitHub. Kết quả local không thay thế nghiệm thu Windows, thiết bị, tải và phục hồi.

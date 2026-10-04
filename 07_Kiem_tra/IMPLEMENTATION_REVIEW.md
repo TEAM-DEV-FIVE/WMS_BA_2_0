@@ -1,5 +1,8 @@
 # Kết quả kiểm tra WMS sau tích hợp ba nhánh agent
 
+**Báo cáo này là lịch sử mốc 03/10.** Kết quả mới nhất của bản ghép 12 nhánh ở
+[BRANCH_REVIEW_2026_10_04.md](BRANCH_REVIEW_2026_10_04.md).
+
 Cập nhật ngày 03/10/2026; nhánh local `feat/application-foundation`, nền `e4de9e5` (PR #40 đã merge).
 Mốc nền `c57a743`, mốc chia worktree `d5ba723`. Đã tích hợp outbox `849a97a`, admin UI `f126186`
 và opening `0393849` qua ba merge local `e75c939`, `8246e00`, `1463854`; chưa push/chạy CI/nghiệm thu mới.

@@ -1,0 +1,11 @@
+table,column,data_type,nullable,references
+consignment_receipt,document_id,uuid,NO,document.id
+consignment_receipt,warehouse_id,uuid,NO,warehouse.id
+consignment_receipt,batch_key,uuid,NO,
+consignment_receipt,delivery_reference,varchar(2000),NO,
+consignment_receipt_line,document_line_id,uuid,NO,document_line.id
+consignment_receipt_line,destination_location_id,uuid,NO,location.id
+consignment_receipt_line,lot_code,varchar(100),YES,
+consignment_receipt_line,serial_code,varchar(160),YES,
+consignment_receipt_line,manufactured_on,date,YES,
+consignment_receipt_line,expires_on,date,YES,

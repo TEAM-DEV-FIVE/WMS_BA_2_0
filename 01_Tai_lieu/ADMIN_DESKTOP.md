@@ -33,13 +33,13 @@ sẵn cho form yêu cầu cấp quyền; chọn một dòng tài khoản cũng t
 
 1. **Role** liệt kê toàn bộ role đang hoạt động mà endpoint hiện tại trả về (code và tên).
    Chọn dòng để điền mã role vào form yêu cầu; cũng có thể nhập trực tiếp mã role.
-2. Chọn **Yêu cầu chờ duyệt**, nhập UUID người nhận, mã role, scope, thời hạn và lý do.
+2. Chọn **Tra người nhận**, nhập tên/mã vào ô tìm và Enter, chọn dòng. Làm tương tự với **Tra kho**.
+   Quay lại **Yêu cầu chờ duyệt**, chọn tên người/kho từ dropdown, mã role, scope, thời hạn và lý do.
    `GLOBAL` là phạm vi hệ thống; `WAREHOUSE` bắt buộc UUID của đúng một kho;
    `ALL_WAREHOUSES` là tất cả kho. GLOBAL/ALL_WAREHOUSES không nhận UUID kho.
-3. UUID kho cần lấy từ người quản trị danh mục có thẩm quyền. UI kiểm tra định dạng UUID;
-   server quyết định kho/user/role còn hoạt động và quyền phù hợp. Không cấp thêm quyền
-   đọc kho chỉ để điền form. Người chỉ có `role.manage` nhập UUID user trực tiếp vì không có
-   quyền xem danh sách tài khoản.
+3. Lookup dùng `role.manage` + MFA, kể cả quản trị viên không có `iam.manage` hoặc quyền kho.
+   Chỉ trả danh tính user/kho đang hoạt động; không cấp thêm quyền đọc tồn/chứng từ.
+   Server kiểm tra lại user/role/kho và quyền khi lập/duyệt yêu cầu.
 4. Thời hạn trống nghĩa là không thời hạn; nếu nhập phải là ISO 8601 có múi giờ,
    ví dụ `2027-01-31T17:00:00+07:00`. Server kiểm tra thời điểm đó còn ở tương lai.
 5. Bấm **Lập yêu cầu**. Chưa có grant cho đến khi một quản trị viên khác đăng nhập/MFA,
@@ -50,7 +50,7 @@ sẵn cho form yêu cầu cấp quyền; chọn một dòng tài khoản cũng t
 
 Bảng có thanh cuộn ngang; vùng chi tiết có thể chọn/copy toàn bộ UUID, scope, kho, mốc thời
 gian, người yêu cầu và lý do. Lý do có trên yêu cầu chờ. API danh sách grant chưa trả lý do
-cấp/thu hồi; UI nêu rõ giới hạn này. API role cũng chưa trả danh sách permission của role.
+cấp/thu hồi; xem **Lịch sử bảo mật** với GLOBAL `audit.security.read` + MFA để đối chiếu event và lý do. API role cũng chưa trả danh sách permission của role.
 Thay đổi role, kho hoặc quyền người yêu cầu giữa lúc tải và lúc duyệt sẽ hiển thị lỗi thật
 của server cùng request ID nếu có; UI không tự sửa scope hay bỏ qua lỗi SOD.
 
@@ -68,8 +68,7 @@ hay phản hồi ghi hỏng khiến kết quả **chưa rõ**: server có thể 
 
 Tải lại danh sách liên quan, kiểm tra người dùng/yêu cầu/grant rồi bấm **Đã đối chiếu** để
 mở thao tác mới. Nút này chỉ xác nhận bạn đã đối chiếu, không kết luận lệnh cũ chưa chạy.
-Với thu hồi phiên, danh sách tài khoản không chứng minh các phiên đã bị thu hồi: cần xác minh
-ở phiên bị thu hồi hoặc với quản trị vận hành. Khi còn nghi ngờ, dùng request ID nếu có để
+Với thu hồi phiên, dùng **Lịch sử phiên** để kiểm tra hiệu lực và đối chiếu ở phiên bị thu hồi. Khi còn nghi ngờ, dùng request ID nếu có để
 đối chiếu log server. Đăng xuất/đổi phiên xóa toàn bộ form và trạng thái chưa rõ trong RAM;
 sau khi đăng nhập lại vẫn phải đối chiếu trước khi tự thực hiện thao tác mới.
 
@@ -83,5 +82,35 @@ Kiểm thử ở [test admin presenter](../tests/foundation/test_admin_presenter
 [test admin desktop](../tests/foundation/test_admin_desktop.py) bao gồm Tk → HTTP loopback
 → PostgreSQL tạm, MFA/quyền/SOD, phân trang trên 200 dòng, revoke, lỗi thay đổi quyền/kho/role,
 timeout không phát lại, dữ liệu phiên cũ và cleanup. Đây là bằng chứng Linux/Xvfb,
-chưa phải Windows UAT hoặc nghiệm thu toàn bộ T07/T11. Chưa có đổi mật khẩu/reset MFA,
-quản lý từng phiên, permission chi tiết của role hoặc lịch sử audit trên UI vì thiếu API.
+chưa phải Windows UAT hoặc nghiệm thu toàn bộ T07/T11. B04 đã bổ sung credential lifecycle,
+lookup, lịch sử phiên và audit; thu hồi hiện thực theo toàn bộ phiên của user, chưa chọn một
+phiên riêng để thu hồi. Permission chi tiết của role chưa có trên UI.
+
+
+## B04 — thao tác mật khẩu và MFA
+
+Trong **Đăng nhập và kho**, chọn **Mật khẩu / khôi phục** để mở form:
+
+- **Đổi mật khẩu**: nhập mật khẩu hiện tại, TOTP mới nếu đã bật MFA và mật khẩu mới.
+- **Dùng mã reset mật khẩu**: nhập username, mã do quản trị viên cấp và mật khẩu mới.
+- **Tạo lại 8 mã khôi phục MFA**: nhập mật khẩu + TOTP mới. Bộ cũ hết hiệu lực; bộ mới chỉ
+  hiển thị trong cửa sổ riêng tối đa 60 giây, không tự copy clipboard hoặc lưu file.
+- **Reset MFA bằng mã TOTP**: nhập mật khẩu + TOTP mới; đăng nhập lại và bật MFA mới.
+- **Mất TOTP: dùng mã khôi phục**: trước tiên login bằng mật khẩu để tới bước yêu cầu MFA,
+  sau đó dùng một mã dự phòng. Toàn bộ bộ mã cũ hết hiệu lực; bật MFA rồi tạo bộ mới.
+
+Ô nhập credential được xóa khi gửi/đóng form/đổi phiên. Khóa enrollment tự ẩn sau 5 phút.
+Mã recovery/reset chỉ hiển thị ở cửa sổ cần thiết, đóng khi đổi phiên, tải lại hoặc hết thời
+gian. Kết quả từ phiên cũ bị bỏ trước khi hiển thị; worker không trả exception traceback
+chứa password/TOTP vào queue UI. Không lưu IAM payload vào SQLite/replay journal.
+
+Trong tab quản trị, chọn **Đặt lại mật khẩu**, tải và chọn user, nhập mật khẩu/TOTP **của
+quản trị viên đang đăng nhập** cùng lý do rồi cấp mã. Mã có hạn 15 phút; giao cho đúng người
+qua kênh riêng. Không thể đọc lại mã qua danh sách/lịch sử. Khi timeout, desktop yêu cầu
+đăng nhập lại; kiểm tra **Lịch sử bảo mật** trước khi chủ động cấp mã mới thay mã cũ.
+
+**Lịch sử phiên** cần `iam.manage` + MFA; có user, thiết bị, lúc tạo/hết hạn/thu hồi, hiệu lực.
+Chọn một dòng và nhập lý do để thu hồi **mọi phiên của user đó**. **Lịch sử bảo mật** cần
+`audit.security.read` GLOBAL + MFA; có actor, hành động, đối tượng, thời điểm, request ID,
+lý do nhưng không có credential hoặc payload audit đầy đủ. Hai danh sách phân trang 100
+bản ghi theo UUID; thứ tự UUID không đại diện thứ tự thời gian, dùng cột thời điểm để đối chiếu.

@@ -10,7 +10,8 @@ permissions:
 
 jobs:
   artifacts:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -18,13 +19,22 @@ jobs:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: requirements-dev.txt
-      - run: python -m pip install -r requirements-dev.txt
-      - run: python -m unittest discover -s tests -v
-      - run: python scripts/check_artifacts.py
+      - run: python scripts/ci_support.py --name design-dependencies -- python -m pip install -r requirements-dev.txt
+      - run: python scripts/ci_support.py --name design-tests -- python -m unittest discover -s tests -v
+      - run: python scripts/ci_support.py --name artifacts -- python scripts/check_artifacts.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: design-${{ github.sha }}
+          path: .reports/
+          include-hidden-files: true
+          retention-days: 14
 
   postgres:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
         version: ['15', '16']
     services:
@@ -49,13 +59,25 @@ jobs:
       PGDATABASE: wms_test
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record PostgreSQL environment
+        run: python scripts/ci_support.py --name postgres-version -- psql -X -c "SELECT version()"
       - name: Create schema and seed
         run: |
-          psql -X -v ON_ERROR_STOP=1 -f 02_CSDL/001_schema.sql
-          psql -X -v ON_ERROR_STOP=1 -f 02_CSDL/002_seed_permissions.sql
+          python scripts/ci_support.py --name schema -- psql -X -v ON_ERROR_STOP=1 -f 02_CSDL/001_schema.sql
+          python scripts/ci_support.py --name seed -- psql -X -v ON_ERROR_STOP=1 -f 02_CSDL/002_seed_permissions.sql
       - name: Check constraints and append-only triggers
-        run: psql -X -v ON_ERROR_STOP=1 -f tests/sql/schema_smoke.sql
+        run: python scripts/ci_support.py --name sql-smoke -- psql -X -v ON_ERROR_STOP=1 -f tests/sql/schema_smoke.sql
       - name: Reconcile empty database after fixture rollback
         run: |
-          psql -X -qAt -v ON_ERROR_STOP=1 -f 02_CSDL/reconcile.sql > /tmp/wms-reconcile.txt
-          test ! -s /tmp/wms-reconcile.txt
+          psql -X -qAt -v ON_ERROR_STOP=1 -f 02_CSDL/reconcile.sql > .reports/reconcile.txt
+          test ! -s .reports/reconcile.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: design-postgres-${{ matrix.version }}-${{ github.sha }}
+          path: .reports/
+          include-hidden-files: true
+          retention-days: 14
