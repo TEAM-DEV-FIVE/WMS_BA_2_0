@@ -1,6 +1,6 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
-**Cập nhật 04/10:** 12 nhánh đã tích hợp; B13/B16 đủ dependency để đồng bộ; B07/B14 chỉ có chuẩn bị,
+**Cập nhật 04/10:** 12 nhánh đã tích hợp; B13/B16 đã đồng bộ nền `d4676b6`, READY để triển khai; B07/B14 chỉ có chuẩn bị,
 B17–B26 chưa triển khai. Xem [báo cáo nhánh hiện hành](../../07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md).
 Các bảng READY/thứ tự bên dưới giữ mốc chia việc 03/10, không thay thế sổ tích hợp mới.
 

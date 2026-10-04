@@ -104,11 +104,19 @@
     },
     {
       "id": "B13",
-      "status": "READY_FOR_SYNC",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
       "handoff_commit": "07a6f55f580c8b180021b740bdd858e294d8c0b0",
       "integrated_commit": null,
-      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Đã đủ dependency tích hợp; đồng bộ worktree giữ commit nghiên cứu trước khi giao triển khai. Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
+      "note": "Người dùng yêu cầu đồng bộ ngày 2026-10-04. Đã merge nền đã kiểm chứng và giữ commit nghiên cứu; READY để triển khai. Chưa có runtime riêng, chưa CODE_READY/ACCEPTED; integrated_commit vẫn null. Báo cáo nghiên cứu 03/10 là lịch sử, cần đọc lại contract hiện tại.",
+      "synchronization_commit": "b51e087617d0270cf06bc329d30a580b970255c8",
+      "dependency_commits": {
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1"
+      }
     },
     {
       "id": "B14",
@@ -129,11 +137,18 @@
     },
     {
       "id": "B16",
-      "status": "READY_FOR_SYNC",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
       "handoff_commit": "90773d976ae440ec55d80df2937c3ae8f73f1178",
       "integrated_commit": null,
-      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Đã đủ dependency tích hợp; đồng bộ worktree giữ commit nghiên cứu trước khi giao triển khai. Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
+      "note": "Người dùng yêu cầu đồng bộ ngày 2026-10-04. Đã merge nền đã kiểm chứng và giữ commit nghiên cứu; READY để triển khai. Chưa có runtime riêng, chưa CODE_READY/ACCEPTED; integrated_commit vẫn null. Báo cáo nghiên cứu 03/10 là lịch sử, cần đọc lại contract hiện tại.",
+      "synchronization_commit": "ae4db4694ccacba2849f096f99baa21f881d465e",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B06": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780"
+      }
     },
     {
       "id": "B17",
@@ -220,9 +235,16 @@
     "date": "2026-10-04",
     "tested_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696",
     "report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md",
-    "next_ready_for_sync": [
+    "next_ready_for_sync": []
+  },
+  "last_activation": {
+    "date": "2026-10-04",
+    "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
+    "tasks": [
       "B13",
       "B16"
-    ]
+    ],
+    "status": "READY",
+    "note": "Đồng bộ worktree để người dùng giao agent; không đổi nghiệm thu T01–T28 và không push."
   }
 }

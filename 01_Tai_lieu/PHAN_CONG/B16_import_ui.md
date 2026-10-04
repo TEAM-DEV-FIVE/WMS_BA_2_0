@@ -3,6 +3,9 @@
 - Nhánh: `agent/b16-import-ui`
 - Worktree: `/home/kien/Đồ án KHMT2_2/worktrees/wms-b16-import-ui`
 - Trạng thái ban đầu: **WAITING_DEPENDENCIES**, ưu tiên **P1**.
+- Trạng thái hiện tại 04/10/2026: **READY**. Đã đồng bộ nền `d4676b67e1302e0ea545d22da5ec16c4f9453840`,
+  giữ commit nghiên cứu `90773d976ae440ec55d80df2937c3ae8f73f1178`; đủ dependency để triển khai.
+  Xem commit đồng bộ và dependency thực trong [sổ tích hợp](integration_log.json).
 - Phụ thuộc: [B01](./B01_import_files.md), [B06](./B06_opening_ui.md), [B09](./B09_consignment.md), [B15](./B15_documents_ui.md)
 - Issues liên quan: [#19](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/19), [#31](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/31), [#24](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/24) (đối chiếu snapshot local).
 - Yêu cầu: FR22, FR23, FR31, NFR03, NFR07.
