@@ -109,7 +109,9 @@ class IssueService:
         if one(c, """SELECT child.id FROM wms.document_line child JOIN wms.document_line parent
             ON parent.id=child.source_line_id WHERE parent.document_id=:id LIMIT 1""", id=doc_id):
             raise DomainError("DEPENDENT_DOCUMENT", "Phiếu đã có chứng từ tham chiếu; xử lý phụ thuộc trước.")
-        if one(c, "SELECT id FROM wms.package WHERE document_id=:id LIMIT 1", id=doc_id):
+        if one(c, """SELECT p.id FROM wms.package p WHERE p.document_id=:id AND
+            (p.status IS NULL OR (p.status<>'CANCELLED' AND EXISTS
+                (SELECT 1 FROM wms.package_line l WHERE l.package_id=p.id AND l.quantity>l.consumed_quantity))) LIMIT 1""", id=doc_id):
             raise DomainError("FULFILLMENT_ACTIVE", "Cần xử lý đóng kiện trước khi thay đổi phiếu.")
         # The authorized edit/cancel/close owns the parent+child locks. Release and
         # invalidation are in its transaction; failures roll all of them back.
@@ -264,6 +266,8 @@ class IssueService:
                 raise DomainError("PERIOD_CLOSED", "Ngày ghi sổ phải thuộc đúng một kỳ kho đang mở.")
             # Lock EXTERNAL in the same UUID order as the other locations.
             old = self.reservations.rows(c, doc_id)
+            if one(c, "SELECT id FROM wms.package WHERE document_id=:id LIMIT 1", id=doc_id) or self.fulfillment.tasks(c, doc_id):
+                self.fulfillment.lock_locations(c, doc, old, extra=(EXTERNAL,))
             saved = {r["id"]: r for r in self.orders.lines(c, doc)}
             parents = {r["id"]: r for r in self.orders.lines(c, source)}
             inventory = self.reservations.inventory(c, doc, list(saved.values()),
@@ -280,7 +284,7 @@ class IssueService:
                     raise DomainError("RESERVATION_MISMATCH", "Không đủ giữ chỗ thuộc phiếu để xuất.")
                 if reservation["expires_at"] is not None and reservation["expires_at"] <= self.identity.clock():
                     raise DomainError("RESERVATION_EXPIRED", "Giữ chỗ hết hạn; giải phóng và giữ lại trước khi xuất.")
-                self.reservations.check_fulfillment(c, reservation["id"])
+                packed = self.fulfillment.packing.prepare_post(c, doc_id, reservation["id"], qty)
                 line = saved[reservation["line_id"]]
                 parent = parents.get(line["source_line_id"])
                 self.match_source(line, parent)
@@ -302,7 +306,7 @@ class IssueService:
                 stock["reserved"] -= qty
                 moves.append(dict(id=uuid4(), line=line["id"], stock=reservation["stock_item_id"],
                                   location=reservation["location_id"], quantity=qty, unit=stock["base_uom_id"],
-                                  serial=stock["serial_id"], reservation=reservation["id"]))
+                                  serial=stock["serial_id"], reservation=reservation["id"], packed=packed))
             doc["status"] = "COMPLETED" if all(Decimal(r["remaining_base"]) == line_totals[r["id"]] for r in saved.values()) else "PARTIAL"
             source["status"] = "COMPLETED" if all(Decimal(r["remaining_base"]) == source_totals[r["id"]] for r in parents.values()) else "PARTIAL"
             doc["version"] += 1
@@ -324,8 +328,10 @@ class IssueService:
                 c.execute(text("""UPDATE wms.stock_balance SET on_hand=on_hand-:quantity,reserved=reserved-:quantity,
                     version=version+1 WHERE stock_item_id=:stock AND location_id=:location"""), move)
                 c.execute(text("UPDATE wms.reservation SET consumed=consumed+:quantity WHERE id=:reservation"), move)
+                consumption_id = uuid4()
                 c.execute(text("""INSERT INTO wms.reservation_consumption(id,reservation_id,move_id,quantity)
-                    VALUES (:consumption,:reservation,:id,:quantity)"""), {**move, "consumption": uuid4()})
+                    VALUES (:consumption,:reservation,:id,:quantity)"""), {**move, "consumption": consumption_id})
+                self.fulfillment.packing.consume(c, move["packed"], consumption_id)
                 if move["serial"]:
                     c.execute(text("DELETE FROM wms.serial_position WHERE serial_id=:serial"), move)
             for changed in (source, doc):

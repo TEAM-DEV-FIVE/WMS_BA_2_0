@@ -9,6 +9,7 @@ from sqlalchemy import Engine
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 
+from apps.server.api.fulfillment import fulfillment_router
 from apps.server.api.identity import identity_router
 from apps.server.api.imports import import_router
 from apps.server.api.issues import issue_router
@@ -29,6 +30,7 @@ from apps.server.application.master_data import MasterDataService
 from apps.server.application.moves import MoveService
 from apps.server.application.openings import OpeningService
 from apps.server.application.orders import OrderService
+from apps.server.application.picking import PickingService
 from apps.server.application.quality import QualityService
 from apps.server.application.receipts import ReceiptService
 from apps.server.application.returns import ReturnService
@@ -81,6 +83,8 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(import_router(app.state.imports))
     app.state.issues = IssueService(app.state.orders)
     app.include_router(issue_router(app.state.issues))
+    app.state.fulfillment = PickingService(app.state.issues)
+    app.include_router(fulfillment_router(app.state.fulfillment))
     app.state.quality = QualityService(app.state.orders)
     app.include_router(quality_router(app.state.quality))
     app.state.moves = MoveService(app.state.orders)
