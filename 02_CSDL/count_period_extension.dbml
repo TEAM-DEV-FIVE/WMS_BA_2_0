@@ -1,0 +1,67 @@
+// Additive revision 019; existing baseline tables shown with added columns only.
+Table count_scope {
+  session_id uuid [not null]
+  location_id uuid [not null]
+}
+Table count_submission {
+  id uuid [not null]
+  session_id uuid [not null]
+  session_version integer [not null]
+  policy_revision integer [not null]
+  requested_by uuid [not null]
+  created_at timestamptz [not null]
+  content_snapshot jsonb [not null]
+}
+Table count_empty_confirmation {
+  id uuid [not null]
+  session_id uuid [not null]
+  location_id uuid [not null]
+  counted_by uuid [not null]
+  counted_at timestamptz [not null]
+  reason text [not null]
+}
+Table count_decision {
+  id uuid [not null]
+  submission_id uuid [not null]
+  step_no integer [not null]
+  decision text [not null]
+  decided_by uuid [not null]
+  decided_at timestamptz [not null]
+  reason text [not null]
+}
+Table count_execution {
+  session_id uuid [not null]
+  execution_key uuid [not null]
+  request_hash char(64) [not null]
+  response jsonb [not null]
+}
+Table period_reopen_confirmation {
+  id uuid [not null]
+  period_id uuid [not null]
+  period_version integer [not null]
+  confirmed_by uuid [not null]
+  confirmed_at timestamptz [not null]
+  reason text [not null]
+}
+Table stock_period {
+  version integer [not null]
+}
+Table count_session {
+  business_date date [not null]
+  reason text [not null]
+}
+Table count_observation {
+  reason text [not null]
+}
+Ref: count_scope.session_id > count_session.id
+Ref: count_scope.location_id > location.id
+Ref: count_submission.session_id > count_session.id
+Ref: count_submission.requested_by > app_user.id
+Ref: count_empty_confirmation.session_id > count_session.id
+Ref: count_empty_confirmation.location_id > location.id
+Ref: count_empty_confirmation.counted_by > app_user.id
+Ref: count_decision.submission_id > count_submission.id
+Ref: count_decision.decided_by > app_user.id
+Ref: count_execution.session_id > count_session.id
+Ref: period_reopen_confirmation.period_id > stock_period.id
+Ref: period_reopen_confirmation.confirmed_by > app_user.id

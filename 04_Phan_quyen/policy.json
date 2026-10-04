@@ -432,9 +432,10 @@
       "roles": [
         "WAREHOUSE_MANAGER",
         "CONTROLLER",
+        "DIRECTOR",
         "AUDITOR"
       ],
-      "condition": "API tách khỏi màn hình đếm mù"
+      "condition": "DTO REVIEW chỉ cho người không được phân công đếm của phiên; BLIND tuyệt đối không trả snapshot/delta/vòng trước"
     },
     {
       "code": "count.submit",
@@ -443,7 +444,7 @@
       "roles": [
         "WAREHOUSE_MANAGER"
       ],
-      "condition": "Đủ vị trí/dòng, đếm lại nếu vượt ngưỡng; không bỏ hàng ngoài snapshot"
+      "condition": "Mọi dòng có hai vòng liên tiếp độc lập cùng số lượng; hàng ngoài snapshot là dòng snapshot 0; không bỏ sai lệch nhỏ"
     },
     {
       "code": "period.close",
@@ -581,6 +582,25 @@
         "CONTROLLER"
       ],
       "condition": "Append revision có nguồn receipt đã post, version/idempotency/audit; không suy thời hạn"
+    },
+    {
+      "code": "count.approve",
+      "scope": "WAREHOUSE",
+      "description": "Duyệt kiểm kê hai bước",
+      "roles": [
+        "CONTROLLER",
+        "DIRECTOR"
+      ],
+      "condition": "Policy kiểm kê v1: CONTROLLER rồi DIRECTOR độc lập; khác creator/requester/counters; duyệt snapshot bất biến"
+    },
+    {
+      "code": "period.create",
+      "scope": "WAREHOUSE",
+      "description": "Mở kỳ kho",
+      "roles": [
+        "CONTROLLER"
+      ],
+      "condition": "Khóa warehouse; khoảng ngày không chồng kỳ hiện hữu; audit và version"
     }
   ]
 }

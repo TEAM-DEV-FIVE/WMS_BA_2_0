@@ -23,7 +23,7 @@ def lock_open_period(connection, warehouse_id, business_date):
     return rows[0]
 
 
-def location_tree(connection, warehouse_id, location_ids, *, lock=False):
+def location_tree(connection, warehouse_id, location_ids, *, lock=False, count_session_id=None, allow_shipping=False):
     rows = {}
     for target in sorted(set(location_ids)):
         current, visited = target, set()
@@ -52,11 +52,15 @@ def location_tree(connection, warehouse_id, location_ids, *, lock=False):
                 invalid("location_id", "Cha vị trí phải là nhóm.", "INVALID_TREE")
             current, depth = row["parent_id"], depth + 1
         kind = rows[target]["kind"]
-        if kind not in {"STORAGE", "RECEIVING", "QUARANTINE"}:
+        if kind not in ({"STORAGE", "RECEIVING", "QUARANTINE", "SHIPPING"} if allow_shipping else
+                        {"STORAGE", "RECEIVING", "QUARANTINE"}):
             invalid("location_id", "Chỉ hỗ trợ lưu trữ, nhận hàng và cách ly trong cùng kho.", "INVALID_LOCATION")
         if (kind == "STORAGE" and depth != 3) or (kind != "STORAGE" and depth > 2):
             invalid("location_id", "Cây lưu trữ phải theo Kho → Zone → Rack → Bin.", "INVALID_TREE")
-        if one(connection, "SELECT id FROM wms.count_location_lock WHERE location_id=:id AND released_at IS NULL", id=target):
+        frozen = one(connection, "SELECT session_id FROM wms.count_location_lock WHERE location_id=:id AND released_at IS NULL", id=target)
+        # Only the authorized counting service supplies its locked session after
+        # checking state/approvals. No public DTO exposes this exception.
+        if frozen and frozen["session_id"] != count_session_id:
             raise DomainError("LOCATION_FROZEN", "Vị trí đang khóa kiểm kê.")
     return {key: rows[key] for key in location_ids}
 

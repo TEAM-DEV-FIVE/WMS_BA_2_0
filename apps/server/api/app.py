@@ -9,6 +9,7 @@ from sqlalchemy import Engine
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 
+from apps.server.api.counting import counting_router
 from apps.server.api.document_reviews import document_review_router
 from apps.server.api.fulfillment import fulfillment_router
 from apps.server.api.identity import identity_router
@@ -18,12 +19,14 @@ from apps.server.api.master_data import master_data_router
 from apps.server.api.moves import move_router
 from apps.server.api.openings import incoming_router, opening_router
 from apps.server.api.orders import order_router
+from apps.server.api.periods import period_router
 from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
 from apps.server.api.returns import return_router
 from apps.server.api.traceability import traceability_router
 from apps.server.api.transfers import transfer_router
 from apps.server.application.consignments import ConsignmentReceiptService
+from apps.server.application.counting import CountingService
 from apps.server.application.identity import IdentityService
 from apps.server.application.imports import ImportService
 from apps.server.application.issues import IssueService
@@ -31,6 +34,7 @@ from apps.server.application.master_data import MasterDataService
 from apps.server.application.moves import MoveService
 from apps.server.application.openings import OpeningService
 from apps.server.application.orders import OrderService
+from apps.server.application.periods import PeriodService
 from apps.server.application.picking import PickingService
 from apps.server.application.quality import QualityService
 from apps.server.application.receipts import ReceiptService
@@ -95,6 +99,10 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(return_router(app.state.returns))
     app.state.transfers = TransferService(app.state.orders)
     app.include_router(transfer_router(app.state.transfers))
+    app.state.counting = CountingService(app.state.orders)
+    app.include_router(counting_router(app.state.counting))
+    app.state.periods = PeriodService(app.state.orders)
+    app.include_router(period_router(app.state.periods))
 
     def error(request: Request, status: int, code: str, message: str, **kwargs):
         body = Error(code=code, message=message, request_id=request.state.request_id, **kwargs)

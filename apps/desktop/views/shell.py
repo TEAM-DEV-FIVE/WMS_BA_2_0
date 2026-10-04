@@ -5,6 +5,7 @@ from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
 from apps.desktop.views.approvals import ApprovalView
+from apps.desktop.views.counting import CountView
 from apps.desktop.views.fulfillment import FulfillmentView
 from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
@@ -13,6 +14,7 @@ from apps.desktop.views.moves import MoveView
 from apps.desktop.views.openings import OpeningView
 from apps.desktop.views.orders import OrderView
 from apps.desktop.views.ownership import OwnershipView
+from apps.desktop.views.periods import PeriodView
 from apps.desktop.views.quality import QualityView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
 from apps.desktop.views.receipts import ReceiptView
@@ -96,6 +98,11 @@ class DesktopShell:
         self.transfer_view = TransferView(notebook, self.session_view.presenter.api)
         self.transfer_view.on_signed_out = self.admin_signed_out
         notebook.add(self.transfer_view, text="Chuyển kho / transit")
+        self.count_view = CountView(notebook, self.session_view.presenter.api)
+        self.period_view = PeriodView(notebook, self.session_view.presenter.api)
+        for view, title in [(self.count_view, "Kiểm kê / điều chỉnh"), (self.period_view, "Kỳ kho")]:
+            view.on_signed_out = self.admin_signed_out
+            notebook.add(view, text=title)
         container = ttk.Frame(notebook, padding=24)
         notebook.add(container, text="Kết nối")
         ttk.Label(container, text="WMS · Quản lý kho", font=("Segoe UI", 22, "bold")).pack(anchor="w")
@@ -137,6 +144,8 @@ class DesktopShell:
         for view in self.return_views:
             view.session_changed(user, warehouses)
         self.transfer_view.session_changed(user, warehouses)
+        self.count_view.session_changed(user, warehouses)
+        self.period_view.session_changed(user, warehouses)
 
     def admin_signed_out(self, message):
         # A queued session snapshot/warehouse response must not restore the
@@ -210,6 +219,8 @@ class DesktopShell:
             for view in self.return_views:
                 view.presenter.drain()
             self.transfer_view.presenter.drain()
+            self.count_view.presenter.drain()
+            self.period_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -241,7 +252,7 @@ class DesktopShell:
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
-        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, *self.return_views]:
+        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, self.count_view, self.period_view, *self.return_views]:
             view.presenter.close()
             view.release_variables()
         self.session_view.release_variables()
@@ -272,6 +283,8 @@ class DesktopShell:
         for view in self.return_views:
             view.presenter.finish()
         self.transfer_view.presenter.finish()
+        self.count_view.presenter.finish()
+        self.period_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
         # Destroy removes Tcl commands but Python widget cycles may outlive this
