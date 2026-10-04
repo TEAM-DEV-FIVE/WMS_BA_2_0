@@ -129,6 +129,8 @@ class ReversalService:
             raise DomainError("EMPTY_TRANSACTION", "Giao dịch không có phát sinh tồn để đảo.")
         if len(rows) > 2000:
             raise DomainError("REVERSAL_LIMIT", "Giao dịch vượt giới hạn 2000 dòng đảo.")
+        if any(r["line_document_id"] != doc["id"] for r in rows):
+            raise DomainError("SOURCE_MISMATCH", "Phát sinh gốc không khớp chứng từ của dòng sổ.")
         # Old ledgers may predate typed execution plans. Never infer missing
         # provenance from the document kind or the current quantity alone.
         metadata = {"OPENING": "opening_document", "ISSUE": "issue_document",

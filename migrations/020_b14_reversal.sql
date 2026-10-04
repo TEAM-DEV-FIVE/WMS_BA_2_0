@@ -55,7 +55,9 @@ BEGIN
      OR EXISTS (
        SELECT 1 FROM stock_move m LEFT JOIN stock_move s ON s.id=m.reverses_move_id
        LEFT JOIN reversal_line r ON r.document_line_id=m.line_id
+       JOIN document_line l ON l.id=m.line_id
        WHERE m.transaction_id=tx.id AND (s.id IS NULL OR s.transaction_id<>original.id
+         OR l.document_id<>tx.document_id OR l.source_line_id IS DISTINCT FROM s.line_id
          OR r.source_move_id IS DISTINCT FROM s.id
          OR (m.stock_item_id,m.source_location_id,m.destination_location_id,m.quantity_base,m.base_uom_id)
             IS DISTINCT FROM (s.stock_item_id,s.destination_location_id,s.source_location_id,s.quantity_base,s.base_uom_id))

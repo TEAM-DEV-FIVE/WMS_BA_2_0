@@ -86,6 +86,8 @@ def test_reversal_receipt_preview_approval_net_replay_and_immutable_source(rever
     with f.engine.connect() as c:
         assert c.execute(text("SELECT count(*) FROM wms.inventory_transaction WHERE reverses_transaction_id=:id"), {"id": f.original["transaction_id"]}).scalar_one() == 1
         assert c.execute(text("SELECT sum(on_hand) FROM wms.stock_balance")).scalar_one() == 0
+        for table, field, value in [("audit_event", "action", "reversal.post"), ("outbox_event", "event_type", "reversal.post.v1")]:
+            assert c.execute(text(f"SELECT count(*) FROM wms.{table} WHERE {field}=:value"), {"value": value}).scalar_one() == 1
     for table in ("inventory_transaction", "stock_move"):
         with pytest.raises(DatabaseError):
             with f.engine.begin() as c:
@@ -329,10 +331,11 @@ def test_reversal_upgrade_preserves_history_and_custom_policy(empty_database, mo
         assert roles == ([] if custom else ["CONTROLLER"])
 
 
-@pytest.mark.parametrize("fault", ["missing", "quantity", "route", "owner", "line"])
+@pytest.mark.parametrize("fault", ["missing", "quantity", "route", "owner", "line", "foreign_line"])
 def test_reversal_database_rejects_incomplete_or_forged_inverse(reversal, fault):
     f = reversal
     doc = f.rev_approve(f.original["transaction_id"])
+    other = f.rev_approve(f.original["transaction_id"]) if fault == "foreign_line" else doc
     with pytest.raises(DatabaseError):
         with f.engine.begin() as c:
             tx = uuid4()
@@ -341,7 +344,7 @@ def test_reversal_database_rejects_incomplete_or_forged_inverse(reversal, fault)
                 dict(id=tx, doc=doc["id"], actor=f.controller, original=f.original["transaction_id"]))
             if fault != "missing":
                 row = c.execute(text("SELECT * FROM wms.stock_move WHERE transaction_id=:id"), {"id": f.original["transaction_id"]}).mappings().one()
-                line = c.execute(text("SELECT id FROM wms.document_line WHERE document_id=:id"), {"id": doc["id"]}).scalar_one()
+                line = c.execute(text("SELECT id FROM wms.document_line WHERE document_id=:id"), {"id": other["id"]}).scalar_one()
                 stock = row["stock_item_id"]
                 if fault == "owner":
                     from packages.contracts.traceability import UNCLASSIFIED_OWNER

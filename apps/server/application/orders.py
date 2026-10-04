@@ -407,10 +407,10 @@ class OrderService:
         )
 
     def effects(self, connection, actor, doc, action, result, reason, request_id):
-        prefix = {"RECEIPT": "receipt.", "OPENING": "opening.", "ISSUE": "issue.", "INTERNAL_MOVE": "move.", "TRANSFER": "transfer.", "ADJUSTMENT": "transfer.loss.", "CUSTOMER_RETURN": "return.", "SUPPLIER_RETURN": "return."}.get(doc["kind"], "order.")
+        prefix = {"RECEIPT": "receipt.", "OPENING": "opening.", "ISSUE": "issue.", "INTERNAL_MOVE": "move.", "TRANSFER": "transfer.", "ADJUSTMENT": "transfer.loss.", "CUSTOMER_RETURN": "return.", "SUPPLIER_RETURN": "return.", "REVERSAL": "reversal."}.get(doc["kind"], "order.")
         if doc["kind"] == "RECEIPT" and is_consignment_receipt(connection, doc["id"]):
             prefix = "consignment_receipt."
-        event = action if action.startswith(("receipt.", "opening.", "issue.", "move.", "quality.", "consignment_receipt.", "return.", "transfer.", "fulfillment.")) else prefix + action
+        event = action if action.startswith(("receipt.", "opening.", "issue.", "move.", "quality.", "consignment_receipt.", "return.", "transfer.", "fulfillment.", "reversal.")) else prefix + action
         params = {
             "id": uuid4(),
             "actor": actor,

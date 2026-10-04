@@ -26,7 +26,8 @@ MOVE_SQL = """SELECT m.id AS source_move_id,m.stock_item_id,m.quantity_base,m.ba
     m.destination_location_id AS source_location_id,src.code AS source_code,src.kind AS source_kind,
     m.source_location_id AS destination_location_id,dst.code AS destination_code,dst.kind AS destination_kind,
     src.warehouse_id AS source_warehouse,dst.warehouse_id AS destination_warehouse,
-    l.product_id AS line_product,l.owner_id AS line_owner,l.consignment_id AS line_agreement,l.id AS original_line_id
+    l.product_id AS line_product,l.owner_id AS line_owner,l.consignment_id AS line_agreement,l.id AS original_line_id,
+    l.document_id AS line_document_id
     FROM wms.stock_move m JOIN wms.stock_item i ON i.id=m.stock_item_id
     JOIN wms.product p ON p.id=i.product_id JOIN wms.uom u ON u.id=m.base_uom_id
     JOIN wms.stock_owner o ON o.id=i.owner_id JOIN wms.document_line l ON l.id=m.line_id
