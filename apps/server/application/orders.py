@@ -70,7 +70,7 @@ class OrderService:
         ):
             raise DomainError("FORBIDDEN", "Chỉ người lập hoặc được giao mới sửa/gửi phiếu.")
 
-    def listing(self, auth, kind, warehouse_id, status=None, after=None, limit=50, *, consignment_only=None):
+    def listing(self, auth, kind, warehouse_id, status=None, after=None, limit=50, query="", *, consignment_only=None):
         auth.require("document.read", warehouse_id, hidden=True)
         grants = auth.grants("document.read", warehouse_id)
         broad = any(g["role_code"] not in {"RECEIVER", "PICKER"} for g in grants)
@@ -83,6 +83,7 @@ class OrderService:
                  EXISTS(SELECT 1 FROM wms.consignment_receipt cr WHERE cr.document_id=d.id)=:consignment_only)
             AND (CAST(:status AS text) IS NULL OR d.status=:status)
             AND (CAST(:after AS uuid) IS NULL OR d.id>:after)
+            AND (strpos(lower(d.number),lower(:query))>0 OR strpos(lower(COALESCE(p.name,'')),lower(:query))>0)
             AND (:broad OR d.created_by=:user OR EXISTS(SELECT 1 FROM wms.document_assignment a
                 WHERE a.document_id=d.id AND a.user_id=:user)) ORDER BY d.id LIMIT :limit"""
                 ),
@@ -92,6 +93,7 @@ class OrderService:
                     "warehouse": warehouse_id,
                     "status": status,
                     "after": after,
+                    "query": query,
                     "broad": broad,
                     "user": auth.principal.user_id,
                     "limit": limit + 1,

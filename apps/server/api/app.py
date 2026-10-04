@@ -9,6 +9,7 @@ from sqlalchemy import Engine
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 
+from apps.server.api.document_reviews import document_review_router
 from apps.server.api.fulfillment import fulfillment_router
 from apps.server.api.identity import identity_router
 from apps.server.api.imports import import_router
@@ -72,6 +73,7 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(traceability_router(app.state.traceability))
     app.state.orders = OrderService(app.state.identity)
     app.include_router(order_router(app.state.orders))
+    app.include_router(document_review_router(app.state.orders))
     app.state.receipts = ReceiptService(app.state.orders)
     app.include_router(receipt_router(app.state.receipts))
     app.state.consignment_receipts = ConsignmentReceiptService(app.state.orders)

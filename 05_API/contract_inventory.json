@@ -297,6 +297,44 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/documents/{document_id}/approval-snapshots",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/{document_id}/assignment-candidates",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/files/{file_id}",
       "tags": [
         "imports"

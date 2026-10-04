@@ -4,6 +4,7 @@ from tkinter import ttk
 from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
+from apps.desktop.views.approvals import ApprovalView
 from apps.desktop.views.fulfillment import FulfillmentView
 from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
@@ -30,6 +31,7 @@ class DesktopShell:
         self.root.geometry("900x690")
         self.root.minsize(800, 620)
         self.closed = False
+        self.destroyed_widgets = []
         self.status = tk.StringVar(value="Chưa kiểm tra kết nối.")
         self.presenter = ConnectionPresenter(self, ApiClient(settings))
 
@@ -59,12 +61,17 @@ class DesktopShell:
         notebook.add(self.serial_view, text="Tra serial / bảo hành")
         self.order_view = OrderView(notebook, self.session_view.presenter.api)
         notebook.add(self.order_view, text="PO/SO và duyệt")
+        self.approval_view = ApprovalView(notebook, self.session_view.presenter.api)
+        notebook.add(self.approval_view, text="Hộp thư duyệt PO/SO/nhận")
         self.receipt_view = ReceiptView(notebook, self.session_view.presenter.api)
         notebook.add(self.receipt_view, text="Nhận hàng")
         self.opening_view = OpeningView(notebook, self.session_view.presenter.api)
         notebook.add(self.opening_view, text="Tồn đầu kỳ")
         self.consignment_view = OpeningView(notebook, self.session_view.presenter.api, consignment=True)
         notebook.add(self.consignment_view, text="Nhận ký gửi")
+        self.order_view.on_open_receipt = self.open_receipt
+        self.order_view.on_open_approvals = self.open_approvals
+        self.approval_view.on_open_document = self.open_document
         self.receipt_recovery_view = ReceiptRecoveryView(notebook, self.receipt_view.presenter)
         notebook.add(self.receipt_recovery_view, text="Phục hồi nhận hàng")
         self.issue_view = IssueView(notebook, self.session_view.presenter.api)
@@ -118,6 +125,7 @@ class DesktopShell:
         self.ownership_view.session_changed(user, warehouses)
         self.serial_view.session_changed(user, warehouses)
         self.order_view.session_changed(user, warehouses)
+        self.approval_view.session_changed(user, warehouses)
         self.receipt_view.session_changed(user, warehouses)
         self.issue_view.session_changed(user, warehouses)
         self.fulfillment_view.session_changed(user, warehouses)
@@ -142,6 +150,39 @@ class DesktopShell:
         self.session_view.code.set("")
         self.session_view.session_error(message, signed_out=True)
 
+    def open_approvals(self, kind, warehouse_id):
+        view = self.approval_view
+        self.notebook.select(view)
+        if view.busy or view.presenter.uncertain:
+            return
+        view.variables["kind"].set(kind)
+        for index, warehouse in enumerate(view.warehouses):
+            if str(warehouse.id) == warehouse_id:
+                view.selector.current(index)
+                view.scope_changed()
+                view.load()
+                break
+
+    def open_receipt(self, source):
+        # The receiving agent owns the form. Keep its in-progress draft/recovery context intact.
+        self.notebook.select(self.receipt_view)
+        if not self.receipt_view.busy and not self.receipt_view.presenter.uncertain:
+            self.receipt_view.variables["status"].set(
+                f"Từ PO {source['number']}: chọn kho, tải danh sách rồi tạo phiếu nhận và chọn PO nguồn này.")
+
+    def open_document(self, doc):
+        view = self.receipt_view if doc["kind"] == "RECEIPT" else self.order_view
+        self.notebook.select(view)
+        if view.busy or view.presenter.uncertain:
+            return
+        if doc["kind"] != "RECEIPT":
+            view.variables["kind"].set(doc["kind"])
+        for index, warehouse in enumerate(view.warehouses):
+            if str(warehouse.id) == doc["warehouse_id"]:
+                view.selector.current(index)
+                view.presenter.read(view.path, doc["id"])
+                break
+
     def show_result(self, health: Health) -> None:
         self.status.set("Máy chủ và cơ sở dữ liệu đã sẵn sàng." if health.status == "ready" else "Đã kết nối máy chủ.")
 
@@ -157,6 +198,7 @@ class DesktopShell:
             self.ownership_view.drain()
             self.serial_view.presenter.drain()
             self.order_view.presenter.drain()
+            self.approval_view.presenter.drain()
             self.receipt_view.presenter.drain()
             self.issue_view.presenter.drain()
             self.fulfillment_view.presenter.drain()
@@ -186,6 +228,8 @@ class DesktopShell:
         self.serial_view.release_variables()
         self.order_view.presenter.close()
         self.order_view.release_variables()
+        self.approval_view.presenter.close()
+        self.approval_view.release_variables()
         self.receipt_view.presenter.close()
         self.receipt_view.release_variables()
         self.opening_view.presenter.close()
@@ -202,6 +246,11 @@ class DesktopShell:
             view.release_variables()
         self.session_view.release_variables()
         self.status = None
+        pending = [self.root]
+        while pending:
+            widget = pending.pop()
+            pending.extend(widget.winfo_children())
+            self.destroyed_widgets.append(widget)
         self.root.destroy()
 
     def finish(self):
@@ -211,6 +260,7 @@ class DesktopShell:
         self.ownership_view.finish()
         self.serial_view.presenter.finish()
         self.order_view.presenter.finish()
+        self.approval_view.presenter.finish()
         self.receipt_view.presenter.finish()
         self.issue_view.presenter.finish()
         self.fulfillment_view.presenter.finish()
@@ -224,3 +274,10 @@ class DesktopShell:
         self.transfer_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
+        # Destroy removes Tcl commands but Python widget cycles may outlive this
+        # window (queued callbacks, callers, test fixtures). Drop their native
+        # interpreter references here, on the Tk thread, before a HTTP worker's
+        # cyclic GC can become the last owner of the destroyed Tcl interpreter.
+        for widget in self.destroyed_widgets:
+            widget.tk = None
+        self.destroyed_widgets.clear()
