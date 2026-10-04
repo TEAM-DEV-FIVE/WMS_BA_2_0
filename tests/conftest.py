@@ -142,3 +142,6 @@ def iam(database):
     with TestClient(app) as client:
         fixture.client = client
         yield fixture
+
+
+pytest_plugins = ["scripts.pytest_checks"]
