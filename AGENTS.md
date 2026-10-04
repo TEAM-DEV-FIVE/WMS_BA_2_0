@@ -14,7 +14,7 @@ Mỗi nhánh có brief Bxx riêng, phạm vi file/API/UI, dependency, kiểm th�
 Đọc [quy trình agent](01_Tai_lieu/PHAN_CONG/QUY_TRINH_AGENT.md) trước khi bắt đầu.
 
 - Trạng thái READY trong catalog là mốc phân công ban đầu. Xem README phân công và sổ tích hợp mới nhất
-  trước khi làm. B13/B16/B14 đã INTEGRATED; B07/B17 READY_FOR_SYNC, chưa đồng bộ worktree. Các nhánh đã tích hợp không làm lại.
+  trước khi làm. B13/B16/B14 đã INTEGRATED; B07/B17 đã đồng bộ nền `101ef19`, READY để triển khai. Các nhánh đã tích hợp không làm lại.
   Worktree chờ phải đồng bộ giữ commit nghiên cứu trước khi triển khai phần phụ thuộc.
 - Kiểm tra sổ `integration_log.json` trên nhánh điều phối mới nhất, không chỉ bản trong worktree cũ.
 - `feat/application-foundation` là nhánh điều phối, review, tích hợp và kiểm thử tổng.

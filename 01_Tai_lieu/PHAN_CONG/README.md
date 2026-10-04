@@ -4,8 +4,9 @@
 B13/B16 đã qua hồi quy chung 906 tests + 10 subtests. B14 trên nền đó đạt 970 tests + 10 subtests.
 Xem [báo cáo mới](../../07_Kiem_tra/B14_INTEGRATION_2026_10_04.md) và [sổ tích hợp](integration_log.json).
 
-- **Đủ dependency, cần đồng bộ worktree trước khi giao việc:** [B17 báo cáo/xuất dữ liệu](B17_reports_export.md) (P1), [B07 trường mở rộng](B07_custom_fields.md) (P3).
-  B07 đã có nghiên cứu; B17 chưa có code riêng. READY_FOR_SYNC chưa phải READY để lập trình từ checkout cũ.
+- **READY, đã đồng bộ để giao triển khai song song:** [B17 báo cáo/xuất dữ liệu](B17_reports_export.md) (P1), [B07 trường mở rộng](B07_custom_fields.md) (P3).
+  Nền `101ef19` chứa mã `6b92d2a` đã kiểm chứng; B07 giữ hai commit nghiên cứu bằng merge `40cabb9`, B17 fast-forward.
+  Chưa có runtime riêng B07/B17, chưa CODE_READY/ACCEPTED. Bản cập nhật trạng thái chỉ đổi tài liệu/checksum; không chạy lại hồi quy nghiệp vụ.
 - B18 chờ B17; B19 chờ B07/B18; B20 chờ B17/B18; B21 chờ B20; B22 chờ B21; B23 chờ B19.
 - B24/B25/B26 tiếp tục theo dependency trong [catalog](backlog.json). B17–B26 chưa có code riêng.
 
