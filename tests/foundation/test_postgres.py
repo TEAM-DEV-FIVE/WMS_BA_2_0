@@ -24,7 +24,7 @@ def test_migrations_seed_schema_smoke_and_reconciliation(database):
     assert is_ready(database)
     with database.connect() as connection:
         assert connection.execute(text("SELECT count(*) FROM wms.role")).scalar_one() == 10
-        assert connection.execute(text("SELECT count(*) FROM wms.permission")).scalar_one() == 56
+        assert connection.execute(text("SELECT count(*) FROM wms.permission")).scalar_one() == 58
         actual = set(connection.execute(text("""
             SELECT r.code, p.code FROM wms.role_permission rp
             JOIN wms.role r ON r.id=rp.role_id JOIN wms.permission p ON p.id=rp.permission_id
@@ -50,7 +50,8 @@ def test_migrations_seed_schema_smoke_and_reconciliation(database):
     raw = database.raw_connection()
     try:
         with raw.cursor() as cursor:
-            cursor.execute("SET wms.test.expected_tables='81'; SET wms.test.expected_columns='542'; SET wms.test.expected_fks='172';")
+            cursor.execute("SET wms.test.expected_tables='87'; SET wms.test.expected_columns='578'; SET wms.test.expected_fks='184';")
+            cursor.execute("SET wms.test.expected_permissions='58'; SET wms.test.expected_role_permissions='125';")
             cursor.execute((ROOT / "tests/sql/schema_smoke.sql").read_text())
             while cursor.nextset():
                 pass

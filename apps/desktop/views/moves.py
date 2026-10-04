@@ -10,19 +10,30 @@ from packages.contracts.moves import MoveInput, MovePost, MoveUpdate
 class WorkflowView(ttk.Frame):
     """Small shared view primitives; all methods are called on the Tk thread."""
 
-    def __init__(self, parent, api, presenter_class=MovePresenter):
+    def __init__(self, parent, api, presenter_class=MovePresenter, *, scrollable=False):
         super().__init__(parent, padding=12)
+        self.content = self
+        if scrollable:
+            self.canvas = tk.Canvas(self, highlightthickness=0)
+            scroll = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+            scroll.pack(side="right", fill="y")
+            self.canvas.pack(side="left", fill="both", expand=True)
+            self.canvas.configure(yscrollcommand=scroll.set)
+            self.content = ttk.Frame(self.canvas)
+            window = self.canvas.create_window((0, 0), window=self.content, anchor="nw")
+            self.canvas.bind("<Configure>", lambda event: self.canvas.itemconfigure(window, width=event.width))
+            self.content.bind("<Configure>", lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         self.variables = {name: tk.StringVar() for name in ["warehouse", "status", "reason", "detail"]}
         self.presenter = presenter_class(self, api)
         self.warehouses, self.permissions = [], []
         self.busy = False
         self.on_signed_out = lambda message: None
-        self.top = ttk.Frame(self)
+        self.top = ttk.Frame(self.content)
         self.top.pack(fill="x")
         self.selector = self.combo(self.top, "warehouse", 28)
         self.selector.pack(side="left", padx=(0, 6))
         self.selector.bind("<<ComboboxSelected>>", self.scope_changed)
-        ttk.Label(self, textvariable=self.variables["status"], wraplength=820).pack(fill="x", pady=5)
+        ttk.Label(self.content, textvariable=self.variables["status"], wraplength=700).pack(fill="x", pady=5)
 
     def variable(self, name, value=""):
         if name not in self.variables:
@@ -85,14 +96,14 @@ class WorkflowView(ttk.Frame):
         self.workflow_error(message)
 
     def reason_form(self):
-        frame = ttk.Frame(self)
+        frame = ttk.Frame(self.content)
         frame.pack(fill="x", pady=4)
         ttk.Label(frame, text="Lý do").pack(side="left")
         self.reason_entry = ttk.Entry(frame, textvariable=self.variables["reason"])
         self.reason_entry.pack(side="left", fill="x", expand=True, padx=6)
 
     def retry_form(self, operation=False):
-        frame = ttk.Frame(self)
+        frame = ttk.Frame(self.content)
         frame.pack(fill="x", pady=5)
         self.retry_button = ttk.Button(frame, text="Gửi lại đúng yêu cầu", command=self.presenter.retry)
         self.retry_button.pack(side="left")

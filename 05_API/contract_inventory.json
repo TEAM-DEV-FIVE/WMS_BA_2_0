@@ -64,14 +64,14 @@
     {
       "method": "POST",
       "design_path": "/counts/{id}/freeze",
-      "status": "PLANNED",
-      "runtime_path": null
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/counts/{session_id}/freeze"
     },
     {
       "method": "POST",
       "design_path": "/counts/{id}/submit",
-      "status": "PLANNED",
-      "runtime_path": null
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/counts/{session_id}/submit"
     },
     {
       "method": "POST",
@@ -259,6 +259,86 @@
       "path": "/api/v1/consignment-receipts/{document_id}",
       "tags": [
         "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts/catalog/{resource}",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts/operations/{key}",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts/{session_id}",
+      "tags": [
+        "counting"
       ],
       "bearer_auth": true,
       "idempotency_key_required": false,
@@ -1361,6 +1441,66 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/periods",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/periods/operations/{key}",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/periods/{period_id}",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/purchase-orders",
       "tags": [
         "orders"
@@ -2292,6 +2432,186 @@
     },
     {
       "method": "POST",
+      "path": "/api/v1/counts",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/cancel",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/confirm-empty",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/decide",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/extra",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/freeze",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/observe",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/post",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/submit",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
       "path": "/api/v1/documents/{document_id}/assignments",
       "tags": [
         "orders"
@@ -3128,6 +3448,86 @@
       "idempotency_key_required": true,
       "expected_version_required": true,
       "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods/{period_id}/close",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods/{period_id}/confirm-reopen",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods/{period_id}/reopen",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
       "documented_errors": [
         "401",
         "403",

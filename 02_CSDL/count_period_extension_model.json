@@ -1,0 +1,264 @@
+{
+  "revision": "019_b13_count_period.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "count_scope",
+      "purpose": "B13 typed count/period evidence; see COUNTING_PERIODS.md",
+      "cols": [
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "count_session.id"
+        },
+        {
+          "name": "location_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "location.id"
+        }
+      ]
+    },
+    {
+      "name": "count_submission",
+      "purpose": "B13 typed count/period evidence; see COUNTING_PERIODS.md",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "count_session.id"
+        },
+        {
+          "name": "session_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "policy_revision",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "requested_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "content_snapshot",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "count_empty_confirmation",
+      "purpose": "B13 typed count/period evidence; see COUNTING_PERIODS.md",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "count_session.id"
+        },
+        {
+          "name": "location_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "location.id"
+        },
+        {
+          "name": "counted_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "counted_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "count_decision",
+      "purpose": "B13 typed count/period evidence; see COUNTING_PERIODS.md",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "submission_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "count_submission.id"
+        },
+        {
+          "name": "step_no",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "decision",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "decided_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "decided_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "count_execution",
+      "purpose": "B13 typed count/period evidence; see COUNTING_PERIODS.md",
+      "cols": [
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "count_session.id"
+        },
+        {
+          "name": "execution_key",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "request_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "response",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "period_reopen_confirmation",
+      "purpose": "B13 typed count/period evidence; see COUNTING_PERIODS.md",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "period_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_period.id"
+        },
+        {
+          "name": "period_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "confirmed_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "confirmed_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "table": "stock_period",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "count_session",
+      "name": "business_date",
+      "type": "date",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "count_session",
+      "name": "reason",
+      "type": "text",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "count_observation",
+      "name": "reason",
+      "type": "text",
+      "null": false,
+      "ref": null
+    }
+  ]
+}
