@@ -54,11 +54,15 @@
     },
     {
       "id": "B07",
-      "status": "READY_FOR_SYNC",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
       "handoff_commit": "53974bde67afc567c707d34e76668d9461dbe552",
       "integrated_commit": null,
-      "note": "Đủ dependency trên nhánh điều phối sau B14; chưa đồng bộ worktree, chưa được triển khai từ checkout cũ. Giữ mọi commit nghiên cứu khi đồng bộ."
+      "note": "Đã đồng bộ theo yêu cầu người dùng ngày 2026-10-04 trên nền 101ef19, mã nghiệp vụ đã kiểm chứng tại 6b92d2a. READY để triển khai; chưa có runtime riêng, chưa CODE_READY/ACCEPTED. Giữ lịch sử nghiên cứu B07; không push. Cập nhật trạng thái sau đồng bộ chỉ thay tài liệu/checksum.",
+      "synchronization_commit": "40cabb94f367134568035e72c3224c75bbe727ec",
+      "dependency_commits": {
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
+      }
     },
     {
       "id": "B08",
@@ -156,11 +160,23 @@
     },
     {
       "id": "B17",
-      "status": "READY_FOR_SYNC",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": "Đủ dependency trên nhánh điều phối sau B14; chưa đồng bộ worktree, chưa được triển khai từ checkout cũ. Giữ mọi commit nghiên cứu khi đồng bộ."
+      "note": "Đã đồng bộ theo yêu cầu người dùng ngày 2026-10-04 trên nền 101ef19, mã nghiệp vụ đã kiểm chứng tại 6b92d2a. READY để triển khai; chưa có runtime riêng, chưa CODE_READY/ACCEPTED. Giữ lịch sử nghiên cứu B07; không push. Cập nhật trạng thái sau đồng bộ chỉ thay tài liệu/checksum.",
+      "synchronization_commit": "101ef19331a42729a168a15edb474e1b99382eb5",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B10": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+        "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
+      }
     },
     {
       "id": "B18",

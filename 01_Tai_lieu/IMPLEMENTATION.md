@@ -12,7 +12,7 @@ Kết quả tích hợp và giới hạn ở [báo cáo kiểm thử](../07_Kiem
 **15/26 nhánh đã tích hợp code local.** Có kiểm kê/kỳ kho, UI import và [đảo giao dịch](REVERSALS.md).
 Commit mã `6b92d2aec012073572e5b29a46039b6b46e10f7a` đạt **970 tests + 10 subtests**, 0 failed/errors/skip;
 PostgreSQL 16, HTTP, Tk/Xvfb thật. Runtime 166 paths, migration 001–020, 89 bảng/584 cột/188 FK, 22 mục desktop.
-B07/B17 đủ dependency để đồng bộ giao việc; B17–B26 chưa có code riêng. Windows/thiết bị/LAN/15 CCU/DR/UAT chưa nghiệm thu.
+B07/B17 đã đồng bộ nền `101ef19`, READY để giao việc; B17–B26 chưa có code riêng. Windows/thiết bị/LAN/15 CCU/DR/UAT chưa nghiệm thu.
 [Báo cáo kiểm chứng](../07_Kiem_tra/B14_INTEGRATION_2026_10_04.md) và [sổ tích hợp](PHAN_CONG/integration_log.json) là trạng thái hiện tại.
 Các mục phía dưới là lịch sử từng đợt.
 

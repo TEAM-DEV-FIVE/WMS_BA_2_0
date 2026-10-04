@@ -9,6 +9,10 @@
 - Bằng chứng liên quan: T14, T24; đây là phân công kiểm thử, chưa phải PASS.
 - Báo cáo tạo mới khi bàn giao: `01_Tai_lieu/PHAN_CONG/BAN_GIAO/B07.md`.
 
+**Kích hoạt 04/10/2026:** đã đồng bộ nền `101ef19`, READY theo [sổ tích hợp](integration_log.json).
+Có đầy đủ B14 và các dependency đã tích hợp; bắt đầu triển khai theo brief, giữ PostgreSQL 001–020 bất biến.
+Trạng thái ban đầu bên trên là lịch sử; chưa có runtime riêng, chưa CODE_READY/ACCEPTED.
+
 Đọc [quy trình chung](QUY_TRINH_AGENT.md), [bảng toàn bộ công việc](KE_HOACH_CON_LAI.md) và AGENTS.md trước khi sửa.
 BE09 vẫn thuộc phạm vi nhưng ưu tiên sau an toàn tồn kho. Không tự bỏ/hoãn vô thời hạn khi chưa có quyết định thay đổi.
 

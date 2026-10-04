@@ -1,7 +1,7 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
 **Cập nhật 04/10 sau B14:** 15/26 nhánh đã tích hợp; B13/B16/B14 có runtime và kiểm thử.
-B17 (P1) và B07 (P3) đủ dependency, cần đồng bộ worktree trước khi giao triển khai.
+B17 (P1) và B07 (P3) đã đồng bộ nền `101ef19`, READY để giao triển khai song song.
 Xem [báo cáo mới](../../07_Kiem_tra/B14_INTEGRATION_2026_10_04.md) và [sổ tích hợp](integration_log.json).
 
 Ngày 03/10/2026 · Mốc mã đã tích hợp: `06041b7bc0c6e6515cb396d2ab5a29fae772df19`.

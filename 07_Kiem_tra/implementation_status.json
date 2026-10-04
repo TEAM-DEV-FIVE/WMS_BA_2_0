@@ -1085,10 +1085,7 @@
     "prepared_task_ids": [
       "B07"
     ],
-    "ready_for_sync": [
-      "B07",
-      "B17"
-    ],
+    "ready_for_sync": [],
     "not_started_task_ids": [
       "B17",
       "B18",
@@ -1100,7 +1097,16 @@
       "B24",
       "B25",
       "B26"
-    ]
+    ],
+    "ready_task_ids": [
+      "B07",
+      "B17"
+    ],
+    "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
+    "synchronization_commits": {
+      "B07": "40cabb94f367134568035e72c3224c75bbe727ec",
+      "B17": "101ef19331a42729a168a15edb474e1b99382eb5"
+    }
   },
   "validation_history": [
     {

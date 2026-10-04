@@ -182,6 +182,6 @@ Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lea
 
 Đã tích hợp 15/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
 
-1. Đồng bộ B17 báo cáo/xuất dữ liệu và B07 trường mở rộng trước khi giao triển khai.
+1. Giao B17 báo cáo/xuất dữ liệu và B07 trường mở rộng: hai worktree đã đồng bộ nền `101ef19`, READY.
 2. Tiếp tục B18–B24 theo dependency: in/scan, recovery, worker, vận hành LAN/DR, Windows và tải.
 3. B25/B26 tổng rà soát và nghiệm thu T01–T28 trên môi trường mục tiêu.
