@@ -8,6 +8,7 @@ from sqlalchemy import text
 
 from apps.server.application.authorization import Authorization, Principal
 from apps.server.application.commands import CommandBus, CommandResult
+from apps.server.application.custom_fields import snapshot as custom_snapshot
 from apps.server.application.master_data import active_reference, invalid, one
 from apps.server.application.stock_identity import is_consignment_receipt, ownership_snapshot
 from apps.server.domain.errors import DomainError, require_version
@@ -182,6 +183,7 @@ class OrderService:
                     "lines": [dict(r) for r in lines],
                     "assigned_user_ids": assignments,
                     **ownership_snapshot(connection, lines),
+                    **custom_snapshot(connection, doc["id"]),
                     **({"transfer": self.transfers.snapshot(connection, doc)} if doc["kind"] in {"TRANSFER", "ADJUSTMENT"} else {}),
                     **({"consignment_receipt": self.consignment_receipts.snapshot(connection, doc)}
                        if doc["kind"] == "RECEIPT" and is_consignment_receipt(connection, doc["id"]) else {}),
@@ -593,6 +595,7 @@ class OrderService:
                         raise DomainError(
                             "POLICY_MISSING", "Chưa có policy duyệt hợp lệ; không tự bỏ qua duyệt."
                         )
+                    self.custom_fields.pin_for_submit(auth, doc, payload.reason)
                     approval_id = uuid4()
                     c.execute(
                         text("""INSERT INTO wms.approval_request(id,document_id,document_version,policy_id,requested_by,status,created_at,content_snapshot)

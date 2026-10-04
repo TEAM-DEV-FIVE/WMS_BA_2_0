@@ -79,3 +79,13 @@ source_version, plan do server dẫn xuất; post cần expected_version/executi
 Lifecycle dùng routes documents/approval-requests chung; operation lookup riêng có envelope command/result.
 Quyền adjustment theo cả hai kho với transfer/loss; count snapshot không lộ cho người đếm.
 Core OpenAPI giữ mốc thiết kế; runtime/inventory đã tái sinh. Không suy nghiệm thu từ route tồn tại.
+
+## B07 — trường mở rộng có phiên bản
+
+Runtime nhánh B07 có 170 paths. [Contract B07](../01_Tai_lieu/CUSTOM_FIELDS.md) bổ sung
+schema publication, giá trị/preview/lịch sử theo product hoặc document. PUT có
+expected_version và Idempotency-Key; giá trị còn có expected_revision_id/revision_id.
+Preview POST là kiểm tra không ghi, nhận key theo convention nhưng không lưu ACK.
+Payload JSON phẳng có whitelist kiểu, giới hạn 64 KiB/depth 8, từ chối key trùng và
+namespace lõi. Projection giá áp dụng quyền hiện tại ở read/history/preview.
+Core OpenAPI giữ thiết kế ban đầu; không suy nghiệm thu từ các route runtime mới.
