@@ -1,5 +1,5 @@
 from typing import Annotated
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, Query, Request
@@ -8,7 +8,9 @@ from fastapi.responses import JSONResponse, Response
 
 from apps.server.api.dependencies import identity_dependencies
 from apps.server.application.import_parser import error_csv
-from apps.server.application.imports import authorize_kind
+from apps.server.application.import_targets import MAPPING_VERSION
+from apps.server.application.import_templates import TEMPLATES
+from apps.server.application.imports import PERMISSION, SCOPED, authorize_kind
 from apps.server.domain.errors import DomainError
 from apps.server.infrastructure.file_storage import safe_name
 from packages.contracts import Error
@@ -16,6 +18,7 @@ from packages.contracts.imports import (
     FileView,
     ImportAck,
     ImportAction,
+    ImportCapabilities,
     ImportCommit,
     ImportCreate,
     ImportKind,
@@ -31,6 +34,20 @@ def import_router(service):
         responses={c: {"model": Error} for c in [401, 403, 404, 409, 413, 422, 503]},
     )
     token, authorization = identity_dependencies(service.identity)
+
+    @router.get("/import-templates", response_model=ImportCapabilities)
+    def templates(auth=Depends(authorization)):
+        # Static schema only; no business data. Actual permissions are checked on
+        # every file/job request, including replay, by the existing service.
+        return dict(mapping_version=MAPPING_VERSION,
+                    max_file_bytes=service.storage.settings.max_file_bytes,
+                    templates=[dict(kind=kind, columns=[c[0] for c in columns],
+                                    warehouse_required=kind in SCOPED,
+                                    permissions=(["opening.draft"] if kind == "11_opening" else
+                                                 ["po.draft", "so.draft"] if kind == "12_open_orders" else
+                                                 [PERMISSION.get(kind, "master.write")]),
+                                    max_rows=200 if kind == "11_opening" else 500)
+                               for kind, columns in TEMPLATES.items()])
 
     @router.post(
         "/files",
@@ -50,7 +67,15 @@ def import_router(service):
         key: Annotated[UUID, Header(alias="Idempotency-Key")],
         filename: Annotated[str, Header(alias="X-File-Name")],
         warehouse_id: UUID | None = None,
+        filename_encoding: Annotated[str | None, Header(alias="X-File-Name-Encoding")] = None,
     ):
+        if filename_encoding is not None:
+            if filename_encoding != "percent-utf8":
+                raise DomainError("INVALID_FILENAME", "Encoding tên tệp không hỗ trợ.")
+            try:
+                filename = unquote(filename, encoding="utf-8", errors="strict")
+            except UnicodeError:
+                raise DomainError("INVALID_FILENAME", "Tên tệp UTF-8 không hợp lệ.") from None
         safe_name(filename)
 
         def check():

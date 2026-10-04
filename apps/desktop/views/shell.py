@@ -1,11 +1,12 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox, ttk
 
 from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
 from apps.desktop.views.approvals import ApprovalView
 from apps.desktop.views.fulfillment import FulfillmentView
+from apps.desktop.views.imports import ImportView
 from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
 from apps.desktop.views.master_details import ProductDetailsView
@@ -69,6 +70,9 @@ class DesktopShell:
         notebook.add(self.opening_view, text="Tồn đầu kỳ")
         self.consignment_view = OpeningView(notebook, self.session_view.presenter.api, consignment=True)
         notebook.add(self.consignment_view, text="Nhận ký gửi")
+        self.import_view = ImportView(notebook, self.session_view.presenter.api)
+        self.import_view.on_open_document = self.open_imported_document
+        notebook.add(self.import_view, text="Import tệp / tồn đầu kỳ")
         self.order_view.on_open_receipt = self.open_receipt
         self.order_view.on_open_approvals = self.open_approvals
         self.approval_view.on_open_document = self.open_document
@@ -131,6 +135,7 @@ class DesktopShell:
         self.fulfillment_view.session_changed(user, warehouses)
         self.opening_view.session_changed(user, warehouses)
         self.consignment_view.session_changed(user, warehouses)
+        self.import_view.session_changed(user, warehouses)
         self.admin_view.session_changed(user, warehouses)
         self.quality_view.session_changed(user, warehouses)
         self.move_view.session_changed(user, warehouses)
@@ -183,6 +188,28 @@ class DesktopShell:
                 view.presenter.read(view.path, doc["id"])
                 break
 
+    def open_imported_document(self, doc):
+        view = self.opening_view if doc["kind"] == "OPENING" else self.order_view
+        if view.busy or view.presenter.uncertain:
+            self.import_view.import_error("Màn chứng từ đang xử lý/chờ tra kết quả; hoàn tất trước khi mở phiếu import.")
+            return
+        if (view.doc or view.lines) and not messagebox.askyesno(
+                "Mở chứng từ import", "Thay nội dung đang xem/nhập bằng chứng từ đã import?", parent=self.root):
+            return
+        index = next((i for i, w in enumerate(view.warehouses) if str(w.id) == doc["warehouse_id"]), None)
+        if index is None:
+            self.import_view.import_error("Kho không còn trong phiên hiện tại. Tải lại quyền trước khi mở phiếu.")
+            return
+        view.selector.current(index)
+        if doc["kind"] != "OPENING":
+            view.variables["kind"].set(doc["kind"])
+        view.scope_changed()
+        self.notebook.select(view)
+        if doc["kind"] == "OPENING":
+            view.presenter.read(doc["id"])
+        else:
+            view.presenter.read(view.path, doc["id"])
+
     def show_result(self, health: Health) -> None:
         self.status.set("Máy chủ và cơ sở dữ liệu đã sẵn sàng." if health.status == "ready" else "Đã kết nối máy chủ.")
 
@@ -204,6 +231,7 @@ class DesktopShell:
             self.fulfillment_view.presenter.drain()
             self.opening_view.presenter.drain()
             self.consignment_view.presenter.drain()
+            self.import_view.presenter.drain()
             self.admin_view.presenter.drain()
             self.quality_view.presenter.drain()
             self.move_view.presenter.drain()
@@ -236,6 +264,8 @@ class DesktopShell:
         self.consignment_view.presenter.close()
         self.opening_view.release_variables()
         self.consignment_view.release_variables()
+        self.import_view.presenter.close()
+        self.import_view.release_variables()
         self.receipt_recovery_view.release_variables()
         self.issue_view.presenter.close()
         self.issue_view.release_variables()
@@ -266,6 +296,7 @@ class DesktopShell:
         self.fulfillment_view.presenter.finish()
         self.opening_view.presenter.finish()
         self.consignment_view.presenter.finish()
+        self.import_view.presenter.finish()
         self.admin_view.presenter.finish()
         self.quality_view.presenter.finish()
         self.move_view.presenter.finish()
