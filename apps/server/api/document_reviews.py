@@ -10,7 +10,7 @@ from packages.contracts.document_reviews import AssignmentCandidatePage, Documen
 
 def document_review_router(orders):
     router = APIRouter(prefix="/api/v1/documents", tags=["orders"],
-                       responses={c: {"model": Error} for c in (401, 403, 404, 409, 422)})
+                       responses={c: {"model": Error} for c in (401, 403, 404, 409, 422, 503)})
     _, authorization = identity_dependencies(orders.identity)
     service = DocumentReviewService(orders)
 
