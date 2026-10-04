@@ -95,3 +95,17 @@ class ImportAck(Contract):
     version: int
     request_id: UUID
     targets: list[dict] = []
+
+
+class ImportTemplate(Contract):
+    kind: ImportKind
+    columns: list[str]
+    warehouse_required: bool
+    permissions: list[str]
+    max_rows: int
+
+
+class ImportCapabilities(Contract):
+    mapping_version: str
+    max_file_bytes: int
+    templates: list[ImportTemplate]

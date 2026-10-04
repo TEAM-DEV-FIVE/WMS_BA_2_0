@@ -28,18 +28,21 @@ class IdentityClient(ApiClient):
         self._lock = RLock()
         self.session_generation = 0
 
-    def _request(self, method, path, *, body=None, authenticated=False, extra_headers=None):
+    def _request(self, method, path, *, body=None, authenticated=False, extra_headers=None,
+                 content=None, binary=False):
         headers = dict(extra_headers or {})
         if authenticated:
             if not self._tokens:
                 raise ApiError("UNAUTHENTICATED", "Hãy đăng nhập lại.")
             headers["Authorization"] = "Bearer " + self._tokens.access_token
         try:
-            response = self.client.request(method, path, json=body, headers=headers)
+            response = self.client.request(method, path, json=body, content=content, headers=headers)
         except httpx.TimeoutException:
             raise ApiError("TIMEOUT", "Yêu cầu quá hạn. Hãy kiểm tra trạng thái trước khi thử lại.") from None
         except httpx.HTTPError:
             raise ApiError("NETWORK_ERROR", "Mất kết nối máy chủ. Kiểm tra LAN/TLS.") from None
+        if binary and response.is_success:
+            return response
         try:
             data = response.json()
         except ValueError:
@@ -51,6 +54,12 @@ class IdentityClient(ApiClient):
                 raise ApiError("INVALID_RESPONSE", "Phản hồi lỗi không hợp lệ.") from None
             raise ApiError(error.code, error.message, str(error.request_id), error.field_errors)
         return data
+
+    def file_request(self, method, path, *, content=None, headers=None, binary=False):
+        """Same TLS/session guard as JSON commands. Never retry uploads implicitly."""
+        with self._lock:
+            return self._request(method, path, content=content, authenticated=True,
+                                 extra_headers=headers, binary=binary)
 
     def login(self, username, password):
         with self._lock:

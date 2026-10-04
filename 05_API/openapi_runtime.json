@@ -13188,6 +13188,102 @@
         }
       }
     },
+    "/api/v1/import-templates": {
+      "get": {
+        "tags": [
+          "imports"
+        ],
+        "summary": "Templates",
+        "operationId": "templates_api_v1_import_templates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCapabilities"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/files": {
       "post": {
         "tags": [
@@ -13259,6 +13355,22 @@
             "schema": {
               "type": "string",
               "title": "X-File-Name"
+            }
+          },
+          {
+            "name": "X-File-Name-Encoding",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-File-Name-Encoding"
             }
           }
         ],
@@ -26592,6 +26704,33 @@
         ],
         "title": "ImportAction"
       },
+      "ImportCapabilities": {
+        "properties": {
+          "mapping_version": {
+            "type": "string",
+            "title": "Mapping Version"
+          },
+          "max_file_bytes": {
+            "type": "integer",
+            "title": "Max File Bytes"
+          },
+          "templates": {
+            "items": {
+              "$ref": "#/components/schemas/ImportTemplate"
+            },
+            "type": "array",
+            "title": "Templates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mapping_version",
+          "max_file_bytes",
+          "templates"
+        ],
+        "title": "ImportCapabilities"
+      },
       "ImportCommit": {
         "properties": {
           "expected_version": {
@@ -26769,6 +26908,61 @@
           "next_after"
         ],
         "title": "ImportRows"
+      },
+      "ImportTemplate": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "01_uom",
+              "02_categories",
+              "03_warehouses",
+              "04_locations",
+              "05_products",
+              "06_product_uom",
+              "07_barcodes",
+              "08_partners",
+              "09_lots",
+              "10_serials",
+              "11_opening",
+              "12_open_orders",
+              "14_prices"
+            ],
+            "title": "Kind"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "warehouse_required": {
+            "type": "boolean",
+            "title": "Warehouse Required"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Permissions"
+          },
+          "max_rows": {
+            "type": "integer",
+            "title": "Max Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "columns",
+          "warehouse_required",
+          "permissions",
+          "max_rows"
+        ],
+        "title": "ImportTemplate"
       },
       "ImportView": {
         "properties": {
