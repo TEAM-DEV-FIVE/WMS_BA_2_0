@@ -1,0 +1,3 @@
+table,column,data_type,nullable,references
+issue_document,document_id,uuid,NO,document.id
+issue_document,source_order_id,uuid,NO,document.id

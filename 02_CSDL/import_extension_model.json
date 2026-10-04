@@ -1,0 +1,243 @@
+{
+  "revision": "011_b01_import_files.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "import_file",
+      "purpose": "Private upload reservation and authorization scope",
+      "cols": [
+        {
+          "name": "file_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stored_file.id"
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "warehouse.id"
+        },
+        {
+          "name": "kind",
+          "type": "varchar(60)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "upload_key",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "request_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "ready",
+          "type": "boolean",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "import_task",
+      "purpose": "Durable validation execution with lease and retry",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "import_job.id"
+        },
+        {
+          "name": "generation",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "state",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "lease_token",
+          "type": "uuid",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "attempts",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "available_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "last_error",
+          "type": "varchar(60)",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "import_document_source",
+      "purpose": "Durable source document deduplication",
+      "cols": [
+        {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "warehouse.id"
+        },
+        {
+          "name": "kind",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "source_key",
+          "type": "varchar(240)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "import_job.id"
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "table": "import_job",
+      "name": "warehouse_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "warehouse.id"
+    },
+    {
+      "table": "import_job",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "generation",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "auth_version",
+      "type": "integer",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "options",
+      "type": "jsonb",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "commit_token",
+      "type": "uuid",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "token_expires_at",
+      "type": "timestamptz",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "stage_hash",
+      "type": "char(64)",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "data_snapshot",
+      "type": "jsonb",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "total_rows",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "processed_rows",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "errors",
+      "type": "jsonb",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "import_job",
+      "name": "result",
+      "type": "jsonb",
+      "null": true,
+      "ref": null
+    }
+  ]
+}

@@ -14,7 +14,7 @@ from sqlalchemy import text
 from apps.server.application.commands import CommandResult, payload_hash
 from apps.server.application.master_data import active_reference, invalid, one
 from apps.server.application.orders import encode
-from apps.server.application.stock_identity import resolve_stock_identity
+from apps.server.application.stock_identity import is_consignment_receipt, resolve_stock_identity
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.receipts import OperationView, ReceiptPlan, ReceiptPostResult, ReceiptView
 from packages.contracts.traceability import COMPANY_OWNER
@@ -28,6 +28,8 @@ class ReceiptService:
         orders.receipts = self
 
     def source(self, auth, doc):
+        if is_consignment_receipt(auth.connection, doc["id"]):
+            return None
         try:
             source_id = UUID(doc["attributes"]["receipt_plan"]["source_order_id"])
         except (KeyError, ValueError, TypeError):
@@ -60,6 +62,8 @@ class ReceiptService:
             raise DomainError("STALE_APPROVAL", "Chưa hoàn tất các bước duyệt.")
 
     def validate_saved(self, auth, doc):
+        if is_consignment_receipt(auth.connection, doc["id"]):
+            return self.orders.consignment_receipts.validate_saved(auth, doc)
         source = self.source(auth, doc)
         self.approved(auth.connection, source)
         self.orders.validate_header(auth.connection, "PO", source["warehouse_id"], source["partner_id"])
@@ -75,7 +79,8 @@ class ReceiptService:
             user=auth.principal.user_id,
         ):
             raise DomainError("FORBIDDEN", "Chỉ người lập hoặc được giao mới ghi sổ nhận hàng.")
-        self.source(auth, doc)  # Source visibility is rechecked even on replay.
+        if self.source(auth, doc) is None:
+            raise DomainError("CONSIGNMENT_RECEIPT_REQUIRED", "Dùng luồng nhận ký gửi để ghi đủ phiếu theo hợp đồng.")
 
     def locations(self, auth, warehouse_id):
         auth.require("document.read", warehouse_id, hidden=True)
@@ -99,6 +104,8 @@ class ReceiptService:
         view = self.orders.read(auth, doc_id, "RECEIPT")
         doc = self.orders.document(auth, doc_id, "RECEIPT")
         source = self.source(auth, doc)
+        if source is None:
+            raise DomainError("CONSIGNMENT_RECEIPT_REQUIRED", "Mở phiếu trong màn Nhận ký gửi.")
         plan = []
         for line_id, spec in doc["attributes"]["receipt_plan"]["lines"].items():
             line = next((line for line in view.lines if str(line.id) == line_id), None)
@@ -206,7 +213,7 @@ class ReceiptService:
             if doc_id:
                 doc = self.orders.document(auth, doc_id, "RECEIPT")
                 self.orders.may_edit(auth, doc)
-                if self.source(auth, doc)["id"] != source["id"]:
+                if not self.source(auth, doc) or self.source(auth, doc)["id"] != source["id"]:
                     invalid("source_order_id", "Không đổi PO nguồn của phiếu đã tạo.")
 
         def handle(uow):

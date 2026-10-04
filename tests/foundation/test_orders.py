@@ -464,11 +464,19 @@ def test_reversal_is_removed_once_from_remaining_and_open_reservation_blocks_clo
     doc = ok(orders.decision(orders.submit()))
     f = fulfill_fixture(orders, doc)
     with orders.engine.begin() as c:
-        txn = uuid4()
+        txn, reversal, inverse_line = uuid4(), uuid4(), uuid4()
+        c.execute(text("""INSERT INTO wms.document(id,number,kind,status,warehouse_id,business_date,created_by,created_at,version,attributes)
+            VALUES (:id,'PROJECTION-REVERSAL','REVERSAL','COMPLETED',:wh,'2026-10-02',:actor,now(),1,'{}')"""),
+            dict(id=reversal, wh=orders.warehouse, actor=orders.manager))
+        c.execute(text("INSERT INTO wms.reversal_document VALUES (:id,:source,1,'Projection fixture')"), dict(id=reversal, source=f["txn"]))
+        c.execute(text("""INSERT INTO wms.document_line(id,document_id,line_no,product_id,uom_id,quantity,factor_snapshot,base_quantity,source_line_id,owner_id)
+            SELECT :id,:doc,1,product_id,uom_id,80,1,80,id,owner_id FROM wms.document_line WHERE id=:source"""),
+            dict(id=inverse_line, doc=reversal, source=f["child_line"]))
+        c.execute(text("INSERT INTO wms.reversal_line VALUES (:id,:move)"), dict(id=inverse_line, move=f["move"]))
         c.execute(
             text("""INSERT INTO wms.inventory_transaction(id,document_id,execution_key,operation,business_date,posted_at,posted_by,reverses_transaction_id)
             VALUES (:id,:doc,:key,'REVERSE','2026-10-02',now(),:actor,:reversed)"""),
-            {"id": txn, "doc": f["child"], "key": uuid4(), "actor": orders.buyer, "reversed": f["txn"]},
+            {"id": txn, "doc": reversal, "key": uuid4(), "actor": orders.buyer, "reversed": f["txn"]},
         )
         c.execute(
             text("""INSERT INTO wms.stock_move(id,transaction_id,line_id,stock_item_id,source_location_id,destination_location_id,quantity_base,base_uom_id,reverses_move_id)
@@ -476,7 +484,7 @@ def test_reversal_is_removed_once_from_remaining_and_open_reservation_blocks_clo
             {
                 "id": uuid4(),
                 "txn": txn,
-                "line": f["child_line"],
+                "line": inverse_line,
                 "item": f["item"],
                 "source": f["dest"],
                 "dest": f["source"],

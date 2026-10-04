@@ -40,8 +40,8 @@ adjustment.post,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,Kh�
 opening.post,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,Opening đã duyệt; mã đợt duy nhất; không nạp trực tiếp balance
 count.create,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,DENY,Khóa row vị trí trước snapshot; còn reservation thì dừng để xử lý
 count.enter,WAREHOUSE,DENY,DENY,DENY,DENY,ALLOW,ALLOW,ALLOW,DENY,DENY,DENY,Được giao; FROZEN/COUNTED; đếm mù không thấy snapshot
-count.snapshot.read,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,DENY,ALLOW,API tách khỏi màn hình đếm mù
-count.submit,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,DENY,"Đủ vị trí/dòng, đếm lại nếu vượt ngưỡng; không bỏ hàng ngoài snapshot"
+count.snapshot.read,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,ALLOW,ALLOW,DTO REVIEW chỉ cho người không được phân công đếm của phiên; BLIND tuyệt đối không trả snapshot/delta/vòng trước
+count.submit,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,DENY,Mọi dòng có hai vòng liên tiếp độc lập cùng số lượng; hàng ngoài snapshot là dòng snapshot 0; không bỏ sai lệch nhỏ
 period.close,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,Không còn giao dịch pending; khóa cùng row period với posting; đối soát
 period.reopen,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,"MFA, lý do và người kiểm soát xác nhận; audit; đối soát lại báo cáo"
 report.read,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,ALLOW,ALLOW,Scope server; dữ liệu giá cần price.read
@@ -55,3 +55,5 @@ backup.operate,GLOBAL,ALLOW,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,DENY,Tác v�
 ownership.read,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,ALLOW,ALLOW,
 serial.read,WAREHOUSE,DENY,DENY,DENY,DENY,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,ALLOW,
 warranty.write,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,DENY,DENY,
+count.approve,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,ALLOW,DENY,Policy kiểm kê v1: CONTROLLER rồi DIRECTOR độc lập; khác creator/requester/counters; duyệt snapshot bất biến
+period.create,WAREHOUSE,DENY,DENY,DENY,DENY,DENY,DENY,DENY,ALLOW,DENY,DENY,Khóa warehouse; khoảng ngày không chồng kỳ hiện hữu; audit và version

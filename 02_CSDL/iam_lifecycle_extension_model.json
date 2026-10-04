@@ -1,0 +1,89 @@
+{
+  "revision": "018_b04_iam_lifecycle.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "auth_recovery_code",
+      "cols": [
+        {
+          "name": "code_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "consumed_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "revoked_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_password_reset",
+      "cols": [
+        {
+          "name": "token_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "issued_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "auth_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "consumed_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

@@ -1,0 +1,11 @@
+// Release revision 020_b14_reversal.sql
+Table reversal_document {
+  document_id uuid [pk, not null, ref: > document.id]
+  source_transaction_id uuid [not null, ref: > inventory_transaction.id]
+  source_version integer [not null]
+  reversal_reason text [not null]
+}
+Table reversal_line {
+  document_line_id uuid [pk, not null, ref: > document_line.id]
+  source_move_id uuid [not null, ref: > stock_move.id]
+}

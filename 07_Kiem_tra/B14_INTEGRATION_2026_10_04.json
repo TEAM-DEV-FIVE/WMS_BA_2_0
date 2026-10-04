@@ -1,0 +1,285 @@
+{
+  "validation": {
+    "date": "2026-10-04",
+    "commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+    "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+    "report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md",
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b14-reversal",
+    "passed": 970,
+    "subtests_passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 1171.89,
+    "runtime_paths": 166,
+    "migrations": 20,
+    "runtime_schema": {
+      "tables": 89,
+      "columns": 584,
+      "foreign_keys": 188,
+      "roles": 10,
+      "permissions": 58,
+      "role_permissions": 125
+    },
+    "local_sqlite_schema_version": 2,
+    "installed_wheel_checked": true,
+    "full_acceptance_completed": false,
+    "not_run": [
+      "PostgreSQL 15",
+      "Windows 10/11",
+      "hosted CI",
+      "target LAN/TLS",
+      "physical printer/scanner",
+      "15 CCU representative load",
+      "backup/restore RPO/RTO",
+      "business UAT"
+    ]
+  },
+  "b13": {
+    "source": "04250f3825111311dc5196297495ad0a76a87fad",
+    "integrated": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9"
+  },
+  "b16": {
+    "source": "e0e94c74bdd4e5063d0b1a77aa1235624d1be728",
+    "integrated": "f81d985cc0e288196a9cee457db3e69252dcd534"
+  },
+  "b14": {
+    "source": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+    "integrated": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
+  },
+  "integrated_task_ids": [
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B08",
+    "B09",
+    "B10",
+    "B11",
+    "B12",
+    "B13",
+    "B14",
+    "B15",
+    "B16"
+  ],
+  "ready_for_sync": [
+    "B07",
+    "B17"
+  ],
+  "evidence": [
+    {
+      "file": ".reports/b14-focused-final.xml",
+      "sha256": "5810a6bdf67f4e666d44e5c6b77094c1569af1b299ca16bb864743a86485c9d4"
+    },
+    {
+      "file": ".reports/b14-wheel.log",
+      "sha256": "f61c5b9676056eee37ad46bdcb93945f2cc5b06055858dc0faa55dcb5089c17b"
+    },
+    {
+      "file": ".reports/b14-matrix.environment.json",
+      "sha256": "3f8d48da6d90bd2cfe54b8ac558c43a473e3af76ca01ae586e8860a1b39766dc"
+    },
+    {
+      "file": ".reports/b14-focused-final.log",
+      "sha256": "9fe882bcd7279a5dafb9c9ba64b62d3f38d08dce8e816fc63f1546d07b6471b5"
+    },
+    {
+      "file": ".reports/b14-api-initial-recheck.environment.json",
+      "sha256": "93d652b318f2930843300ac44a1c1ecea9037f5c31908a6debfa64e088857d5b"
+    },
+    {
+      "file": ".reports/b14-focused.xml",
+      "sha256": "d49a4d34bddaafabbb1e0c46e3cc8e7e709d2b8e30f052aa560aeecf423194ed"
+    },
+    {
+      "file": ".reports/b14-full-final.log",
+      "sha256": "609ad87f983e0b989f16733afcd9d08cc8180df60c918582f02f606d951c6fcf"
+    },
+    {
+      "file": ".reports/b14-matrix-recheck.log",
+      "sha256": "c97755964e274a9cf6239b8c208e45d1c45ad6f62adb13851711d038e2e3c828"
+    },
+    {
+      "file": ".reports/b14-full.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": ".reports/b14-build-final.log",
+      "sha256": "f5010e624ce2b22996dd6e9b99418c08fb0fb2f3eec730d48aca864338c2bf33"
+    },
+    {
+      "file": ".reports/b14-api-initial.log",
+      "sha256": "ba60a67c7eb7897300694423c7bbac58915bab523d51e9ca88f9b1f8eb796e85"
+    },
+    {
+      "file": ".reports/b14-final-audit.environment.json",
+      "sha256": "8a6bd10758c6061927b7872294ffeb9025c433f25d1070637c95bde0a24da7ef"
+    },
+    {
+      "file": ".reports/b14-matrix-recheck.environment.json",
+      "sha256": "6512b11015257cf0352d6d2ecf1f723cd378695242bd119960c4a3971fd22944"
+    },
+    {
+      "file": ".reports/b14-desktop.environment.json",
+      "sha256": "312cc0a85bb9748d15039264b886be0664cf1e0ac3ead9a1cb464b44b3eea69f"
+    },
+    {
+      "file": ".reports/b14-wheel-final.log",
+      "sha256": "f61c5b9676056eee37ad46bdcb93945f2cc5b06055858dc0faa55dcb5089c17b"
+    },
+    {
+      "file": ".reports/b14-full-final.xml",
+      "sha256": "66998aeeb1af3c9d5fb955288d92bef742cf9ec68dc7b4a92da35c2a8d51f28f"
+    },
+    {
+      "file": ".reports/b14-full.collection.json",
+      "sha256": "9c85637314b4bef9c2653466d55ed6b0388ed2aabe59663f947b45ce01e995d5"
+    },
+    {
+      "file": ".reports/b14-wheel-final.environment.json",
+      "sha256": "dce0b65753801b1646a73652d9e203255d88c7584122f523778d3de8aef8e973"
+    },
+    {
+      "file": ".reports/b14-debug.xml",
+      "sha256": "3df3b82b40a58d93aff4b7d03e4777c9c01c514550e598e331c9e50453ea2710"
+    },
+    {
+      "file": ".reports/b14-focused.environment.json",
+      "sha256": "23bd9855788898390e5023be40b6b1281cbe4f43fa0652079e731ee24423480b"
+    },
+    {
+      "file": ".reports/b14-matrix.log",
+      "sha256": "01bbfbcd93ed25afd224e088caddc3fba9f7fad43938ead209af0a54ef0cf4df"
+    },
+    {
+      "file": ".reports/b14-api-initial.xml",
+      "sha256": "56b736fbaf04f4fe016d92c7bd0ee9c6a3916c807389f9c9a0ae0b1ace7d91e3"
+    },
+    {
+      "file": ".reports/b14-wheel.environment.json",
+      "sha256": "e4f56844e34814c09c18f56f327b5296df785072af9b9b0fccdd7af32b73f400"
+    },
+    {
+      "file": ".reports/b14-wheel.install.log",
+      "sha256": "13048186b139a4407d02ddae77b01a2641caee0fe1f02b8f7c1fea4b0896e895"
+    },
+    {
+      "file": ".reports/b14-full-final.environment.json",
+      "sha256": "1d415ce2ad9315a1d79532288873f99af201ec389bc1cbd850b008b7ab0d013b"
+    },
+    {
+      "file": ".reports/b14-desktop-debug.environment.json",
+      "sha256": "6fb7f01260a00b8e66fccb3ac5d8edae428e1a7895e4a7cf17e5582d023b11f1"
+    },
+    {
+      "file": ".reports/b14-debug2.log",
+      "sha256": "4d5baf8087334dde79aa4ede7d816e6bd497af29bf90b9f1970e33b12ce8e79a"
+    },
+    {
+      "file": ".reports/b14-debug2.environment.json",
+      "sha256": "3d2dbe569bf6355f628e911c0362fadee558aaa455bf840a3f4fb693d509cbb3"
+    },
+    {
+      "file": ".reports/b14-focused.log",
+      "sha256": "32e642ff677cc8280d89d29023ac35e19b44c5abede528e28250fdc06b8b0e8d"
+    },
+    {
+      "file": ".reports/b14-serial-final.environment.json",
+      "sha256": "c661d6b1c063e8cfbcb8f567972dc5ab34d9d5bbcd52c4cf68d90b764634f3bf"
+    },
+    {
+      "file": ".reports/b14-wheel-final.install.log",
+      "sha256": "13048186b139a4407d02ddae77b01a2641caee0fe1f02b8f7c1fea4b0896e895"
+    },
+    {
+      "file": ".reports/b14-debug2.xml",
+      "sha256": "464c6c9a3b111be0a72b69cb0027f78d329d2f9abf156d0d603324981e8aeb14"
+    },
+    {
+      "file": ".reports/b14-debug.log",
+      "sha256": "a50ec68d39f8295f054144bc1ec544e0d864934652d595eed95f179efa60cf06"
+    },
+    {
+      "file": ".reports/b14-debug.environment.json",
+      "sha256": "34b70198811a077a8f9f2a3909c3c974309d7706cca88504eb56092ccef0dda9"
+    },
+    {
+      "file": ".reports/b14-final-audit.xml",
+      "sha256": "162763acdb064e9bafb23d91af475f477e9dd77fc17d61dd76f85cae3891ebdc"
+    },
+    {
+      "file": ".reports/b14-matrix.xml",
+      "sha256": "cfce49d26b56a67b85a7b4eea54edcd7e2eb78048d5054712c5efcdb2b4f8107"
+    },
+    {
+      "file": ".reports/b14-api-initial-recheck.log",
+      "sha256": "8147ef970165f8b07e3aed3b13745fc3b0132cc677e4fd3cbb2722c4f133c474"
+    },
+    {
+      "file": ".reports/b14-api-initial-recheck.xml",
+      "sha256": "7f1e8480e6b44aee5322de71afc66487698676cfa0b6a8e779de6dc78fdee5c6"
+    },
+    {
+      "file": ".reports/b14-desktop-debug.log",
+      "sha256": "529780a39f173b3e4636b6e5f3afdbcff51077c3ced1534dcdbc74921eebe95d"
+    },
+    {
+      "file": ".reports/b14-api-initial.environment.json",
+      "sha256": "c9931b114d9326830696728238a5dfe65ecfefd13ccf52695906c7ba8625d0cb"
+    },
+    {
+      "file": ".reports/b14-serial-final.log",
+      "sha256": "dc53e4bb2b6ba41bd57a0cabc6f9289b079d9609c1bf59a596dd98900a7440ee"
+    },
+    {
+      "file": ".reports/b14-final-audit.log",
+      "sha256": "650f99662bd06dbcfee2788eca010f58a1cdb7bcd15ddb9137d20cbf77131cbb"
+    },
+    {
+      "file": ".reports/b14-focused-final.environment.json",
+      "sha256": "c2c95e47fd1e581558285a0d750ad7b81e63a43e754096f0fd69193a2a7d3572"
+    },
+    {
+      "file": ".reports/b14-desktop-debug.xml",
+      "sha256": "bdcaf4d44e42e693147a846d36ff5690e5167d4019a59a751fb36b545def410c"
+    },
+    {
+      "file": ".reports/b14-desktop.log",
+      "sha256": "924b66d238678ed06d6b7aa8051e718cc565aa0775b053049ea38ecede0b1e0a"
+    },
+    {
+      "file": ".reports/b14-full-final.collection.json",
+      "sha256": "7abf32a2d9d223b1532c4ee9668dc02a30d4114c7d945c47a713fd1b38ad9f0c"
+    },
+    {
+      "file": ".reports/b14-serial-final.xml",
+      "sha256": "75821a67d733c7e226d9f4d64d5a28fab614d9cf61dbd63f10be34a2872bad01"
+    },
+    {
+      "file": ".reports/b14-desktop.xml",
+      "sha256": "c26ac9e294b7f702d5471feeecec956b81b328c19c3ba72086429264356675a5"
+    },
+    {
+      "file": ".reports/b14-matrix-recheck.xml",
+      "sha256": "b15098ca8fd7700c6c0ec5407abc9695681fca78ccf354438a6fa6c7064841ef"
+    },
+    {
+      "file": ".reports/b13-b16-integration.log",
+      "sha256": "310066e92142e788fbb9dba5d0f609e17758cbf9a35bae56f57440dfa094d39d"
+    },
+    {
+      "file": ".reports/b13-b16-integration.environment.json",
+      "sha256": "6ed71e2bcd39cbfe0a95fdff4cf0db48d98372c3d3d56bdfac5e6b9f617f5a43"
+    },
+    {
+      "file": ".reports/b13-b16-integration.xml",
+      "sha256": "00d5970cf13173a277f3d84e67b0dd493853c142c70851a1d43ae05094772d47"
+    },
+    {
+      "file": ".reports/b13-b16-integration.collection.json",
+      "sha256": "6b648e34aa182bd94e8a437cb2529477477ecf4875adaf4811d6446d6cfcce7d"
+    }
+  ]
+}

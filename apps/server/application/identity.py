@@ -12,7 +12,13 @@ from apps.server.application.authorization import Authorization, Principal
 from apps.server.domain.errors import DomainError
 from apps.server.infrastructure.config import Settings
 from apps.server.infrastructure.credentials import hash_password, new_token, token_hash, verify_password
-from packages.contracts.identity import Enrollment, MfaChallenge, SessionTokens
+from packages.contracts.identity import (
+    Enrollment,
+    MfaChallenge,
+    PasswordResetToken,
+    RecoveryCodes,
+    SessionTokens,
+)
 
 
 def row(connection, sql, **params):
@@ -135,8 +141,8 @@ class IdentityService:
             challenge = row(connection, "SELECT * FROM wms.auth_challenge WHERE token_hash=:hash", hash=token_hash(challenge_token))
             if not challenge:
                 raise DomainError("UNAUTHENTICATED", "Yêu cầu MFA không hợp lệ hoặc đã hết hạn.")
-            key = self.throttle(connection, "MFA", challenge["user_id"], now)
             user = row(connection, "SELECT * FROM wms.app_user WHERE id=:id FOR UPDATE", id=challenge["user_id"])
+            key = self.throttle(connection, "MFA", challenge["user_id"], now)
             challenge = row(connection, "SELECT * FROM wms.auth_challenge WHERE token_hash=:hash FOR UPDATE", hash=token_hash(challenge_token))
             if (not user["is_active"] or user["auth_version"] != challenge["auth_version"]
                     or challenge["expires_at"] <= now or challenge["consumed_at"] is not None):
@@ -217,18 +223,16 @@ class IdentityService:
         result = None
         with self.engine.begin() as connection:
             # Resolve ID before taking the throttle/user locks used by MFA completion.
-            actor = self.authenticate(connection, token)
+            actor, user = self.lock_actor(connection, token, now)
             key = self.throttle(connection, "ENROLL", actor.user_id, now)
-            user = row(connection, "SELECT * FROM wms.app_user WHERE id=:id FOR UPDATE", id=actor.user_id)
+            self.failed_attempt(connection, key, now)
             if not verify_password(user["password_hash"], password):
-                self.failed_attempt(connection, key, now)
                 audit(connection, actor.user_id, "auth.enroll.failed", actor.user_id, request_id, now)
             else:
                 existing = row(connection, """SELECT id FROM wms.mfa_factor WHERE user_id=:id
                     AND verified_at IS NOT NULL AND revoked_at IS NULL""", id=actor.user_id)
                 if existing:
                     raise DomainError("MFA_ALREADY_ENABLED", "MFA đã được bật; không được ghi đè yếu tố hiện tại.")
-                self.clear_attempts(connection, key)
                 connection.execute(text("UPDATE wms.mfa_factor SET revoked_at=:now WHERE user_id=:id AND verified_at IS NULL AND revoked_at IS NULL"),
                                    {"now": now, "id": actor.user_id})
                 secret, factor_id = pyotp.random_base32(), uuid4()
@@ -246,9 +250,8 @@ class IdentityService:
         now = self.clock()
         success = False
         with self.engine.begin() as connection:
-            actor = self.authenticate(connection, token)
+            actor, user = self.lock_actor(connection, token, now)
             key = self.throttle(connection, "MFA", actor.user_id, now)
-            user = row(connection, "SELECT * FROM wms.app_user WHERE id=:id FOR UPDATE", id=actor.user_id)
             factor = row(connection, "SELECT * FROM wms.mfa_factor WHERE id=:id AND user_id=:user FOR UPDATE", id=factor_id, user=actor.user_id)
             if (not factor or factor["revoked_at"] is not None or factor["verified_at"] is not None
                     or not factor["enrollment_expires_at"] or factor["enrollment_expires_at"] <= now):
@@ -290,3 +293,166 @@ class IdentityService:
                                {"id": uuid4(), "user": user_id, "now": now})
             audit(connection, user_id, "iam.bootstrap", user_id, uuid4(), now)
             return user_id
+
+    def lock_actor(self, connection, token, now, target=None):
+        # Resolve without SHARE first: two concurrent credential writes must not
+        # deadlock upgrading authenticate's user/session locks. Refresh and login
+        # also take user before session/factor. Multi-user operations sort UUIDs.
+        found = row(connection, """SELECT s.user_id FROM wms.auth_token t
+            JOIN wms.auth_session s ON s.id=t.session_id
+            WHERE t.token_hash=:hash AND t.kind='ACCESS'""", hash=token_hash(token))
+        if not found:
+            raise DomainError("UNAUTHENTICATED", "Hãy đăng nhập lại.")
+        users = sorted({found["user_id"], *([target] if target else [])}, key=str)
+        for user_id in users:
+            row(connection, "SELECT id FROM wms.app_user WHERE id=:id FOR UPDATE", id=user_id)
+        actor = self.authenticate(connection, token)
+        return actor, row(connection, "SELECT * FROM wms.app_user WHERE id=:id", id=actor.user_id)
+
+    def reauthenticate(self, connection, actor, user, password, code, request_id, now, *, mfa=False):
+        # Shared across all sensitive operations; successful calls also consume
+        # budget, so repeatedly generating new secrets cannot bypass throttling.
+        key = self.throttle(connection, "SENSITIVE", user["id"], now)
+        self.failed_attempt(connection, key, now)
+        factor = row(connection, """SELECT * FROM wms.mfa_factor WHERE user_id=:id
+            AND kind='TOTP' AND verified_at IS NOT NULL AND revoked_at IS NULL FOR UPDATE""", id=user["id"])
+        valid = verify_password(user["password_hash"], password)
+        if factor:
+            valid = valid and bool(code) and self.verify_totp(connection, factor, code, now)
+        elif mfa:
+            valid = False
+        if not valid:
+            audit(connection, actor.user_id, "auth.reauthentication.failed", user["id"], request_id, now)
+        return valid
+
+    def invalidate(self, connection, user_id, now, *, mfa=False):
+        connection.execute(text("UPDATE wms.app_user SET auth_version=auth_version+1 WHERE id=:id"), {"id": user_id})
+        connection.execute(text("UPDATE wms.auth_session SET revoked_at=COALESCE(revoked_at,:now) WHERE user_id=:id"),
+                           {"id": user_id, "now": now})
+        connection.execute(text("UPDATE wms.auth_challenge SET consumed_at=COALESCE(consumed_at,:now) WHERE user_id=:id"),
+                           {"id": user_id, "now": now})
+        connection.execute(text("UPDATE wms.auth_password_reset SET consumed_at=COALESCE(consumed_at,:now) WHERE user_id=:id"),
+                           {"id": user_id, "now": now})
+        if mfa:
+            connection.execute(text("UPDATE wms.mfa_factor SET revoked_at=COALESCE(revoked_at,:now) WHERE user_id=:id"),
+                               {"id": user_id, "now": now})
+            connection.execute(text("UPDATE wms.auth_recovery_code SET revoked_at=COALESCE(revoked_at,:now) WHERE user_id=:id"),
+                               {"id": user_id, "now": now})
+
+    def change_password(self, token, password, code, new_password, request_id):
+        now, success = self.clock(), False
+        with self.engine.begin() as connection:
+            actor, user = self.lock_actor(connection, token, now)
+            if self.reauthenticate(connection, actor, user, password, code, request_id, now):
+                password_hash = hash_password(new_password)
+                connection.execute(text("UPDATE wms.app_user SET password_hash=:hash WHERE id=:id"),
+                                   {"id": user["id"], "hash": password_hash})
+                self.invalidate(connection, user["id"], now)
+                audit(connection, actor.user_id, "auth.password.changed", user["id"], request_id, now)
+                success = True
+        if not success:
+            raise DomainError("MFA_INVALID", "Không xác nhận được mật khẩu hoặc mã MFA mới.")
+
+    def reset_mfa(self, token, password, code, request_id):
+        now, success = self.clock(), False
+        with self.engine.begin() as connection:
+            actor, user = self.lock_actor(connection, token, now)
+            if self.reauthenticate(connection, actor, user, password, code, request_id, now, mfa=True):
+                self.invalidate(connection, user["id"], now, mfa=True)
+                audit(connection, actor.user_id, "auth.mfa.reset", user["id"], request_id, now)
+                success = True
+        if not success:
+            raise DomainError("MFA_INVALID", "Không xác nhận được mật khẩu hoặc mã MFA mới.")
+
+    def recovery_codes(self, token, password, code, request_id):
+        now, result = self.clock(), None
+        with self.engine.begin() as connection:
+            actor, user = self.lock_actor(connection, token, now)
+            if self.reauthenticate(connection, actor, user, password, code, request_id, now, mfa=True):
+                connection.execute(text("UPDATE wms.auth_recovery_code SET revoked_at=:now WHERE user_id=:id AND revoked_at IS NULL"),
+                                   {"id": user["id"], "now": now})
+                codes = [new_token() for _ in range(8)]
+                connection.execute(text("""INSERT INTO wms.auth_recovery_code(code_hash,user_id,created_at)
+                    VALUES (:hash,:user,:now)"""),
+                                   [{"hash": token_hash(code), "user": user["id"], "now": now} for code in codes])
+                audit(connection, actor.user_id, "auth.recovery_codes.rotated", user["id"], request_id, now)
+                result = RecoveryCodes(codes=codes)
+        if result is None:
+            raise DomainError("MFA_INVALID", "Không xác nhận được mật khẩu hoặc mã MFA mới.")
+        return result
+
+    def recover_mfa(self, challenge_token, recovery_code, request_id):
+        # Password has already been checked by login. Recovery never returns an
+        # MFA-verified session: the user signs in and enrolls a new factor.
+        now, success = self.clock(), False
+        with self.engine.begin() as connection:
+            challenge = row(connection, "SELECT * FROM wms.auth_challenge WHERE token_hash=:hash", hash=token_hash(challenge_token))
+            if not challenge:
+                raise DomainError("MFA_INVALID", "Yêu cầu khôi phục không hợp lệ.")
+            user = row(connection, "SELECT * FROM wms.app_user WHERE id=:id FOR UPDATE", id=challenge["user_id"])
+            key = self.throttle(connection, "RECOVERY", user["id"], now)
+            challenge = row(connection, "SELECT * FROM wms.auth_challenge WHERE token_hash=:hash FOR UPDATE", hash=token_hash(challenge_token))
+            self.failed_attempt(connection, key, now)
+            recovery = row(connection, """SELECT code_hash FROM wms.auth_recovery_code
+                WHERE code_hash=:hash AND user_id=:id AND consumed_at IS NULL AND revoked_at IS NULL FOR UPDATE""",
+                           hash=token_hash(recovery_code), id=user["id"])
+            if (recovery and user["is_active"] and user["auth_version"] == challenge["auth_version"]
+                    and challenge["consumed_at"] is None and challenge["expires_at"] > now):
+                connection.execute(text("UPDATE wms.auth_recovery_code SET consumed_at=:now WHERE code_hash=:hash"),
+                                   {"now": now, "hash": recovery["code_hash"]})
+                self.invalidate(connection, user["id"], now, mfa=True)
+                audit(connection, user["id"], "auth.mfa.recovered", user["id"], request_id, now)
+                success = True
+            else:
+                audit(connection, user["id"], "auth.recovery.failed", user["id"], request_id, now)
+        if not success:
+            raise DomainError("MFA_INVALID", "Mã khôi phục sai, đã dùng hoặc yêu cầu đã hết hạn.")
+
+    def issue_password_reset(self, token, target, password, code, reason, request_id):
+        now, result = self.clock(), None
+        with self.engine.begin() as connection:
+            actor, user = self.lock_actor(connection, token, now, target)
+            auth = Authorization(connection, actor, now)
+            auth.require("iam.manage")
+            if target == actor.user_id:
+                raise DomainError("SELF_MODIFICATION", "Dùng chức năng đổi mật khẩu cho chính mình.")
+            target_user = row(connection, "SELECT * FROM wms.app_user WHERE id=:id AND is_active", id=target)
+            if not target_user:
+                raise DomainError("NOT_FOUND", "Không tìm thấy tài khoản đang hoạt động.")
+            # Keep the authorizing grant alive until this transaction commits.
+            for grant in sorted(auth.grants("iam.manage"), key=lambda g: str(g["id"])):
+                row(connection, "SELECT id FROM wms.user_role_grant WHERE id=:id FOR SHARE", id=grant["id"])
+            auth.require("iam.manage")
+            if self.reauthenticate(connection, actor, user, password, code, request_id, now, mfa=True):
+                self.invalidate(connection, target, now)
+                reset = new_token()
+                connection.execute(text("""INSERT INTO wms.auth_password_reset
+                    (token_hash,user_id,issued_by,auth_version,created_at,expires_at)
+                    VALUES (:hash,:user,:actor,:version,:now,:expiry)"""),
+                                   {"hash": token_hash(reset), "user": target, "actor": actor.user_id,
+                                    "version": target_user["auth_version"]+1, "now": now, "expiry": now+timedelta(minutes=15)})
+                audit(connection, actor.user_id, "iam.password_reset.issued", target, request_id, now, reason)
+                result = PasswordResetToken(reset_token=reset)
+        if result is None:
+            raise DomainError("MFA_INVALID", "Không xác nhận được mật khẩu hoặc mã MFA mới.")
+        return result
+
+    def complete_password_reset(self, username, reset_token, new_password, request_id):
+        now, success = self.clock(), False
+        with self.engine.begin() as connection:
+            user = row(connection, "SELECT * FROM wms.app_user WHERE username=:name FOR UPDATE", name=username)
+            key = self.throttle(connection, "PASSWORD_RESET", username, now)
+            self.failed_attempt(connection, key, now)
+            reset = row(connection, "SELECT * FROM wms.auth_password_reset WHERE token_hash=:hash FOR UPDATE", hash=token_hash(reset_token))
+            if (user and user["is_active"] and reset and reset["user_id"] == user["id"]
+                    and reset["auth_version"] == user["auth_version"] and reset["consumed_at"] is None and reset["expires_at"] > now):
+                password_hash = hash_password(new_password)
+                connection.execute(text("UPDATE wms.app_user SET password_hash=:hash WHERE id=:id"),
+                                   {"id": user["id"], "hash": password_hash})
+                self.invalidate(connection, user["id"], now)
+                audit(connection, user["id"], "auth.password.reset", user["id"], request_id, now)
+                success = True
+            else:
+                audit(connection, user["id"] if user else None, "auth.password_reset.failed", None, request_id, now)
+        if not success:
+            raise DomainError("MFA_INVALID", "Yêu cầu đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.")

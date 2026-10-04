@@ -2,7 +2,7 @@ import ast
 import json
 import logging
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -102,3 +102,88 @@ def test_business_timezone_works_without_os_timezone_database():
     finally:
         zoneinfo.reset_tzpath(original)
         zoneinfo.ZoneInfo.clear_cache()
+
+
+def test_desktop_only_uses_api_and_local_storage():
+    forbidden = ("apps.server", "sqlalchemy", "psycopg", "psycopg2", "asyncpg", "migrations")
+    for path in (ROOT / "apps/desktop").rglob("*.py"):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            names = [a.name for a in node.names] if isinstance(node, ast.Import) else []
+            if isinstance(node, ast.ImportFrom):
+                module = node.module or ""
+                if node.level:
+                    package = list(path.relative_to(ROOT).parts[:-1])
+                    module = ".".join(package[:len(package) - node.level + 1] + ([module] if module else []))
+                names.extend([module, *(module + "." + alias.name for alias in node.names)])
+            assert not any(name == blocked or name.startswith(blocked + ".")
+                           for name in names for blocked in forbidden), (path, names)
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                assert "WMS_DATABASE_URL" not in node.value, path
+                assert not node.value.startswith(("postgresql://", "postgresql+psycopg://")), path
+
+
+def assert_error(response, status, code):
+    assert response.status_code == status, response.text
+    body = Error.model_validate(response.json())
+    assert body.code == code
+    assert str(body.request_id) == response.headers["X-Request-ID"]
+    assert response.headers["Cache-Control"] == "no-store"
+    return body
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("damage", ["checksum", "unknown", "gap"])
+def test_readiness_contract_rejects_incompatible_history(database, damage):
+    from sqlalchemy import text
+
+    from apps.server.infrastructure.migrations import MigrationError, migrate
+
+    with database.begin() as connection:
+        if damage == "checksum":
+            connection.execute(text("UPDATE public.wms_schema_migration SET sha256=:digest WHERE version='001_schema.sql'"),
+                               {"digest": "0" * 64})
+        elif damage == "unknown":
+            connection.execute(text("INSERT INTO public.wms_schema_migration(version,sha256) VALUES ('999_unknown.sql',:digest)"),
+                               {"digest": "0" * 64})
+        else:
+            connection.execute(text("DELETE FROM public.wms_schema_migration WHERE version='001_schema.sql'"))
+    api = create_app(Settings(database_url="postgresql+psycopg://localhost/unused"), engine=database)
+    with TestClient(api) as client:
+        assert client.get("/api/v1/health").status_code == 200
+        assert assert_error(client.get("/api/v1/ready"), 503, "DATABASE_NOT_READY").retryable
+    with pytest.raises(MigrationError):
+        migrate(database)
+
+
+@pytest.mark.integration
+def test_real_api_permission_version_idempotency_and_unknown_operation_contract(iam):
+    user, _ = iam.user()
+    headers = iam.headers(iam.login())
+    path = "/api/v1/master/uoms"
+    payload = {"code": "CT", "name": "Contract", "decimal_places": 0, "reason": "Contract probe"}
+    key = str(uuid4())
+    command_headers = {**headers, "Idempotency-Key": key}
+    assert_error(iam.client.post(path, json=payload, headers=command_headers), 403, "FORBIDDEN")
+    grant = iam.grant(user, "MASTER_DATA")
+    assert_error(iam.client.post(path, json=payload, headers=headers), 422, "VALIDATION_ERROR")
+    created = iam.client.post(path, json=payload, headers=command_headers)
+    assert created.status_code == 201, created.text
+    assert iam.client.post(path, json=payload, headers=command_headers).json() == created.json()
+    assert_error(iam.client.post(path, json={**payload, "name": "Other"}, headers=command_headers),
+                 409, "IDEMPOTENCY_MISMATCH")
+    entity = created.json()
+    changed = iam.client.put(path + "/" + entity["id"],
+                             json={**payload, "expected_version": entity["version"], "name": "New"},
+                             headers={**headers, "Idempotency-Key": str(uuid4())})
+    assert changed.status_code == 200, changed.text
+    assert_error(iam.client.put(path + "/" + entity["id"],
+                               json={**payload, "expected_version": entity["version"]},
+                               headers={**headers, "Idempotency-Key": str(uuid4())}), 409, "STALE_VERSION")
+    # Lookup is receipt.post-only; a 404 must never authorize retry with a new key.
+    for lookup in (key, str(uuid4())):
+        assert_error(iam.client.get("/api/v1/operations/" + lookup, headers=headers), 404, "NOT_FOUND")
+    from sqlalchemy import text
+    with iam.engine.begin() as connection:
+        connection.execute(text("UPDATE wms.user_role_grant SET revoked_at=now() WHERE id=:id"), {"id": grant})
+    assert_error(iam.client.post(path, json=payload, headers=command_headers), 403, "FORBIDDEN")

@@ -1,0 +1,8 @@
+// Development revision 013_b03_move_quality.sql; baseline tables are unchanged.
+Table move_line {
+  document_line_id uuid [pk, not null, ref: > document_line.id]
+  stock_item_id uuid [not null, ref: > stock_item.id]
+  source_location_id uuid [not null, ref: > location.id]
+  destination_location_id uuid [not null, ref: > location.id]
+  quality_decision_id uuid [ref: > quality_decision.id]
+}

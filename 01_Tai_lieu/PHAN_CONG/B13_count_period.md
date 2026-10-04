@@ -3,6 +3,9 @@
 - Nhánh: `agent/b13-count-period`
 - Worktree: `/home/kien/Đồ án KHMT2_2/worktrees/wms-b13-count-period`
 - Trạng thái ban đầu: **WAITING_DEPENDENCIES**, ưu tiên **P1**.
+- Trạng thái hiện tại 04/10/2026: **READY**. Đã đồng bộ nền `d4676b67e1302e0ea545d22da5ec16c4f9453840`,
+  giữ commit nghiên cứu `07a6f55f580c8b180021b740bdd858e294d8c0b0`; đủ dependency để triển khai.
+  Xem commit đồng bộ và dependency thực trong [sổ tích hợp](integration_log.json).
 - Phụ thuộc: [B02](./B02_issue_reservation.md), [B03](./B03_move_quality.md), [B09](./B09_consignment.md), [B11](./B11_transfer.md), [B12](./B12_returns.md)
 - Issues liên quan: [#28](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/28), [#17](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/17), [#10](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/10), [#23](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/23) (đối chiếu snapshot local).
 - Yêu cầu: FR16, FR17, FR18, FR21, FR30, FR32.

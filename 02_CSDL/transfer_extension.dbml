@@ -1,0 +1,27 @@
+// B11 release revision 015 (development 017); no changes to released 001–014.
+Table transfer_line {
+  document_line_id uuid [pk, not null, ref: > document_line.id]
+  stock_item_id uuid [not null, ref: > stock_item.id]
+  source_location_id uuid [not null, ref: > location.id]
+}
+Table transfer_move {
+  move_id uuid [pk, not null, ref: > stock_move.id]
+  dispatch_move_id uuid [ref: > stock_move.id]
+  disposition varchar(20) [not null]
+  evidence_ref varchar(2000) [not null]
+}
+Table transfer_discrepancy {
+  id uuid [pk, not null]
+  transfer_document_id uuid [not null, ref: > document.id]
+  dispatch_move_id uuid [not null, ref: > stock_move.id]
+  kind varchar(20) [not null]
+  quantity numeric(20,6) [not null]
+  evidence_ref varchar(2000) [not null]
+  recorded_by uuid [not null, ref: > app_user.id]
+  recorded_at timestamptz [not null]
+}
+Table transfer_adjustment {
+  document_id uuid [pk, not null, ref: > document.id]
+  source_transfer_id uuid [not null, ref: > document.id]
+  discrepancy_id uuid [not null, ref: > transfer_discrepancy.id]
+}

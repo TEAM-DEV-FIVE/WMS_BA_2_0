@@ -35,9 +35,10 @@ def order_router(service):
             status: OrderStatus | None = None,
             after: UUID | None = None,
             limit: int = Query(default=50, ge=1, le=200),
+            q: str = Query(default="", max_length=100),
             auth=Depends(authorization),
         ):
-            return service.listing(auth, kind, warehouse_id, status, after, limit)
+            return service.listing(auth, kind, warehouse_id, status, after, limit, q.strip())
 
         @router.get(path + "/{document_id}", response_model=OrderView, name=f"read_{kind}")
         def read(document_id: UUID, auth=Depends(authorization)):

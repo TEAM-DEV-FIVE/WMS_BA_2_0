@@ -1,0 +1,6 @@
+table,column,data_type,nullable,references
+return_document,document_id,uuid,NO,document.id
+return_document,source_document_id,uuid,NO,document.id
+return_line,document_line_id,uuid,NO,document_line.id
+return_line,source_move_id,uuid,NO,stock_move.id
+return_line,location_id,uuid,NO,location.id

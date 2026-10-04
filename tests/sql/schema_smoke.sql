@@ -34,8 +34,10 @@ BEGIN
      OR (SELECT count(*) FROM pg_constraint WHERE connamespace='wms'::regnamespace AND contype='f') <>
        COALESCE(NULLIF(current_setting('wms.test.expected_fks',true),'')::int,105)
   THEN RAISE EXCEPTION 'Unexpected schema inventory'; END IF;
-  IF (SELECT count(*) FROM role) <> 10 OR (SELECT count(*) FROM permission) <> 56
-     OR (SELECT count(*) FROM role_permission) <> 121
+  IF (SELECT count(*) FROM role) <> 10 OR (SELECT count(*) FROM permission) <>
+       COALESCE(NULLIF(current_setting('wms.test.expected_permissions',true),'')::int,56)
+     OR (SELECT count(*) FROM role_permission) <>
+       COALESCE(NULLIF(current_setting('wms.test.expected_role_permissions',true),'')::int,121)
   THEN RAISE EXCEPTION 'Unexpected RBAC seed inventory'; END IF;
 
   INSERT INTO app_user VALUES (actor,'smoke-test','Smoke test','test-placeholder-not-a-login-hash',true,0,now());

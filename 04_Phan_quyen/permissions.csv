@@ -40,8 +40,8 @@ adjustment.post,WAREHOUSE,Ghi điều chỉnh/đảo đã duyệt,Không tự du
 opening.post,WAREHOUSE,Ghi tồn đầu kỳ đã duyệt,Opening đã duyệt; mã đợt duy nhất; không nạp trực tiếp balance
 count.create,WAREHOUSE,Tạo phiên và khóa vị trí kiểm kê,Khóa row vị trí trước snapshot; còn reservation thì dừng để xử lý
 count.enter,WAREHOUSE,Nhập số đếm/đếm lại,Được giao; FROZEN/COUNTED; đếm mù không thấy snapshot
-count.snapshot.read,WAREHOUSE,Xem số hệ thống và chênh lệch,API tách khỏi màn hình đếm mù
-count.submit,WAREHOUSE,Chọn kết quả và trình điều chỉnh,"Đủ vị trí/dòng, đếm lại nếu vượt ngưỡng; không bỏ hàng ngoài snapshot"
+count.snapshot.read,WAREHOUSE,Xem số hệ thống và chênh lệch,DTO REVIEW chỉ cho người không được phân công đếm của phiên; BLIND tuyệt đối không trả snapshot/delta/vòng trước
+count.submit,WAREHOUSE,Chọn kết quả và trình điều chỉnh,Mọi dòng có hai vòng liên tiếp độc lập cùng số lượng; hàng ngoài snapshot là dòng snapshot 0; không bỏ sai lệch nhỏ
 period.close,WAREHOUSE,Khóa kỳ,Không còn giao dịch pending; khóa cùng row period với posting; đối soát
 period.reopen,WAREHOUSE,Mở lại kỳ,"MFA, lý do và người kiểm soát xác nhận; audit; đối soát lại báo cáo"
 report.read,WAREHOUSE,Xem 8 báo cáo định sẵn,Scope server; dữ liệu giá cần price.read
@@ -55,3 +55,5 @@ backup.operate,GLOBAL,Vận hành sao lưu/khôi phục,Tác vụ hạ tầng c�
 ownership.read,,,
 serial.read,,,
 warranty.write,,,
+count.approve,WAREHOUSE,Duyệt kiểm kê hai bước,Policy kiểm kê v1: CONTROLLER rồi DIRECTOR độc lập; khác creator/requester/counters; duyệt snapshot bất biến
+period.create,WAREHOUSE,Mở kỳ kho,Khóa warehouse; khoảng ngày không chồng kỳ hiện hữu; audit và version

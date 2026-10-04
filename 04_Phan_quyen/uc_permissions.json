@@ -300,15 +300,16 @@
   },
   {
     "use_case": "UC18",
-    "actors": "WAREHOUSE_MANAGER + CONTROLLER",
+    "actors": "WAREHOUSE_MANAGER + CONTROLLER + DIRECTOR",
     "actions": [
       {
-        "permission": "adjustment.approve",
+        "permission": "count.approve",
         "scope": "WAREHOUSE",
         "eligible_roles": [
-          "CONTROLLER"
+          "CONTROLLER",
+          "DIRECTOR"
         ],
-        "conditions": "Không là người lập/đếm; lý do, phiên bản, chênh lệch đã chốt; policy tối đa 2 bước"
+        "conditions": "Policy kiểm kê v1: CONTROLLER rồi DIRECTOR độc lập; khác creator/requester/counters; duyệt snapshot bất biến"
       },
       {
         "permission": "adjustment.post",
@@ -324,7 +325,7 @@
         "eligible_roles": [
           "WAREHOUSE_MANAGER"
         ],
-        "conditions": "Đủ vị trí/dòng, đếm lại nếu vượt ngưỡng; không bỏ hàng ngoài snapshot"
+        "conditions": "Mọi dòng có hai vòng liên tiếp độc lập cùng số lượng; hàng ngoài snapshot là dòng snapshot 0; không bỏ sai lệch nhỏ"
       }
     ],
     "note": "Vai trò trong UC chỉ làm bước có quyền tương ứng; mọi grant còn phải đúng kho, thời hạn, version và SOD."

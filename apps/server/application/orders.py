@@ -9,12 +9,15 @@ from sqlalchemy import text
 from apps.server.application.authorization import Authorization, Principal
 from apps.server.application.commands import CommandBus, CommandResult
 from apps.server.application.master_data import active_reference, invalid, one
+from apps.server.application.stock_identity import is_consignment_receipt, ownership_snapshot
 from apps.server.domain.errors import DomainError, require_version
 from apps.server.infrastructure.database import PostgresUnitOfWork
 from packages.contracts.orders import ApprovalView, OrderResult, OrderView
 from packages.contracts.traceability import COMPANY_OWNER
 
-DRAFT_PERMISSION = {"PO": "po.draft", "SO": "so.draft", "RECEIPT": "receipt.draft", "OPENING": "opening.draft"}
+DRAFT_PERMISSION = {"PO": "po.draft", "SO": "so.draft", "RECEIPT": "receipt.draft", "OPENING": "opening.draft",
+                    "ISSUE": "issue.draft", "INTERNAL_MOVE": "move.draft", "TRANSFER": "transfer.draft", "ADJUSTMENT": "adjustment.draft",
+                    "CUSTOMER_RETURN": "return.draft", "SUPPLIER_RETURN": "return.draft", "REVERSAL": "adjustment.draft"}
 SUMMARY_SQL = """SELECT d.*,p.name AS partner_name,u.display_name AS creator_name FROM wms.document d
     LEFT JOIN wms.partner p ON p.id=d.partner_id JOIN wms.app_user u ON u.id=d.created_by"""
 
@@ -36,12 +39,23 @@ class OrderService:
         doc = auth.document(doc_id)
         if doc["kind"] not in DRAFT_PERMISSION or (kind and doc["kind"] != kind):
             raise DomainError("NOT_FOUND", "Không tìm thấy PO/SO.")
+        if doc["kind"] == "ADJUSTMENT":
+            self.transfers.loss_parent(auth, doc, lock=lock)
+        if doc["kind"] == "REVERSAL":
+            self.reversals.scope(auth, doc)
         if lock:
-            if doc["kind"] == "RECEIPT":
-                source = self.receipts.source(auth, doc)
-                auth.connection.execute(
-                    text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": source["id"]}
-                )
+            if doc["kind"] == "REVERSAL":
+                self.reversals.lock_sources(auth, doc)
+            if doc["kind"] in {"CUSTOMER_RETURN", "SUPPLIER_RETURN"}:
+                self.returns.lock_sources(auth, doc)
+            if doc["kind"] == "INTERNAL_MOVE":
+                self.moves.lock_sources(auth, doc)
+            if doc["kind"] in {"RECEIPT", "ISSUE"}:
+                source = (self.receipts if doc["kind"] == "RECEIPT" else self.issues).source(auth, doc)
+                if source:
+                    auth.connection.execute(
+                        text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": source["id"]}
+                    )
             auth.connection.execute(
                 text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": doc_id}
             )
@@ -50,6 +64,10 @@ class OrderService:
 
     def may_edit(self, auth, doc):
         auth.require(DRAFT_PERMISSION[doc["kind"]], doc["warehouse_id"])
+        if doc["kind"] in {"TRANSFER", "ADJUSTMENT"}:
+            self.transfers.lifecycle(auth, doc, "edit")
+        if doc["kind"] == "REVERSAL":
+            self.reversals.lifecycle(auth, doc, "edit")
         if doc["created_by"] != auth.principal.user_id and not one(
             auth.connection,
             "SELECT id FROM wms.document_assignment WHERE document_id=:doc AND user_id=:user",
@@ -58,7 +76,7 @@ class OrderService:
         ):
             raise DomainError("FORBIDDEN", "Chỉ người lập hoặc được giao mới sửa/gửi phiếu.")
 
-    def listing(self, auth, kind, warehouse_id, status=None, after=None, limit=50):
+    def listing(self, auth, kind, warehouse_id, status=None, after=None, limit=50, query="", *, consignment_only=None):
         auth.require("document.read", warehouse_id, hidden=True)
         grants = auth.grants("document.read", warehouse_id)
         broad = any(g["role_code"] not in {"RECEIVER", "PICKER"} for g in grants)
@@ -67,16 +85,21 @@ class OrderService:
                 text(
                     SUMMARY_SQL
                     + """ WHERE d.kind=:kind AND d.warehouse_id=:warehouse
+            AND (CAST(:consignment_only AS boolean) IS NULL OR
+                 EXISTS(SELECT 1 FROM wms.consignment_receipt cr WHERE cr.document_id=d.id)=:consignment_only)
             AND (CAST(:status AS text) IS NULL OR d.status=:status)
             AND (CAST(:after AS uuid) IS NULL OR d.id>:after)
+            AND (strpos(lower(d.number),lower(:query))>0 OR strpos(lower(COALESCE(p.name,'')),lower(:query))>0)
             AND (:broad OR d.created_by=:user OR EXISTS(SELECT 1 FROM wms.document_assignment a
                 WHERE a.document_id=d.id AND a.user_id=:user)) ORDER BY d.id LIMIT :limit"""
                 ),
                 {
                     "kind": kind,
+                    "consignment_only": consignment_only,
                     "warehouse": warehouse_id,
                     "status": status,
                     "after": after,
+                    "query": query,
                     "broad": broad,
                     "user": auth.principal.user_id,
                     "limit": limit + 1,
@@ -108,9 +131,9 @@ class OrderService:
             WHERE l.document_id=:doc ORDER BY l.line_no"""),
                 {
                     "doc": doc["id"],
-                    "operation": {"SO": "ISSUE", "OPENING": "OPEN"}.get(doc["kind"], "RECEIVE"),
-                    "child_kind": {"SO": "ISSUE", "OPENING": "OPENING"}.get(doc["kind"], "RECEIPT"),
-                    "direct": doc["kind"] in {"RECEIPT", "OPENING"},
+                    "operation": {"SO": "ISSUE", "ISSUE": "ISSUE", "OPENING": "OPEN", "INTERNAL_MOVE": "MOVE", "TRANSFER": "DISPATCH", "ADJUSTMENT": "ADJUST", "SUPPLIER_RETURN": "ISSUE", "REVERSAL": "REVERSE"}.get(doc["kind"], "RECEIVE"),
+                    "child_kind": {"SO": "ISSUE", "ISSUE": "ISSUE", "OPENING": "OPENING", "INTERNAL_MOVE": "INTERNAL_MOVE", "TRANSFER": "TRANSFER", "ADJUSTMENT": "ADJUSTMENT", "CUSTOMER_RETURN": "CUSTOMER_RETURN", "SUPPLIER_RETURN": "SUPPLIER_RETURN", "REVERSAL": "REVERSAL"}.get(doc["kind"], "RECEIPT"),
+                    "direct": doc["kind"] in {"RECEIPT", "OPENING", "ISSUE", "INTERNAL_MOVE", "TRANSFER", "ADJUSTMENT", "CUSTOMER_RETURN", "SUPPLIER_RETURN", "REVERSAL"},
                 },
             )
             .mappings()
@@ -158,7 +181,15 @@ class OrderService:
                     },
                     "lines": [dict(r) for r in lines],
                     "assigned_user_ids": assignments,
+                    **ownership_snapshot(connection, lines),
+                    **({"transfer": self.transfers.snapshot(connection, doc)} if doc["kind"] in {"TRANSFER", "ADJUSTMENT"} else {}),
+                    **({"consignment_receipt": self.consignment_receipts.snapshot(connection, doc)}
+                       if doc["kind"] == "RECEIPT" and is_consignment_receipt(connection, doc["id"]) else {}),
                     **({"opening": self.openings.snapshot(connection, doc)} if doc["kind"] == "OPENING" else {}),
+                    **({"issue": self.issues.snapshot(connection, doc)} if doc["kind"] == "ISSUE" else {}),
+                    **({"return": self.returns.snapshot(connection, doc)} if doc["kind"] in {"CUSTOMER_RETURN", "SUPPLIER_RETURN"} else {}),
+                    **({"move": self.moves.snapshot(connection, doc)} if doc["kind"] == "INTERNAL_MOVE" else {}),
+                    **({"reversal": self.reversals.snapshot(connection, doc)} if doc["kind"] == "REVERSAL" else {}),
                 }
             )
         )
@@ -213,13 +244,17 @@ class OrderService:
         )
 
     def approver(self, auth, doc, req, steps):
+        if doc["kind"] in {"TRANSFER", "ADJUSTMENT"}:
+            self.transfers.lifecycle(auth, doc, "decide")
+        if doc["kind"] == "REVERSAL":
+            self.reversals.lifecycle(auth, doc, "decide")
         prior = tuple(s["decided_by"] for s in steps if s["decided_by"])
         auth.require_approval(doc, requester_id=req["requested_by"], previous_approvers=prior)
         pending = next((s for s in steps if s["status"] == "PENDING"), None)
         if not pending or any(s["status"] == "REJECTED" for s in steps):
             raise DomainError("INVALID_STATE", "Yêu cầu đã có quyết định.")
         roles = {pending["role_code"], pending["alternative_code"]}
-        permission = "opening.approve" if doc["kind"] == "OPENING" else "document.approve"
+        permission = {"OPENING": "opening.approve", "ADJUSTMENT": "adjustment.approve", "REVERSAL": "adjustment.approve"}.get(doc["kind"], "document.approve")
         if not any(g["role_code"] in roles for g in auth.grants(permission, doc["warehouse_id"])):
             raise DomainError("FORBIDDEN", "Không đúng vai trò của bước duyệt hiện tại.")
         return pending
@@ -273,12 +308,12 @@ class OrderService:
 
     def validate_header(self, connection, kind, warehouse, partner):
         active_reference(connection, "warehouse", warehouse, "warehouse_id")
-        if kind == "OPENING":
+        if kind in {"OPENING", "INTERNAL_MOVE"}:
             if partner is not None:
                 invalid("partner_id", "Tồn đầu kỳ không có nhà cung cấp nguồn.")
             return
         row = active_reference(connection, "partner", partner, "partner_id")
-        if not row["is_customer" if kind == "SO" else "is_supplier"]:
+        if not row["is_customer" if kind in {"SO", "ISSUE", "CUSTOMER_RETURN"} else "is_supplier"]:
             invalid("partner_id", "PO cần nhà cung cấp; SO cần khách hàng.")
 
     def prepare_lines(self, connection, payload):
@@ -333,6 +368,8 @@ class OrderService:
         return result
 
     def no_dependencies(self, connection, doc_id, *, edit=False, closing=False):
+        if one(connection, "SELECT id FROM wms.document WHERE id=:id AND kind='ISSUE'", id=doc_id):
+            return self.issues.no_dependencies(connection, doc_id, edit=edit, closing=closing)
         if one(
             connection, "SELECT id FROM wms.inventory_transaction WHERE document_id=:id LIMIT 1", id=doc_id
         ):
@@ -370,8 +407,10 @@ class OrderService:
         )
 
     def effects(self, connection, actor, doc, action, result, reason, request_id):
-        prefix = {"RECEIPT": "receipt.", "OPENING": "opening."}.get(doc["kind"], "order.")
-        event = action if action.startswith(("receipt.", "opening.")) else prefix + action
+        prefix = {"RECEIPT": "receipt.", "OPENING": "opening.", "ISSUE": "issue.", "INTERNAL_MOVE": "move.", "TRANSFER": "transfer.", "ADJUSTMENT": "transfer.loss.", "CUSTOMER_RETURN": "return.", "SUPPLIER_RETURN": "return.", "REVERSAL": "reversal."}.get(doc["kind"], "order.")
+        if doc["kind"] == "RECEIPT" and is_consignment_receipt(connection, doc["id"]):
+            prefix = "consignment_receipt."
+        event = action if action.startswith(("receipt.", "opening.", "issue.", "move.", "quality.", "consignment_receipt.", "return.", "transfer.", "fulfillment.", "reversal.")) else prefix + action
         params = {
             "id": uuid4(),
             "actor": actor,
@@ -421,7 +460,7 @@ class OrderService:
                         raise DomainError("NOT_FOUND", "Không tìm thấy yêu cầu duyệt.")
                     context["request"] = req
                     doc = self.document(auth, req["document_id"])
-                    auth.require("opening.approve" if doc["kind"] == "OPENING" else "document.approve", doc["warehouse_id"])
+                    auth.require({"OPENING": "opening.approve", "ADJUSTMENT": "adjustment.approve", "REVERSAL": "adjustment.approve"}.get(doc["kind"], "document.approve"), doc["warehouse_id"])
                 else:
                     doc = self.document(auth, doc_id, kind)
                     if action in {"assign", "cancel", "close"}:
@@ -431,6 +470,10 @@ class OrderService:
                         )
                     else:
                         self.may_edit(auth, doc)
+                if doc["kind"] in {"TRANSFER", "ADJUSTMENT"}:
+                    self.transfers.lifecycle(auth, doc, action)
+                if doc["kind"] == "REVERSAL":
+                    self.reversals.lifecycle(auth, doc, action)
                 context["doc"] = doc
 
         def handle(uow):
@@ -471,7 +514,17 @@ class OrderService:
                     self.receipts.validate_saved(auth, doc)
                 if doc["kind"] == "OPENING" and action in {"submit", "decide"}:
                     self.openings.validate_saved(auth, doc)
-                if doc["kind"] in {"RECEIPT", "OPENING"} and action == "close":
+                if doc["kind"] == "ISSUE" and action in {"submit", "decide"}:
+                    self.issues.validate_saved(auth, doc)
+                if doc["kind"] == "INTERNAL_MOVE" and action in {"submit", "decide"}:
+                    self.moves.validate_saved(auth, doc)
+                if doc["kind"] in {"CUSTOMER_RETURN", "SUPPLIER_RETURN"} and action in {"submit", "decide"}:
+                    self.returns.validate_saved(auth, doc)
+                if doc["kind"] in {"TRANSFER", "ADJUSTMENT"} and action in {"submit", "decide"}:
+                    self.transfers.validate_saved(auth, doc)
+                if doc["kind"] == "REVERSAL" and (action == "submit" or (action == "decide" and payload.decision == "APPROVE")):
+                    self.reversals.validate_saved(auth, doc)
+                if doc["kind"] in {"RECEIPT", "OPENING", "INTERNAL_MOVE", "TRANSFER", "ADJUSTMENT", "CUSTOMER_RETURN", "SUPPLIER_RETURN", "REVERSAL"} and action == "close":
                     raise DomainError("INVALID_STATE", "Loại phiếu này không hỗ trợ đóng thiếu.")
                 if action in {"update", "submit", "revise"}:
                     self.may_edit(auth, doc)
@@ -505,13 +558,19 @@ class OrderService:
                 elif action == "submit":
                     if doc["status"] not in {"DRAFT", "REJECTED"}:
                         raise DomainError("INVALID_STATE", "Phiếu không ở trạng thái gửi duyệt.")
-                    self.validate_header(c, doc["kind"], doc["warehouse_id"], doc["partner_id"])
+                    if doc["kind"] not in {"OPENING", "INTERNAL_MOVE", "TRANSFER", "ADJUSTMENT", "REVERSAL"} and not (
+                        doc["kind"] == "RECEIPT" and is_consignment_receipt(c, doc["id"])
+                    ):
+                        self.validate_header(c, doc["kind"], doc["warehouse_id"], doc["partner_id"])
                     saved = self.lines(c, doc)
                     if not saved:
                         raise DomainError("EMPTY_DOCUMENT", "Cần ít nhất một dòng hàng.")
                     for line in saved:
                         active_reference(c, "product", line["product_id"], "product_id")
-                        if line["owner_id"] != COMPANY_OWNER:
+                        if line["owner_id"] != COMPANY_OWNER and not (
+                            doc["kind"] in {"OPENING", "INTERNAL_MOVE"} or
+                            (doc["kind"] == "RECEIPT" and is_consignment_receipt(c, doc["id"]))
+                        ):
                             invalid("owner_id", "Chưa hỗ trợ duyệt đơn ký gửi hoặc chưa phân loại.")
                     policy = one(
                         c,
@@ -621,7 +680,11 @@ class OrderService:
                             Principal(user, UUID(int=0), person["username"], person["display_name"], None),
                             self.identity.clock(),
                         )
-                        target.require("document.read", doc["warehouse_id"])
+                        if doc["kind"] == "TRANSFER":
+                            if not any(target.allows("document.read", doc[k]) for k in ["warehouse_id", "destination_warehouse_id"]):
+                                raise DomainError("FORBIDDEN", "Người được giao phải có quyền ở kho nguồn hoặc đích.")
+                        else:
+                            target.require("document.read", doc["warehouse_id"])
                     c.execute(
                         text("DELETE FROM wms.document_assignment WHERE document_id=:id"), {"id": doc["id"]}
                     )

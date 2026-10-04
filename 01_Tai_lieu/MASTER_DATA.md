@@ -1,6 +1,6 @@
 # Danh mục — BE05 / UI04
 
-Đã triển khai API danh mục và sáu form desktop trên nhánh `feat/application-foundation`.
+Đã triển khai API danh mục; B05 mở rộng desktop trên nền `45e51a5`.
 Đây là nền cho PO/nhận hàng; tạo/sửa danh mục không tạo số dư hoặc ghi sổ kho.
 Đặc tả chạy thật: [openapi_runtime.json](../05_API/openapi_runtime.json), Swagger `/api/v1/docs`.
 
@@ -22,9 +22,23 @@ Ngừng dùng bằng trường **Đang dùng = Không**; không xóa cứng. Khi
 Để tạo Bin: tạo kho, Zone loại GROUP không có cha, Rack loại GROUP dưới Zone, rồi Bin STORAGE dưới Rack.
 NONE/LOT/SERIAL áp dụng theo SKU; LOT không bắt buộc hạn dùng trừ khi bật thuộc tính tương ứng.
 
-Danh sách phân trang 50 dòng; **Trang sau** và **Tìm / tải lại** để về trang đầu. Dropdown tham chiếu có giới hạn
-200 mục và thông báo khi bị cắt; cần mở rộng tìm kiếm dropdown trước khi dùng danh mục lớn. Barcode, revision
-UOM và giá tham chiếu hiện thao tác qua API, chưa có form riêng. Thông tin nhạy cảm của đối tác không có trong DTO này.
+Danh sách phân trang 50 dòng; **Trang sau** và **Tìm / tải lại** để về trang đầu. Nút **Tìm…** cạnh ô tham chiếu
+mở bộ chọn có tìm mã/tên và phân trang 50 mục, không giới hạn ở 200 mục đầu. Enter tìm, Enter trên danh sách chọn,
+Escape đóng bộ chọn; Tab theo thứ tự form. Tham chiếu hiện tại ngoài trang hoặc đã ngừng dùng vẫn giữ đúng ID.
+Chọn kho trước khi tìm Zone/Rack cha; danh sách vị trí hiển thị cây cùng các tổ tiên của trang hiện tại.
+Thông tin nhạy cảm của đối tác không có trong DTO này.
+
+Trong **Danh mục → Quy đổi / barcode / giá**:
+
+- **Quy đổi UOM:** chọn sản phẩm, đơn vị và hệ số decimal chuỗi, nhập lý do rồi lưu revision mới.
+  Version sản phẩm lấy khi chọn/tải; stale phải tải lại. Không sửa revision cũ. Sau ghi, chọn lại sản phẩm để lấy version mới.
+- **Barcode:** chọn sản phẩm rồi chọn quy cách còn hoạt động, nhập nguyên mã kể cả số 0 đầu. Danh sách barcode tìm
+  trên toàn danh mục. Khi sửa chỉ đổi trạng thái hoạt động; mã và quy cách không đổi. Revision UOM mới có thể ngừng barcode cũ.
+- **Giá tham chiếu:** chọn sản phẩm, ngày hiệu lực, số tiền decimal chuỗi, tiền tệ và nguồn giá. Lưu cần `price.write`
+  GLOBAL; đọc cần `master.read` GLOBAL và `price.read` tại kho được chọn. Ghi thành công chỉ có ACK, không tự đọc giá.
+  Giá là bản ghi mới theo ngày, không có nút sửa lịch sử. Đổi kho, đăng xuất hoặc bị từ chối quyền sẽ xóa kết quả cũ.
+
+**Danh mục → Chủ hàng / ký gửi** có form chủ hàng/hợp đồng và tra tồn theo chủ sở hữu; xem [TRACEABILITY.md](TRACEABILITY.md).
 
 Nếu mất phản hồi lệnh lưu, UI giữ nguyên payload/key và bật **Gửi lại cùng yêu cầu**; không tự gửi lại lệnh.
 Tải lại/đăng nhập lại cùng tài khoản trong cùng process vẫn giữ yêu cầu chưa rõ kết quả; tài khoản khác không thấy
@@ -101,6 +115,9 @@ Schema sau 005: 60 bảng/393 cột/113 FK; phần thêm ở [master model](../0
 
 Owner/hợp đồng và truy vết receipt/NCC/bảo hành đã có API; desktop đã có tab tra serial. Xem
 [TRACEABILITY.md](TRACEABILITY.md) cho runtime 006/007 và bằng chứng thành phần T27/T28.
-BE05/UI04 còn: form owner/hợp đồng/ghi chứng cứ/barcode/UOM revision/giá, policy xuất/chuyển ký gửi,
-dropdown có tìm kiếm quy mô lớn và UAT Windows. PO/SO và approval đã có tại [ORDERS_APPROVAL.md](ORDERS_APPROVAL.md). Chưa có nhập file vào server hoặc
-posting. T12/T13 có bằng chứng thành phần; toàn bộ T01–T28 vẫn PLANNED cho tới nghiệm thu đủ luồng.
+B05 bổ sung các form trên, bộ chọn tham chiếu lớn và chứng cứ bảo hành. `test_b05_desktop.py` chạy qua HTTP/PG thật,
+gồm 235 UOM, cây vị trí, mã trùng/stale, quyền ghi/đọc giá độc lập, chủ hàng/hợp đồng, 10+5 và revision bảo hành.
+`test_b05_presenters.py` kiểm tra replay nguyên yêu cầu, bỏ phản hồi phiên cũ và bố cục 900×690.
+Còn policy xuất/chuyển ký gửi (B09), import (B01/B16), journal bền cho các form (B19) và UAT Windows.
+PO/SO tại [ORDERS_APPROVAL.md](ORDERS_APPROVAL.md), posting nhận hàng tại [RECEIVING.md](RECEIVING.md).
+T12/T13 có bằng chứng thành phần; toàn bộ T01–T28 vẫn PLANNED cho tới nghiệm thu đủ luồng.

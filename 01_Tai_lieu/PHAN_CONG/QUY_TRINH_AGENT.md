@@ -1,8 +1,9 @@
 # Quy trình cho 26 nhánh còn lại
 
 Đọc brief Bxx của nhánh trước khi sửa. Danh sách có máy đọc được: [backlog.json](backlog.json).
-Các brief ghi **phần còn thiếu**, không yêu cầu viết lại các module đã chạy. Mốc mã đã kiểm chứng là
-`06041b7`: 301 tests + 10 subtests local, 0 failed/skip. T01–T28 vẫn PLANNED; số test này
+Các brief ghi **phần còn thiếu**, không yêu cầu viết lại các module đã chạy. Mốc hiện tại là
+`6b92d2aec012`: 970 tests + 10 subtests local, 0 failed/skip; B13/B16/B14 đã tích hợp. B07/B17 cần đồng bộ trước khi chuyển READY.
+Mốc `06041b7` với 301 tests là lịch sử chia việc ban đầu. T01–T28 vẫn PLANNED; số test này
 không thay thế nghiệm thu Windows, thiết bị, tải, backup/restore hoặc xác nhận nghiệp vụ.
 
 ## Bắt đầu và phụ thuộc
@@ -11,7 +12,8 @@ không thay thế nghiệm thu Windows, thiết bị, tải, backup/restore ho�
    `rtk proxy git status --short`. Không sửa khi nhầm nhánh hoặc có thay đổi chưa rõ nguồn.
 2. Đọc `AGENTS.md`, brief, [baseline](../SCOPE_BASELINE.md), [bất biến](../INVARIANTS.md),
    [triển khai hiện tại](../IMPLEMENTATION.md), [kiến trúc](../ARCHITECTURE.md) và code/test liên quan.
-3. READY nghĩa là được bắt đầu triển khai trên mốc chia nhánh này. WAITING_DEPENDENCIES nghĩa là
+3. READY trong sổ tích hợp hiện tại nghĩa là được triển khai trên `activated_base` đã đồng bộ.
+   Trạng thái trong catalog/brief ban đầu chỉ là lịch sử chia việc. WAITING_DEPENDENCIES nghĩa là
    **chưa được lập trình phần phụ thuộc từ checkout ban đầu**. Có thể đọc, rà contract và soạn kế hoạch
    ở báo cáo riêng; chưa nhận mock/stub làm đầu ra hoàn tất.
 4. Kiểm tra [sổ tích hợp](integration_log.json) **trên nhánh điều phối mới nhất** bằng:
@@ -48,7 +50,7 @@ không thay thế nghiệm thu Windows, thiết bị, tải, backup/restore ho�
 
 ## Migration khi phát triển song song
 
-Giữ nguyên PostgreSQL 001–010 và SQLite 001–002 đã tích hợp. Các tên `development_migration` trong
+Giữ nguyên PostgreSQL 001–020 và SQLite 001–002 đã tích hợp. Các tên `development_migration` trong
 catalog được **dành riêng để các worktree phát triển trên DB tạm**, không phải thứ tự release đã cam kết.
 Không cần tạo migration rỗng nếu schema hiện có đủ dùng. Nhánh không được cấp tên mà phát sinh nhu cầu
 DDL phải báo điều phối cấp tên; không tự dùng số của nhánh khác.

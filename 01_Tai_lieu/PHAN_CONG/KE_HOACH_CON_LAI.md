@@ -1,11 +1,15 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
+**Cập nhật 04/10 sau B14:** 15/26 nhánh đã tích hợp; B13/B16/B14 có runtime và kiểm thử.
+B17 (P1) và B07 (P3) đủ dependency, cần đồng bộ worktree trước khi giao triển khai.
+Xem [báo cáo mới](../../07_Kiem_tra/B14_INTEGRATION_2026_10_04.md) và [sổ tích hợp](integration_log.json).
+
 Ngày 03/10/2026 · Mốc mã đã tích hợp: `06041b7bc0c6e6515cb396d2ab5a29fae772df19`.
 Nhánh điều phối: `feat/application-foundation`. Các nhánh mới lấy **cùng commit kế hoạch chứa tài liệu này**,
 không lấy các nhánh agent cũ làm nền. [Quy trình agent](QUY_TRINH_AGENT.md) ·
 [Catalog JSON](backlog.json) · [Sổ tích hợp](integration_log.json) · [Đợt trước](DOT_1_DA_TICH_HOP.md).
 
-## Hệ thống hiện có và phần chưa hoàn thiện
+## Lịch sử hệ thống và phần còn lại tại mốc chia việc 03/10
 
 Đã có nền FastAPI/Tkinter/PostgreSQL; đăng nhập/phiên/MFA, phân quyền kho và duyệt cấp quyền; danh mục,
 PO/SO và phê duyệt; nhận hàng từng phần; truy vấn owner và bảo hành serial; backend tồn đầu kỳ COMPANY;
@@ -21,7 +25,7 @@ T01–T28 vẫn PLANNED đến khi đủ bằng chứng. Đây là audit mã và
 GitHub trực tiếp**. Nhiều issue OPEN đã có một phần code; agent tiếp tục phần thiếu, không viết lại từ đầu.
 Không quy đổi số test hoặc số nhánh thành phần trăm hoàn thành hay cam kết ngày xong.
 
-## Giao ngay và thứ tự tiếp theo
+## Lịch giao việc ban đầu — 03/10/2026
 
 **8 nhánh READY:** B01, B02, B03, B04, B05, B06, B08, B15. Chỉ mở số agent phù hợp tài nguyên máy.
 Nếu có 4 agent, ưu tiên B01 (import), B02 (xuất), B03 (quality/move), B08 (CI/contract); khi trống chỗ
