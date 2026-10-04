@@ -44,3 +44,10 @@ B11 release `015_b11_transfer.sql` thêm kế hoạch chuyển, source link/ch�
 policy duyệt hai loại trả nếu chưa có. Không thay 001–015 hoặc policy đã chỉnh.
 Tổng schema sau B12: 78 bảng/514 cột/164 FK. Revision phát triển trước đó là 018.
 Kiểm fresh install và upgrade có dữ liệu từ 010 và release 015; xem [Trả hàng](../01_Tai_lieu/RETURNS.md).
+
+## B10 revision 017
+
+`017_b10_fulfillment.sql` bổ sung lượng giao/tiêu thụ của pick_task, trạng thái/version kiện,
+nguồn task trên package_line và fulfillment_consumption append-only. Tổng: 79 bảng/530 cột/169 FK.
+Người dùng đã cho phép cấp số 017 sau khi release 016 được B12 dùng. Giữ nguyên 001–016;
+không backfill nguồn legacy. Kiểm upgrade từ 010 và 016 có dữ liệu. Xem [Soạn/đóng kiện](../01_Tai_lieu/FULFILLMENT.md).

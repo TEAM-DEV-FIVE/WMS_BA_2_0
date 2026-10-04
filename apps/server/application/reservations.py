@@ -229,6 +229,11 @@ class ReservationService:
 
     @staticmethod
     def check_fulfillment(c, reservation_id):
-        if one(c, "SELECT id FROM wms.pick_task WHERE reservation_id=:id AND status<>'CANCELLED' LIMIT 1",
+        if one(c, """SELECT p.id FROM wms.package p JOIN wms.document_line l ON l.document_id=p.document_id
+            JOIN wms.reservation r ON r.line_id=l.id WHERE r.id=:id AND p.status IS NULL LIMIT 1""", id=reservation_id):
+            raise DomainError("FULFILLMENT_ACTIVE", "Kiện cũ cần đối soát nguồn trước khi thay giữ chỗ.")
+        if one(c, """SELECT id FROM wms.pick_task WHERE reservation_id=:id AND status<>'CANCELLED'
+            AND (target_quantity IS NULL OR
+                 CASE WHEN status='DONE' THEN picked_quantity ELSE target_quantity END > consumed_quantity) LIMIT 1""",
                id=reservation_id):
             raise DomainError("FULFILLMENT_ACTIVE", "Cần xử lý nhiệm vụ soạn hàng trước khi thay giữ chỗ.")

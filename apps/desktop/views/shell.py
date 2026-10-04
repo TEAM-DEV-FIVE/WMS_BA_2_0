@@ -4,6 +4,7 @@ from tkinter import ttk
 from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
+from apps.desktop.views.fulfillment import FulfillmentView
 from apps.desktop.views.issues import IssueView
 from apps.desktop.views.master_data import MasterDataView
 from apps.desktop.views.master_details import ProductDetailsView
@@ -68,6 +69,9 @@ class DesktopShell:
         notebook.add(self.receipt_recovery_view, text="Phục hồi nhận hàng")
         self.issue_view = IssueView(notebook, self.session_view.presenter.api)
         notebook.add(self.issue_view, text="Giữ hàng / xuất kho")
+        self.fulfillment_view = FulfillmentView(notebook, self.session_view.presenter.api)
+        self.fulfillment_view.on_signed_out = self.admin_signed_out
+        notebook.add(self.fulfillment_view, text="Soạn hàng / đóng kiện")
         self.admin_view = AdminView(notebook, self.session_view.presenter.api)
         self.admin_view.on_signed_out = self.admin_signed_out
         notebook.add(self.admin_view, text="Quản trị tài khoản / quyền")
@@ -116,6 +120,7 @@ class DesktopShell:
         self.order_view.session_changed(user, warehouses)
         self.receipt_view.session_changed(user, warehouses)
         self.issue_view.session_changed(user, warehouses)
+        self.fulfillment_view.session_changed(user, warehouses)
         self.opening_view.session_changed(user, warehouses)
         self.consignment_view.session_changed(user, warehouses)
         self.admin_view.session_changed(user, warehouses)
@@ -154,6 +159,7 @@ class DesktopShell:
             self.order_view.presenter.drain()
             self.receipt_view.presenter.drain()
             self.issue_view.presenter.drain()
+            self.fulfillment_view.presenter.drain()
             self.opening_view.presenter.drain()
             self.consignment_view.presenter.drain()
             self.admin_view.presenter.drain()
@@ -191,7 +197,7 @@ class DesktopShell:
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
-        for view in [self.quality_view, self.move_view, self.transfer_view, *self.return_views]:
+        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, *self.return_views]:
             view.presenter.close()
             view.release_variables()
         self.session_view.release_variables()
@@ -207,6 +213,7 @@ class DesktopShell:
         self.order_view.presenter.finish()
         self.receipt_view.presenter.finish()
         self.issue_view.presenter.finish()
+        self.fulfillment_view.presenter.finish()
         self.opening_view.presenter.finish()
         self.consignment_view.presenter.finish()
         self.admin_view.presenter.finish()
