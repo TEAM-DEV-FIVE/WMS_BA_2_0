@@ -54,11 +54,11 @@
     },
     {
       "id": "B07",
-      "status": "PREPARED_WAITING_DEPENDENCIES",
+      "status": "READY_FOR_SYNC",
       "activated_base": null,
       "handoff_commit": "53974bde67afc567c707d34e76668d9461dbe552",
       "integrated_commit": null,
-      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Còn chờ: B14 Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
+      "note": "Đủ dependency trên nhánh điều phối sau B14; chưa đồng bộ worktree, chưa được triển khai từ checkout cũ. Giữ mọi commit nghiên cứu khi đồng bộ."
     },
     {
       "id": "B08",
@@ -104,11 +104,11 @@
     },
     {
       "id": "B13",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
-      "handoff_commit": "07a6f55f580c8b180021b740bdd858e294d8c0b0",
-      "integrated_commit": null,
-      "note": "Người dùng yêu cầu đồng bộ ngày 2026-10-04. Đã merge nền đã kiểm chứng và giữ commit nghiên cứu; READY để triển khai. Chưa có runtime riêng, chưa CODE_READY/ACCEPTED; integrated_commit vẫn null. Báo cáo nghiên cứu 03/10 là lịch sử, cần đọc lại contract hiện tại.",
+      "handoff_commit": "04250f3825111311dc5196297495ad0a76a87fad",
+      "integrated_commit": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+      "note": "Tích hợp local ngày 2026-10-04. B13/B16: 906 tests + 10 subtests; bản B14 cuối: 970 tests + 10 subtests, 0 lỗi/skip. Xem 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Chưa UAT/Windows/LAN/thiết bị/tải/DR.",
       "synchronization_commit": "b51e087617d0270cf06bc329d30a580b970255c8",
       "dependency_commits": {
         "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
@@ -116,15 +116,18 @@
         "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
         "B11": "dce35f92b32015146f23d48229d641b558715b8c",
         "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1"
-      }
+      },
+      "verified_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
     },
     {
       "id": "B14",
-      "status": "PREPARED_WAITING_DEPENDENCIES",
-      "activated_base": null,
-      "handoff_commit": "d95bf75b70788dad94fea80e5c8ddacbfd774866",
-      "integrated_commit": null,
-      "note": "Chỉ có báo cáo chuẩn bị, chưa có runtime. Còn chờ: B13 Rà ngày 2026-10-04; 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md."
+      "status": "INTEGRATED",
+      "activated_base": "f81d985cc0e288196a9cee457db3e69252dcd534",
+      "handoff_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "integrated_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "note": "Tích hợp local ngày 2026-10-04. B13/B16: 906 tests + 10 subtests; bản B14 cuối: 970 tests + 10 subtests, 0 lỗi/skip. Xem 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Chưa UAT/Windows/LAN/thiết bị/tải/DR.",
+      "verified_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "synchronization_commit": "517f6448286a38780407f25830ddf34c4ec222a4"
     },
     {
       "id": "B15",
@@ -137,26 +140,27 @@
     },
     {
       "id": "B16",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
-      "handoff_commit": "90773d976ae440ec55d80df2937c3ae8f73f1178",
-      "integrated_commit": null,
-      "note": "Người dùng yêu cầu đồng bộ ngày 2026-10-04. Đã merge nền đã kiểm chứng và giữ commit nghiên cứu; READY để triển khai. Chưa có runtime riêng, chưa CODE_READY/ACCEPTED; integrated_commit vẫn null. Báo cáo nghiên cứu 03/10 là lịch sử, cần đọc lại contract hiện tại.",
+      "handoff_commit": "e0e94c74bdd4e5063d0b1a77aa1235624d1be728",
+      "integrated_commit": "f81d985cc0e288196a9cee457db3e69252dcd534",
+      "note": "Tích hợp local ngày 2026-10-04. B13/B16: 906 tests + 10 subtests; bản B14 cuối: 970 tests + 10 subtests, 0 lỗi/skip. Xem 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Chưa UAT/Windows/LAN/thiết bị/tải/DR.",
       "synchronization_commit": "ae4db4694ccacba2849f096f99baa21f881d465e",
       "dependency_commits": {
         "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
         "B06": "bd15277c7142708b595ac9d16aa77b5a4db90745",
         "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
         "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780"
-      }
+      },
+      "verified_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
     },
     {
       "id": "B17",
-      "status": "NOT_STARTED",
+      "status": "READY_FOR_SYNC",
       "activated_base": null,
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": ""
+      "note": "Đủ dependency trên nhánh điều phối sau B14; chưa đồng bộ worktree, chưa được triển khai từ checkout cũ. Giữ mọi commit nghiên cứu khi đồng bộ."
     },
     {
       "id": "B18",

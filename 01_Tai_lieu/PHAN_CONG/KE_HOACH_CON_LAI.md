@@ -1,15 +1,15 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
-**Cập nhật 04/10:** 12 nhánh đã tích hợp; B13/B16 đã đồng bộ nền `d4676b6`, READY để triển khai; B07/B14 chỉ có chuẩn bị,
-B17–B26 chưa triển khai. Xem [báo cáo nhánh hiện hành](../../07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md).
-Các bảng READY/thứ tự bên dưới giữ mốc chia việc 03/10, không thay thế sổ tích hợp mới.
+**Cập nhật 04/10 sau B14:** 15/26 nhánh đã tích hợp; B13/B16/B14 có runtime và kiểm thử.
+B17 (P1) và B07 (P3) đủ dependency, cần đồng bộ worktree trước khi giao triển khai.
+Xem [báo cáo mới](../../07_Kiem_tra/B14_INTEGRATION_2026_10_04.md) và [sổ tích hợp](integration_log.json).
 
 Ngày 03/10/2026 · Mốc mã đã tích hợp: `06041b7bc0c6e6515cb396d2ab5a29fae772df19`.
 Nhánh điều phối: `feat/application-foundation`. Các nhánh mới lấy **cùng commit kế hoạch chứa tài liệu này**,
 không lấy các nhánh agent cũ làm nền. [Quy trình agent](QUY_TRINH_AGENT.md) ·
 [Catalog JSON](backlog.json) · [Sổ tích hợp](integration_log.json) · [Đợt trước](DOT_1_DA_TICH_HOP.md).
 
-## Hệ thống hiện có và phần chưa hoàn thiện
+## Lịch sử hệ thống và phần còn lại tại mốc chia việc 03/10
 
 Đã có nền FastAPI/Tkinter/PostgreSQL; đăng nhập/phiên/MFA, phân quyền kho và duyệt cấp quyền; danh mục,
 PO/SO và phê duyệt; nhận hàng từng phần; truy vấn owner và bảo hành serial; backend tồn đầu kỳ COMPANY;
