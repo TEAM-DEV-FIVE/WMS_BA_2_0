@@ -1,0 +1,50 @@
+// Additive model only; checks, uniqueness and immutable-history guards live in migration 025.
+Table custom_field_schema {
+  id uuid [not null]
+  entity_type varchar(40) [not null]
+  version integer [not null]
+}
+
+Table custom_field_revision {
+  id uuid [not null]
+  schema_id uuid [not null]
+  version integer [not null]
+  created_by uuid [not null]
+  created_at timestamptz [not null]
+  reason text [not null]
+}
+
+Table custom_field_binding {
+  id uuid [not null]
+  product_id uuid
+  document_id uuid
+  revision_id uuid [not null]
+  values jsonb [not null]
+}
+
+Table custom_field_change {
+  id uuid [not null]
+  binding_id uuid [not null]
+  revision_id uuid [not null]
+  target_version integer [not null]
+  values jsonb [not null]
+  changed_by uuid [not null]
+  changed_at timestamptz [not null]
+  reason text [not null]
+}
+
+Table custom_field_definition {
+  revision_id uuid
+  label varchar(120)
+  visibility varchar(20) [not null]
+}
+
+Ref: custom_field_revision.schema_id > custom_field_schema.id
+Ref: custom_field_revision.created_by > app_user.id
+Ref: custom_field_binding.product_id > product.id
+Ref: custom_field_binding.document_id > document.id
+Ref: custom_field_binding.revision_id > custom_field_revision.id
+Ref: custom_field_change.binding_id > custom_field_binding.id
+Ref: custom_field_change.revision_id > custom_field_revision.id
+Ref: custom_field_change.changed_by > app_user.id
+Ref: custom_field_definition.revision_id > custom_field_revision.id

@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 
 from apps.server.api.counting import counting_router
+from apps.server.api.custom_fields import custom_field_router
 from apps.server.api.document_reviews import document_review_router
 from apps.server.api.exports import export_router
 from apps.server.api.fulfillment import fulfillment_router
@@ -30,6 +31,7 @@ from apps.server.api.traceability import traceability_router
 from apps.server.api.transfers import transfer_router
 from apps.server.application.consignments import ConsignmentReceiptService
 from apps.server.application.counting import CountingService
+from apps.server.application.custom_fields import CustomFieldService
 from apps.server.application.exports import ExportService
 from apps.server.application.identity import IdentityService
 from apps.server.application.imports import ImportService
@@ -111,6 +113,9 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(period_router(app.state.periods))
     app.state.reversals = ReversalService(app.state.orders)
     app.include_router(reversal_router(app.state.reversals))
+    app.state.custom_fields = CustomFieldService(app.state.orders)
+    app.state.orders.custom_fields = app.state.custom_fields
+    app.include_router(custom_field_router(app.state.custom_fields))
 
     app.state.reports = ReportService(app.state.identity)
     app.include_router(report_router(app.state.reports))

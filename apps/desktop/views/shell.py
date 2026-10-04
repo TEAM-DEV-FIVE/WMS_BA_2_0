@@ -6,6 +6,7 @@ from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.views.admin import AdminView
 from apps.desktop.views.approvals import ApprovalView
 from apps.desktop.views.counting import CountView
+from apps.desktop.views.custom_fields import CustomFieldView
 from apps.desktop.views.fulfillment import FulfillmentView
 from apps.desktop.views.imports import ImportView
 from apps.desktop.views.issues import IssueView
@@ -114,6 +115,9 @@ class DesktopShell:
             notebook.add(view, text=title)
         self.report_view = ReportView(notebook, self.session_view.presenter.api)
         notebook.add(self.report_view, text="Báo cáo / xuất dữ liệu")
+        self.custom_fields_view = CustomFieldView(notebook, self.session_view.presenter.api)
+        self.custom_fields_view.on_signed_out = self.admin_signed_out
+        notebook.add(self.custom_fields_view, text="Trường mở rộng")
         container = ttk.Frame(notebook, padding=24)
         notebook.add(container, text="Kết nối")
         ttk.Label(container, text="WMS · Quản lý kho", font=("Segoe UI", 22, "bold")).pack(anchor="w")
@@ -160,6 +164,7 @@ class DesktopShell:
         self.period_view.session_changed(user, warehouses)
         self.reversal_view.session_changed(user, warehouses)
         self.report_view.session_changed(user, warehouses)
+        self.custom_fields_view.session_changed(user, warehouses)
 
     def admin_signed_out(self, message):
         # A queued session snapshot/warehouse response must not restore the
@@ -260,6 +265,7 @@ class DesktopShell:
             self.period_view.presenter.drain()
             self.reversal_view.presenter.drain()
             self.report_view.presenter.drain()
+            self.custom_fields_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -293,7 +299,7 @@ class DesktopShell:
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
-        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, self.count_view, self.period_view, self.reversal_view, self.report_view, *self.return_views]:
+        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, self.count_view, self.period_view, self.reversal_view, self.report_view, self.custom_fields_view, *self.return_views]:
             view.presenter.close()
             view.release_variables()
         self.session_view.release_variables()
@@ -329,6 +335,7 @@ class DesktopShell:
         self.period_view.presenter.finish()
         self.report_view.presenter.finish()
         self.reversal_view.presenter.finish()
+        self.custom_fields_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
         # Destroy removes Tcl commands but Python widget cycles may outlive this
