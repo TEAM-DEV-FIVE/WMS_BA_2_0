@@ -401,7 +401,10 @@ def test_admin_900_by_690_navigation_layout_timeout_secret_and_cleanup(caplog, t
     try:
         root.update()
         assert root.winfo_width() == 900 and root.winfo_height() == 690
-        assert len(shell.navigation["values"]) == 8
+        assert len(shell.navigation["values"]) == 16
+        assert {"Khách trả hàng", "Trả nhà cung cấp"} <= set(shell.navigation["values"])
+        assert "Giữ hàng / xuất kho" in shell.navigation["values"]
+        assert "Chuyển kho / transit" in shell.navigation["values"]
         for index, tab in enumerate(shell.notebook.tabs()):
             shell.navigation.current(index)
             shell.navigation.event_generate("<<ComboboxSelected>>")
