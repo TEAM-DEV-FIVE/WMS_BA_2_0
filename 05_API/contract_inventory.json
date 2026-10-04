@@ -417,6 +417,46 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/exports/{job_id}",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exports/{job_id}/download",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/files/{file_id}",
       "tags": [
         "imports"
@@ -1677,6 +1717,46 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/reports/lookups/{kind}",
+      "tags": [
+        "reports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/snapshots/{snapshot_id}",
+      "tags": [
+        "reports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/returns",
       "tags": [
         "returns"
@@ -2833,6 +2913,46 @@
     },
     {
       "method": "POST",
+      "path": "/api/v1/exports",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/exports/{job_id}/{operation}",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
       "path": "/api/v1/files",
       "tags": [
         "imports"
@@ -3729,6 +3849,26 @@
       "idempotency_key_required": true,
       "expected_version_required": true,
       "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reports/{code}/snapshots",
+      "tags": [
+        "reports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
       "documented_errors": [
         "401",
         "403",

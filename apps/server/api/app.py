@@ -11,6 +11,7 @@ from starlette.exceptions import HTTPException
 
 from apps.server.api.counting import counting_router
 from apps.server.api.document_reviews import document_review_router
+from apps.server.api.exports import export_router
 from apps.server.api.fulfillment import fulfillment_router
 from apps.server.api.identity import identity_router
 from apps.server.api.imports import import_router
@@ -22,12 +23,14 @@ from apps.server.api.orders import order_router
 from apps.server.api.periods import period_router
 from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
+from apps.server.api.reports import report_router
 from apps.server.api.returns import return_router
 from apps.server.api.reversals import reversal_router
 from apps.server.api.traceability import traceability_router
 from apps.server.api.transfers import transfer_router
 from apps.server.application.consignments import ConsignmentReceiptService
 from apps.server.application.counting import CountingService
+from apps.server.application.exports import ExportService
 from apps.server.application.identity import IdentityService
 from apps.server.application.imports import ImportService
 from apps.server.application.issues import IssueService
@@ -39,6 +42,7 @@ from apps.server.application.periods import PeriodService
 from apps.server.application.picking import PickingService
 from apps.server.application.quality import QualityService
 from apps.server.application.receipts import ReceiptService
+from apps.server.application.reports import ReportService
 from apps.server.application.returns import ReturnService
 from apps.server.application.reversals import ReversalService
 from apps.server.application.traceability import TraceabilityService
@@ -107,6 +111,11 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(period_router(app.state.periods))
     app.state.reversals = ReversalService(app.state.orders)
     app.include_router(reversal_router(app.state.reversals))
+
+    app.state.reports = ReportService(app.state.identity)
+    app.include_router(report_router(app.state.reports))
+    app.state.exports = ExportService(app.state.reports)
+    app.include_router(export_router(app.state.exports))
 
     def error(request: Request, status: int, code: str, message: str, **kwargs):
         body = Error(code=code, message=message, request_id=request.state.request_id, **kwargs)

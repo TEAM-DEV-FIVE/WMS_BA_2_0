@@ -28,3 +28,4 @@ dist/
 *.egg-info/
 .reports/
 .wms-import-files/
+.wms-export-files/

@@ -19,6 +19,7 @@ from apps.desktop.views.periods import PeriodView
 from apps.desktop.views.quality import QualityView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
 from apps.desktop.views.receipts import ReceiptView
+from apps.desktop.views.reports import ReportView
 from apps.desktop.views.returns import ReturnView
 from apps.desktop.views.reversals import ReversalView
 from apps.desktop.views.serial_lookup import SerialLookupView
@@ -111,6 +112,8 @@ class DesktopShell:
         for view, title in [(self.count_view, "Kiểm kê / điều chỉnh"), (self.period_view, "Kỳ kho")]:
             view.on_signed_out = self.admin_signed_out
             notebook.add(view, text=title)
+        self.report_view = ReportView(notebook, self.session_view.presenter.api)
+        notebook.add(self.report_view, text="Báo cáo / xuất dữ liệu")
         container = ttk.Frame(notebook, padding=24)
         notebook.add(container, text="Kết nối")
         ttk.Label(container, text="WMS · Quản lý kho", font=("Segoe UI", 22, "bold")).pack(anchor="w")
@@ -156,6 +159,7 @@ class DesktopShell:
         self.count_view.session_changed(user, warehouses)
         self.period_view.session_changed(user, warehouses)
         self.reversal_view.session_changed(user, warehouses)
+        self.report_view.session_changed(user, warehouses)
 
     def admin_signed_out(self, message):
         # A queued session snapshot/warehouse response must not restore the
@@ -255,6 +259,7 @@ class DesktopShell:
             self.count_view.presenter.drain()
             self.period_view.presenter.drain()
             self.reversal_view.presenter.drain()
+            self.report_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -288,7 +293,7 @@ class DesktopShell:
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
-        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, self.count_view, self.period_view, self.reversal_view, *self.return_views]:
+        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, self.count_view, self.period_view, self.reversal_view, self.report_view, *self.return_views]:
             view.presenter.close()
             view.release_variables()
         self.session_view.release_variables()
@@ -322,6 +327,7 @@ class DesktopShell:
         self.transfer_view.presenter.finish()
         self.count_view.presenter.finish()
         self.period_view.presenter.finish()
+        self.report_view.presenter.finish()
         self.reversal_view.presenter.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
