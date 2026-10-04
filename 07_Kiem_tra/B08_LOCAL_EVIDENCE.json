@@ -1,0 +1,172 @@
+{
+  "branch": "agent/b08-ci-contracts",
+  "tested_base_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+  "note": "Tests ran on the modified B08 worktree based on this commit; final handoff hash is provided with the local commit. These are local component checks, not T01–T28 acceptance or hosted CI evidence.",
+  "collection": {
+    "total": 400,
+    "integration": 159,
+    "gui": 20,
+    "gui_without_db": 7
+  },
+  "summary": {
+    "application": "400 passed + 10 subtests, 0 failed/skip, 349.58s",
+    "unit": "234 passed + 10 subtests, 166 deselected, 59.54s",
+    "gui_without_db": "7 passed, 393 deselected, 2.19s",
+    "design_unittest": "30 passed",
+    "artifacts": "PASS 431 checksums, formats, models, RBAC, traceability, OpenAPI and import ZIP"
+  },
+  "checks": {
+    "unit": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:46:40.581396+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "suite": "unit",
+      "gui": false,
+      "postgres": null,
+      "result": 0,
+      "junit": {
+        "tests": 244,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "application": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:51:55.200418+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "suite": "all",
+      "gui": true,
+      "postgres": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+      "result": 0,
+      "junit": {
+        "tests": 410,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "tk": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:52:40.761695+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "suite": "gui",
+      "gui": true,
+      "postgres": null,
+      "result": 0,
+      "junit": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "lint": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:50:37.167768+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "check": "lint",
+      "result": 0
+    },
+    "build": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:45:57.923011+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "check": "build",
+      "result": 0
+    },
+    "wheel": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:51:21.226512+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "wheel": "wms_lan-0.1.0-py3-none-any.whl",
+      "wheel_sha256": "a8d172b30c0c3249949cecd40974e47b6d8b36c4f0a925cf14dbdfeb60bb3a3f",
+      "result": 0,
+      "dependency_mode": "reuse locked third-party packages; WMS installed in fresh prefix"
+    },
+    "postgres-design": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:47:18.727126+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "check": "postgres-design",
+      "result": 0
+    },
+    "contract": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:52:40.598315+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "check": "contract",
+      "result": 0
+    },
+    "design-tests": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:50:37.758273+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "check": "design-tests",
+      "result": 0
+    },
+    "artifacts": {
+      "commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "dirty": true,
+      "utc": "2026-10-03T08:54:25.630658+00:00",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+      "lock_sha256": "2f7f49510cc862e62ee11827cc3baecfb73f78fbab3d99249019fe9f4a52aebc",
+      "github_run_id": null,
+      "check": "artifacts",
+      "result": 0
+    }
+  },
+  "not_run": {
+    "PostgreSQL15": "Only PostgreSQL16 binaries installed locally",
+    "Windows": "No Windows runner in this session; Windows CI YAML is not evidence",
+    "hosted_CI": "No push or workflow dispatch performed",
+    "UAT_T01_T28": "Requires integrated domains/target environments and B26 acceptance"
+  }
+}

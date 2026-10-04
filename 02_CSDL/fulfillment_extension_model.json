@@ -1,0 +1,122 @@
+{
+  "revision": "017_b10_fulfillment.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "fulfillment_consumption",
+      "purpose": "Append-only package to reservation consumption trace; no stock mutation.",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "package_line_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "package_line.id"
+        },
+        {
+          "name": "reservation_consumption_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "reservation_consumption.id"
+        },
+        {
+          "name": "quantity",
+          "type": "numeric(20,6)",
+          "null": false,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "table": "pick_task",
+      "name": "target_quantity",
+      "type": "numeric(20,6)",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "pick_task",
+      "name": "consumed_quantity",
+      "type": "numeric(20,6)",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "pick_task",
+      "name": "reason",
+      "type": "text",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "pick_task",
+      "name": "created_by",
+      "type": "uuid",
+      "null": true,
+      "ref": "app_user.id"
+    },
+    {
+      "table": "pick_task",
+      "name": "created_at",
+      "type": "timestamptz",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "package",
+      "name": "status",
+      "type": "varchar(20)",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "package",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "package",
+      "name": "reason",
+      "type": "text",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "package",
+      "name": "created_by",
+      "type": "uuid",
+      "null": true,
+      "ref": "app_user.id"
+    },
+    {
+      "table": "package",
+      "name": "created_at",
+      "type": "timestamptz",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "package_line",
+      "name": "pick_task_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "pick_task.id"
+    },
+    {
+      "table": "package_line",
+      "name": "consumed_quantity",
+      "type": "numeric(20,6)",
+      "null": false,
+      "ref": null
+    }
+  ]
+}

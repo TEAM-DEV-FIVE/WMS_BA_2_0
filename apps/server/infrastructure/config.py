@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     session_ttl_seconds: int = Field(default=28800, ge=3600, le=604800)
     auth_failure_limit: int = Field(default=5, ge=3, le=10)
     auth_lock_seconds: int = Field(default=300, ge=60, le=3600)
+    supplier_return_quarantine_enabled: bool = False
     business_timezone: str = "Asia/Ho_Chi_Minh"
 
     @field_validator("business_timezone")

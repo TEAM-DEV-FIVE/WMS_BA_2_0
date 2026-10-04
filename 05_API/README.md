@@ -1,5 +1,8 @@
 # API contract v1
 
+Review B08: [khác biệt runtime/thiết kế, quyền và lỗi](CONTRACT_REVIEW.md);
+[inventory từng operation](contract_inventory.json) tái lập bằng `scripts/export_runtime_contract.py`.
+
 Runtime 0.1.0 có health/readiness, auth/MFA/session, quản trị user/grant, danh sách kho theo quyền và đọc chứng từ có che giá.
 [openapi_runtime.json](openapi_runtime.json) được sinh từ code và kiểm tra bằng test; Swagger ở `/api/v1/docs`.
 Runtime hiện có 65 paths. Danh mục chạy tại `/api/v1/master/*`, gồm owner/hợp đồng; thêm tồn theo owner và bảo hành serial. Xem [danh mục](../01_Tai_lieu/MASTER_DATA.md) và [truy vết](../01_Tai_lieu/TRACEABILITY.md).

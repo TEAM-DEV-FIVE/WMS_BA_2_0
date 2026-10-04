@@ -1,0 +1,25 @@
+// Revision 017_b10_fulfillment.sql. Existing tables show additive columns only.
+Table fulfillment_consumption {
+  id uuid [pk, not null]
+  package_line_id uuid [not null, ref: > package_line.id]
+  reservation_consumption_id uuid [not null, ref: > reservation_consumption.id]
+  quantity numeric(20,6) [not null]
+}
+Table pick_task {
+  target_quantity numeric(20,6)
+  consumed_quantity numeric(20,6) [not null]
+  reason text
+  created_by uuid [ref: > app_user.id]
+  created_at timestamptz
+}
+Table package {
+  status varchar(20)
+  version integer [not null]
+  reason text
+  created_by uuid [ref: > app_user.id]
+  created_at timestamptz
+}
+Table package_line {
+  pick_task_id uuid [ref: > pick_task.id]
+  consumed_quantity numeric(20,6) [not null]
+}

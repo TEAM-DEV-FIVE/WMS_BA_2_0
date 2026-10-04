@@ -1,0 +1,577 @@
+{
+  "date": "2026-10-04",
+  "scope": "Local branches, actual ancestry, handoffs, test artifacts and integrated regression; no remote state refresh.",
+  "coordinator_base": "1a17cc5b13377bbaafd70f025756aa8d23717ccb",
+  "tested_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696",
+  "counts": {
+    "INTEGRATED_LOCAL": 12,
+    "PREPARED_WAITING_DEPENDENCIES": 2,
+    "READY_FOR_SYNC": 2,
+    "NOT_STARTED": 10
+  },
+  "branches": [
+    {
+      "id": "B01",
+      "title": "Tệp và import có kiểm tra trước khi ghi",
+      "branch": "agent/b01-import-files",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b01-import-files",
+      "source_commit": "b70d43ac8e16b2744b023091e42fa56f9068a6a5",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B02",
+      "title": "Giữ hàng, xuất kho và đóng phần còn lại",
+      "branch": "agent/b02-issue-reservation",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b02-issue-reservation",
+      "source_commit": "9d3fbd1177d27350c73163885ab65260b9d72ec2",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B03",
+      "title": "Kiểm định, cất hàng và di chuyển nội bộ",
+      "branch": "agent/b03-move-quality",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b03-move-quality",
+      "source_commit": "dd659b620a9160854f24aa09cc40718414703574",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B04",
+      "title": "Hoàn thiện mật khẩu, MFA và quản trị phiên",
+      "branch": "agent/b04-iam-lifecycle",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b04-iam-lifecycle",
+      "source_commit": "2e844a02845a8e96da6b9ca598a48696fa6de355",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B05",
+      "title": "Danh mục nâng cao, chủ hàng và bảo hành serial",
+      "branch": "agent/b05-master-traceability-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b05-master-traceability-ui",
+      "source_commit": "784e6697c72c741e78a635995174503231d3c287",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B06",
+      "title": "Giao diện tồn đầu kỳ thủ công",
+      "branch": "agent/b06-opening-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b06-opening-ui",
+      "source_commit": "cb1c99d632cbe58facd97039ccb2ee28b1d37523",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B07",
+      "title": "Trường mở rộng có kiểu và phiên bản",
+      "branch": "agent/b07-custom-fields",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b07-custom-fields",
+      "source_commit": "53974bde67afc567c707d34e76668d9461dbe552",
+      "status": "PREPARED_WAITING_DEPENDENCIES",
+      "integrated_commit": null,
+      "dependencies": [
+        "B14"
+      ],
+      "remaining_dependencies": [
+        "B14"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B08",
+      "title": "CI, hợp đồng API và nền kiểm thử",
+      "branch": "agent/b08-ci-contracts",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b08-ci-contracts",
+      "source_commit": "b5e2685a10e41a8e7c037c4ebe2fff6a98972bc4",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B09",
+      "title": "Hoàn thiện nghiệp vụ hàng ký gửi và phân loại dữ liệu cũ",
+      "branch": "agent/b09-consignment",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b09-consignment",
+      "source_commit": "94bd7232173b60bf899ca5001f1687464011899a",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B05",
+        "B06"
+      ],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B10",
+      "title": "Soạn hàng và đóng kiện",
+      "branch": "agent/b10-fulfillment",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b10-fulfillment",
+      "source_commit": "238a30bcd43936ad2973540672dccbc5ef40e783",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09"
+      ],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B11",
+      "title": "Chuyển kho và nhận hàng đang vận chuyển",
+      "branch": "agent/b11-transfer",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b11-transfer",
+      "source_commit": "cc45621be81249e229655b1899f76bf1dbf4b313",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "dce35f92b32015146f23d48229d641b558715b8c",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09"
+      ],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B12",
+      "title": "Khách trả hàng và trả nhà cung cấp",
+      "branch": "agent/b12-returns",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b12-returns",
+      "source_commit": "f37c0bb80fbd9f82c26494a71c9e00574f121039",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09"
+      ],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B13",
+      "title": "Kiểm kê, điều chỉnh và khóa kỳ",
+      "branch": "agent/b13-count-period",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b13-count-period",
+      "source_commit": "07a6f55f580c8b180021b740bdd858e294d8c0b0",
+      "status": "READY_FOR_SYNC",
+      "integrated_commit": null,
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09",
+        "B11",
+        "B12"
+      ],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B14",
+      "title": "Đảo giao dịch và bảo toàn lịch sử",
+      "branch": "agent/b14-reversal",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b14-reversal",
+      "source_commit": "d95bf75b70788dad94fea80e5c8ddacbfd774866",
+      "status": "PREPARED_WAITING_DEPENDENCIES",
+      "integrated_commit": null,
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09",
+        "B11",
+        "B12",
+        "B13"
+      ],
+      "remaining_dependencies": [
+        "B13"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B15",
+      "title": "Hoàn thiện PO/SO, phân công và màn hình duyệt",
+      "branch": "agent/b15-documents-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b15-documents-ui",
+      "source_commit": "8bb824ce4e84180d0b167805b2d9e0fa12c05b28",
+      "status": "INTEGRATED_LOCAL",
+      "integrated_commit": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+      "dependencies": [],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B16",
+      "title": "Giao diện import và theo dõi xử lý tệp",
+      "branch": "agent/b16-import-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b16-import-ui",
+      "source_commit": "90773d976ae440ec55d80df2937c3ae8f73f1178",
+      "status": "READY_FOR_SYNC",
+      "integrated_commit": null,
+      "dependencies": [
+        "B01",
+        "B06",
+        "B09",
+        "B15"
+      ],
+      "remaining_dependencies": [],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B17",
+      "title": "Tám báo cáo và xuất dữ liệu có phân quyền",
+      "branch": "agent/b17-reports-export",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b17-reports-export",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14"
+      ],
+      "remaining_dependencies": [
+        "B13",
+        "B14"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B18",
+      "title": "In chứng từ, tem và máy quét HID",
+      "branch": "agent/b18-printing-scanner",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b18-printing-scanner",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B05",
+        "B15",
+        "B16",
+        "B17"
+      ],
+      "remaining_dependencies": [
+        "B16",
+        "B17"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B19",
+      "title": "Nháp và phục hồi mất LAN cho mọi luồng ghi",
+      "branch": "agent/b19-recovery-all",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b19-recovery-all",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B18"
+      ],
+      "remaining_dependencies": [
+        "B07",
+        "B13",
+        "B14",
+        "B16",
+        "B18"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B20",
+      "title": "Consumer thực tế và vận hành worker",
+      "branch": "agent/b20-outbox-operations",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b20-outbox-operations",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B01",
+        "B08",
+        "B17",
+        "B18"
+      ],
+      "remaining_dependencies": [
+        "B17",
+        "B18"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B21",
+      "title": "Triển khai máy chủ và vận hành qua LAN",
+      "branch": "agent/b21-lan-deployment",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b21-lan-deployment",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B08",
+        "B20"
+      ],
+      "remaining_dependencies": [
+        "B20"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B22",
+      "title": "Sao lưu, PITR và diễn tập phục hồi",
+      "branch": "agent/b22-backup-restore",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b22-backup-restore",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B21"
+      ],
+      "remaining_dependencies": [
+        "B21"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B23",
+      "title": "Bộ cài Windows và nâng cấp an toàn",
+      "branch": "agent/b23-windows-packaging",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b23-windows-packaging",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B08",
+        "B19"
+      ],
+      "remaining_dependencies": [
+        "B19"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B24",
+      "title": "Kiểm thử cạnh tranh, phân quyền và tải 15 CCU",
+      "branch": "agent/b24-concurrency-security",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b24-concurrency-security",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B04",
+        "B07",
+        "B08",
+        "B13",
+        "B14",
+        "B17",
+        "B19",
+        "B20",
+        "B21"
+      ],
+      "remaining_dependencies": [
+        "B07",
+        "B13",
+        "B14",
+        "B17",
+        "B19",
+        "B20",
+        "B21"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B25",
+      "title": "Tài liệu sử dụng, vận hành và hồ sơ bàn giao",
+      "branch": "agent/b25-docs-runbooks",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b25-docs-runbooks",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B07",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24"
+      ],
+      "remaining_dependencies": [
+        "B07",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24"
+      ],
+      "worktree_clean_at_review": true
+    },
+    {
+      "id": "B26",
+      "title": "Nghiệm thu T01–T28 và chốt bản bàn giao",
+      "branch": "agent/b26-uat-release",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b26-uat-release",
+      "source_commit": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "status": "NOT_STARTED",
+      "integrated_commit": null,
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24",
+        "B25"
+      ],
+      "remaining_dependencies": [
+        "B07",
+        "B13",
+        "B14",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24",
+        "B25"
+      ],
+      "worktree_clean_at_review": true
+    }
+  ],
+  "validation": {
+    "passed": 823,
+    "subtests_passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 845.52,
+    "selected_tests": 823,
+    "integration_marked": 395,
+    "gui_marked": 47,
+    "postgres": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+    "runtime_paths": 141,
+    "migrations": 18,
+    "schema": {
+      "tables": 81,
+      "columns": 542,
+      "foreign_keys": 172
+    },
+    "wheel_sha256": "045b3ca88769c9a6c84f98a6e1033213358fe87955da2d7ec6813fc971b8679d",
+    "installed_wheel_checked": true,
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-integration-review-20261004",
+    "report_stem": ".reports/integration-20261004-final",
+    "first_full_run": {
+      "commit": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+      "passed": 822,
+      "failed": 1,
+      "failure": "OpenAPI omitted 503 for two B15 document review read routes; fixed without weakening contract test.",
+      "report_stem": ".reports/integration-20261004-full"
+    },
+    "not_run": [
+      "PostgreSQL 15",
+      "Windows 10/11",
+      "hosted CI",
+      "target LAN/TLS",
+      "physical printer/scanner",
+      "15 CCU representative load",
+      "backup/restore RPO/RTO",
+      "business UAT"
+    ]
+  },
+  "evidence_sha256": {
+    "integration-20261004-build-final.environment.json": "5d599c7c473d61f888ca9b3d00535875129cd19520656d0e22c7363dbb29f01c",
+    "integration-20261004-build-final.log": "be4eb2036a71b88457eda5d338b06d63607721cd6ed82ce9b7daa05c124bcf06",
+    "integration-20261004-final-wheel.environment.json": "c6aff65149fbbf6ac5eae6c8f530257c19b732d81010a826e301c5f054980e0e",
+    "integration-20261004-final-wheel.install.log": "58070b6a24f8fb354f02f2e0f5ed183b2190d959fc467c8a45166d69646cea7c",
+    "integration-20261004-final-wheel.log": "f61c5b9676056eee37ad46bdcb93945f2cc5b06055858dc0faa55dcb5089c17b",
+    "integration-20261004-final.collection.json": "2e7318e23f4c84c653934009a2e4781d38c7d5b567713bfdcb49934f72d6be6a",
+    "integration-20261004-final.environment.json": "66e0c375563d4f765644d1d127cbc913a2eba9c2ce6a3ba9750847ba5186e42f",
+    "integration-20261004-final.log": "5ea3776603335885bb9c5d004699cc86fdbd7f28c680dc06aca8b07fd5b78fa2",
+    "integration-20261004-final.xml": "573dd0a572a05a4114ac5701bb25e6d49904850748d9e938e798e133e0019ba4",
+    "integration-20261004-full.collection.json": "2b3b059950b8f85449e27f5657bcfefe2128faef1fcb1a17041efe9cc93c8df2",
+    "integration-20261004-full.environment.json": "4a3e607e6bca39f3ccfad00b12b18c0fa847589d93e3a87ed5a0930a980c66a4",
+    "integration-20261004-full.log": "bf7048e2086cfe69f2a819cc26e1da65af3595c92481d429ddc8f661b633c913",
+    "integration-20261004-full.xml": "4ee65775837d83dd2e0492854af41a3103283f9a703d25c9f56c51159b8a5e55",
+    "integration-20261004-wheel.environment.json": "bf88ba22c24ff65216f7c04a0437d016e094994d6eedf9ece35c93dcea0c7242",
+    "integration-20261004-wheel.install.log": "8806fdccbaadcd8aa56de6d27216bf2b5abf26c750e89778f27073ceb52c0375",
+    "integration-20261004-wheel.log": "f61c5b9676056eee37ad46bdcb93945f2cc5b06055858dc0faa55dcb5089c17b"
+  },
+  "acceptance_status_changed": false,
+  "remote_changes_performed": false
+}

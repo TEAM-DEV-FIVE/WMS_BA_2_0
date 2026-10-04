@@ -1,0 +1,17 @@
+table,column,data_type,nullable,references
+fulfillment_consumption,id,uuid,NO,
+fulfillment_consumption,package_line_id,uuid,NO,package_line.id
+fulfillment_consumption,reservation_consumption_id,uuid,NO,reservation_consumption.id
+fulfillment_consumption,quantity,"numeric(20,6)",NO,
+pick_task,target_quantity,"numeric(20,6)",YES,
+pick_task,consumed_quantity,"numeric(20,6)",NO,
+pick_task,reason,text,YES,
+pick_task,created_by,uuid,YES,app_user.id
+pick_task,created_at,timestamptz,YES,
+package,status,varchar(20),YES,
+package,version,integer,NO,
+package,reason,text,YES,
+package,created_by,uuid,YES,app_user.id
+package,created_at,timestamptz,YES,
+package_line,pick_task_id,uuid,YES,pick_task.id
+package_line,consumed_quantity,"numeric(20,6)",NO,

@@ -1,5 +1,9 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
+**Cập nhật 04/10:** 12 nhánh đã tích hợp; B13/B16 đủ dependency để đồng bộ; B07/B14 chỉ có chuẩn bị,
+B17–B26 chưa triển khai. Xem [báo cáo nhánh hiện hành](../../07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md).
+Các bảng READY/thứ tự bên dưới giữ mốc chia việc 03/10, không thay thế sổ tích hợp mới.
+
 Ngày 03/10/2026 · Mốc mã đã tích hợp: `06041b7bc0c6e6515cb396d2ab5a29fae772df19`.
 Nhánh điều phối: `feat/application-foundation`. Các nhánh mới lấy **cùng commit kế hoạch chứa tài liệu này**,
 không lấy các nhánh agent cũ làm nền. [Quy trình agent](QUY_TRINH_AGENT.md) ·
@@ -21,7 +25,7 @@ T01–T28 vẫn PLANNED đến khi đủ bằng chứng. Đây là audit mã và
 GitHub trực tiếp**. Nhiều issue OPEN đã có một phần code; agent tiếp tục phần thiếu, không viết lại từ đầu.
 Không quy đổi số test hoặc số nhánh thành phần trăm hoàn thành hay cam kết ngày xong.
 
-## Giao ngay và thứ tự tiếp theo
+## Lịch giao việc ban đầu — 03/10/2026
 
 **8 nhánh READY:** B01, B02, B03, B04, B05, B06, B08, B15. Chỉ mở số agent phù hợp tài nguyên máy.
 Nếu có 4 agent, ưu tiên B01 (import), B02 (xuất), B03 (quality/move), B08 (CI/contract); khi trống chỗ

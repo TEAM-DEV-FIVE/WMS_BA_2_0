@@ -1,0 +1,10 @@
+// Release revision 016_b12_returns.sql
+Table return_document {
+  document_id uuid [pk, not null, ref: > document.id]
+  source_document_id uuid [not null, ref: > document.id]
+}
+Table return_line {
+  document_line_id uuid [pk, not null, ref: > document_line.id]
+  source_move_id uuid [not null, ref: > stock_move.id]
+  location_id uuid [not null, ref: > location.id]
+}

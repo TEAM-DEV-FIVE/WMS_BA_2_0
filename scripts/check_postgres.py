@@ -1,10 +1,11 @@
 """Test SQL in a temporary local PostgreSQL cluster (Linux/macOS, non-root)."""
 
+import argparse
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -17,18 +18,25 @@ def run(*args):
 
 
 def main():
-    if not shutil.which("pg_config"):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--pg-bindir", type=Path, help="Select PG15/16 binaries explicitly")
+    parser.add_argument("--expected-pg-major", type=int, choices=(15, 16))
+    args = parser.parse_args()
+    if not args.pg_bindir and not shutil.which("pg_config"):
         raise RuntimeError("Install PostgreSQL 15+ server tools (pg_config, initdb, pg_ctl, psql).")
-    binaries = Path(run("pg_config", "--bindir"))
+    binaries = args.pg_bindir or Path(run("pg_config", "--bindir"))
     with tempfile.TemporaryDirectory(prefix="wms-sql-") as temporary:
         data = Path(temporary) / "data"
         log = Path(temporary) / "postgres.log"
         run(binaries / "initdb", "-D", data, "--auth=trust", "--no-locale", "--encoding=UTF8")
         try:
             run(binaries / "pg_ctl", "-D", data, "-l", log, "-o",
-                f"-k {temporary} -c listen_addresses=''", "-w", "start")
+                f"-k '{temporary}' -c listen_addresses=''", "-w", "start")
             psql = [binaries / "psql", "-X", "-qAt", "-h", temporary, "-d", "postgres", "-v", "ON_ERROR_STOP=1"]
             print(run(*psql, "-c", "SELECT version()"))
+            major = int(run(*psql, "-c", "SHOW server_version_num")) // 10000
+            if major < 15 or (args.expected_pg_major and major != args.expected_pg_major):
+                raise RuntimeError(f"Unexpected PostgreSQL major {major}")
             for name in ("02_CSDL/001_schema.sql", "02_CSDL/002_seed_permissions.sql", "tests/sql/schema_smoke.sql"):
                 run(*psql, "-f", ROOT / name)
                 print(f"PASS {name}")

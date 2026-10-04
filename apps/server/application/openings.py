@@ -1,4 +1,4 @@
-"""Company opening stock, posted in full once before warehouse activity.
+"""Atomic full inbound posting, specialized for cutover and consignment custody.
 
 Lock document -> warehouse (exclusive for post) -> period -> locations -> products
 -> identities -> balances. Warehouse lock conflicts with receiving's shared lock,
@@ -15,24 +15,63 @@ from sqlalchemy import text
 from apps.server.application.commands import CommandResult, payload_hash
 from apps.server.application.master_data import active_reference, invalid, one
 from apps.server.application.orders import encode
-from apps.server.application.stock_identity import resolve_stock_identity
+from apps.server.application.stock_identity import resolve_stock_identity, validate_ownership
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.openings import OpeningLineInput, OpeningPlan, OpeningPostResult, OpeningView
 from packages.contracts.orders import OrderResult
 from packages.contracts.receipts import OperationView
-from packages.contracts.traceability import COMPANY_OWNER
 
 OPENING = UUID("00000000-0000-4000-8000-000000000202")
 PHYSICAL = {"STORAGE", "RECEIVING", "QUARANTINE", "SHIPPING"}
 
 
 class OpeningService:
+    # The consignment receipt specialization shares the atomic inbound kernel,
+    # but has separate typed metadata, evidence, permissions and source location.
+    kind, command_prefix, number_prefix = "OPENING", "opening", "OPN"
+    permission_prefix = "opening"
+    metadata_table, plan_table = "opening_document", "opening_line"
+    reference_field = "signed_count_reference"
+    source_location, source_kind, operation_code = OPENING, "OPENING", "OPEN"
+    physical_kinds, consignor_only = PHYSICAL, False
+    view_model = OpeningView
+
+    def validate_header(self, c, warehouse):
+        active_reference(c, "warehouse", warehouse, "warehouse_id")
+
+    def ownership_options(self, auth, warehouse_id, q="", after=None, limit=100):
+        auth.require("document.read", warehouse_id, hidden=True)
+        auth.require(self.permission_prefix + ".draft", warehouse_id)
+        search = q.replace("!", "!!").replace("%", "!%").replace("_", "!_")
+        rows = list(
+            auth.connection.execute(
+                text("""SELECT coalesce(a.id,o.id) AS id,
+            o.id AS owner_id,o.code AS owner_code,o.name AS owner_name,
+            a.id AS consignment_id,a.code AS consignment_code FROM wms.stock_owner o
+            LEFT JOIN wms.consignment_agreement a ON a.owner_id=o.id
+            LEFT JOIN wms.partner p ON p.id=o.partner_id
+            WHERE o.is_active AND ((o.kind='COMPANY' AND NOT :consigned) OR
+            (o.kind='CONSIGNOR' AND a.is_active AND p.is_active AND a.warehouse_id=:wh))
+            AND (CAST(:after AS uuid) IS NULL OR coalesce(a.id,o.id)>:after)
+            AND (o.code ILIKE :q ESCAPE '!' OR o.name ILIKE :q ESCAPE '!' OR a.code ILIKE :q ESCAPE '!')
+            ORDER BY coalesce(a.id,o.id) LIMIT :limit"""),
+                {
+                    "wh": warehouse_id,
+                    "after": after,
+                    "q": f"%{search}%",
+                    "consigned": self.consignor_only,
+                    "limit": limit + 1,
+                },
+            ).mappings()
+        )
+        return {"items": rows[:limit], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
+
     def __init__(self, orders):
         self.orders, self.identity, self.bus = orders, orders.identity, orders.bus
-        orders.openings = self
+        setattr(orders, self.command_prefix + "s", self)
 
     def metadata(self, connection, doc):
-        meta = one(connection, "SELECT * FROM wms.opening_document WHERE document_id=:id", id=doc["id"])
+        meta = one(connection, f"SELECT * FROM wms.{self.metadata_table} WHERE document_id=:id", id=doc["id"])
         if not meta or meta["warehouse_id"] != doc["warehouse_id"]:
             raise DomainError("UNSUPPORTED_OPENING", "Phiếu cũ chưa có dữ liệu cutover đã xác minh.")
         return meta
@@ -43,7 +82,7 @@ class OpeningService:
             "plan": [
                 dict(r)
                 for r in connection.execute(
-                    text("""SELECT p.* FROM wms.opening_line p
+                    text(f"""SELECT p.* FROM wms.{self.plan_table} p
                 JOIN wms.document_line l ON l.id=p.document_line_id
                 WHERE l.document_id=:id ORDER BY l.line_no"""),
                     {"id": doc["id"]},
@@ -75,11 +114,10 @@ class OpeningService:
         ):
             raise DomainError("OPENING_CLOSED", "Kho đã có lịch sử/tồn; không được nạp thêm tồn đầu kỳ.")
 
-    def validate_specs(self, c, warehouse, specs, *, lock_products=True):
-        active_reference(c, "stock_owner", COMPANY_OWNER, "owner_id")
+    def validate_specs(self, c, warehouse, specs, *, business_date, lock_products=True):
         for location_id in sorted({s.destination_location_id for s in specs}):
             location = active_reference(c, "location", location_id, "destination_location_id")
-            if location["warehouse_id"] != warehouse or location["kind"] not in PHYSICAL:
+            if location["warehouse_id"] != warehouse or location["kind"] not in self.physical_kinds:
                 invalid("destination_location_id", "Chọn vị trí vật lý trong đúng kho.")
         if lock_products:
             for product_id in sorted({s.product_id for s in specs}):
@@ -87,8 +125,15 @@ class OpeningService:
         serials = set()
         products = {}
         for spec in specs:
-            if spec.owner_id != COMPANY_OWNER:
-                invalid("owner_id", "Tồn đầu kỳ đợt này chỉ hỗ trợ hàng doanh nghiệp.")
+            owner = validate_ownership(
+                c,
+                owner_id=spec.owner_id,
+                consignment_id=spec.consignment_id,
+                warehouse_id=warehouse,
+                business_date=business_date,
+            )
+            if self.consignor_only and owner["kind"] != "CONSIGNOR":
+                invalid("owner_id", "Phiếu nhận ký gửi chỉ nhận hàng của chủ ký gửi có hợp đồng.")
             product = active_reference(c, "product", spec.product_id, "product_id")
             unit = active_reference(c, "uom", product["base_uom_id"], "uom_id")
             qty = Decimal(spec.quantity_base)
@@ -113,9 +158,9 @@ class OpeningService:
             raise DomainError("UNSUPPORTED_OPENING", "Phiếu có nguồn/thuộc tính ngoài phạm vi tồn đầu kỳ.")
         rows = list(
             c.execute(
-                text("""SELECT l.*,p.document_line_id,p.destination_location_id,
+                text(f"""SELECT l.*,p.document_line_id,p.destination_location_id,
             p.lot_code,p.serial_code,p.manufactured_on,p.expires_on FROM wms.document_line l
-            LEFT JOIN wms.opening_line p ON p.document_line_id=l.id WHERE l.document_id=:id ORDER BY l.line_no"""),
+            LEFT JOIN wms.{self.plan_table} p ON p.document_line_id=l.id WHERE l.document_id=:id ORDER BY l.line_no"""),
                 {"id": doc["id"]},
             ).mappings()
         )
@@ -126,7 +171,6 @@ class OpeningService:
             if (
                 not row["document_line_id"]
                 or row["source_line_id"]
-                or row["consignment_id"]
                 or row["reference_unit_price"] is not None
                 or row["factor_snapshot"] != 1
                 or row["quantity"] != row["base_quantity"]
@@ -147,10 +191,12 @@ class OpeningService:
 
     def validate_saved(self, auth, doc):
         c = auth.connection
-        self.orders.validate_header(c, "OPENING", doc["warehouse_id"], doc["partner_id"])
+        self.validate_header(c, doc["warehouse_id"])
         self.cutover(c, doc["warehouse_id"])
         rows, specs = self.saved_specs(c, doc)
-        products = self.validate_specs(c, doc["warehouse_id"], list(specs.values()))
+        products = self.validate_specs(
+            c, doc["warehouse_id"], list(specs.values()), business_date=doc["business_date"]
+        )
         if any(row["uom_id"] != products[row["product_id"]]["base_uom_id"] for row in rows):
             raise DomainError("OPENING_MISMATCH", "Đơn vị cơ sở đã đổi; cần sửa/gửi lại.")
         return rows, specs
@@ -180,18 +226,18 @@ class OpeningService:
             raise DomainError("STALE_APPROVAL", "Version hoặc các bước duyệt không khớp.")
 
     def may_post(self, auth, doc):
-        auth.require("opening.post", doc["warehouse_id"])
+        auth.require(self.permission_prefix + ".post", doc["warehouse_id"])
 
     def read(self, auth, doc_id):
-        view = self.orders.read(auth, doc_id, "OPENING")
-        doc = self.orders.document(auth, doc_id, "OPENING")
+        view = self.orders.read(auth, doc_id, self.kind)
+        doc = self.orders.document(auth, doc_id, self.kind)
         meta = self.metadata(auth.connection, doc)
         # Read also works after cancellation (closed quantities) and completed posting.
         plan = []
         for line in view.lines:
             row = one(
                 auth.connection,
-                """SELECT p.*,l.code AS location_code FROM wms.opening_line p
+                f"""SELECT p.*,l.code AS location_code FROM wms.{self.plan_table} p
                 JOIN wms.location l ON l.id=p.destination_location_id WHERE p.document_line_id=:id""",
                 id=line.id,
             )
@@ -202,17 +248,22 @@ class OpeningService:
                     **row,
                     product_id=line.product_id,
                     owner_id=line.owner_id,
+                    consignment_id=line.consignment_id,
                     quantity_base=line.base_quantity,
                     tracking=line.tracking,
                 )
             )
         actions = list(view.allowed_actions)
-        if doc["status"] == "APPROVED" and auth.allows("opening.post", doc["warehouse_id"]):
-            actions.append("post")
-        return OpeningView(
+        if doc["status"] == "APPROVED":
+            try:
+                self.may_post(auth, doc)
+                actions.append("post")
+            except DomainError:
+                pass
+        return self.view_model(
             **{**view.model_dump(), "allowed_actions": actions},
             batch_key=meta["batch_key"],
-            signed_count_reference=meta["signed_count_reference"],
+            **{self.reference_field: meta[self.reference_field]},
             plan=plan,
         )
 
@@ -224,15 +275,15 @@ class OpeningService:
         def authorize(uow):
             auth = self.identity.authorization(uow.connection, access)
             auth.require("document.read", payload.warehouse_id, hidden=True)
-            auth.require("opening.draft", payload.warehouse_id)
+            auth.require(self.permission_prefix + ".draft", payload.warehouse_id)
             if doc_id:
-                self.orders.may_edit(auth, self.orders.document(auth, doc_id, "OPENING"))
+                self.orders.may_edit(auth, self.orders.document(auth, doc_id, self.kind))
             context["auth"] = auth
 
         def handle(uow):
             c, auth = uow.connection, context["auth"]
             if doc_id:
-                doc = self.orders.document(auth, doc_id, "OPENING", lock=True)
+                doc = self.orders.document(auth, doc_id, self.kind, lock=True)
                 self.orders.may_edit(auth, doc)
                 require_version(doc["version"], payload.expected_version)
                 if doc["status"] not in {"DRAFT", "REJECTED"}:
@@ -242,9 +293,11 @@ class OpeningService:
                     invalid("batch_key", "Không đổi kho hoặc mã đợt của phiếu đã tạo.")
                 self.orders.no_dependencies(c, doc_id, edit=True)
                 self.saved_specs(c, doc)  # Refuse to silently discard unsupported legacy content.
-            self.orders.validate_header(c, "OPENING", payload.warehouse_id, None)
+            self.validate_header(c, payload.warehouse_id)
             self.cutover(c, payload.warehouse_id)
-            products = self.validate_specs(c, payload.warehouse_id, payload.lines)
+            products = self.validate_specs(
+                c, payload.warehouse_id, payload.lines, business_date=payload.business_date
+            )
             if doc_id:
                 self.orders.invalidate(c, doc_id)
                 c.execute(text("DELETE FROM wms.document_line WHERE document_id=:id"), {"id": doc_id})
@@ -255,13 +308,15 @@ class OpeningService:
                     {**doc, "day": payload.business_date, "reason": payload.reason},
                 )
                 c.execute(
-                    text("UPDATE wms.opening_document SET signed_count_reference=:ref WHERE document_id=:id"),
-                    {"id": doc_id, "ref": payload.signed_count_reference},
+                    text(
+                        f"UPDATE wms.{self.metadata_table} SET {self.reference_field}=:ref WHERE document_id=:id"
+                    ),
+                    {"id": doc_id, "ref": getattr(payload, self.reference_field)},
                 )
             else:
                 if one(
                     c,
-                    "SELECT document_id FROM wms.opening_document WHERE warehouse_id=:wh AND batch_key=:batch",
+                    f"SELECT document_id FROM wms.{self.metadata_table} WHERE warehouse_id=:wh AND batch_key=:batch",
                     wh=payload.warehouse_id,
                     batch=payload.batch_key,
                 ):
@@ -269,15 +324,15 @@ class OpeningService:
                 sequence = c.execute(text("SELECT nextval('wms.order_number_seq')")).scalar_one()
                 doc = dict(
                     id=uuid4(),
-                    number=f"OPN-{payload.business_date:%Y%m%d}-{sequence:08d}",
-                    kind="OPENING",
+                    number=f"{self.number_prefix}-{payload.business_date:%Y%m%d}-{sequence:08d}",
+                    kind=self.kind,
                     warehouse_id=payload.warehouse_id,
                     version=1,
                 )
                 c.execute(
                     text("""INSERT INTO wms.document(id,number,kind,status,warehouse_id,business_date,
                     created_by,created_at,version,attributes,reason)
-                    VALUES (:id,:number,'OPENING','DRAFT',:warehouse_id,:day,:actor,:now,1,'{}',:reason)"""),
+                    VALUES (:id,:number,:kind,'DRAFT',:warehouse_id,:day,:actor,:now,1,'{}',:reason)"""),
                     {
                         **doc,
                         "day": payload.business_date,
@@ -287,17 +342,17 @@ class OpeningService:
                     },
                 )
                 c.execute(
-                    text("""INSERT INTO wms.opening_document(document_id,warehouse_id,batch_key,signed_count_reference)
+                    text(f"""INSERT INTO wms.{self.metadata_table}(document_id,warehouse_id,batch_key,{self.reference_field})
                     VALUES (:id,:warehouse_id,:batch,:ref)"""),
-                    {**doc, "batch": payload.batch_key, "ref": payload.signed_count_reference},
+                    {**doc, "batch": payload.batch_key, "ref": getattr(payload, self.reference_field)},
                 )
             doc["status"] = "DRAFT"
             for index, spec in enumerate(payload.lines, 1):
                 line_id = uuid4()
                 c.execute(
                     text("""INSERT INTO wms.document_line(id,document_id,line_no,product_id,uom_id,quantity,
-                    factor_snapshot,base_quantity,owner_id)
-                    VALUES (:id,:doc,:n,:product,:uom,:qty,1,:qty,:owner)"""),
+                    factor_snapshot,base_quantity,owner_id,consignment_id)
+                    VALUES (:id,:doc,:n,:product,:uom,:qty,1,:qty,:owner,:agreement)"""),
                     {
                         "id": line_id,
                         "doc": doc["id"],
@@ -306,10 +361,11 @@ class OpeningService:
                         "uom": products[spec.product_id]["base_uom_id"],
                         "qty": Decimal(spec.quantity_base),
                         "owner": spec.owner_id,
+                        "agreement": spec.consignment_id,
                     },
                 )
                 c.execute(
-                    text("""INSERT INTO wms.opening_line(document_line_id,destination_location_id,
+                    text(f"""INSERT INTO wms.{self.plan_table}(document_line_id,destination_location_id,
                     lot_code,serial_code,manufactured_on,expires_on)
                     VALUES (:id,:destination_location_id,:lot_code,:serial_code,:manufactured_on,:expires_on)"""),
                     {"id": line_id, **spec.model_dump()},
@@ -323,12 +379,18 @@ class OpeningService:
             )
             return CommandResult(result, 200 if doc_id else 201)
 
+        command_payload = payload.model_dump(mode="json")
+        # Preserve pre-B09 idempotency hashes for COMPANY opening drafts.
+        # An omitted agreement and an explicit null have the same meaning.
+        for line in command_payload["lines"]:
+            if line["consignment_id"] is None:
+                del line["consignment_id"]
         return self.bus.execute(
             actor_id=actor,
             key=key,
-            command="opening.update" if doc_id else "opening.create",
+            command=self.command_prefix + (".update" if doc_id else ".create"),
             resource_id=doc_id or UUID(int=0),
-            payload=payload.model_dump(mode="json"),
+            payload=command_payload,
             authorize=authorize,
             handle=handle,
         )
@@ -386,6 +448,7 @@ class OpeningService:
             c,
             product_id=spec.product_id,
             owner_id=spec.owner_id,
+            consignment_id=spec.consignment_id,
             warehouse_id=doc["warehouse_id"],
             business_date=doc["business_date"],
             lot_id=lot_id,
@@ -397,16 +460,16 @@ class OpeningService:
         with self.identity.engine.begin() as c:
             actor = self.identity.authorization(c, access).principal.user_id
         context = {}
-        digest = payload_hash("opening.post", doc_id, payload.model_dump(mode="json"))
+        digest = payload_hash(self.command_prefix + ".post", doc_id, payload.model_dump(mode="json"))
 
         def authorize(uow):
             auth = self.identity.authorization(uow.connection, access)
-            self.may_post(auth, self.orders.document(auth, doc_id, "OPENING"))
+            self.may_post(auth, self.orders.document(auth, doc_id, self.kind))
             context["auth"] = auth
 
         def handle(uow):
             c, auth = uow.connection, context["auth"]
-            doc = self.orders.document(auth, doc_id, "OPENING", lock=True)
+            doc = self.orders.document(auth, doc_id, self.kind, lock=True)
             self.may_post(auth, doc)
             executed = one(
                 c,
@@ -427,7 +490,11 @@ class OpeningService:
             require_version(doc["version"], payload.expected_version)
             self.approved(c, doc)
             c.execute(
-                text("SELECT id FROM wms.warehouse WHERE id=:id FOR UPDATE"), {"id": doc["warehouse_id"]}
+                text(
+                    "SELECT id FROM wms.warehouse WHERE id=:id FOR "
+                    + ("SHARE" if self.consignor_only else "UPDATE")
+                ),
+                {"id": doc["warehouse_id"]},
             )
             active_reference(c, "warehouse", doc["warehouse_id"], "warehouse_id")
             self.cutover(c, doc["warehouse_id"])
@@ -442,13 +509,15 @@ class OpeningService:
                 raise DomainError("PERIOD_CLOSED", "Ngày ghi sổ phải thuộc đúng một kỳ kho đang mở.")
             rows, specs = self.saved_specs(c, doc)
             locations = {}
-            for location_id in sorted({OPENING} | {s.destination_location_id for s in specs.values()}):
-                lock = "SHARE" if location_id == OPENING else "UPDATE"
+            for location_id in sorted(
+                {self.source_location} | {s.destination_location_id for s in specs.values()}
+            ):
+                lock = "SHARE" if location_id == self.source_location else "UPDATE"
                 location = one(c, f"SELECT * FROM wms.location WHERE id=:id FOR {lock}", id=location_id)
                 if not location or not location["is_active"]:
                     invalid("destination_location_id", "Vị trí không còn hoạt động.")
-                if location_id == OPENING and (
-                    location["kind"] != "OPENING" or location["warehouse_id"] is not None
+                if location_id == self.source_location and (
+                    location["kind"] != self.source_kind or location["warehouse_id"] is not None
                 ):
                     raise DomainError("SOURCE_MISMATCH", "Đối ứng tồn đầu kỳ không hợp lệ.")
                 if one(
@@ -460,7 +529,13 @@ class OpeningService:
                 locations[location_id] = location
             for product_id in sorted({s.product_id for s in specs.values()}):
                 c.execute(text("SELECT id FROM wms.product WHERE id=:id FOR UPDATE"), {"id": product_id})
-            products = self.validate_specs(c, doc["warehouse_id"], list(specs.values()), lock_products=False)
+            products = self.validate_specs(
+                c,
+                doc["warehouse_id"],
+                list(specs.values()),
+                business_date=doc["business_date"],
+                lock_products=False,
+            )
             if any(row["uom_id"] != products[row["product_id"]]["base_uom_id"] for row in rows):
                 raise DomainError("OPENING_MISMATCH", "Đơn vị cơ sở không khớp bản duyệt.")
             today = (
@@ -503,11 +578,12 @@ class OpeningService:
             ).model_dump(mode="json")
             c.execute(
                 text("""INSERT INTO wms.inventory_transaction(id,document_id,execution_key,operation,business_date,
-                posted_at,posted_by,request_hash,response) VALUES (:id,:doc,:key,'OPEN',:day,:now,:actor,:hash,CAST(:response AS jsonb))"""),
+                posted_at,posted_by,request_hash,response) VALUES (:id,:doc,:key,:operation,:day,:now,:actor,:hash,CAST(:response AS jsonb))"""),
                 {
                     "id": tx_id,
                     "doc": doc_id,
                     "key": payload.execution_key,
+                    "operation": self.operation_code,
                     "day": doc["business_date"],
                     "now": self.identity.clock(),
                     "actor": actor,
@@ -519,7 +595,7 @@ class OpeningService:
                 c.execute(
                     text("""INSERT INTO wms.stock_move(id,transaction_id,line_id,stock_item_id,source_location_id,
                     destination_location_id,quantity_base,base_uom_id) VALUES (:id,:tx,:line,:stock,:source,:destination,:quantity,:unit)"""),
-                    {**move, "tx": tx_id, "source": OPENING},
+                    {**move, "tx": tx_id, "source": self.source_location},
                 )
                 c.execute(
                     text("""UPDATE wms.stock_balance SET on_hand=on_hand+:quantity,version=version+1
@@ -539,7 +615,7 @@ class OpeningService:
         return self.bus.execute(
             actor_id=actor,
             key=key,
-            command="opening.post",
+            command=self.command_prefix + ".post",
             resource_id=doc_id,
             payload=payload.model_dump(mode="json"),
             authorize=authorize,
@@ -553,10 +629,10 @@ class OpeningService:
             actor=auth.principal.user_id,
             key=key,
         )
-        if not record or record["command"] != "opening.post":
+        if not record or record["command"] != self.command_prefix + ".post":
             raise DomainError("NOT_FOUND", "Chưa tìm thấy ACK; chỉ gửi lại cùng key và nội dung.")
         result = record["response"]
-        self.may_post(auth, self.orders.document(auth, UUID(result["id"]), "OPENING"))
+        self.may_post(auth, self.orders.document(auth, UUID(result["id"]), self.kind))
         return OperationView(
             **{k: result[k] for k in ["id", "status", "version", "request_id", "transaction_id"]}
         )
