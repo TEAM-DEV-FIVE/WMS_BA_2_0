@@ -1,0 +1,46 @@
+// Development 021 B17. Read migration for composite keys, constraints and indexes.
+Table report_request_guard {
+  user_id uuid [pk, not null, ref: > app_user.id]
+  version bigint [not null]
+}
+Table report_snapshot {
+  id uuid [pk, not null]
+  requested_by uuid [not null, ref: > app_user.id]
+  report_code varchar(3) [not null]
+  criteria jsonb [not null]
+  required_warehouses uuid[] [not null]
+  created_at timestamptz [not null]
+  expires_at timestamptz [not null]
+  row_count integer [not null]
+  columns jsonb [not null]
+  sha256 char(64) [not null]
+}
+Table report_snapshot_row {
+  snapshot_id uuid [not null, ref: > report_snapshot.id]
+  ordinal integer [not null]
+  payload jsonb [not null]
+  indexes {
+    (snapshot_id, ordinal) [pk]
+  }
+}
+Table export_task {
+  id uuid [pk, not null]
+  job_id uuid [not null, ref: > export_job.id]
+  generation integer [not null]
+  status varchar(10) [not null]
+  attempts integer [not null]
+  available_at timestamptz [not null]
+  lease_token uuid
+  lease_until timestamptz
+  indexes {
+    (job_id, generation) [unique]
+  }
+}
+Table export_job_b17_added_columns {
+  snapshot_id uuid [ref: > report_snapshot.id]
+  session_id uuid [ref: > auth_session.id]
+  format varchar(4)
+  version integer [not null]
+  generation integer [not null]
+  error_code varchar(40)
+}
