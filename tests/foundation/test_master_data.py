@@ -249,7 +249,8 @@ def test_price_append_and_scope_never_leak_through_product_or_replay(catalog):
 
 def test_partner_minimal_dto_and_no_hard_delete(catalog):
     partner = create(catalog, "partners", code="SUP-01", name="NCC kiểm thử", is_supplier=True)
-    assert set(partner) == {"id", "code", "name", "is_supplier", "is_customer", "is_active", "version"}
+    assert set(partner) == {"id", "code", "name", "is_supplier", "is_customer", "is_active", "version", "tax_code", "address"}
+    assert partner["tax_code"] is None and partner["address"] is None
     assert write(catalog, "partners", update_payload(partner, is_active=False), entity=partner["id"]).status_code == 200
     assert write(catalog, "partners", {"code": "NONE", "name": "Sai loại", "reason": "Kiểm thử"}).status_code == 422
     assert catalog.client.delete("/api/v1/master/partners/" + partner["id"], headers=catalog.catalog_headers).status_code == 405

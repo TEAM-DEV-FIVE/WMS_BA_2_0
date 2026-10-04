@@ -6,7 +6,13 @@ from uuid import UUID
 from pydantic import ValidationError
 
 from apps.desktop.api.admin import ACTION_RESOURCE, PAGE_SIZE, PERMISSIONS, AdminApi
-from packages.contracts.identity import GrantCreate, RevokeInput, UserActivation, UserCreate
+from packages.contracts.identity import (
+    GrantCreate,
+    PasswordResetIssue,
+    RevokeInput,
+    UserActivation,
+    UserCreate,
+)
 
 
 class AdminPresenter:
@@ -41,7 +47,7 @@ class AdminPresenter:
         self.reloaded = False
         self.view.admin_clear()
 
-    def submit(self, resource, action, body=None, record_id=None, after=None):
+    def submit(self, resource, action, body=None, record_id=None, after=None, query=""):
         if self.closed or self.pending:
             if body is not None:
                 body.clear()
@@ -59,15 +65,15 @@ class AdminPresenter:
         self.view.admin_busy()
         sequence, generation = self.sequence, self.generation
         future = self.executor.submit(self.api.execute, generation, self.cancelled,
-                                      resource, action, body, record_id, after)
+                                      resource, action, body, record_id, after, query)
         self.pending = future
         # Callback captures a Queue, never a Tk view or presenter.
         queue = self.results
         future.add_done_callback(lambda done: queue.put((sequence, resource, action, after, done)))
         return True
 
-    def load(self, resource, after=None):
-        return self.submit(resource, "load", after=after)
+    def load(self, resource, after=None, query=""):
+        return self.submit(resource, "load", after=after, query=query)
 
     def write(self, action, body=None, record_id=None):
         if self.closed or self.pending:
@@ -80,6 +86,13 @@ class AdminPresenter:
                 validated = UserCreate.model_validate(payload)
                 payload = validated.model_dump(mode="json")
                 payload["password"] = validated.password.get_secret_value()
+            elif action == "password_reset":
+                validated = PasswordResetIssue.model_validate(payload)
+                payload = validated.model_dump(mode="json")
+                payload["password"] = validated.password.get_secret_value()
+                payload["code"] = validated.code.get_secret_value() if validated.code else None
+                if not record_id:
+                    raise ValueError("selection")
             elif action == "set_active":
                 payload = UserActivation.model_validate(payload).model_dump(mode="json")
             elif action in {"revoke_sessions", "revoke_grant"}:
@@ -141,7 +154,8 @@ class AdminPresenter:
                 rows = result.data
                 next_after = None
                 if resource != "roles" and len(rows) == PAGE_SIZE:
-                    next_after = rows[-1]["username" if resource == "users" else "id"]
+                    cursor = "username" if resource in {"users", "lookup-users", "password-resets"} else ("code" if resource == "lookup-warehouses" else "id")
+                    next_after = rows[-1][cursor]
                 self.view.admin_loaded(resource, rows, next_after, after)
             else:
                 self.view.admin_saved(action, result.data)

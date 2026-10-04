@@ -6,7 +6,14 @@ import httpx
 from apps.desktop.api.client import ApiClient, ApiError
 from apps.desktop.local_store.device import device_identity
 from packages.contracts import Error
-from packages.contracts.identity import CurrentUser, Enrollment, MfaChallenge, SessionTokens, WarehouseSummary
+from packages.contracts.identity import (
+    CurrentUser,
+    Enrollment,
+    MfaChallenge,
+    RecoveryCodes,
+    SessionTokens,
+    WarehouseSummary,
+)
 
 
 class IdentityClient(ApiClient):
@@ -21,18 +28,21 @@ class IdentityClient(ApiClient):
         self._lock = RLock()
         self.session_generation = 0
 
-    def _request(self, method, path, *, body=None, authenticated=False, extra_headers=None):
+    def _request(self, method, path, *, body=None, authenticated=False, extra_headers=None,
+                 content=None, binary=False):
         headers = dict(extra_headers or {})
         if authenticated:
             if not self._tokens:
                 raise ApiError("UNAUTHENTICATED", "Hãy đăng nhập lại.")
             headers["Authorization"] = "Bearer " + self._tokens.access_token
         try:
-            response = self.client.request(method, path, json=body, headers=headers)
+            response = self.client.request(method, path, json=body, content=content, headers=headers)
         except httpx.TimeoutException:
             raise ApiError("TIMEOUT", "Yêu cầu quá hạn. Hãy kiểm tra trạng thái trước khi thử lại.") from None
         except httpx.HTTPError:
             raise ApiError("NETWORK_ERROR", "Mất kết nối máy chủ. Kiểm tra LAN/TLS.") from None
+        if binary and response.is_success:
+            return response
         try:
             data = response.json()
         except ValueError:
@@ -44,6 +54,12 @@ class IdentityClient(ApiClient):
                 raise ApiError("INVALID_RESPONSE", "Phản hồi lỗi không hợp lệ.") from None
             raise ApiError(error.code, error.message, str(error.request_id), error.field_errors)
         return data
+
+    def file_request(self, method, path, *, content=None, headers=None, binary=False):
+        """Same TLS/session guard as JSON commands. Never retry uploads implicitly."""
+        with self._lock:
+            return self._request(method, path, content=content, authenticated=True,
+                                 extra_headers=headers, binary=binary)
 
     def login(self, username, password):
         with self._lock:
@@ -124,6 +140,32 @@ class IdentityClient(ApiClient):
     def confirm_enrollment(self, factor_id, code):
         with self._lock:
             return self._request("POST", "auth/mfa/confirm", body={"factor_id": str(factor_id), "code": code}, authenticated=True)
+
+    def lifecycle(self, action, body):
+        paths = {"change_password": "auth/password/change", "reset_password": "auth/password/reset",
+                 "reset_mfa": "auth/mfa/reset", "recovery_codes": "auth/mfa/recovery-codes",
+                 "recover_mfa": "auth/mfa/recover"}
+        with self._lock:
+            try:
+                if action == "recover_mfa":
+                    if not self._challenge:
+                        raise ApiError("UNAUTHENTICATED", "Đăng nhập bằng mật khẩu trước khi khôi phục MFA.")
+                    body["challenge_token"] = self._challenge
+                data = self._request("POST", paths[action], body=body,
+                                     authenticated=action not in {"reset_password", "recover_mfa"})
+                if action == "recovery_codes":
+                    return RecoveryCodes.model_validate(data)
+                if data != {"status": "SIGNED_OUT"}:
+                    raise ValueError("Unexpected credential status")
+                self.clear()
+                return "SIGNED_OUT"
+            except Exception:
+                # No credential write is replayable. Even a lost response to code
+                # rotation requires fresh login before an explicit new operation.
+                self.clear()
+                raise
+            finally:
+                body.clear()
 
     def logout(self):
         with self._lock:

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-03",
+  "date": "2026-10-04",
   "repository": "TEAM-DEV-FIVE/WMS_BA_2_0",
   "branch": "feat/application-foundation",
   "current_implementation_owner": "Trần Trung Kiên",
@@ -33,12 +33,14 @@
       "title": "[BE01] Hoàn thiện hợp đồng API",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/2",
       "github_state_at_read": "OPEN",
-      "local_status": "CONTRACT_IMPORTED_AWAITING_REVIEW",
+      "local_status": "RUNTIME_CONTRACT_REVIEWED_PLANNED_ROUTES_RETAINED",
       "dependencies": [],
       "tests": [
         "T01",
         "T28"
-      ]
+      ],
+      "note": "B08 runtime inventory/contract checks integrated; planned endpoints and DTO review remain.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 3,
@@ -60,7 +62,7 @@
       "title": "[BE02] Migration và hạ tầng PostgreSQL",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/4",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_MIGRATIONS_001_010",
+      "local_status": "PARTIAL_MIGRATIONS_001_018",
       "dependencies": [
         3
       ],
@@ -70,14 +72,15 @@
         "T27",
         "T28"
       ],
-      "note": "Opening typed plan/policy added; legacy data retained. Other workflow migrations and production upgrades remain pending."
+      "note": "Released 001–018 immutable; counting/reversal/custom fields still pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 5,
       "title": "[BE03] Đăng nhập, phiên và MFA",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/5",
       "github_state_at_read": "OPEN",
-      "local_status": "IMPLEMENTED_LOCAL_AUTH_SESSION_MFA",
+      "local_status": "IMPLEMENTED_LOCAL_AUTH_PASSWORD_MFA_RECOVERY",
       "dependencies": [
         4
       ],
@@ -85,14 +88,16 @@
         "T01",
         "T11",
         "T28"
-      ]
+      ],
+      "note": "B04 password/reset/MFA recovery, live session revocation and audit verified locally; target UAT pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 6,
       "title": "[BE04] Phân quyền theo kho",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/6",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_LIVE_RBAC_RECEIPT_SOURCE_ASSIGNMENT",
+      "local_status": "PARTIAL_LIVE_RBAC_DOMAIN_FILES_DOWNLOAD",
       "dependencies": [
         5
       ],
@@ -101,14 +106,16 @@
         "T07",
         "T11",
         "T28"
-      ]
+      ],
+      "note": "Warehouse/owner/assignment and private file access checked; reports/export and remaining workflows pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 7,
       "title": "[TL03] Command, version và idempotency",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/7",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_RECEIPT_OPENING_POST_LOOKUP_DURABLE_RECEIPT_RETRY",
+      "local_status": "PARTIAL_MULTI_DOMAIN_COMMAND_ACK_DURABLE_RECEIPT_ONLY",
       "dependencies": [
         3,
         4,
@@ -120,14 +127,15 @@
         "T24",
         "T28"
       ],
-      "note": "Receipt/opening posting and ACK lookup integrated; only receipt.post has durable desktop recovery."
+      "note": "Idempotency/version/ACK across integrated domains; durable recovery outside receipt.post awaits B19.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 8,
       "title": "[BE05] Danh mục hàng, kho và đối tác",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/8",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_MASTER_OWNER_AGREEMENT_TRACEABILITY_API",
+      "local_status": "PARTIAL_MASTER_OWNER_WARRANTY_IMPORT",
       "dependencies": [
         4,
         6
@@ -137,14 +145,16 @@
         "T12",
         "T13",
         "T28"
-      ]
+      ],
+      "note": "Advanced master/owner/warranty UI and import backend integrated; unconfirmed consignment outbound policy remains denied.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 9,
       "title": "[BE06] Vòng đời chứng từ PO/SO",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/9",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_PO_SO_LIFECYCLE_RECEIPT_INTEGRATION",
+      "local_status": "IMPLEMENTED_LOCAL_PO_SO_RECEIPT_ISSUE_PROGRESS",
       "dependencies": [
         8
       ],
@@ -153,14 +163,16 @@
         "T14",
         "T17",
         "T28"
-      ]
+      ],
+      "note": "PO/SO lifecycle, assignment, receipt/issue progress, partial close and fulfillment guards integrated; full UAT pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 10,
       "title": "[BE07] Phê duyệt và phân tách nhiệm vụ",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/10",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_PO_SO_RECEIPT_OPENING_APPROVAL",
+      "local_status": "PARTIAL_MULTI_DOMAIN_APPROVAL_COUNTING_PENDING",
       "dependencies": [
         9
       ],
@@ -170,26 +182,29 @@
         "T14",
         "T28"
       ],
-      "note": "OPENING uses opening.approve and independent policy/SOD. Counting/adjustment and full UAT remain pending."
+      "note": "Approval/SOD integrated for current warehouse workflows; count/adjustment/reversal requirements remain.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 11,
       "title": "[UI01] Thiết kế luồng màn hình",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/11",
       "github_state_at_read": "OPEN",
-      "local_status": "DESIGN_IMPORTED_AWAITING_REVIEW",
+      "local_status": "DESIGN_REVIEWED_CROSS_DOMAIN_CHECKLIST",
       "dependencies": [],
       "tests": [
         "T01",
         "T28"
-      ]
+      ],
+      "note": "B08 checklist and B15 review UI integrated; remaining forms/target UAT pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 12,
       "title": "[UI02] Khung Tkinter và API client",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/12",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_DESKTOP_SHELL",
+      "local_status": "PARTIAL_DESKTOP_18_SECTIONS",
       "dependencies": [
         11,
         3
@@ -198,14 +213,16 @@
         "T01",
         "T08",
         "T28"
-      ]
+      ],
+      "note": "18 sections integrated with lifecycle and main-thread cleanup; later modules and Windows validation remain.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 13,
       "title": "[UI03] Giao diện đăng nhập và quản trị",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/13",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_DESKTOP_LOGIN_MFA_USER_GRANT_ADMIN",
+      "local_status": "IMPLEMENTED_LOCAL_IAM_LIFECYCLE_DESKTOP",
       "dependencies": [
         12,
         2
@@ -216,14 +233,15 @@
         "T11",
         "T28"
       ],
-      "note": "Desktop user/grant administration, two-person approval, pagination and one-shot IAM writes integrated; password/reset MFA, advanced lookups and Windows UAT pending."
+      "note": "B04 password/recovery/reset, admin lookup and history integrated; Windows UAT pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 14,
       "title": "[UI04] Giao diện danh mục",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/14",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_DESKTOP_SIX_MASTER_FORMS_SERIAL_LOOKUP",
+      "local_status": "IMPLEMENTED_LOCAL_ADVANCED_MASTER_TRACEABILITY_UI",
       "dependencies": [
         13
       ],
@@ -232,14 +250,16 @@
         "T12",
         "T13",
         "T28"
-      ]
+      ],
+      "note": "B05 UOM/barcode/price, owner/agreement and warranty evidence forms integrated.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 15,
       "title": "[UI05] Giao diện chứng từ và duyệt",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/15",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_DESKTOP_PO_SO_APPROVAL",
+      "local_status": "IMPLEMENTED_LOCAL_DOCUMENT_ASSIGNMENT_REVIEW_UI",
       "dependencies": [
         14,
         2
@@ -248,14 +268,16 @@
         "T01",
         "T14",
         "T28"
-      ]
+      ],
+      "note": "B15 search/paging/assignment/snapshots/inbox integrated; B19 durable drafts and Windows UAT remain.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 16,
       "title": "[UI06] Màn hình vận hành kho",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/16",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_DESKTOP_RECEIVING_POST_RECOVERY",
+      "local_status": "PARTIAL_MULTI_DOMAIN_WAREHOUSE_UI",
       "dependencies": [
         15
       ],
@@ -267,7 +289,9 @@
         "T22",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "Receipt/opening/consignment/issue/quality/move/pick-pack/transfer/returns integrated; count/reversal/print/scanner pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 17,
@@ -327,20 +351,22 @@
       "title": "[QA01] Kế hoạch nghiệm thu và fixtures",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/20",
       "github_state_at_read": "OPEN",
-      "local_status": "PLAN_IMPORTED_AWAITING_REVIEW",
+      "local_status": "ACCEPTANCE_PLAN_REVIEWED_UAT_NOT_EXECUTED",
       "dependencies": [],
       "tests": [
         "T01",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "B08 coverage/checklist reviewed; T01–T28 remain PLANNED.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 21,
       "title": "[QA02] CI cho mã ứng dụng",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/21",
       "github_state_at_read": "OPEN",
-      "local_status": "CI_CONFIGURED_NOT_RUN",
+      "local_status": "CI_LOCAL_PG16_VERIFIED_HOSTED_PG15_WINDOWS_NOT_RUN",
       "dependencies": [
         20,
         3
@@ -349,14 +375,16 @@
         "T01",
         "T24",
         "T28"
-      ]
+      ],
+      "note": "B08 runner/strict collection/contract/wheel integrated; local PG16 full suite verified. Hosted CI/PG15/Windows not run.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 22,
       "title": "[QA03] Audit, outbox và worker",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/22",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_OUTBOX_ENGINE_NO_PRODUCTION_CONSUMERS",
+      "local_status": "PARTIAL_OUTBOX_IMPORT_CONSUMER_OPERATIONS_PENDING",
       "dependencies": [
         21,
         4
@@ -368,14 +396,15 @@
         "T24",
         "T28"
       ],
-      "note": "PostgreSQL worker, atomic DB consumers/receipts, bounded retry/backoff and shutdown integrated; no production consumer configured."
+      "note": "B01 import DB enqueue consumer/executor exists; production registry for export/print, monitoring and retention await B20.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 23,
       "title": "[TL04] Ledger, balance và danh tính hàng",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/23",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_RECEIPT_OPENING_LEDGER_BALANCE_POSITION",
+      "local_status": "PARTIAL_MULTI_DOMAIN_LEDGER_COUNT_REVERSAL_PENDING",
       "dependencies": [
         7,
         22
@@ -388,14 +417,15 @@
         "T27",
         "T28"
       ],
-      "note": "Atomic receipt and company opening posting tested; issue/transfer/reversal engines and load benchmark pending."
+      "note": "Receipt/opening/issue/move/transfer/returns posting integrated; counting/reversal/load still pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 24,
       "title": "[TL05] Nhận hàng và tồn đầu kỳ",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/24",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_PO_RECEIVING_COMPANY_OPENING_NO_IMPORT_OR_CONSIGNMENT",
+      "local_status": "IMPLEMENTED_LOCAL_INBOUND_OPENING_IMPORT_CONSIGNMENT",
       "dependencies": [
         23,
         8,
@@ -409,14 +439,15 @@
         "T27",
         "T28"
       ],
-      "note": "OPENING backend integrated: approved full-document cutover, maximum 200 lines and one posting per unused warehouse. Opening UI/import and consignment pending."
+      "note": "Receipt/opening UI and import backend plus consignment inbound integrated. Import UI, cutover limits and target acceptance remain.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 25,
       "title": "[TL06] Giữ hàng và xuất kho",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/25",
       "github_state_at_read": "OPEN",
-      "local_status": "NOT_IMPLEMENTED",
+      "local_status": "IMPLEMENTED_LOCAL_ISSUE_RESERVATION",
       "dependencies": [
         24
       ],
@@ -428,14 +459,16 @@
         "T25",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "B02 issue/reserve/release/partial post/cancel integrated; concurrency evidence local, full UAT pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 26,
       "title": "[TL07] Chuyển kho và di chuyển nội bộ",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/26",
       "github_state_at_read": "OPEN",
-      "local_status": "NOT_IMPLEMENTED",
+      "local_status": "IMPLEMENTED_LOCAL_TRANSFER_INTERNAL_MOVE",
       "dependencies": [
         25
       ],
@@ -445,14 +478,16 @@
         "T21",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "B03 move and B11 dispatch/transit/partial receipt/loss approval integrated; target UAT pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 27,
       "title": "[TL08] Trả hàng và đảo giao dịch",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/27",
       "github_state_at_read": "OPEN",
-      "local_status": "NOT_IMPLEMENTED",
+      "local_status": "PARTIAL_RETURNS_REVERSAL_PENDING",
       "dependencies": [
         26
       ],
@@ -461,7 +496,9 @@
         "T10",
         "T18",
         "T28"
-      ]
+      ],
+      "note": "B12 source-linked customer/supplier returns integrated; B14 reversal has no runtime yet.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 28,
@@ -487,7 +524,7 @@
       "title": "[BE08] Soạn, đóng kiện và chất lượng",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/29",
       "github_state_at_read": "OPEN",
-      "local_status": "NOT_IMPLEMENTED",
+      "local_status": "IMPLEMENTED_LOCAL_QUALITY_PICKING_PACKING",
       "dependencies": [
         10,
         24
@@ -496,7 +533,9 @@
         "T01",
         "T15",
         "T28"
-      ]
+      ],
+      "note": "B03 quality/putaway and B10 pick/package/atomic issue consumption integrated; physical scanner/print UAT pending.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 30,
@@ -517,7 +556,7 @@
       "title": "[QA04] Tệp và pipeline nhập dữ liệu",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/31",
       "github_state_at_read": "OPEN",
-      "local_status": "NOT_IMPLEMENTED",
+      "local_status": "IMPLEMENTED_LOCAL_FILES_IMPORT_BACKEND",
       "dependencies": [
         22,
         8,
@@ -530,7 +569,9 @@
         "T20",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "B01 private file storage/dry-run/staging/hash/job/commit integrated; B16 UI still prepared only.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 32,
@@ -586,7 +627,7 @@
       "title": "[QA08] Kiểm thử đồng thời và đối soát",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/35",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_RECEIPT_OPENING_OUTBOX_CONCURRENCY_NO_LOAD_TEST",
+      "local_status": "PARTIAL_MULTI_DOMAIN_CONCURRENCY_NO_REPRESENTATIVE_LOAD",
       "dependencies": [
         28,
         29
@@ -603,7 +644,8 @@
         "T27",
         "T28"
       ],
-      "note": "Real PostgreSQL concurrency and reconciliation covered for receipt/opening/outbox; no 15 CCU production load test."
+      "note": "Real PG race/rollback tests across current domains; B24 representative 15 CCU load not executed.",
+      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
     },
     {
       "number": 36,
@@ -695,14 +737,14 @@
     {
       "id": "T03",
       "acceptance_status": "PLANNED",
-      "component_evidence": null,
-      "note": "Business acceptance not executed."
+      "component_evidence": "tests/foundation/test_issues.py; tests/foundation/test_fulfillment.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T04",
       "acceptance_status": "PLANNED",
-      "component_evidence": null,
-      "note": "Business acceptance not executed."
+      "component_evidence": "tests/foundation/test_transfers.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T05",
@@ -737,20 +779,20 @@
     {
       "id": "T10",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_orders.py; tests/foundation/test_order_presenter.py",
-      "note": "PO/SO lifecycle, snapshot approval/SOD, race/replay/rollback, partial-close from SQL fixtures and Linux desktop tested. Receipt/issue posting and release races/full business UAT pending."
+      "component_evidence": "tests/foundation/test_returns.py (returns only; reversal pending)",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T11",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_identity.py; tests/foundation/test_admin_desktop.py; tests/foundation/test_admin_presenter.py",
-      "note": "Linux Tk/HTTP/PostgreSQL user/grant administration, session revocation and stale response handling tested. Windows UAT and full acceptance pending."
+      "component_evidence": "tests/foundation/test_iam_lifecycle.py; tests/foundation/test_iam_lifecycle_desktop.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T12",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_master_data.py; tests/foundation/test_master_desktop.py",
-      "note": "Live master APIs + Linux desktop; import and full UAT pending. No complete business acceptance claim."
+      "component_evidence": "tests/foundation/test_imports.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T13",
@@ -761,14 +803,14 @@
     {
       "id": "T14",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_orders.py; tests/foundation/test_order_presenter.py; tests/foundation/test_receipts.py",
-      "note": "Receipt API/desktop/PostgreSQL component evidence; full acceptance, Windows UAT and other workflows remain pending."
+      "component_evidence": "tests/foundation/test_document_reviews.py; tests/foundation/test_documents_desktop.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T15",
       "acceptance_status": "PLANNED",
-      "component_evidence": null,
-      "note": "Business acceptance not executed."
+      "component_evidence": "tests/foundation/test_fulfillment.py; tests/foundation/test_fulfillment_desktop.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T16",
@@ -779,8 +821,8 @@
     {
       "id": "T17",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_orders.py; tests/foundation/test_order_presenter.py",
-      "note": "PO/SO lifecycle, snapshot approval/SOD, race/replay/rollback, partial-close from SQL fixtures and Linux desktop tested. Receipt/issue posting and release races/full business UAT pending."
+      "component_evidence": "tests/foundation/test_issues.py; tests/foundation/test_fulfillment.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T18",
@@ -797,8 +839,8 @@
     {
       "id": "T20",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_openings.py; tests/foundation/test_integrated_workflows.py",
-      "note": "Opening API batch/execution dedup, cutover/serial concurrency, rollback and worker integration tested. File import/dry-run/hash/chunk pipeline and real cutover UAT not implemented."
+      "component_evidence": "tests/foundation/test_openings.py; tests/foundation/test_imports.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T21",
@@ -821,14 +863,14 @@
     {
       "id": "T24",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py; tests/foundation/test_outbox.py; tests/foundation/test_openings.py; tests/foundation/test_integrated_workflows.py",
-      "note": "Atomic receipt/opening posting plus outbox savepoint/crash/retry and real opening producer integration tested. Other posting types and full acceptance pending."
+      "component_evidence": "tests/foundation/test_postgres.py; tests/foundation/test_iam_lifecycle.py; tests/foundation/test_api_contracts.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T25",
       "acceptance_status": "PLANNED",
-      "component_evidence": null,
-      "note": "Business acceptance not executed."
+      "component_evidence": "tests/foundation/test_issues.py; tests/foundation/test_fulfillment.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T26",
@@ -839,36 +881,51 @@
     {
       "id": "T27",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_postgres.py",
-      "note": "Owner balances, guards, serial concurrency, warranty evidence/permissions/API and Linux desktop tested with SQL receipt fixtures. No end-to-end posting/import/report/UAT acceptance."
+      "component_evidence": "tests/foundation/test_consignments.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     },
     {
       "id": "T28",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_postgres.py; tests/foundation/test_receipts.py; tests/foundation/test_openings.py; tests/foundation/test_admin_desktop.py",
-      "note": "Additional local opening/admin component evidence; Windows, import/report/issue and complete UAT remain pending."
+      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_b05_desktop.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
     }
   ],
   "latest_local_validation": {
-    "suite": "xvfb-run -a .venv/bin/python scripts/check_application.py --gui",
-    "passed": 301,
+    "date": "2026-10-04",
+    "commit": "1386b2419dfa42a8dba48fc2028464d18da3d696",
+    "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+    "report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md",
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-integration-review-20261004",
+    "passed": 823,
     "subtests_passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 845.52,
+    "runtime_paths": 141,
+    "migrations": 18,
     "runtime_schema": {
-      "tables": 65,
-      "columns": 440,
-      "foreign_keys": 129,
+      "tables": 81,
+      "columns": 542,
+      "foreign_keys": 172,
       "roles": 10,
       "permissions": 56,
       "role_permissions": 121
     },
-    "full_acceptance_completed": false,
-    "runtime_paths": 65,
-    "migrations": 10,
     "local_sqlite_schema_version": 2,
-    "failed": 0,
-    "skipped": 0,
-    "duration_seconds": 182.74,
-    "installed_wheel_checked": true
+    "installed_wheel_checked": true,
+    "full_acceptance_completed": false,
+    "not_run": [
+      "PostgreSQL 15",
+      "Windows 10/11",
+      "hosted CI",
+      "target LAN/TLS",
+      "physical printer/scanner",
+      "15 CCU representative load",
+      "backup/restore RPO/RTO",
+      "business UAT"
+    ]
   },
   "github_counts_note": "Snapshot at initial issue read; remote state not refreshed for this local implementation report.",
   "integrated_agent_branches": [
@@ -888,6 +945,78 @@
       "branch": "agent/opening",
       "source_commit": "039384987f402884151bcc736cf57505cd1407e5",
       "merge_commit": "1463854",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b01-import-files",
+      "source_commit": "b70d43ac8e16b2744b023091e42fa56f9068a6a5",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b02-issue-reservation",
+      "source_commit": "9d3fbd1177d27350c73163885ab65260b9d72ec2",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b03-move-quality",
+      "source_commit": "dd659b620a9160854f24aa09cc40718414703574",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b04-iam-lifecycle",
+      "source_commit": "2e844a02845a8e96da6b9ca598a48696fa6de355",
+      "merge_commit": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b05-master-traceability-ui",
+      "source_commit": "784e6697c72c741e78a635995174503231d3c287",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b06-opening-ui",
+      "source_commit": "cb1c99d632cbe58facd97039ccb2ee28b1d37523",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b08-ci-contracts",
+      "source_commit": "b5e2685a10e41a8e7c037c4ebe2fff6a98972bc4",
+      "merge_commit": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b09-consignment",
+      "source_commit": "94bd7232173b60bf899ca5001f1687464011899a",
+      "merge_commit": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b10-fulfillment",
+      "source_commit": "238a30bcd43936ad2973540672dccbc5ef40e783",
+      "merge_commit": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b11-transfer",
+      "source_commit": "cc45621be81249e229655b1899f76bf1dbf4b313",
+      "merge_commit": "dce35f92b32015146f23d48229d641b558715b8c",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b12-returns",
+      "source_commit": "f37c0bb80fbd9f82c26494a71c9e00574f121039",
+      "merge_commit": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b15-documents-ui",
+      "source_commit": "8bb824ce4e84180d0b167805b2d9e0fa12c05b28",
+      "merge_commit": "44b72d14877c9581e80e5db89035a2d4db7d5780",
       "worktree_retained": true
     }
   ],
@@ -909,6 +1038,67 @@
       "B15"
     ],
     "initial_waiting": 18,
-    "note": "Assignment only; no application code or acceptance status changed. GitHub counts remain the prior local snapshot."
-  }
+    "note": "Current local branch audit and validation recorded separately from initial assignment; GitHub snapshot not refreshed.",
+    "last_review_date": "2026-10-04",
+    "current_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md",
+    "integrated_task_ids": [
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B08",
+      "B09",
+      "B10",
+      "B11",
+      "B12",
+      "B15"
+    ],
+    "prepared_task_ids": [
+      "B07",
+      "B13",
+      "B14",
+      "B16"
+    ],
+    "ready_for_sync": [
+      "B13",
+      "B16"
+    ],
+    "not_started_task_ids": [
+      "B17",
+      "B18",
+      "B19",
+      "B20",
+      "B21",
+      "B22",
+      "B23",
+      "B24",
+      "B25",
+      "B26"
+    ]
+  },
+  "validation_history": [
+    {
+      "suite": "xvfb-run -a .venv/bin/python scripts/check_application.py --gui",
+      "passed": 301,
+      "subtests_passed": 10,
+      "runtime_schema": {
+        "tables": 65,
+        "columns": 440,
+        "foreign_keys": 129,
+        "roles": 10,
+        "permissions": 56,
+        "role_permissions": 121
+      },
+      "full_acceptance_completed": false,
+      "runtime_paths": 65,
+      "migrations": 10,
+      "local_sqlite_schema_version": 2,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 182.74,
+      "installed_wheel_checked": true
+    }
+  ]
 }

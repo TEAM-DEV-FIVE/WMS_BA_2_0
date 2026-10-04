@@ -1,0 +1,49 @@
+{
+  "revision": "016_b12_returns.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "return_document",
+      "purpose": "Typed physical return source and plan, included in approval snapshot.",
+      "cols": [
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "source_document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        }
+      ]
+    },
+    {
+      "name": "return_line",
+      "purpose": "Typed physical return source and plan, included in approval snapshot.",
+      "cols": [
+        {
+          "name": "document_line_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document_line.id"
+        },
+        {
+          "name": "source_move_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_move.id"
+        },
+        {
+          "name": "location_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "location.id"
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

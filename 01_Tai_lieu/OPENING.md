@@ -1,7 +1,8 @@
-# Tồn đầu kỳ doanh nghiệp — backend OPENING
+# Tồn đầu kỳ — OPENING
 
-Ngày 03/10/2026, migration `010_opening.sql`. Đợt này cung cấp API tạo/sửa/đọc/danh sách,
-gửi/duyệt và ghi toàn bộ phiếu tồn đầu kỳ; chưa có màn hình hay pipeline import file.
+Migration `010_opening.sql` cung cấp API tạo/sửa/đọc/danh sách, duyệt và ghi đủ tồn đầu kỳ.
+B01/B06 đã bổ sung import và UI; [B09](CONSIGNMENT.md) mở owner/hợp đồng trên từng dòng,
+giữ nguyên quyền, policy và cutover dưới đây.
 
 ## Quyền, policy và cách hiểu cutover
 
@@ -57,8 +58,9 @@ Contract chạy thật: [openapi_runtime.json](../05_API/openapi_runtime.json).
 
 Create/PUT gồm `warehouse_id`, `batch_key`, `business_date`, `signed_count_reference`, `reason` và `lines`.
 Mỗi dòng: `product_id`, `quantity_base` dạng **chuỗi decimal**, `owner_id`, `destination_location_id`,
-`lot_code`/`serial_code`, `manufactured_on`/`expires_on` nếu áp dụng. Chủ hàng bắt buộc là COMPANY
-`00000000-0000-4000-8000-000000000001`. Không nhận NCC, giá, nguồn PO, hợp đồng ký gửi hoặc factor từ client.
+`lot_code`/`serial_code`, `manufactured_on`/`expires_on` nếu áp dụng. COMPANY
+`00000000-0000-4000-8000-000000000001` không gắn hợp đồng; CONSIGNOR bắt buộc
+`consignment_id` đúng owner/kho/ngày còn hiệu lực. Không nhận UNCLASSIFIED, NCC header, giá, nguồn PO hoặc factor từ client.
 Nhập lượng cơ sở, factor snapshot 1; UOM đọc từ sản phẩm, kiểm tra precision và không âm thầm làm tròn.
 
 Post chỉ gồm `expected_version`, `execution_key` và `reason`: không nhận lại dòng/lượng/vị trí để thay
