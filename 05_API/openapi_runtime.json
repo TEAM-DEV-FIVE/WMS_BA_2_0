@@ -23820,6 +23820,929 @@
         }
       }
     },
+    "/api/v1/reversals": {
+      "get": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Listing",
+        "operationId": "listing_api_v1_reversals_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "warehouse_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Warehouse Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "DRAFT",
+                    "SUBMITTED",
+                    "APPROVED",
+                    "REJECTED",
+                    "PARTIAL",
+                    "COMPLETED",
+                    "CANCELLED"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Create",
+        "operationId": "create_api_v1_reversals_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReversalInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/reversals/sources": {
+      "get": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Sources",
+        "operationId": "sources_api_v1_reversals_sources_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "warehouse_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Warehouse Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalSourcePage"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/{transaction_id}/reversal-preview": {
+      "get": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Preview",
+        "operationId": "preview_api_v1_transactions__transaction_id__reversal_preview_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Transaction Id"
+            }
+          },
+          {
+            "name": "business_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Business Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalPreview"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/reversals/operations/{key}": {
+      "get": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Operation",
+        "operationId": "operation_api_v1_reversals_operations__key__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalOperation"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/reversals/{doc_id}": {
+      "get": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Read",
+        "operationId": "read_api_v1_reversals__doc_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Doc Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalView"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Update",
+        "operationId": "update_api_v1_reversals__doc_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Doc Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReversalUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/reversals/{doc_id}/post": {
+      "post": {
+        "tags": [
+          "reversals"
+        ],
+        "summary": "Post",
+        "operationId": "post_api_v1_reversals__doc_id__post_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Doc Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReversalPost"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReversalResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/v1/health": {
       "get": {
         "tags": [
@@ -24980,7 +25903,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -26289,7 +27213,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -27286,7 +28211,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -27432,7 +28358,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -28162,7 +29089,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -28447,7 +29375,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -28935,7 +29864,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -29078,7 +30008,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -29559,7 +30490,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -29639,7 +30571,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -29799,7 +30732,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -32539,7 +33473,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -32685,7 +33620,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -33341,7 +34277,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -33680,7 +34617,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -33830,6 +34768,770 @@
           "plan"
         ],
         "title": "ReturnView"
+      },
+      "ReversalBlock": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ReversalBlock"
+      },
+      "ReversalEffect": {
+        "properties": {
+          "stock_item_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Stock Item Id"
+          },
+          "location_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Location Id"
+          },
+          "location_code": {
+            "type": "string",
+            "title": "Location Code"
+          },
+          "on_hand": {
+            "type": "string",
+            "title": "On Hand"
+          },
+          "reserved": {
+            "type": "string",
+            "title": "Reserved"
+          },
+          "delta": {
+            "type": "string",
+            "title": "Delta"
+          },
+          "projected_on_hand": {
+            "type": "string",
+            "title": "Projected On Hand"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "stock_item_id",
+          "location_id",
+          "location_code",
+          "on_hand",
+          "reserved",
+          "delta",
+          "projected_on_hand"
+        ],
+        "title": "ReversalEffect"
+      },
+      "ReversalInput": {
+        "properties": {
+          "source_transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Transaction Id"
+          },
+          "source_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Source Version"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_transaction_id",
+          "source_version",
+          "business_date",
+          "reason"
+        ],
+        "title": "ReversalInput"
+      },
+      "ReversalLine": {
+        "properties": {
+          "source_move_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Move Id"
+          },
+          "stock_item_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Stock Item Id"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Owner Id"
+          },
+          "owner_code": {
+            "type": "string",
+            "title": "Owner Code"
+          },
+          "consignment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consignment Id"
+          },
+          "lot_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Code"
+          },
+          "serial_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial Code"
+          },
+          "source_location_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Location Id"
+          },
+          "source_code": {
+            "type": "string",
+            "title": "Source Code"
+          },
+          "source_kind": {
+            "type": "string",
+            "title": "Source Kind"
+          },
+          "destination_location_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Destination Location Id"
+          },
+          "destination_code": {
+            "type": "string",
+            "title": "Destination Code"
+          },
+          "destination_kind": {
+            "type": "string",
+            "title": "Destination Kind"
+          },
+          "quantity_base": {
+            "type": "string",
+            "pattern": "^(?:0|[1-9][0-9]{0,13})(?:\\.[0-9]{1,6})?$",
+            "title": "Quantity Base"
+          },
+          "base_uom_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Base Uom Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_move_id",
+          "stock_item_id",
+          "product_id",
+          "sku",
+          "owner_id",
+          "owner_code",
+          "consignment_id",
+          "lot_code",
+          "serial_code",
+          "source_location_id",
+          "source_code",
+          "source_kind",
+          "destination_location_id",
+          "destination_code",
+          "destination_kind",
+          "quantity_base",
+          "base_uom_id"
+        ],
+        "title": "ReversalLine"
+      },
+      "ReversalOperation": {
+        "properties": {
+          "command": {
+            "type": "string",
+            "title": "Command"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ReversalResult"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command",
+          "result"
+        ],
+        "title": "ReversalOperation"
+      },
+      "ReversalPost": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "execution_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Execution Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "reason",
+          "execution_key"
+        ],
+        "title": "ReversalPost"
+      },
+      "ReversalPreview": {
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/ReversalSource"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "warehouse_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Warehouse Ids"
+          },
+          "eligible": {
+            "type": "boolean",
+            "title": "Eligible"
+          },
+          "blockers": {
+            "items": {
+              "$ref": "#/components/schemas/ReversalBlock"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "plan": {
+            "items": {
+              "$ref": "#/components/schemas/ReversalLine"
+            },
+            "type": "array",
+            "title": "Plan"
+          },
+          "effects": {
+            "items": {
+              "$ref": "#/components/schemas/ReversalEffect"
+            },
+            "type": "array",
+            "title": "Effects"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source",
+          "business_date",
+          "warehouse_ids",
+          "eligible",
+          "blockers",
+          "plan",
+          "effects"
+        ],
+        "title": "ReversalPreview"
+      },
+      "ReversalResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PO",
+              "SO",
+              "RECEIPT",
+              "OPENING",
+              "ISSUE",
+              "INTERNAL_MOVE",
+              "TRANSFER",
+              "ADJUSTMENT",
+              "CUSTOMER_RETURN",
+              "SUPPLIER_RETURN",
+              "REVERSAL"
+            ],
+            "title": "Kind"
+          },
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Warehouse Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "PARTIAL",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "approval_request_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Request Id"
+          },
+          "source_transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Transaction Id"
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "kind",
+          "warehouse_id",
+          "status",
+          "version",
+          "request_id",
+          "source_transaction_id"
+        ],
+        "title": "ReversalResult"
+      },
+      "ReversalSource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "document_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Id"
+          },
+          "document_number": {
+            "type": "string",
+            "title": "Document Number"
+          },
+          "document_kind": {
+            "type": "string",
+            "title": "Document Kind"
+          },
+          "source_version": {
+            "type": "integer",
+            "title": "Source Version"
+          },
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Warehouse Id"
+          },
+          "operation": {
+            "type": "string",
+            "title": "Operation"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "reversal_transaction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversal Transaction Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "document_id",
+          "document_number",
+          "document_kind",
+          "source_version",
+          "warehouse_id",
+          "operation",
+          "business_date",
+          "reversal_transaction_id"
+        ],
+        "title": "ReversalSource"
+      },
+      "ReversalSourcePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReversalSource"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "next_after"
+        ],
+        "title": "ReversalSourcePage"
+      },
+      "ReversalUpdate": {
+        "properties": {
+          "source_transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Transaction Id"
+          },
+          "source_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Source Version"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_transaction_id",
+          "source_version",
+          "business_date",
+          "reason",
+          "expected_version"
+        ],
+        "title": "ReversalUpdate"
+      },
+      "ReversalView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PO",
+              "SO",
+              "RECEIPT",
+              "OPENING",
+              "ISSUE",
+              "INTERNAL_MOVE",
+              "TRANSFER",
+              "ADJUSTMENT",
+              "CUSTOMER_RETURN",
+              "SUPPLIER_RETURN",
+              "REVERSAL"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "PARTIAL",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "title": "Status"
+          },
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Warehouse Id"
+          },
+          "partner_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Id"
+          },
+          "partner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Name"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Business Date"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Created By"
+          },
+          "creator_name": {
+            "type": "string",
+            "title": "Creator Name"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineView"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "assigned_user_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Assigned User Ids"
+          },
+          "approvals": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalView"
+            },
+            "type": "array",
+            "title": "Approvals"
+          },
+          "allowed_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Actions"
+          },
+          "source_transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Transaction Id"
+          },
+          "source_document_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Document Id"
+          },
+          "source_version": {
+            "type": "integer",
+            "title": "Source Version"
+          },
+          "reversal_reason": {
+            "type": "string",
+            "title": "Reversal Reason"
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Id"
+          },
+          "plan": {
+            "items": {
+              "$ref": "#/components/schemas/ReversalLine"
+            },
+            "type": "array",
+            "title": "Plan"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/ReversalPreview"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "kind",
+          "status",
+          "warehouse_id",
+          "partner_id",
+          "partner_name",
+          "business_date",
+          "created_by",
+          "creator_name",
+          "created_at",
+          "version",
+          "reason",
+          "lines",
+          "assigned_user_ids",
+          "approvals",
+          "allowed_actions",
+          "source_transaction_id",
+          "source_document_id",
+          "source_version",
+          "reversal_reason",
+          "transaction_id",
+          "plan",
+          "preview"
+        ],
+        "title": "ReversalView"
       },
       "ReviewLine": {
         "properties": {
@@ -34863,7 +36565,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -35076,7 +36779,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },
@@ -35317,7 +37021,8 @@
               "TRANSFER",
               "ADJUSTMENT",
               "CUSTOMER_RETURN",
-              "SUPPLIER_RETURN"
+              "SUPPLIER_RETURN",
+              "REVERSAL"
             ],
             "title": "Kind"
           },

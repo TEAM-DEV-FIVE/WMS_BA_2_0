@@ -209,13 +209,16 @@ class TransferService:
             m.stock_item_id,m.quantity_base AS dispatched,t.business_date AS dispatched_on,i.product_id,i.owner_id,i.consignment_id,i.serial_id,
             p.sku,o.code AS owner_code,lot.code AS lot_code,s.code AS serial_code,m.base_uom_id,
             coalesce((SELECT sum(x.quantity_base) FROM wms.transfer_move a JOIN wms.stock_move x ON x.id=a.move_id
-                WHERE a.dispatch_move_id=m.id AND a.disposition IN ('GOOD','DAMAGED')),0) AS received,
+                WHERE a.dispatch_move_id=m.id AND a.disposition IN ('GOOD','DAMAGED')
+                AND NOT EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=x.id)),0) AS received,
             coalesce((SELECT sum(x.quantity_base) FROM wms.transfer_move a JOIN wms.stock_move x ON x.id=a.move_id
-                WHERE a.dispatch_move_id=m.id AND a.disposition='LOSS'),0) AS lost
+                WHERE a.dispatch_move_id=m.id AND a.disposition='LOSS'
+                AND NOT EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=x.id)),0) AS lost
             FROM wms.stock_move m JOIN wms.inventory_transaction t ON t.id=m.transaction_id AND t.operation='DISPATCH'
             JOIN wms.stock_item i ON i.id=m.stock_item_id JOIN wms.product p ON p.id=i.product_id
             JOIN wms.stock_owner o ON o.id=i.owner_id LEFT JOIN wms.lot lot ON lot.id=i.lot_id
-            LEFT JOIN wms.serial s ON s.id=i.serial_id WHERE t.document_id=:id ORDER BY m.id"""),
+            LEFT JOIN wms.serial s ON s.id=i.serial_id WHERE t.document_id=:id
+            AND NOT EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=m.id) ORDER BY m.id"""),
                 {"id": doc_id},
             ).mappings()
         ]
@@ -379,7 +382,12 @@ class TransferService:
                     )
                 return CommandResult(executed["response"])
             require_version(doc["version"], payload.expected_version)
-            self.orders.receipts.approved(c, doc)
+            # A completed header remains historical. An explicit new arrival may
+            # consume transit restored by an approved reversal, under the same
+            # unchanged approval snapshot and normal current stock/source checks.
+            restored = operation == "ARRIVE" and doc["status"] == "COMPLETED" and any(
+                self.remaining(s) > 0 for s in self.sources(c, doc_id))
+            self.orders.receipts.approved(c, {**doc, "status": "PARTIAL"} if restored else doc)
             day = payload.business_date if operation == "ARRIVE" else doc["business_date"]
             if operation == "DISPATCH":
                 if doc["status"] != "APPROVED" or self.sources(c, doc_id):
@@ -592,7 +600,8 @@ class TransferService:
         used = c.execute(
             text("""SELECT coalesce(sum(m.quantity_base),0) FROM wms.transfer_adjustment a
             JOIN wms.inventory_transaction t ON t.document_id=a.document_id AND t.operation='ADJUST'
-            JOIN wms.stock_move m ON m.transaction_id=t.id WHERE a.discrepancy_id=:id"""),
+            JOIN wms.stock_move m ON m.transaction_id=t.id WHERE a.discrepancy_id=:id
+            AND NOT EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=m.id)"""),
             {"id": evidence["id"]},
         ).scalar_one()
         if qty > self.remaining(source) or qty > evidence["quantity"] - used:
@@ -716,12 +725,13 @@ class TransferService:
                 actions = [
                     a for a in actions if a not in {"edit", "assign"}
                 ]  # Loss quantities are immutable; cancel and create a corrected draft.
-        if doc["status"] in {"APPROVED", "PARTIAL"}:
+        restored = not link and doc["status"] == "COMPLETED" and any(self.remaining(s) > 0 for s in self.sources(c, doc_id))
+        if doc["status"] in {"APPROVED", "PARTIAL"} or restored:
             for op, action in (
                 [("ADJUST", "post")] if link else [("DISPATCH", "dispatch"), ("ARRIVE", "receive")]
             ):
                 try:
-                    if op == "ARRIVE" and doc["status"] != "PARTIAL":
+                    if op == "ARRIVE" and doc["status"] != "PARTIAL" and not restored:
                         continue
                     self.may_post(auth, doc, op)
                     if op != "DISPATCH" or doc["status"] == "APPROVED":

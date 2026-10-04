@@ -1777,6 +1777,86 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/reversals",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reversals/operations/{key}",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reversals/sources",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reversals/{doc_id}",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/roles",
       "tags": [
         "identity"
@@ -1881,6 +1961,26 @@
       "path": "/api/v1/stock-ownership",
       "tags": [
         "traceability"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transactions/{transaction_id}/reversal-preview",
+      "tags": [
+        "reversals"
       ],
       "bearer_auth": true,
       "idempotency_key_required": false,
@@ -3681,6 +3781,46 @@
     },
     {
       "method": "POST",
+      "path": "/api/v1/reversals",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reversals/{doc_id}/post",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
       "path": "/api/v1/sales-orders",
       "tags": [
         "orders"
@@ -4207,6 +4347,26 @@
       "path": "/api/v1/returns/{doc_id}",
       "tags": [
         "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/reversals/{doc_id}",
+      "tags": [
+        "reversals"
       ],
       "bearer_auth": true,
       "idempotency_key_required": true,

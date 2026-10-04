@@ -6,15 +6,19 @@ WITH sources AS (
  JOIN wms.document d ON d.id=t.document_id AND d.kind='TRANSFER'
  LEFT JOIN wms.transfer_move link ON link.dispatch_move_id=m.id
  LEFT JOIN wms.stock_move child ON child.id=link.move_id
+   AND NOT EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=child.id)
+ WHERE NOT EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=m.id)
  GROUP BY m.id,m.quantity_base
 )
 SELECT * FROM sources WHERE consumed>quantity_base;
 
 -- Transit is private to one document; its balance equals dispatched minus received/lost.
 WITH quantities AS (
- SELECT t.document_id,m.stock_item_id,m.quantity_base - coalesce((
+ SELECT t.document_id,m.stock_item_id,
+ CASE WHEN EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=m.id) THEN 0 ELSE m.quantity_base END - coalesce((
    SELECT sum(child.quantity_base) FROM wms.transfer_move link JOIN wms.stock_move child ON child.id=link.move_id
-   WHERE link.dispatch_move_id=m.id),0) AS remaining
+   WHERE link.dispatch_move_id=m.id
+   AND NOT EXISTS(SELECT 1 FROM wms.stock_move r WHERE r.reverses_move_id=child.id)),0) AS remaining
  FROM wms.stock_move m JOIN wms.inventory_transaction t ON t.id=m.transaction_id AND t.operation='DISPATCH'
  JOIN wms.document d ON d.id=t.document_id AND d.kind='TRANSFER'
 ), expected AS (

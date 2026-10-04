@@ -23,6 +23,7 @@ from apps.server.api.periods import period_router
 from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
 from apps.server.api.returns import return_router
+from apps.server.api.reversals import reversal_router
 from apps.server.api.traceability import traceability_router
 from apps.server.api.transfers import transfer_router
 from apps.server.application.consignments import ConsignmentReceiptService
@@ -39,6 +40,7 @@ from apps.server.application.picking import PickingService
 from apps.server.application.quality import QualityService
 from apps.server.application.receipts import ReceiptService
 from apps.server.application.returns import ReturnService
+from apps.server.application.reversals import ReversalService
 from apps.server.application.traceability import TraceabilityService
 from apps.server.application.transfers import TransferService
 from apps.server.domain.errors import DomainError
@@ -103,6 +105,8 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(counting_router(app.state.counting))
     app.state.periods = PeriodService(app.state.orders)
     app.include_router(period_router(app.state.periods))
+    app.state.reversals = ReversalService(app.state.orders)
+    app.include_router(reversal_router(app.state.reversals))
 
     def error(request: Request, status: int, code: str, message: str, **kwargs):
         body = Error(code=code, message=message, request_id=request.state.request_id, **kwargs)

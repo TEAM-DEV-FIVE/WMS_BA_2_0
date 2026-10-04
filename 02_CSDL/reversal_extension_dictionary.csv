@@ -1,0 +1,7 @@
+table,column,data_type,nullable,references
+reversal_document,document_id,uuid,NO,document.id
+reversal_document,source_transaction_id,uuid,NO,inventory_transaction.id
+reversal_document,source_version,integer,NO,
+reversal_document,reversal_reason,text,NO,
+reversal_line,document_line_id,uuid,NO,document_line.id
+reversal_line,source_move_id,uuid,NO,stock_move.id

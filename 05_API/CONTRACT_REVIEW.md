@@ -71,3 +71,11 @@ Các trường này phản ánh OpenAPI, không thay thế kiểm thử quyền 
    hoặc T02 là đạt từ test receipt; cần B04/B19 và B24/B26 xác nhận end-to-end.
 4. API signatures có trong schema không chứng minh UI tồn tại, không chứng minh PG15/Windows/hosted CI đã chạy.
    Kết quả và NOT_RUN ghi riêng tại [bàn giao B08](../01_Tai_lieu/PHAN_CONG/BAN_GIAO/B08.md).
+
+## B14 sau B13/B16 — 04/10/2026
+
+Runtime hiện có 166 paths. [Reversal contract](../01_Tai_lieu/REVERSALS.md) dùng một transaction gốc,
+source_version, plan do server dẫn xuất; post cần expected_version/execution_key/Idempotency-Key.
+Lifecycle dùng routes documents/approval-requests chung; operation lookup riêng có envelope command/result.
+Quyền adjustment theo cả hai kho với transfer/loss; count snapshot không lộ cho người đếm.
+Core OpenAPI giữ mốc thiết kế; runtime/inventory đã tái sinh. Không suy nghiệm thu từ route tồn tại.

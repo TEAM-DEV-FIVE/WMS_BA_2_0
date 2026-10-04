@@ -403,43 +403,28 @@ def test_returns_customer_serial_rollback_keeps_absent_position_and_same_retry(r
     reconcile(f)
 
 
-def test_returns_source_lock_rechecks_reversal_committed_by_other_session(returning):
-    # B14 is not integrated: this fixture exercises its documented source-lock
-    # protocol with a real PG reversal ledger, not a fake B14 API.
-    f = returning
+def test_returns_source_lock_serializes_real_reversal_and_new_return(returning):
+    from test_reversals import setup_reversal, source_transaction
+
+    f = setup_reversal(returning)
     f.received("10")
     source = f.return_sources()["items"][0]
-    doc = f.return_approve(f.return_body(source))
-    attempted = Event()
-    def query(connection, cursor, statement, parameters, context, many):
-        if "FROM wms.document " in statement and "FOR UPDATE" in statement and str(parameters.get("id")) == source["document_id"]:
-            attempted.set()
-    with ThreadPoolExecutor(1) as pool:
-        with f.engine.begin() as c:
-            c.execute(text("SELECT id FROM wms.document WHERE id=:id FOR UPDATE"), {"id": source["document_id"]})
-            event.listen(f.engine, "before_cursor_execute", query)
-            future = pool.submit(f.return_post, doc)
-            try:
-                assert attempted.wait(5)
-            finally:
-                event.remove(f.engine, "before_cursor_execute", query)
-            reversal, line, tx = uuid4(), uuid4(), uuid4()
-            c.execute(text("""INSERT INTO wms.document(id,number,kind,status,warehouse_id,business_date,created_by,created_at,version,attributes)
-                VALUES (:id,'RETURN-SOURCE-REVERSE','REVERSAL','COMPLETED',:warehouse,'2026-10-02',:actor,now(),1,'{}')"""),
-                {"id": reversal, "warehouse": f.warehouse, "actor": f.manager})
-            c.execute(text("""INSERT INTO wms.document_line(id,document_id,line_no,product_id,uom_id,quantity,factor_snapshot,base_quantity,owner_id,consignment_id)
-                SELECT :line,:doc,1,l.product_id,m.base_uom_id,m.quantity_base,1,m.quantity_base,l.owner_id,l.consignment_id
-                FROM wms.stock_move m JOIN wms.document_line l ON l.id=m.line_id WHERE m.id=:source"""),
-                {"line": line, "doc": reversal, "source": source["id"]})
-            c.execute(text("""INSERT INTO wms.inventory_transaction(id,document_id,execution_key,operation,business_date,posted_at,posted_by,reverses_transaction_id)
-                SELECT :id,:doc,:id,'REVERSE','2026-10-02',now(),:actor,transaction_id FROM wms.stock_move WHERE id=:source"""),
-                {"id": tx, "doc": reversal, "actor": f.manager, "source": source["id"]})
-            c.execute(text("""INSERT INTO wms.stock_move(id,transaction_id,line_id,stock_item_id,source_location_id,destination_location_id,quantity_base,base_uom_id,reverses_move_id)
-                SELECT :id,:tx,:line,stock_item_id,destination_location_id,source_location_id,quantity_base,base_uom_id,id
-                FROM wms.stock_move WHERE id=:source"""), {"id": uuid4(), "tx": tx, "line": line, "source": source["id"]})
-            c.execute(text("UPDATE wms.stock_balance SET on_hand=on_hand-10,version=version+1 WHERE stock_item_id=:stock AND location_id=:location"),
-                      {"stock": source["stock_item_id"], "location": f.location["id"]})
-        assert future.result(timeout=10).json()["code"] == "SOURCE_MISMATCH"
+    reversal = f.rev_approve(source_transaction(f, source["id"]))
+    barrier = Barrier(2)
+    def reverse():
+        barrier.wait(5)
+        return f.rev_post(reversal)
+    def create_return():
+        barrier.wait(5)
+        return f.request("POST", "returns", f.return_body(source))
+    with ThreadPoolExecutor(2) as pool:
+        inverse, returned = pool.submit(reverse), pool.submit(create_return)
+        inverse, returned = inverse.result(15), returned.result(15)
+    assert (inverse.status_code, returned.status_code) in {(200, 409), (409, 201)}
+    if inverse.status_code == 409:
+        assert inverse.json()["code"] == "DEPENDENT_RETURN"
+    else:
+        assert returned.json()["code"] == "SOURCE_MISMATCH"
     reconcile(f)
 
 
