@@ -51,3 +51,7 @@ Kiểm fresh install và upgrade có dữ liệu từ 010 và release 015; xem [
 nguồn task trên package_line và fulfillment_consumption append-only. Tổng: 79 bảng/530 cột/169 FK.
 Người dùng đã cho phép cấp số 017 sau khi release 016 được B12 dùng. Giữ nguyên 001–016;
 không backfill nguồn legacy. Kiểm upgrade từ 010 và 016 có dữ liệu. Xem [Soạn/đóng kiện](../01_Tai_lieu/FULFILLMENT.md).
+
+B04 tích hợp bằng revision **018_b04_iam_lifecycle.sql**, thêm bảng mã recovery/reset có hash;
+giữ nguyên 001–017. Runtime sau B10/B04: 81 bảng, 542 cột, 172 FK.
+Test nâng cấp IAM từ 010, 016 và 017 giữ nguyên user/session/factor cũ.

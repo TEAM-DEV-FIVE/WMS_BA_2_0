@@ -103,3 +103,58 @@ class GrantCreate(Contract):
         if value is not None and value.tzinfo is None:
             raise ValueError("Timezone is required")
         return value
+
+
+class Reauthentication(PasswordConfirmation):
+    code: SecretStr | None = Field(default=None, min_length=6, max_length=6)
+
+
+class PasswordChange(Reauthentication):
+    new_password: SecretStr = Field(min_length=12, max_length=128)
+
+
+class PasswordResetIssue(Reauthentication):
+    reason: str = Field(min_length=3, max_length=2000)
+
+
+class PasswordResetComplete(Contract):
+    username: Username
+    reset_token: SecretStr = Field(min_length=40, max_length=100)
+    new_password: SecretStr = Field(min_length=12, max_length=128)
+
+
+class RecoveryInput(Contract):
+    challenge_token: SecretStr = Field(min_length=40, max_length=100)
+    recovery_code: SecretStr = Field(min_length=20, max_length=100)
+
+
+class RecoveryCodes(Contract):
+    codes: list[str] = Field(repr=False)
+
+
+class PasswordResetToken(Contract):
+    reset_token: str = Field(repr=False)
+    expires_in: int = 900
+
+
+class SessionSummary(Contract):
+    id: UUID
+    user_id: UUID
+    username: str
+    device_id: UUID
+    created_at: datetime | None
+    expires_at: datetime
+    revoked_at: datetime | None
+    mfa_verified_at: datetime | None
+    is_active: bool
+
+
+class IdentityEvent(Contract):
+    id: UUID
+    actor_id: UUID | None
+    actor_name: str | None
+    action: str
+    entity_id: UUID | None
+    occurred_at: datetime
+    request_id: UUID
+    reason: str | None

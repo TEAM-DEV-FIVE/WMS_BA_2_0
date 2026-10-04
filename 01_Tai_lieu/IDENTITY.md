@@ -51,7 +51,7 @@ UUID thiết bị được giữ bền ở `WMS_LOCAL_DATA_DIR/device.sqlite3` (
 mở đúng phân vùng phục hồi; không phải credential. Xem [phục hồi nhận hàng](RECEIPT_RECOVERY.md).
 TLS luôn được kiểm tra. Đã có [desktop quản trị user/grant](ADMIN_DESKTOP.md) nối API thật,
 phân trang, MFA/quyền, hai quản trị duyệt và thu hồi phiên/quyền. IAM write không tự replay sau timeout;
-người dùng tải lại để đối chiếu. Đổi mật khẩu/reset MFA và lookup/lịch sử quản trị nâng cao còn thiếu.
+người dùng tải lại để đối chiếu. B04 bổ sung đổi/reset mật khẩu, khôi phục MFA, lookup và lịch sử bảo mật theo phần dưới.
 
 ## Quản trị qua API
 
@@ -98,7 +98,7 @@ chưa phải snapshot/cursor của contract nhận hàng. Không trả password 
   Sai password hoặc MFA 5 lần trong cửa sổ 5 phút bị chặn 5 phút; counter ở PostgreSQL, dùng chung worker.
   Tạo challenge mới không reset số lần sai MFA. Triển khai LAN còn cần cấu hình giới hạn request ở proxy QA07.
 - Bật MFA tăng auth_version, vô hiệu các phiên/challenge cũ, chỉ giữ phiên vừa xác nhận. Các API quản trị
-  luôn yêu cầu MFA. Khôi phục/reset MFA, đổi mật khẩu và quản lý recovery code chưa có trong đợt này.
+  luôn yêu cầu MFA. Các luồng credential lifecycle B04 được mô tả dưới đây.
 - Permission và scope được kiểm tra trên cùng **một grant**. GLOBAL không cấp quyền WAREHOUSE;
   ALL_WAREHOUSES không cấp quyền GLOBAL. Grant hết hạn/thu hồi, role không active và permission chưa có đều bị từ chối.
 - RECEIVER/PICKER đọc phiếu của mình hoặc được giao; role đọc rộng phải có grant tại chính kho đó.
@@ -129,3 +129,52 @@ và revoke grant; export/download, phê duyệt nghiệp vụ và các endpoint 
 Không đánh dấu toàn bộ T07 hoặc T01–T28 đạt từ các test thành phần này.
 
 Sau [009](RECEIVING.md), runtime có 63 bảng/430 cột/125 FK; không thêm quyền mới.
+
+
+## B04 — mật khẩu, khôi phục MFA và lịch sử IAM
+
+Revision release `018_b04_iam_lifecycle.sql` (phát triển: 014) bổ sung `auth_recovery_code` và
+`auth_password_reset`, nối sau release 017, không sửa 001–017 hoặc seed/policy.
+Revision 014 phát triển chỉ từng dùng trên DB tạm riêng; không đổi lịch sử DB đã phát hành. Model, dictionary và
+DBML ở `02_CSDL/iam_lifecycle_extension_*`. Không có backfill credential cho user cũ.
+
+| Endpoint sau `/api/v1` | Điều kiện và kết quả |
+| --- | --- |
+| `POST /auth/password/change` | `password`, `code` nếu đã có TOTP, `new_password` (12–128 ký tự); xác thực lại, đổi hash, thu hồi mọi phiên/challenge/reset token, trả `SIGNED_OUT` |
+| `POST /users/{id}/password-reset` | GLOBAL `iam.manage`, phiên MFA, mật khẩu và TOTP **mới của quản trị viên**, lý do; không tự reset; trả mã ngẫu nhiên dùng một lần trong 15 phút |
+| `POST /auth/password/reset` | `username`, `reset_token`, `new_password`; mã phải khớp user/version, chưa dùng và chưa hết hạn; đổi mật khẩu, thu hồi phiên/challenge/token reset, **giữ TOTP** |
+| `POST /auth/mfa/recovery-codes` | Mật khẩu và TOTP mới; thay bộ cũ bằng tám mã ngẫu nhiên 256 bit, chỉ trả bản rõ ở response này |
+| `POST /auth/mfa/recover` | `challenge_token` từ bước login bằng mật khẩu, `recovery_code`; tiêu thụ mã, thu hồi tất cả phiên/challenge/factor và cả bộ mã; trả `SIGNED_OUT` |
+| `POST /auth/mfa/reset` | Mật khẩu và TOTP mới; thu hồi mọi phiên/challenge/factor và bộ mã khôi phục; trả `SIGNED_OUT` |
+| `GET /iam/lookup/users`, `/iam/lookup/warehouses` | GLOBAL `role.manage` + MFA; lookup active theo `q`, keyset username/code và `limit`; không cấp quyền đọc tồn/chứng từ |
+| `GET /iam/sessions` | GLOBAL `iam.manage` + MFA; tùy chọn `user_id`, keyset UUID; projection không token/hash, có hiệu lực tính từ user/version/revoke/expiry |
+| `GET /iam/events` | GLOBAL `audit.security.read` + MFA; chỉ event `entity_type=identity`, không trả before/after payload; keyset UUID |
+
+Cấp mã reset thu hồi ngay phiên/challenge và mã reset cũ của người nhận. Quản trị viên phải
+xác minh đúng người qua quy trình tổ chức rồi giao mã bằng kênh riêng; ứng dụng không gửi
+email/tin nhắn tự động. Mã đã cấp là quyền dùng một lần trong 15 phút; thu hồi quyền của
+người cấp ngăn lần cấp tiếp theo, không tự hủy mã đã giao. Khóa user hoặc cấp mã mới vô hiệu
+mã cũ. Reset mật khẩu không thay mã khôi phục/TOTP của người nhận và không mở quyền bỏ MFA.
+
+Khôi phục MFA cần cả mật khẩu (login challenge còn hiệu lực) và mã dự phòng. Sau khôi phục,
+đăng nhập lại và bật MFA mới qua enrollment hiện có. Các quyền quản trị vẫn yêu cầu MFA,
+kể cả role SYSADMIN. Mất cả TOTP lẫn bộ mã dự phòng không có đường bypass HTTP; cần quy trình
+xác minh vận hành riêng được người có thẩm quyền chấp thuận, không tự sửa DB qua desktop.
+
+Tất cả mã ngẫu nhiên chỉ lưu SHA-256; secret TOTP tiếp tục mã hóa Fernet. Các thao tác nhạy
+cảm dùng một budget PostgreSQL theo user: tối đa năm lần trong cửa sổ 300 giây, tính cả lần
+thành công; guessing recovery/reset có budget riêng và không được reset khi tạo challenge
+mới. Enrollment cũng giới hạn cả lần thành công. Throttle/failure audit commit trước trả lỗi.
+Code dùng một lần, version và khóa user trước factor/session bảo vệ các yêu cầu cạnh tranh.
+Credential, thu hồi phiên và audit thành công cùng transaction; lỗi audit rollback cả mã
+TOTP vừa dùng. Không có outbox event hoặc consumer mới.
+
+IAM không dùng CommandBus/journal và không tự replay. Khi timeout hoặc mất response của đổi/
+reset/recovery/rotation, desktop xóa credential local và yêu cầu đăng nhập lại. Mã không
+nhận được không thể đọc lại; người dùng chủ động tạo bộ/mã mới sau khi đối chiếu, làm hết
+hiệu lực bộ/mã cũ. Có thể đọc lịch sử IAM và phiên bằng quyền phù hợp để đối chiếu; không
+suy rằng thao tác chưa chạy chỉ vì một lần đọc chưa thấy dữ liệu.
+
+Kiểm thử bổ sung: `tests/foundation/test_iam_lifecycle.py` và
+`tests/foundation/test_iam_lifecycle_desktop.py`. Bằng chứng T07/T11 vẫn là thành phần;
+Windows UAT chưa chạy. Báo cáo và lệnh tái lập ở [bàn giao B04](PHAN_CONG/BAN_GIAO/B04.md).
