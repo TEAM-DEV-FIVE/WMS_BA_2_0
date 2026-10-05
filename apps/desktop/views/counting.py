@@ -84,6 +84,10 @@ class CountView(WorkflowView):
         self.retry_form(operation=True)
         self.session_changed()
 
+        from apps.desktop.scanner.widget import ScanBar
+        self.scan_bar = ScanBar(self.content, self, "COUNT")
+        self.scan_bar.pack(fill="x", pady=3, before=self.content.winfo_children()[0])
+
     def field(self, parent, name, title, value=""):
         row = ttk.Frame(parent)
         row.pack(fill="x", pady=2)

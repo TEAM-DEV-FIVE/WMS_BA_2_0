@@ -44,9 +44,9 @@ for entry in distribution("wms-lan").entry_points:
 
 expected = json.loads(Path("resources.json").read_text(encoding="utf-8"))
 actual = {}
-for package in ("migrations", "apps.desktop.local_store"):
+for package in ("migrations", "apps.desktop.local_store", "apps.server.printing_assets"):
     for path in files(package).iterdir():
-        if path.name.endswith(".sql"):
+        if path.name.endswith((".sql", ".ttf", ".txt")):
             actual[package + "/" + path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
 assert actual == expected, "Wheel SQL resources differ from source"
 
@@ -65,6 +65,9 @@ try:
     assert store.get_draft(draft)
 finally:
     store.close()
+from apps.server.application.print_render import render
+pdf=render(dict(template="LOCATION_LABEL",paper="80x40",header=dict(number="K01",name="Kho tiếng Việt",barcode="K01",symbology="QR")))
+assert pdf.startswith(b"%PDF-")
 print("PASS installed WMS modules/entry points, OpenAPI, health, PG SQL checksums and SQLite migrations outside repo")
 '''
 
@@ -97,8 +100,9 @@ def main():
                             report.with_suffix(".install.log"), cwd=directory, env=environment)
         if status == 0:
             resources = {package + "/" + path.name: hashlib.sha256(path.read_bytes()).hexdigest()
-                         for package in ("migrations", "apps.desktop.local_store")
-                         for path in (ROOT / package.replace(".", "/")).glob("*.sql")}
+                         for package in ("migrations", "apps.desktop.local_store", "apps.server.printing_assets")
+                         for path in (ROOT / package.replace(".", "/")).iterdir()
+                         if path.suffix in {".sql", ".ttf", ".txt"}}
             (directory / "resources.json").write_text(json.dumps(resources), encoding="utf-8")
             status = logged_run([python, "-I", "-c", PROBE, ROOT], report.with_suffix(".log"),
                                 cwd=directory, env=environment)

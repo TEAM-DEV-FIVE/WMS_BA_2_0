@@ -50,7 +50,7 @@ def test_migrations_seed_schema_smoke_and_reconciliation(database):
     raw = database.raw_connection()
     try:
         with raw.cursor() as cursor:
-            cursor.execute("SET wms.test.expected_tables='97'; SET wms.test.expected_columns='638'; SET wms.test.expected_fks='203';")
+            cursor.execute("SET wms.test.expected_tables='100'; SET wms.test.expected_columns='679'; SET wms.test.expected_fks='211';")
             cursor.execute("SET wms.test.expected_permissions='58'; SET wms.test.expected_role_permissions='125';")
             cursor.execute((ROOT / "tests/sql/schema_smoke.sql").read_text())
             while cursor.nextset():
@@ -123,7 +123,7 @@ def test_master_upgrade_preserves_catalog_and_adds_versions(empty_database, monk
         assert tuple(connection.execute(text("SELECT code,version,is_active FROM wms.product_category WHERE id=:id"), {"id": category}).one()) == ("LEGACY", 1, True)
 
 
-@pytest.mark.parametrize("prefix_length", [5, 10, 13, 14, 15, 16, 17])
+@pytest.mark.parametrize("prefix_length", [5, 10, 13, 14, 15, 16, 17, 22])
 def test_ownership_upgrade_preserves_legacy_ledger_without_assuming_company(empty_database, monkeypatch, prefix_length):
     import apps.server.infrastructure.migrations as migrations
     from packages.contracts.traceability import UNCLASSIFIED_OWNER

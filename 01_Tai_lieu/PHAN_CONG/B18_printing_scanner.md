@@ -48,3 +48,9 @@ Tiếp tục phần local làm được; ghi rõ NEEDS_ENVIRONMENT/NOT_RUN cho p
 ```text
 Làm việc tại /home/kien/Đồ án KHMT2_2/worktrees/wms-b18-printing-scanner, nhánh agent/b18-printing-scanner. Đọc AGENTS.md, 01_Tai_lieu/PHAN_CONG/B18_printing_scanner.md và 01_Tai_lieu/PHAN_CONG/QUY_TRINH_AGENT.md. Kiểm tra trạng thái phụ thuộc trên nhánh điều phối trước khi bắt đầu. Triển khai đủ phạm vi được giao, kiểm thử theo brief, ghi báo cáo 01_Tai_lieu/PHAN_CONG/BAN_GIAO/B18.md, commit local rồi bàn giao hash. Không tự push/merge hoặc đổi trạng thái nghiệm thu tổng. Nếu thiếu dependency/môi trường, nêu cụ thể và tiếp tục phần độc lập; không dùng mock làm bằng chứng hoàn tất.
 ```
+
+## Triển khai hiện hành B18
+
+Đã đồng bộ `933f4b7` theo yêu cầu điều phối. Revision phát triển 026 được chốt thành
+release `023_b18_printing_scanner.sql` trước kiểm thử tổng; PostgreSQL 001–022 giữ nguyên.
+Xem [thiết kế triển khai](../PRINTING_SCANNER.md) và [bàn giao](BAN_GIAO/B18.md).

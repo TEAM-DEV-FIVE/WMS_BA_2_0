@@ -22,6 +22,7 @@ from apps.server.api.moves import move_router
 from apps.server.api.openings import incoming_router, opening_router
 from apps.server.api.orders import order_router
 from apps.server.api.periods import period_router
+from apps.server.api.printing import print_router
 from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
 from apps.server.api.reports import report_router
@@ -42,6 +43,7 @@ from apps.server.application.openings import OpeningService
 from apps.server.application.orders import OrderService
 from apps.server.application.periods import PeriodService
 from apps.server.application.picking import PickingService
+from apps.server.application.printing import PrintService
 from apps.server.application.quality import QualityService
 from apps.server.application.receipts import ReceiptService
 from apps.server.application.reports import ReportService
@@ -121,6 +123,9 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.include_router(report_router(app.state.reports))
     app.state.exports = ExportService(app.state.reports)
     app.include_router(export_router(app.state.exports))
+
+    app.state.printing = PrintService(app.state.orders, app.state.counting, app.state.traceability)
+    app.include_router(print_router(app.state.printing))
 
     def error(request: Request, status: int, code: str, message: str, **kwargs):
         body = Error(code=code, message=message, request_id=request.state.request_id, **kwargs)

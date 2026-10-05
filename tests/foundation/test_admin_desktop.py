@@ -1,7 +1,7 @@
 import socket
 import threading
 import time
-from concurrent.futures import Future
+from concurrent.futures import Future, ThreadPoolExecutor, TimeoutError
 from datetime import timedelta
 from uuid import uuid4
 
@@ -9,7 +9,7 @@ import httpx
 import pyotp
 import pytest
 import uvicorn
-from sqlalchemy import text
+from sqlalchemy import event, text
 
 from apps.desktop.api.client import DesktopSettings
 from apps.desktop.views.shell import DesktopShell
@@ -401,7 +401,7 @@ def test_admin_900_by_690_navigation_layout_timeout_secret_and_cleanup(caplog, t
     try:
         root.update()
         assert root.winfo_width() == 900 and root.winfo_height() == 690
-        assert len(shell.navigation.cget("values")) == 24
+        assert len(shell.navigation.cget("values")) == 25
         assert {"Kiểm kê / điều chỉnh", "Kỳ kho", "Đảo giao dịch"} <= set(shell.navigation.cget("values"))
         assert "Import tệp / tồn đầu kỳ" in shell.navigation.cget("values")
         assert "Báo cáo / xuất dữ liệu" in shell.navigation.cget("values")
@@ -459,3 +459,53 @@ def test_admin_900_by_690_navigation_layout_timeout_secret_and_cleanup(caplog, t
         if not closed:
             shell.close()
             shell.finish()
+
+
+@pytest.mark.integration
+@pytest.mark.gui
+@pytest.mark.parametrize("commit_fails", [False, True])
+def test_identity_http_response_waits_for_commit(live_admin, commit_fails):
+    h = live_admin
+    h.login()
+    entered, release = threading.Event(), threading.Event()
+    username = "commit-boundary-user"
+
+    def mark(connection, cursor, statement, parameters, context, executemany):
+        if "INSERT INTO wms.app_user" in statement:
+            connection.info["test_commit_boundary"] = True
+
+    def gate(connection):
+        if connection.info.pop("test_commit_boundary", False):
+            entered.set()
+            assert release.wait(5)
+            if commit_fails:
+                raise RuntimeError("Injected commit failure")
+
+    event.listen(h.iam.engine, "before_cursor_execute", mark)
+    event.listen(h.iam.engine, "commit", gate)
+    api = h.shell.session_view.presenter.api
+    try:
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            response = pool.submit(httpx.post, str(api.client.base_url) + "users",
+                                   headers={"Authorization": f"Bearer {api._tokens.access_token}"},
+                                   json={"username": username, "display_name": "Commit boundary",
+                                         "password": PASSWORD}, timeout=8)
+            try:
+                assert entered.wait(5)
+                # The transaction is deliberately still uncommitted. Neither a
+                # success response nor any response body may reach the client.
+                with pytest.raises(TimeoutError):
+                    response.result(timeout=0.2)
+            finally:
+                release.set()
+            result = response.result(timeout=5)
+        assert result.status_code == (500 if commit_fails else 201), result.text
+    finally:
+        release.set()
+        event.remove(h.iam.engine, "before_cursor_execute", mark)
+        event.remove(h.iam.engine, "commit", gate)
+    with h.iam.engine.connect() as connection:
+        assert connection.scalar(text("SELECT count(*) FROM wms.app_user WHERE username=:name"),
+                                 {"name": username}) == (0 if commit_fails else 1)
+    if not commit_fails:
+        assert h.iam.login(username)["access_token"]

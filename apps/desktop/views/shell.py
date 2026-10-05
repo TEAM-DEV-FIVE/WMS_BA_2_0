@@ -3,6 +3,7 @@ from tkinter import messagebox, ttk
 
 from apps.desktop.api.client import ApiClient, DesktopSettings
 from apps.desktop.presenters.connection import ConnectionPresenter
+from apps.desktop.printing.view import PrintView
 from apps.desktop.views.admin import AdminView
 from apps.desktop.views.approvals import ApprovalView
 from apps.desktop.views.counting import CountView
@@ -113,6 +114,8 @@ class DesktopShell:
         for view, title in [(self.count_view, "Kiểm kê / điều chỉnh"), (self.period_view, "Kỳ kho")]:
             view.on_signed_out = self.admin_signed_out
             notebook.add(view, text=title)
+        self.print_view = PrintView(notebook, self.session_view.presenter.api)
+        notebook.add(self.print_view, text="In chứng từ / tem")
         self.report_view = ReportView(notebook, self.session_view.presenter.api)
         notebook.add(self.report_view, text="Báo cáo / xuất dữ liệu")
         self.custom_fields_view = CustomFieldView(notebook, self.session_view.presenter.api)
@@ -163,6 +166,7 @@ class DesktopShell:
         self.count_view.session_changed(user, warehouses)
         self.period_view.session_changed(user, warehouses)
         self.reversal_view.session_changed(user, warehouses)
+        self.print_view.session_changed(user, warehouses)
         self.report_view.session_changed(user, warehouses)
         self.custom_fields_view.session_changed(user, warehouses)
 
@@ -264,6 +268,7 @@ class DesktopShell:
             self.count_view.presenter.drain()
             self.period_view.presenter.drain()
             self.reversal_view.presenter.drain()
+            self.print_view.presenter.drain()
             self.report_view.presenter.drain()
             self.custom_fields_view.presenter.drain()
             self.poll_id = self.root.after(50, self.poll)
@@ -299,7 +304,7 @@ class DesktopShell:
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
         self.admin_view.release_variables()
-        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, self.count_view, self.period_view, self.reversal_view, self.report_view, self.custom_fields_view, *self.return_views]:
+        for view in [self.quality_view, self.move_view, self.transfer_view, self.fulfillment_view, self.count_view, self.period_view, self.reversal_view, self.print_view, self.report_view, self.custom_fields_view, *self.return_views]:
             view.presenter.close()
             view.release_variables()
         self.session_view.release_variables()
@@ -312,6 +317,9 @@ class DesktopShell:
         self.root.destroy()
 
     def finish(self):
+        for view in [self.receipt_view, self.issue_view, self.transfer_view, self.fulfillment_view, self.count_view]:
+            view.scan_bar.executor.shutdown(wait=True, cancel_futures=True)
+            view.scan_bar.view = None
         self.presenter.finish()
         self.master_view.presenter.finish()
         self.product_details_view.presenter.finish()
@@ -333,6 +341,7 @@ class DesktopShell:
         self.transfer_view.presenter.finish()
         self.count_view.presenter.finish()
         self.period_view.presenter.finish()
+        self.print_view.presenter.finish()
         self.report_view.presenter.finish()
         self.reversal_view.presenter.finish()
         self.custom_fields_view.presenter.finish()

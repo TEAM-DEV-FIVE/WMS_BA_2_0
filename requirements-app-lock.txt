@@ -51,3 +51,8 @@ typing_extensions==4.16.0
 uvicorn==0.54.0
 wheel==0.48.0
 tzdata==2026.4
+reportlab==5.0.1
+charset-normalizer==3.5.2
+pillow==12.3.0
+pypdfium2==5.14.0
+zxing-cpp==3.1.1

@@ -139,6 +139,10 @@ class ReceiptView(ttk.Frame):
         self.variables["status"].set("Đăng nhập để nhận hàng từ PO đã duyệt.")
         self.enable()
 
+        from apps.desktop.scanner.widget import ScanBar
+        self.scan_bar = ScanBar(self, self, "RECEIPT")
+        self.scan_bar.pack(fill="x", pady=3, before=self.winfo_children()[0])
+
     def warehouse_id(self):
         index = self.selector.current()
         return str(self.warehouses[index].id) if index >= 0 else None

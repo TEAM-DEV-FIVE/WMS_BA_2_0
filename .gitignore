@@ -29,3 +29,5 @@ dist/
 .reports/
 .wms-import-files/
 .wms-export-files/
+
+.wms-print-files/

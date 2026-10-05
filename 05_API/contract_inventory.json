@@ -1625,6 +1625,66 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/printing/sources",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/printing/{job_id}",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/printing/{job_id}/download",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/purchase-orders",
       "tags": [
         "orders"
@@ -3848,6 +3908,106 @@
       "path": "/api/v1/periods/{period_id}/reopen",
       "tags": [
         "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/scan",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/{job_id}/result",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/{job_id}/spool",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/{job_id}/{operation}",
+      "tags": [
+        "prints"
       ],
       "bearer_auth": true,
       "idempotency_key_required": true,

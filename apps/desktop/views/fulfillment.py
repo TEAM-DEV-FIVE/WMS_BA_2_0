@@ -108,6 +108,10 @@ class FulfillmentView(WorkflowView):
         self.operation_button.configure(text="Tra ACK soạn/kiện")
         self.session_changed()
 
+        from apps.desktop.scanner.widget import ScanBar
+        self.scan_bar = ScanBar(self, self, "PICK")
+        self.scan_bar.pack(fill="x", pady=3, before=self.winfo_children()[0])
+
     def selected(self, table, rows):
         selection = table.selection()
         return rows.get(selection[0]) if selection else None

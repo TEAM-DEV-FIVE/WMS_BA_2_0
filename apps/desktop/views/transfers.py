@@ -195,6 +195,10 @@ class TransferView(WorkflowView):
         self.retry_form(operation=True)
         self.session_changed()
 
+        from apps.desktop.scanner.widget import ScanBar
+        self.scan_bar = ScanBar(self, self, "TRANSFER")
+        self.scan_bar.pack(fill="x", pady=3, before=self.winfo_children()[0])
+
     def enable(self):
         free = bool(self.presenter.user_id and self.warehouse_id()) and not self.busy
         writable = free and not self.presenter.uncertain
@@ -528,6 +532,7 @@ class TransferView(WorkflowView):
                 self.destination_selector.current(dest)
             self.lines = [
                 dict(
+                    document_line_id=r["document_line_id"],
                     stock_item_id=r["stock_item_id"],
                     source_location_id=r["source_location_id"],
                     quantity_base=r["quantity_base"],

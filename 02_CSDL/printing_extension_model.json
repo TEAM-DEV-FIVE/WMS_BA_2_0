@@ -1,0 +1,268 @@
+{
+  "revision": "023_b18_printing_scanner.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "print_job",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "requested_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "auth_session.id"
+        },
+        {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "warehouse.id"
+        },
+        {
+          "name": "source_id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "source_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "template",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "template_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "paper",
+          "type": "varchar(10)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "include_price",
+          "type": "boolean",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "criteria",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "snapshot",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "snapshot_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(12)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "generation",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "file_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "stored_file.id"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "error_code",
+          "type": "varchar(40)",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "print_task",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "print_job.id"
+        },
+        {
+          "name": "generation",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "attempts",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "available_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "lease_token",
+          "type": "uuid",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "print_attempt",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "print_job.id"
+        },
+        {
+          "name": "generation",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "auth_session.id"
+        },
+        {
+          "name": "printer",
+          "type": "varchar(200)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "driver",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "copies",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "spool_id",
+          "type": "varchar(200)",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "error_code",
+          "type": "varchar(40)",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "finished_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}
