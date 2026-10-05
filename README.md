@@ -6,6 +6,10 @@ Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã 
 
 **Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp 18/26 nhánh: nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md), [đảo giao dịch](01_Tai_lieu/REVERSALS.md), [trường mở rộng](01_Tai_lieu/CUSTOM_FIELDS.md), [báo cáo/xuất](01_Tai_lieu/REPORTS_EXPORT.md) và [in/tem/HID](01_Tai_lieu/PRINTING_SCANNER.md). Bản local cuối đạt 1106 tests + 10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B18_INTEGRATION_2026_10_05.md). Recovery chung, triển khai LAN/Windows, tải/DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
 
+**Đồng bộ GitHub 06/10/2026:** đã đóng thêm 24 issue, hiện 27 CLOSED/13 OPEN. Mã ở
+[`feat/application-foundation` / PR #46](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/pull/46), chưa merge `main`. CI hồ sơ đạt; CI ứng dụng phát hiện lỗi
+layout danh mục và Windows/timeout runner, đã ghi tại #14/#21. [Báo cáo và danh sách issue](07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md).
+
 **Bắt đầu chạy ứng dụng:** [hướng dẫn cài/chạy/kiểm thử và thứ tự issue](01_Tai_lieu/IMPLEMENTATION.md). Xem [kết quả kiểm tra đợt nền tảng](07_Kiem_tra/IMPLEMENTATION_REVIEW.md) và [trạng thái từng issue/test](07_Kiem_tra/implementation_status.json).
 
 ## Baseline triển khai hiện hành
