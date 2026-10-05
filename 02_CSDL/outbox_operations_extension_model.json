@@ -1,0 +1,82 @@
+{
+  "revision": "027_b20_outbox_operations.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "worker_status",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "kind",
+          "type": "varchar(20)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "registry_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "state",
+          "type": "varchar(10)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "started_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "heartbeat_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "result_code",
+          "type": "varchar(40)",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "completed_cycles",
+          "type": "bigint",
+          "null": false,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "table": "outbox_event",
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "outbox_event",
+      "name": "replay_count",
+      "type": "integer",
+      "null": false,
+      "ref": null
+    },
+    {
+      "table": "outbox_event",
+      "name": "replayed_at",
+      "type": "timestamptz",
+      "null": true,
+      "ref": null
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "commit": "a3979a50d4515599028980c51621afcbe7f8a3f2",
+  "dirty": true,
+  "utc": "2026-10-05T11:08:21.013455+00:00",
+  "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+  "postgres": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "lock_sha256": "2cc1797fd9dfbd754c79b1b87327a53edf4426bfbb65e65ccc50aaecbd6e5f40",
+  "result": 0,
+  "junit": {
+    "tests": 1136,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "coverage": {
+    "coverage": true,
+    "expected_nodes": 1126,
+    "actual_nodes": 1126,
+    "normalization": "UUIDv4 labels only in 3 existing parametrized presenter tests",
+    "missing": [],
+    "extra": []
+  },
+  "description": "B20 full regression: four pytest processes, separate test databases and Xvfb, official temporary-cluster lifecycle; runtime tested before local commit.",
+  "evidence": {
+    "b20-full-shard0.collection.json": "46e8d4e74fa65ea7e5d4caff7223db6e713e7bccb2d4fa67d3a3d5b0e746f8f8",
+    "b20-full-shard0.log": "e3069b3961df05c9affef7ed8668cc9fcfab867a6938d5087ed2b063d2e50177",
+    "b20-full-shard0.xml": "0e819a26a54b46b98a5699858bd70afd6daaa67e1fce8ed5a3ccfed5251ee33c",
+    "b20-full-shard1.collection.json": "0b8373dfe9795f14def152676a6547bde4a6f777e9769fda76eb8f5365ea30b2",
+    "b20-full-shard1.log": "7d36f52c67ea7652655ff84d454a60b6773b6795facbabb95cda1dcd81b49770",
+    "b20-full-shard1.xml": "2a080b7b4d4df659193ab1acc8b0e4b30bf8770e924bd83288eb2593293499c5",
+    "b20-full-shard2.collection.json": "1e725eae4213834ccde6ffd661f72e6887399f292b5a146b9709f050bca67f7d",
+    "b20-full-shard2.log": "a9bd7082ffe53b4b9be0ef32715d85a1a673b6726aa4142ae8f5069ee800e8ef",
+    "b20-full-shard2.xml": "be43f75e0f83f658cc130cdbb617f987d303fb5407be288e3505a76e0e6469b4",
+    "b20-full-shard3.collection.json": "e452126c33b76b1bee889badad20c6f061ac9fe419dfbab5e10cda8ddf9a76e5",
+    "b20-full-shard3.log": "c4fa87630e14901f332a11e48fad231dada7e1042c06a3ce400d0d8db5b4990e",
+    "b20-full-shard3.xml": "7cdab0b9f28a110f046e2dc4685ace779d0194113ffc84165c215bb9821eaaf0",
+    "b20-full.coverage.json": "365160724358bf2e6a90581bd73968563f708e289d330e1f5aaef6056f11de97",
+    "b20-full.environment.json": "e93caddeb4283939054423131f7ae229326d2abc19789ae8d228646a5b1319a6",
+    "b20-full.expected.json": "eb3731e7c1c3c6430edaff93719131bba69739cecc82928471d6bfb815daa91f",
+    "b20-full.xml": "476c68e38b8cadd24e01c42eff5e3407dc196474b99ce0d82167c3ac5440ca5f"
+  }
+}
