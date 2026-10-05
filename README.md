@@ -184,6 +184,6 @@ Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lea
 
 Đã tích hợp 18/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
 
-1. Đồng bộ B19 recovery và B20 worker, đã đủ dependency sau B18; B01–B18 đã tích hợp.
+1. Giao song song B19 recovery và B20 worker: đã đồng bộ nền `80fcf3f`, READY; B01–B18 đã tích hợp.
 2. Tiếp tục B19–B24 theo dependency: recovery, worker, vận hành LAN/DR, Windows và tải.
 3. B25/B26 tổng rà soát và nghiệm thu T01–T28 trên môi trường mục tiêu.

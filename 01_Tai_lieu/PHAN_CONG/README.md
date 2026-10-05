@@ -5,10 +5,10 @@ Runtime `684789f74724` đạt **1106 tests + 10 subtests**, 0 failed/errors/skip
 nhánh tổng fast-forward đến bàn giao `71b3821e1fe6`, không đổi runtime đã kiểm thử.
 [Báo cáo kiểm chứng](../../07_Kiem_tra/B18_INTEGRATION_2026_10_05.md) · [Sổ tích hợp](integration_log.json).
 
-- **B19 recovery và B20 worker: READY_FOR_SYNC**, đủ dependency; cần đồng bộ worktree trước khi giao code.
+- **B19 recovery và B20 worker: READY**, đã đồng bộ lên `80fcf3f` và có thể giao hai agent song song.
   B19 sở hữu SQLite003. B20 dùng dev `027_b20_outbox_operations.sql`, số023 đã phát hành cho B18.
 - B21 chờ B20; B22 chờ B21; B23 chờ B19. B24 chờ B19/B20/B21; B25/B26 theo [catalog](backlog.json).
-- Còn 8 nhánh B19–B26 chưa tích hợp. Chưa tự đồng bộ hoặc chạy agent cho các nhánh này.
+- Còn 8 nhánh B19–B26 chưa tích hợp. Đã đồng bộ B19/B20; chưa khởi chạy agent.
 
 [Brief và DAG](KE_HOACH_CON_LAI.md) · [Quy trình](QUY_TRINH_AGENT.md). Trạng thái ban đầu trong catalog/brief là lịch sử.
 Source worktree đã bàn giao được giữ để đối chiếu, không reset hoặc đổi lịch sử agent.

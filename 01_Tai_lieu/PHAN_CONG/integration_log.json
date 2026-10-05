@@ -197,19 +197,45 @@
     },
     {
       "id": "B19",
-      "status": "READY_FOR_SYNC",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": "Đủ dependency sau B18; chưa đồng bộ worktree, cần đồng bộ nhánh tổng trước khi giao agent triển khai. B19 sở hữu SQLite003; không replay OS print I/O."
+      "note": "Đã fast-forward worktree sạch từ 45e51a5 đến nền B18 đầy đủ 80fcf3f ngày 05/10/2026; READY để người dùng giao agent song song. Không tự khởi chạy agent. Sở hữu SQLite003; phục hồi command/ACK, không replay OS I/O.",
+      "synchronization_commit": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B04": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+        "B05": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B06": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B10": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+        "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29"
+      }
     },
     {
       "id": "B20",
-      "status": "READY_FOR_SYNC",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": "Đủ dependency sau B18; chưa đồng bộ worktree, cần đồng bộ nhánh tổng trước khi giao agent triển khai. Migration dev mới027 thay023 đã phát hành cho B18; release cuối do điều phối chốt."
+      "note": "Đã fast-forward worktree sạch từ 45e51a5 đến nền B18 đầy đủ 80fcf3f ngày 05/10/2026; READY để người dùng giao agent song song. Không tự khởi chạy agent. Ghép consumer/executor import/export/print; dev PostgreSQL027, chỉ DB tạm.",
+      "synchronization_commit": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29"
+      }
     },
     {
       "id": "B21",
@@ -270,13 +296,13 @@
     ]
   },
   "last_activation": {
-    "date": "2026-10-04",
-    "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
+    "date": "2026-10-05",
+    "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
     "tasks": [
-      "B13",
-      "B16"
+      "B19",
+      "B20"
     ],
     "status": "READY",
-    "note": "Đồng bộ worktree để người dùng giao agent; không đổi nghiệm thu T01–T28 và không push."
+    "note": "Đã đồng bộ cả hai worktree sạch, không mất commit riêng; cùng nền B01–B18. Chỉ người dùng giao agent, không đổi T01–T28/push."
   }
 }

@@ -13,7 +13,7 @@ Kết quả tích hợp và giới hạn ở [báo cáo kiểm thử](../07_Kiem
 Runtime `684789f747244a23628e193792fca5d851dfed85` đạt 1106 tests + 10 subtests, không failed/errors/skips;
 fast-forward bàn giao `71b3821e1fe6` giữ nguyên runtime. 185 API paths, 25 mục desktop,
 PostgreSQL 001–023, 100 bảng/679 cột/211 FK. SQLite 001–002 không đổi.
-B19/B20 READY_FOR_SYNC; Windows/thiết bị/mẫu thực tế bổ sung sau và chưa nghiệm thu.
+B19/B20 đã đồng bộ nền `80fcf3f` và READY; Windows/thiết bị/mẫu thực tế bổ sung sau và chưa nghiệm thu.
 [Báo cáo hiện hành](../07_Kiem_tra/B18_INTEGRATION_2026_10_05.md). Các mục dưới là lịch sử từng đợt.
 
 ## Cập nhật B07/B17 — 05/10/2026

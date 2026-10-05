@@ -50,3 +50,17 @@ Làm việc tại /home/kien/Đồ án KHMT2_2/worktrees/wms-b20-outbox-operatio
 ```
 
 Điều phối 05/10/2026: dev023 đổi thành027 vì release023 đã thuộc B18; chỉ phát triển trên DB tạm sau đồng bộ.
+
+
+## Kích hoạt hiện hành — 05/10/2026
+
+**READY**: đã đồng bộ worktree sạch lên `80fcf3f9c14fe5b53228aebf565ef1543134d0e7`,
+đầy đủ B01–B18. Có thể triển khai song song B19/B20 theo phạm vi riêng; không sửa
+worktree khác hoặc tự ghép nhánh. Mốc runtime đã kiểm chứng 1106 tests + 10 subtests;
+không thay kiểm thử thay đổi mới. PostgreSQL 001–023 và SQLite 001–002 bất biến.
+
+Đọc thêm `01_Tai_lieu/PRINTING_SCANNER.md` và bàn giao B18 trước nối recovery/worker.
+Venv điều phối cũ chưa có dependencies PDF mới: tạo venv riêng từ
+`requirements-app-lock.txt`, hoặc dùng interpreter B18 ở chế độ chỉ đọc:
+`../wms-b18-printing-scanner/.venv/bin/python` với `PYTHONPATH=.` ngay tại worktree
+được giao. Không pip install/upgrade vào venv dùng chung. DB/cache/storage test phải riêng.
