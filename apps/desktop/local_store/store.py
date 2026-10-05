@@ -3,7 +3,9 @@
 import hashlib
 import hmac
 import json
+import os
 import sqlite3
+from contextlib import closing
 from datetime import UTC, datetime
 from importlib.resources import files
 from pathlib import Path
@@ -11,7 +13,12 @@ from uuid import UUID, uuid4
 
 from apps.desktop.local_store.device import PartitionLock, private_file
 
-FORBIDDEN_FIELDS = {"password", "password_hash", "access_token", "refresh_token", "authorization", "secret"}
+FORBIDDEN_FIELDS = {
+    "password", "passwordhash", "oldpassword", "newpassword", "currentpassword",
+    "accesstoken", "refreshtoken", "challengetoken", "resettoken", "token",
+    "authorization", "secret", "totp", "totpcode", "mfasecret", "otp", "otpcode",
+    "recoverycode", "recoverycodes", "credential", "credentials", "cookie", "setcookie",
+}
 TRANSITIONS = {
     "READY": {"SENDING"},
     "SENDING": {"UNKNOWN", "COMMITTED", "CONFLICT"},
@@ -24,7 +31,7 @@ TRANSITIONS = {
 def canonical_payload(payload: dict) -> str:
     def check(value):
         if isinstance(value, dict):
-            if any(key.lower() in FORBIDDEN_FIELDS for key in value):
+            if any(not isinstance(key, str) or "".join(c for c in key.lower() if c.isalnum()) in FORBIDDEN_FIELDS for key in value):
                 raise ValueError("Credentials must not be stored in local drafts")
             for child in value.values():
                 check(child)
@@ -51,22 +58,43 @@ class LocalStore:
             self.connection.execute("PRAGMA foreign_keys = ON")
             self.connection.execute("PRAGMA synchronous=FULL")
             version = self.connection.execute("PRAGMA user_version").fetchone()[0]
-            if version not in {0, 1, 2}:
+            if version not in {0, 1, 2, 3}:
                 raise ValueError(
                     "Local store version is not supported; retain the file and use a compatible client"
                 )
-            revisions = ["001_local.sql", "002_recovery.sql"]
+            if self.connection.execute("PRAGMA quick_check").fetchone()[0] != "ok" or self.connection.execute("PRAGMA foreign_key_check").fetchone():
+                raise ValueError("Local store validation failed; retain original file")
+            if version in {1, 2}:
+                self.backup(version)
+            revisions = ["001_local.sql", "002_recovery.sql", "003_commands.sql"]
             sql = "\n".join(
                 files("apps.desktop.local_store").joinpath(name).read_text(encoding="utf-8")
                 for name in revisions[version:]
             )
             if sql:
-                self.connection.executescript("BEGIN;\n" + sql + "\nPRAGMA user_version=2;\nCOMMIT;")
+                self.connection.executescript("BEGIN;\n" + sql + "\nPRAGMA user_version=3;\nCOMMIT;")
             with self.connection:
                 self.connection.execute("UPDATE pending_operation SET state='UNKNOWN' WHERE state='SENDING'")
+                self.connection.execute("UPDATE recovery_command SET state='UNKNOWN' WHERE state='SENDING'")
         except Exception:
             self.close()
             raise
+
+    def backup(self, version):
+        path = self.path.with_suffix(f".v{version}.{uuid4().hex}.backup.sqlite3")
+        private_file(path)
+        with closing(sqlite3.connect(path)) as target:
+            self.connection.backup(target)
+            if target.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise ValueError("Local store backup validation failed")
+        with path.open("rb") as stream:
+            os.fsync(stream.fileno())
+        if os.name != "nt":
+            descriptor = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(descriptor)
+            finally:
+                os.close(descriptor)
 
     def save_draft(self, kind: str, payload: dict, draft_id: UUID | None = None) -> UUID:
         draft_id = draft_id or uuid4()

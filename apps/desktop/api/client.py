@@ -9,6 +9,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from apps.desktop.local_store.device import default_data_directory
 from packages.contracts import Error, Health
+from packages.contracts.recovery import route_policy
+
+
+def save_local_draft(api, method, path, body, key, warehouse=None):
+    """Checkpoint already-entered form data before any online permission preflight.
+
+    This never grants permission or sends a command. IdentityClient raises DRAFT_SAVED.
+    Read-only POSTs and non-journal clients retain their existing online path.
+    """
+    if (getattr(api, "recovery", None) is not None and getattr(api, "draft_only", False)
+            and method != "GET" and route_policy(method, path)[0] == "COMMAND"):
+        api.command(method, path, body, key, warehouse_id=warehouse)
 
 
 class DesktopSettings(BaseSettings):

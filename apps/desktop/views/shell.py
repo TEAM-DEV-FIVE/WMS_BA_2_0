@@ -21,6 +21,7 @@ from apps.desktop.views.periods import PeriodView
 from apps.desktop.views.quality import QualityView
 from apps.desktop.views.receipt_recovery import ReceiptRecoveryView
 from apps.desktop.views.receipts import ReceiptView
+from apps.desktop.views.recovery import RecoveryView
 from apps.desktop.views.reports import ReportView
 from apps.desktop.views.returns import ReturnView
 from apps.desktop.views.reversals import ReversalView
@@ -54,6 +55,10 @@ class DesktopShell:
         notebook = self.notebook = ttk.Notebook(root, style="WMS.TNotebook")
         notebook.pack(fill="both", expand=True, padx=12, pady=12)
         self.session_view = SessionView(notebook, settings)
+        self.session_view.presenter.api.enable_recovery()
+        self.draft_only = tk.BooleanVar(value=False)
+        ttk.Checkbutton(navigation, text="Chỉ lưu nháp nghiệp vụ (trừ IAM/tệp)", variable=self.draft_only,
+                        command=self.set_draft_mode).pack(side="left", padx=12)
         notebook.add(self.session_view, text="Đăng nhập và kho")
         self.master_container = ttk.Notebook(notebook)
         notebook.add(self.master_container, text="Danh mục")
@@ -84,6 +89,8 @@ class DesktopShell:
         self.approval_view.on_open_document = self.open_document
         self.receipt_recovery_view = ReceiptRecoveryView(notebook, self.receipt_view.presenter)
         notebook.add(self.receipt_recovery_view, text="Phục hồi nhận hàng")
+        self.recovery_view = RecoveryView(notebook, self.session_view.presenter.api)
+        notebook.add(self.recovery_view, text="Nháp / phục hồi lệnh")
         self.issue_view = IssueView(notebook, self.session_view.presenter.api)
         notebook.add(self.issue_view, text="Giữ hàng / xuất kho")
         self.fulfillment_view = FulfillmentView(notebook, self.session_view.presenter.api)
@@ -145,6 +152,8 @@ class DesktopShell:
         self.status.set("Đang kiểm tra… Bạn vẫn có thể thao tác hoặc đóng cửa sổ.")
 
     def session_changed(self, user=None, warehouses=None):
+        self.draft_only.set(self.session_view.presenter.api.draft_only)
+        self.recovery_view.session_changed(user, warehouses)
         self.master_view.session_changed(user)
         self.product_details_view.session_changed(user, warehouses)
         self.ownership_view.session_changed(user, warehouses)
@@ -169,6 +178,9 @@ class DesktopShell:
         self.print_view.session_changed(user, warehouses)
         self.report_view.session_changed(user, warehouses)
         self.custom_fields_view.session_changed(user, warehouses)
+
+    def set_draft_mode(self):
+        self.session_view.presenter.api.draft_only = bool(self.draft_only.get())
 
     def admin_signed_out(self, message):
         # A queued session snapshot/warehouse response must not restore the
@@ -271,6 +283,7 @@ class DesktopShell:
             self.print_view.presenter.drain()
             self.report_view.presenter.drain()
             self.custom_fields_view.presenter.drain()
+            self.recovery_view.drain()
             self.poll_id = self.root.after(50, self.poll)
 
     def close(self) -> None:
@@ -300,6 +313,9 @@ class DesktopShell:
         self.import_view.presenter.close()
         self.import_view.release_variables()
         self.receipt_recovery_view.release_variables()
+        self.recovery_view.close()
+        self.recovery_view.release_variables()
+        self.draft_only = None
         self.issue_view.presenter.close()
         self.issue_view.release_variables()
         self.admin_view.presenter.close()
@@ -345,6 +361,7 @@ class DesktopShell:
         self.report_view.presenter.finish()
         self.reversal_view.presenter.finish()
         self.custom_fields_view.presenter.finish()
+        self.recovery_view.finish()
         self.session_view.presenter.finish()
         self.session_view.on_session_change = None
         # Destroy removes Tcl commands but Python widget cycles may outlive this

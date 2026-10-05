@@ -2,7 +2,7 @@
 from urllib.parse import urlencode
 from uuid import NAMESPACE_URL, uuid5
 
-from apps.desktop.api.client import ApiError
+from apps.desktop.api.client import ApiError, save_local_draft
 from apps.desktop.presenters.moves import MovePresenter
 from packages.contracts.custom_fields import CustomResult, HistoryPage, SchemaView, ValuesView
 
@@ -15,6 +15,7 @@ def run_request(api, generation, cancelled, method, path, body, key, warehouse):
     def execute():
         if cancelled.is_set():
             return None, []
+        save_local_draft(api, method, path, body, key, warehouse)
         permissions = api.me().global_permissions
         if cancelled.is_set():
             return None, permissions

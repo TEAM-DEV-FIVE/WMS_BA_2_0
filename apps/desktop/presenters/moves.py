@@ -5,7 +5,7 @@ from threading import Event
 from urllib.parse import urlencode
 from uuid import uuid4
 
-from apps.desktop.api.client import ApiError
+from apps.desktop.api.client import ApiError, save_local_draft
 from packages.contracts.moves import MovePostResult
 from packages.contracts.orders import OrderResult
 from packages.contracts.quality import QualityResult
@@ -17,6 +17,7 @@ def run_request(api, generation, cancelled, method, path, body, key, warehouse):
     def execute():
         if cancelled.is_set():
             return None, []
+        save_local_draft(api, method, path, body, key, warehouse)
         permissions = api.permissions(warehouse)
         if cancelled.is_set():
             return None, permissions

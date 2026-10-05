@@ -111,7 +111,12 @@
               }
             }
           }
-        }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/mfa": {
@@ -212,7 +217,12 @@
               }
             }
           }
-        }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/refresh": {
@@ -313,7 +323,12 @@
               }
             }
           }
-        }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/logout": {
@@ -407,7 +422,12 @@
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/me": {
@@ -609,7 +629,12 @@
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/mfa/confirm": {
@@ -713,7 +738,12 @@
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/warehouses": {
@@ -1259,7 +1289,12 @@
             },
             "description": "Service Unavailable"
           }
-        }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/users/{user_id}/active": {
@@ -1377,6 +1412,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
         }
       }
     },
@@ -1493,6 +1532,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
         }
       }
     },
@@ -1816,7 +1859,12 @@
             },
             "description": "Service Unavailable"
           }
-        }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       },
       "get": {
         "tags": [
@@ -2045,6 +2093,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
         }
       }
     },
@@ -2161,6 +2213,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
         }
       }
     },
@@ -2265,7 +2321,12 @@
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/password/reset": {
@@ -2364,7 +2425,12 @@
               }
             }
           }
-        }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/users/{user_id}/password-reset": {
@@ -2482,6 +2548,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
         }
       }
     },
@@ -2586,7 +2656,12 @@
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/mfa/recovery-codes": {
@@ -2692,7 +2767,12 @@
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/auth/mfa/recover": {
@@ -2791,7 +2871,12 @@
               }
             }
           }
-        }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
+        },
+        "parameters": []
       }
     },
     "/api/v1/iam/lookup/users": {
@@ -3524,6 +3609,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -3607,6 +3705,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -3738,6 +3840,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -3821,6 +3936,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -4005,6 +4124,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -4088,6 +4220,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -4219,6 +4355,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -4302,6 +4451,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -4486,6 +4639,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -4569,6 +4735,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -4700,6 +4870,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -4783,6 +4966,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -4967,6 +5154,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -5050,6 +5250,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -5181,6 +5385,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -5264,6 +5481,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -5448,6 +5669,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -5531,6 +5765,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -5662,6 +5900,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -5745,6 +5996,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -5929,6 +6184,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -6012,6 +6280,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -6143,6 +6415,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -6226,6 +6511,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -6410,6 +6699,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -6493,6 +6795,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -6624,6 +6930,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -6707,6 +7026,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -6891,6 +7214,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -6974,6 +7310,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -7105,6 +7445,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -7188,6 +7541,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -7372,6 +7729,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -7455,6 +7825,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -7586,6 +7960,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -7669,6 +8056,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -7835,6 +8226,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -7918,6 +8322,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -8088,6 +8496,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -8169,6 +8590,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -8658,6 +9083,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -8741,6 +9179,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -8927,6 +9369,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -9010,6 +9465,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -9141,6 +9600,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -9224,6 +9696,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -9410,6 +9886,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -9493,6 +9982,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -9624,6 +10117,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -9707,6 +10213,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -9742,6 +10252,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -9825,6 +10348,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -9860,6 +10387,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -9943,6 +10483,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -9978,6 +10522,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -10061,6 +10618,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -10096,6 +10657,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -10179,6 +10753,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -10214,6 +10792,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -10297,6 +10888,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -10430,6 +11025,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -10513,6 +11121,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -10924,6 +11536,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -11007,6 +11632,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -11234,6 +11863,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -11317,6 +11959,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -11352,6 +11998,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -11435,6 +12094,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -11846,6 +12509,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -11929,6 +12605,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -12158,6 +12838,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -12241,6 +12934,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -12276,6 +12973,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -12359,6 +13069,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -12672,6 +13386,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -12755,6 +13482,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -12984,6 +13715,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -13067,6 +13811,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -13102,6 +13850,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -13185,6 +13946,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -13466,6 +14231,10 @@
               }
             }
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "ONLINE"
         }
       }
     },
@@ -13708,6 +14477,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -13801,6 +14583,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -14183,6 +14969,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -14276,6 +15075,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -14311,6 +15114,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -14404,6 +15220,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -14439,6 +15259,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -14532,6 +15365,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -14707,6 +15544,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -14790,6 +15640,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -15019,6 +15873,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -15102,6 +15969,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -15255,6 +16126,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -15338,6 +16222,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -15373,6 +16261,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -15456,6 +16357,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -15491,6 +16396,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -15574,6 +16492,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -15609,6 +16531,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -15692,6 +16627,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -16202,6 +17141,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -16285,6 +17237,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -16330,6 +17286,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -16413,6 +17382,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -16458,6 +17431,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -16541,6 +17527,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -16586,6 +17576,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -16669,6 +17672,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -16714,6 +17721,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -16797,6 +17817,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -16842,6 +17866,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -16925,6 +17962,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -16960,6 +18001,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -17043,6 +18097,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -17088,6 +18146,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -17171,6 +18242,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -17216,6 +18291,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -17299,6 +18387,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -17588,6 +18680,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -17671,6 +18776,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -17846,6 +18955,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -17929,6 +19051,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -18412,6 +19538,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -18495,6 +19634,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -18530,6 +19673,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -18613,6 +19769,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -18801,6 +19961,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -18884,6 +20057,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -19380,6 +20557,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -19463,6 +20653,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -19498,6 +20692,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -19581,6 +20788,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -19756,6 +20967,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -19839,6 +21063,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -20322,6 +21550,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -20405,6 +21646,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -20567,6 +21812,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -20650,6 +21908,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -20685,6 +21947,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -20768,6 +22043,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -20803,6 +22082,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -20886,6 +22178,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       },
       "get": {
@@ -21046,6 +22342,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -21129,6 +22438,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       },
       "get": {
@@ -21289,6 +22602,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -21372,6 +22698,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -21649,6 +22979,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -21732,6 +23075,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22125,6 +23472,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -22208,6 +23568,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22243,6 +23607,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -22326,6 +23703,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22361,6 +23742,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -22444,6 +23838,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22479,6 +23877,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -22562,6 +23973,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22597,6 +24012,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -22680,6 +24108,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22715,6 +24147,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -22798,6 +24243,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22833,6 +24282,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -22916,6 +24378,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -22951,6 +24417,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -23034,6 +24513,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -23184,6 +24667,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -23267,6 +24763,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -23498,6 +24998,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -23581,6 +25094,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -23616,6 +25133,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -23699,6 +25229,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -23734,6 +25268,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -23817,6 +25364,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -23992,6 +25543,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -24075,6 +25639,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -24539,6 +26107,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -24622,6 +26203,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -24657,6 +26242,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -24740,6 +26338,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -24907,6 +26509,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -25000,6 +26615,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -25211,6 +26830,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -25304,6 +26936,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -25629,6 +27265,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "READ_ONLY"
         }
       }
     },
@@ -25794,6 +27434,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -25877,6 +27530,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -26023,6 +27680,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -26106,6 +27776,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -26252,6 +27926,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -26335,6 +28022,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -26664,6 +28355,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "READ_ONLY"
         }
       }
     },
@@ -26689,6 +28384,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -26772,6 +28480,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -26905,6 +28617,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -26988,6 +28713,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -27023,6 +28752,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -27106,6 +28848,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },
@@ -27271,6 +29017,19 @@
               "format": "uuid",
               "title": "Idempotency-Key"
             }
+          },
+          {
+            "name": "X-WMS-Recovery",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lookup-v1",
+                "send-v1"
+              ]
+            },
+            "description": "lookup-v1 only authorizes and looks up the exact command key/body; never executes a missing command. X-WMS-ACK binds the committed result to the request. See RECOVERY_ALL.md."
           }
         ],
         "requestBody": {
@@ -27354,6 +29113,10 @@
             },
             "description": "Service Unavailable"
           }
+        },
+        "x-wms-recovery": {
+          "version": 1,
+          "mode": "COMMAND"
         }
       }
     },

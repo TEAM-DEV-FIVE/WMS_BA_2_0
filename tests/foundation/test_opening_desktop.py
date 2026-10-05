@@ -313,11 +313,12 @@ def test_opening_gui_lot_and_uncommitted_post_lookup_then_exact_retry(opening_ui
     approved = ok(f.decision(ok(f.action(doc, "submit")), "director"))
     view.presenter.read(approved["id"])
     f.idle()
-    send, requests = view.presenter.api.client.send, []
+    send, requests, modes = view.presenter.api.client.send, [], []
 
     def lose_before_send(request, **kwargs):
         if request.url.path.endswith("/post"):
             requests.append((request.headers["Idempotency-Key"], request.content))
+            modes.append(request.headers.get("X-WMS-Recovery"))
             if len(requests) == 1:
                 raise httpx.ConnectTimeout("request never reached server")
         return send(request, **kwargs)
@@ -331,5 +332,7 @@ def test_opening_gui_lot_and_uncommitted_post_lookup_then_exact_retry(opening_ui
     assert "UNKNOWN" in view.variables["status"].get()
     view.presenter.retry()
     f.idle()
-    assert requests[0] == requests[1] and len(requests) == 2
+    # B19 adds a read-only same-route ACK lookup before the explicit retry.
+    assert len(requests) == 3 and requests[0] == requests[1] == requests[2]
+    assert modes == ["send-v1", "lookup-v1", "send-v1"]
     assert view.variables["status"].get().startswith("POSTED") and inventory(f) == (1, 1, 10, 0)
