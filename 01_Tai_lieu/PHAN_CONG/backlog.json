@@ -1073,7 +1073,7 @@
         "Thời hạn lưu từng loại log/outbox/job cần chính sách Q08; dùng cấu hình bảo thủ, không tự xóa hồ sơ nghiệp vụ."
       ],
       "priority": "P1",
-      "development_migration": "023_b20_outbox_operations.sql",
+      "development_migration": "027_b20_outbox_operations.sql",
       "branch": "agent/b20-outbox-operations",
       "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b20-outbox-operations",
       "brief": "01_Tai_lieu/PHAN_CONG/B20_outbox_operations.md",

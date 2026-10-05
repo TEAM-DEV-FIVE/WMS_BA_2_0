@@ -2,7 +2,7 @@
 
 Đọc brief Bxx của nhánh trước khi sửa. Danh sách có máy đọc được: [backlog.json](backlog.json).
 Các brief ghi **phần còn thiếu**, không yêu cầu viết lại các module đã chạy. Mốc hiện tại là
-`005f4c81f78c`: 1060 tests + 10 subtests local, 0 failed/skip; B01–B17 đã tích hợp. B18 đủ dependency, cần đồng bộ trước khi chuyển READY.
+`684789f74724`: 1106 tests + 10 subtests local, 0 failed/skip; B01–B18 đã tích hợp. B19/B20 đủ dependency, cần đồng bộ trước khi chuyển READY.
 Mốc `06041b7` với 301 tests là lịch sử chia việc ban đầu. T01–T28 vẫn PLANNED; số test này
 không thay thế nghiệm thu Windows, thiết bị, tải, backup/restore hoặc xác nhận nghiệp vụ.
 
@@ -50,7 +50,7 @@ không thay thế nghiệm thu Windows, thiết bị, tải, backup/restore ho�
 
 ## Migration khi phát triển song song
 
-Giữ nguyên PostgreSQL 001–022 và SQLite 001–002 đã tích hợp. Các tên `development_migration` trong
+Giữ nguyên PostgreSQL 001–023 và SQLite 001–002 đã tích hợp. Các tên `development_migration` trong
 catalog được **dành riêng để các worktree phát triển trên DB tạm**, không phải thứ tự release đã cam kết.
 Không cần tạo migration rỗng nếu schema hiện có đủ dùng. Nhánh không được cấp tên mà phát sinh nhu cầu
 DDL phải báo điều phối cấp tên; không tự dùng số của nhánh khác.

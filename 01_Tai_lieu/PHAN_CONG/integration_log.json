@@ -182,27 +182,34 @@
     },
     {
       "id": "B18",
+      "status": "INTEGRATED",
+      "activated_base": "933f4b773e6406c1f24d2646271f0dea6b24a228",
+      "handoff_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+      "integrated_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+      "note": "Tích hợp fast-forward local 05/10/2026, runtime giống nguyên byte bản kiểm chứng: 1106 tests + 10 subtests PASS, không failed/errors/skips. Release023; 001–022/SQLite001–002 giữ nguyên. Windows/thiết bị/mẫu Q06/Q08 NOT_RUN, chưa ACCEPTED. Xem 07_Kiem_tra/B18_INTEGRATION_2026_10_05.md.",
+      "verified_commit": "684789f747244a23628e193792fca5d851dfed85",
+      "dependency_commits": {
+        "B05": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb"
+      }
+    },
+    {
+      "id": "B19",
       "status": "READY_FOR_SYNC",
       "activated_base": null,
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": "Đủ dependency sau B17; phải đồng bộ worktree trước triển khai. Revision phát triển đổi 022→026 vì release 022 thuộc B07; số release cuối do điều phối chốt."
-    },
-    {
-      "id": "B19",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "note": "Đủ dependency sau B18; chưa đồng bộ worktree, cần đồng bộ nhánh tổng trước khi giao agent triển khai. B19 sở hữu SQLite003; không replay OS print I/O."
     },
     {
       "id": "B20",
-      "status": "NOT_STARTED",
+      "status": "READY_FOR_SYNC",
       "activated_base": null,
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": ""
+      "note": "Đủ dependency sau B18; chưa đồng bộ worktree, cần đồng bộ nhánh tổng trước khi giao agent triển khai. Migration dev mới027 thay023 đã phát hành cho B18; release cuối do điều phối chốt."
     },
     {
       "id": "B21",
@@ -254,10 +261,13 @@
     }
   ],
   "last_review": {
-    "date": "2026-10-04",
-    "tested_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696",
-    "report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md",
-    "next_ready_for_sync": []
+    "date": "2026-10-05",
+    "tested_commit": "684789f747244a23628e193792fca5d851dfed85",
+    "report": "07_Kiem_tra/B18_INTEGRATION_2026_10_05.md",
+    "next_ready_for_sync": [
+      "B19",
+      "B20"
+    ]
   },
   "last_activation": {
     "date": "2026-10-04",

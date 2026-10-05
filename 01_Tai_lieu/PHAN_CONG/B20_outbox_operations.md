@@ -25,7 +25,7 @@
 - `apps/server/infrastructure/outbox.py`
 - `apps/server/consumers/registry.py và worker job composition (mới)`
 
-Revision phát triển dành riêng: `023_b20_outbox_operations.sql`, chỉ dùng DB tạm. Điều phối chốt số release khi tích hợp theo quy trình chung. Không tạo DDL rỗng nếu không cần.
+Revision phát triển dành riêng: `027_b20_outbox_operations.sql`, chỉ dùng DB tạm. Điều phối chốt số release khi tích hợp theo quy trình chung. Không tạo DDL rỗng nếu không cần.
 
 Test/fixture, tài liệu module và báo cáo riêng thuộc cùng nhánh. Các đường dẫn module mới là đề xuất; giữ ranh giới trách nhiệm. File dùng chung chỉ sửa hook cần thiết và liệt kê trong báo cáo.
 
@@ -48,3 +48,5 @@ Tiếp tục phần local làm được; ghi rõ NEEDS_ENVIRONMENT/NOT_RUN cho p
 ```text
 Làm việc tại /home/kien/Đồ án KHMT2_2/worktrees/wms-b20-outbox-operations, nhánh agent/b20-outbox-operations. Đọc AGENTS.md, 01_Tai_lieu/PHAN_CONG/B20_outbox_operations.md và 01_Tai_lieu/PHAN_CONG/QUY_TRINH_AGENT.md. Kiểm tra trạng thái phụ thuộc trên nhánh điều phối trước khi bắt đầu. Triển khai đủ phạm vi được giao, kiểm thử theo brief, ghi báo cáo 01_Tai_lieu/PHAN_CONG/BAN_GIAO/B20.md, commit local rồi bàn giao hash. Không tự push/merge hoặc đổi trạng thái nghiệm thu tổng. Nếu thiếu dependency/môi trường, nêu cụ thể và tiếp tục phần độc lập; không dùng mock làm bằng chứng hoàn tất.
 ```
+
+Điều phối 05/10/2026: dev023 đổi thành027 vì release023 đã thuộc B18; chỉ phát triển trên DB tạm sau đồng bộ.

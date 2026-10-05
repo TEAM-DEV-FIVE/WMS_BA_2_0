@@ -14,7 +14,7 @@ Mỗi nhánh có brief Bxx riêng, phạm vi file/API/UI, dependency, kiểm th�
 Đọc [quy trình agent](01_Tai_lieu/PHAN_CONG/QUY_TRINH_AGENT.md) trước khi bắt đầu.
 
 - Trạng thái READY trong catalog là mốc phân công ban đầu. Xem README phân công và sổ tích hợp mới nhất
-  trước khi làm. B01–B17 đã INTEGRATED; B18 READY_FOR_SYNC, cần đồng bộ trước triển khai. Các nhánh đã tích hợp không làm lại.
+  trước khi làm. B01–B18 đã INTEGRATED; B19/B20 READY_FOR_SYNC, cần đồng bộ trước triển khai. Các nhánh đã tích hợp không làm lại.
   Worktree chờ phải đồng bộ giữ commit nghiên cứu trước khi triển khai phần phụ thuộc.
 - Kiểm tra sổ `integration_log.json` trên nhánh điều phối mới nhất, không chỉ bản trong worktree cũ.
 - `feat/application-foundation` là nhánh điều phối, review, tích hợp và kiểm thử tổng.
@@ -31,7 +31,7 @@ Nếu cần sửa ngoài phạm vi, ghi rõ đề xuất trong báo cáo bàn gi
 - Đọc `01_Tai_lieu/INVARIANTS.md`, hướng dẫn module liên quan và mã hiện có trước khi mở rộng.
 - PostgreSQL là dữ liệu chính thức. Không ghi DB từ desktop. Không lưu credential vào SQLite/log.
 - Lệnh ghi phải kiểm tra quyền hiện tại, version, chống trùng; ledger/balance/audit/outbox/ACK cùng transaction.
-- Giữ migration đã tích hợp `001`–`022` bất biến; số mới chốt từ 023 trở đi khi tích hợp. Revision phát triển đã phân tên riêng trong catalog,
+- Giữ migration đã tích hợp `001`–`023` bất biến; số mới chốt từ 024 trở đi khi tích hợp. Revision phát triển đã phân tên riêng trong catalog,
   chỉ dùng DB tạm riêng worktree. Điều phối chốt số tăng tiếp khi merge và kiểm thử upgrade từ mốc tổng;
   không sửa revision đã tích hợp/phát hành. Đọc quy tắc prefix migration trong quy trình agent.
 - B19 sở hữu SQLite revision003 và recovery chung sau các domain; không ghi secret vào journal.

@@ -4,7 +4,7 @@
 
 Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã nền tảng cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**, ứng dụng **0.1.0**.
 
-**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp 17/26 nhánh: nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md), [đảo giao dịch](01_Tai_lieu/REVERSALS.md), [trường mở rộng](01_Tai_lieu/CUSTOM_FIELDS.md) và [báo cáo/xuất](01_Tai_lieu/REPORTS_EXPORT.md). Bản local cuối đạt 1060 tests + 10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md). In/scan, recovery chung, triển khai LAN/Windows, tải/DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
+**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp 18/26 nhánh: nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md), [đảo giao dịch](01_Tai_lieu/REVERSALS.md), [trường mở rộng](01_Tai_lieu/CUSTOM_FIELDS.md), [báo cáo/xuất](01_Tai_lieu/REPORTS_EXPORT.md) và [in/tem/HID](01_Tai_lieu/PRINTING_SCANNER.md). Bản local cuối đạt 1106 tests + 10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B18_INTEGRATION_2026_10_05.md). Recovery chung, triển khai LAN/Windows, tải/DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
 
 **Bắt đầu chạy ứng dụng:** [hướng dẫn cài/chạy/kiểm thử và thứ tự issue](01_Tai_lieu/IMPLEMENTATION.md). Xem [kết quả kiểm tra đợt nền tảng](07_Kiem_tra/IMPLEMENTATION_REVIEW.md) và [trạng thái từng issue/test](07_Kiem_tra/implementation_status.json).
 
@@ -67,9 +67,10 @@ Chi tiết: [ARCHITECTURE.md](01_Tai_lieu/ARCHITECTURE.md), [INVARIANTS.md](01_T
 | [opening_extension_model.json](02_CSDL/opening_extension_model.json) | Migration 010 thêm kế hoạch tồn đầu kỳ; sau 010: 65 bảng/440 cột/129 FK |
 | [reversal_extension_model.json](02_CSDL/reversal_extension_model.json) | Migration 020 thêm đảo giao dịch; runtime sau 020: 89 bảng/584 cột/188 FK |
 | [custom_field_extension_model.json](02_CSDL/custom_field_extension_model.json) | Release 021 báo cáo/xuất và 022 trường mở rộng: runtime 97 bảng/638 cột/203 FK |
+| [printing_extension_model.json](02_CSDL/printing_extension_model.json) | Release 023 in/tem/HID: runtime 100 bảng/679 cột/211 FK |
 | [03_So_do](03_So_do) | Atlas 91 trang, SVG, draw.io, PlantUML; ERD, class, use case, trạng thái, sequence, BPMN và mô hình khái niệm |
 | [04_Phan_quyen](04_Phan_quyen) | 10 vai trò, 58 quyền, 125 ánh xạ role-permission, policy và phạm vi quyền |
-| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 177 paths; coverage theo use case |
+| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 185 paths; coverage theo use case |
 | [06_Nhap_lieu](06_Nhap_lieu) | Excel, 14 CSV templates, 22 dòng ví dụ và validator offline |
 | [07_Kiem_tra](07_Kiem_tra) | Báo cáo kiểm tra, truy vết và đặc tả acceptance T01–T28 |
 | [scripts](scripts) | Kiểm tra artifact/PostgreSQL và cập nhật ZIP/checksum |
@@ -181,8 +182,8 @@ Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lea
 
 ## Lộ trình triển khai
 
-Đã tích hợp 17/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
+Đã tích hợp 18/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
 
-1. Đồng bộ B18 in/scan, đã đủ dependency sau B17; B01–B17 đã tích hợp.
-2. Tiếp tục B18–B24 theo dependency: in/scan, recovery, worker, vận hành LAN/DR, Windows và tải.
+1. Đồng bộ B19 recovery và B20 worker, đã đủ dependency sau B18; B01–B18 đã tích hợp.
+2. Tiếp tục B19–B24 theo dependency: recovery, worker, vận hành LAN/DR, Windows và tải.
 3. B25/B26 tổng rà soát và nghiệm thu T01–T28 trên môi trường mục tiêu.
