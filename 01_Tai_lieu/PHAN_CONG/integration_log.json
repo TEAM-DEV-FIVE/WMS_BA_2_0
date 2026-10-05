@@ -54,15 +54,16 @@
     },
     {
       "id": "B07",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
-      "handoff_commit": "53974bde67afc567c707d34e76668d9461dbe552",
-      "integrated_commit": null,
-      "note": "Đã đồng bộ theo yêu cầu người dùng ngày 2026-10-04 trên nền 101ef19, mã nghiệp vụ đã kiểm chứng tại 6b92d2a. READY để triển khai; chưa có runtime riêng, chưa CODE_READY/ACCEPTED. Giữ lịch sử nghiên cứu B07; không push. Cập nhật trạng thái sau đồng bộ chỉ thay tài liệu/checksum.",
+      "handoff_commit": "cef3d9013e1e86057f50a3b3cfd39a964b028948",
+      "integrated_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+      "note": "Tích hợp local 05/10/2026; bản ghép 1060 tests + 10 subtests, 0 failed/errors/skips. B17 release 021, B07 release 022 (dev 025). Xem 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Giữ source worktree bàn giao; chưa ACCEPTED/UAT.",
       "synchronization_commit": "40cabb94f367134568035e72c3224c75bbe727ec",
       "dependency_commits": {
         "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
-      }
+      },
+      "verified_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf"
     },
     {
       "id": "B08",
@@ -160,11 +161,11 @@
     },
     {
       "id": "B17",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": "Đã đồng bộ theo yêu cầu người dùng ngày 2026-10-04 trên nền 101ef19, mã nghiệp vụ đã kiểm chứng tại 6b92d2a. READY để triển khai; chưa có runtime riêng, chưa CODE_READY/ACCEPTED. Giữ lịch sử nghiên cứu B07; không push. Cập nhật trạng thái sau đồng bộ chỉ thay tài liệu/checksum.",
+      "handoff_commit": "b131b30cf7ea855ee22e696f786d11648d7c90a2",
+      "integrated_commit": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+      "note": "Tích hợp local 05/10/2026; bản ghép 1060 tests + 10 subtests, 0 failed/errors/skips. B17 release 021, B07 release 022 (dev 025). Xem 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Giữ source worktree bàn giao; chưa ACCEPTED/UAT.",
       "synchronization_commit": "101ef19331a42729a168a15edb474e1b99382eb5",
       "dependency_commits": {
         "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
@@ -176,15 +177,16 @@
         "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
         "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
         "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
-      }
+      },
+      "verified_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf"
     },
     {
       "id": "B18",
-      "status": "NOT_STARTED",
+      "status": "READY_FOR_SYNC",
       "activated_base": null,
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": ""
+      "note": "Đủ dependency sau B17; phải đồng bộ worktree trước triển khai. Revision phát triển đổi 022→026 vì release 022 thuộc B07; số release cuối do điều phối chốt."
     },
     {
       "id": "B19",

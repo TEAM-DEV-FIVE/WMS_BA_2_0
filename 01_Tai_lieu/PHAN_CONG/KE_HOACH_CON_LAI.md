@@ -1,8 +1,7 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
-**Cập nhật 04/10 sau B14:** 15/26 nhánh đã tích hợp; B13/B16/B14 có runtime và kiểm thử.
-B17 (P1) và B07 (P3) đã đồng bộ nền `101ef19`, READY để giao triển khai song song.
-Xem [báo cáo mới](../../07_Kiem_tra/B14_INTEGRATION_2026_10_04.md) và [sổ tích hợp](integration_log.json).
+**Cập nhật 05/10 sau B07/B17:** B01–B17 đã tích hợp (17/26 nhánh). B18 đủ dependency, cần đồng bộ trước khi giao triển khai.
+B19/B20 còn chờ B18; B18–B26 chưa có code riêng. Xem [báo cáo mới](../../07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md) và [sổ tích hợp](integration_log.json).
 
 Ngày 03/10/2026 · Mốc mã đã tích hợp: `06041b7bc0c6e6515cb396d2ab5a29fae772df19`.
 Nhánh điều phối: `feat/application-foundation`. Các nhánh mới lấy **cùng commit kế hoạch chứa tài liệu này**,

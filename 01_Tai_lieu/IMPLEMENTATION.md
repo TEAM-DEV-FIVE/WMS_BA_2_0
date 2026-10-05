@@ -7,6 +7,14 @@ Mã nền đã lưu ở commit local `c57a743`. Đã tích hợp [ba nhánh agen
 outbox `849a97a`, desktop quản trị `f126186`, tồn đầu kỳ `0393849`; giữ các worktree để tra cứu.
 Kết quả tích hợp và giới hạn ở [báo cáo kiểm thử](../07_Kiem_tra/IMPLEMENTATION_REVIEW.md); chưa push GitHub.
 
+## Cập nhật B07/B17 — 05/10/2026
+
+**17/26 nhánh đã tích hợp local:** B01–B17. Có [trường mở rộng](CUSTOM_FIELDS.md) và [báo cáo/xuất dữ liệu](REPORTS_EXPORT.md).
+Mã `005f4c81f78c3b30fef652e221a1ad01bc429faf` đạt 1060 tests + 10 subtests, 0 failed/errors/skips trên Linux/PostgreSQL 16/HTTP/Tk.
+Runtime 177 paths; migration 001–022; 97 bảng/638 cột/203 FK; desktop 24 mục.
+B18 READY_FOR_SYNC; B19/B20 còn chờ B18. [Báo cáo hiện tại](../07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md); chưa thay UAT/Windows/LAN/thiết bị/tải/DR.
+Các phần tiếp theo là lịch sử từng đợt.
+
 ## Cập nhật B13/B16/B14 — 04/10/2026
 
 **15/26 nhánh đã tích hợp code local.** Có kiểm kê/kỳ kho, UI import và [đảo giao dịch](REVERSALS.md).

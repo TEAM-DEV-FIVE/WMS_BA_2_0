@@ -1,7 +1,6 @@
 # B17 — Báo cáo và xuất dữ liệu
 
-Runtime trên nền B01–B14 đã tích hợp, migration phát triển `021_b17_reports_export.sql`.
-Điều phối chốt số release khi ghép. Không sửa DDL 001–020, không thêm quyền/role và không thay policy tồn.
+Runtime trên nền B01–B14 đã tích hợp, migration release `021_b17_reports_export.sql`, đã ghép cùng B07 release 022. Không sửa DDL 001–020, không thêm quyền/role và không thay policy tồn.
 
 ## Ý nghĩa dữ liệu
 

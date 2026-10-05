@@ -1,17 +1,15 @@
-# Phân công phần còn lại — trạng thái 04/10/2026
+# Phân công phần còn lại — trạng thái 05/10/2026
 
-**15/26 nhánh đã tích hợp code local:** B01/B02/B03/B04/B05/B06/B08/B09/B10/B11/B12/B13/B14/B15/B16.
-B13/B16 đã qua hồi quy chung 906 tests + 10 subtests. B14 trên nền đó đạt 970 tests + 10 subtests.
-Xem [báo cáo mới](../../07_Kiem_tra/B14_INTEGRATION_2026_10_04.md) và [sổ tích hợp](integration_log.json).
+**17/26 nhánh đã tích hợp code local:** B01–B17. B07/B17 đã được review/ghép trên nền B14.
+Bản ghép `005f4c81f78c` đạt **1060 tests + 10 subtests**, 0 failed/errors/skipped.
+[Báo cáo kiểm chứng](../../07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md) · [Sổ tích hợp](integration_log.json).
 
-- **READY, đã đồng bộ để giao triển khai song song:** [B17 báo cáo/xuất dữ liệu](B17_reports_export.md) (P1), [B07 trường mở rộng](B07_custom_fields.md) (P3).
-  Nền `101ef19` chứa mã `6b92d2a` đã kiểm chứng; B07 giữ hai commit nghiên cứu bằng merge `40cabb9`, B17 fast-forward.
-  Chưa có runtime riêng B07/B17, chưa CODE_READY/ACCEPTED. Bản cập nhật trạng thái chỉ đổi tài liệu/checksum; không chạy lại hồi quy nghiệp vụ.
-- B18 chờ B17; B19 chờ B07/B18; B20 chờ B17/B18; B21 chờ B20; B22 chờ B21; B23 chờ B19.
-- B24/B25/B26 tiếp tục theo dependency trong [catalog](backlog.json). B17–B26 chưa có code riêng.
+- **B18 in chứng từ/tem và scanner HID: READY_FOR_SYNC**, đủ dependency; cần đồng bộ worktree trước khi giao code.
+  Revision dev mới `026_b18_printing_scanner.sql`; số 022 đã phát hành cho B07. Không dùng brief cũ ở worktree chưa đồng bộ.
+- B19 recovery và B20 worker còn chờ B18. B21 chờ B20; B22 chờ B21; B23 chờ B19.
+- B24 chờ B19/B20/B21; B25/B26 theo [catalog](backlog.json). B18–B26 chưa có code riêng.
 
-Nhánh điều phối `feat/application-foundation` và nhánh B14 giữ đầy đủ lịch sử; không reset agent khác.
-Các worktree B13/B16 giữ source bàn giao. [Quy trình](QUY_TRINH_AGENT.md), [brief](KE_HOACH_CON_LAI.md)
-và [đợt trước](DOT_1_DA_TICH_HOP.md) vẫn dùng; trạng thái ban đầu trong catalog không thay sổ mới.
-PostgreSQL 001–020 đã chốt release, SQLite 001–002 giữ nguyên. T01–T28 vẫn PLANNED.
-Chưa push/đổi issue GitHub; local tests không thay Windows/thiết bị/LAN/15 CCU/DR/UAT.
+[Brief và DAG](KE_HOACH_CON_LAI.md) · [Quy trình](QUY_TRINH_AGENT.md). Trạng thái ban đầu trong catalog/brief là lịch sử.
+Source worktree B07/B17 được giữ để đối chiếu bàn giao, không reset hoặc đổi lịch sử agent.
+PostgreSQL 001–022 bất biến; SQLite 001–002 giữ nguyên. T01–T28 vẫn PLANNED.
+Chưa push/đổi issue GitHub. Local tests không thay Windows/thiết bị/LAN/15 CCU/DR/UAT.

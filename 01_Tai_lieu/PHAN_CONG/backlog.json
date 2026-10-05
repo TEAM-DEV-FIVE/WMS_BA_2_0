@@ -350,7 +350,8 @@
       "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b07-custom-fields",
       "brief": "01_Tai_lieu/PHAN_CONG/B07_custom_fields.md",
       "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B07.md",
-      "initial_status": "WAITING_DEPENDENCIES"
+      "initial_status": "WAITING_DEPENDENCIES",
+      "release_migration": "022_b07_custom_fields.sql"
     },
     {
       "id": "B08",
@@ -905,7 +906,8 @@
       "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b17-reports-export",
       "brief": "01_Tai_lieu/PHAN_CONG/B17_reports_export.md",
       "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B17.md",
-      "initial_status": "WAITING_DEPENDENCIES"
+      "initial_status": "WAITING_DEPENDENCIES",
+      "release_migration": "021_b17_reports_export.sql"
     },
     {
       "id": "B18",
@@ -951,12 +953,14 @@
         "Cần mẫu chứng từ được chọn theo Q08 và model máy in/scanner/driver/khổ tem Q06. Có thể viết adapter/render tests trước; thiếu thiết bị thì ghi NOT_RUN cho hardware UAT."
       ],
       "priority": "P1",
-      "development_migration": "022_b18_printing_scanner.sql",
+      "development_migration": "026_b18_printing_scanner.sql",
       "branch": "agent/b18-printing-scanner",
       "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b18-printing-scanner",
       "brief": "01_Tai_lieu/PHAN_CONG/B18_printing_scanner.md",
       "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B18.md",
-      "initial_status": "WAITING_DEPENDENCIES"
+      "initial_status": "WAITING_DEPENDENCIES",
+      "previous_development_migration": "022_b18_printing_scanner.sql",
+      "migration_assignment_note": "Reassigned 2026-10-05: release 022 belongs to B07. 026 is development-only; coordinator assigns the next release number."
     },
     {
       "id": "B19",

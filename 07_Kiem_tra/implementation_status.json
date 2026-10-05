@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-04",
+  "date": "2026-10-05",
   "repository": "TEAM-DEV-FIVE/WMS_BA_2_0",
   "branch": "feat/application-foundation",
   "current_implementation_owner": "Trần Trung Kiên",
@@ -62,7 +62,7 @@
       "title": "[BE02] Migration và hạ tầng PostgreSQL",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/4",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_MIGRATIONS_001_020",
+      "local_status": "PARTIAL_MIGRATIONS_001_022",
       "dependencies": [
         3
       ],
@@ -72,8 +72,8 @@
         "T27",
         "T28"
       ],
-      "note": "Release 001–020 immutable; custom fields and future features use forward migrations.",
-      "review_report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md"
+      "note": "Release 001–022 immutable; future extensions use forward migrations.",
+      "review_report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md"
     },
     {
       "number": 5,
@@ -97,7 +97,7 @@
       "title": "[BE04] Phân quyền theo kho",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/6",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_LIVE_RBAC_DOMAIN_FILES_DOWNLOAD",
+      "local_status": "PARTIAL_LIVE_RBAC_WITH_REPORTS_EXPORT",
       "dependencies": [
         5
       ],
@@ -107,8 +107,8 @@
         "T11",
         "T28"
       ],
-      "note": "Warehouse/owner/assignment and private file access checked; reports/export and remaining workflows pending.",
-      "review_report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md"
+      "note": "Live report/owner/serial/price authorization and download revalidation integrated; target UAT remains.",
+      "review_report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md"
     },
     {
       "number": 7,
@@ -172,7 +172,7 @@
       "title": "[BE07] Phê duyệt và phân tách nhiệm vụ",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/10",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_MULTI_DOMAIN_APPROVAL_WITH_COUNT_REVERSAL",
+      "local_status": "PARTIAL_MULTI_DOMAIN_APPROVAL_WITH_CUSTOM_FIELDS",
       "dependencies": [
         9
       ],
@@ -182,8 +182,8 @@
         "T14",
         "T28"
       ],
-      "note": "Count two-step and reversal independent approval integrated; custom fields/UAT remain.",
-      "review_report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md"
+      "note": "Custom-field revisions/values pinned in approval snapshots; target UAT remains.",
+      "review_report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md"
     },
     {
       "number": 11,
@@ -333,7 +333,7 @@
       "title": "[UI09] Giao diện import và báo cáo",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/19",
       "github_state_at_read": "OPEN",
-      "local_status": "PARTIAL_IMPORT_UI_REPORTS_PENDING",
+      "local_status": "IMPLEMENTED_LOCALLY_NOT_ACCEPTED",
       "dependencies": [
         17,
         18
@@ -347,8 +347,8 @@
         "T27",
         "T28"
       ],
-      "note": "B16 import preview/jobs/recovery UI integrated; B17 reports/export remains.",
-      "review_report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md"
+      "note": "Import and report/export desktop integrated; target Windows/UAT remains.",
+      "review_report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md"
     },
     {
       "number": 20,
@@ -548,14 +548,16 @@
       "title": "[BE09] Định nghĩa trường mở rộng",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/30",
       "github_state_at_read": "OPEN",
-      "local_status": "NOT_IMPLEMENTED",
+      "local_status": "IMPLEMENTED_LOCALLY_NOT_ACCEPTED",
       "dependencies": [
         29
       ],
       "tests": [
         "T01",
         "T28"
-      ]
+      ],
+      "note": "B07 typed definitions, immutable revisions, metadata, live price projection, approval snapshots and desktop integrated.",
+      "review_report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md"
     },
     {
       "number": 31,
@@ -584,7 +586,7 @@
       "title": "[QA05] Báo cáo và export",
       "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/32",
       "github_state_at_read": "OPEN",
-      "local_status": "NOT_IMPLEMENTED",
+      "local_status": "IMPLEMENTED_LOCALLY_NOT_ACCEPTED",
       "dependencies": [
         22,
         24
@@ -595,7 +597,9 @@
         "T21",
         "T27",
         "T28"
-      ]
+      ],
+      "note": "B17 R01–R08, stable snapshots, scoped CSV/XLSX export and desktop integrated; sizing/15 CCU/UAT remains.",
+      "review_report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md"
     },
     {
       "number": 33,
@@ -767,8 +771,8 @@
     {
       "id": "T07",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_identity.py; tests/foundation/test_admin_desktop.py; tests/foundation/test_admin_presenter.py; tests/foundation/test_openings.py",
-      "note": "IAM desktop administration, MFA/scope/SOD/revocation and opening permission checked. Export/download and complete business acceptance pending."
+      "component_evidence": "tests/foundation/test_identity.py; tests/foundation/test_admin_desktop.py; tests/foundation/test_admin_presenter.py; tests/foundation/test_openings.py; tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
     },
     {
       "id": "T08",
@@ -809,8 +813,8 @@
     {
       "id": "T14",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_document_reviews.py; tests/foundation/test_documents_desktop.py",
-      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+      "component_evidence": "tests/foundation/test_document_reviews.py; tests/foundation/test_documents_desktop.py; tests/foundation/test_custom_fields.py; tests/foundation/test_custom_fields_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
     },
     {
       "id": "T15",
@@ -851,8 +855,8 @@
     {
       "id": "T21",
       "acceptance_status": "PLANNED",
-      "component_evidence": null,
-      "note": "Business acceptance not executed."
+      "component_evidence": "tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
     },
     {
       "id": "T22",
@@ -869,8 +873,8 @@
     {
       "id": "T24",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_postgres.py; tests/foundation/test_iam_lifecycle.py; tests/foundation/test_api_contracts.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py",
-      "note": "B14 local component/PG/HTTP/GUI evidence added; see 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Acceptance remains PLANNED."
+      "component_evidence": "tests/foundation/test_postgres.py; tests/foundation/test_iam_lifecycle.py; tests/foundation/test_api_contracts.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py; tests/foundation/test_custom_fields.py; tests/foundation/test_custom_fields_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
     },
     {
       "id": "T25",
@@ -881,40 +885,40 @@
     {
       "id": "T26",
       "acceptance_status": "PLANNED",
-      "component_evidence": null,
-      "note": "Business acceptance not executed."
+      "component_evidence": "tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
     },
     {
       "id": "T27",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_consignments.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py",
-      "note": "B14 local component/PG/HTTP/GUI evidence added; see 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Acceptance remains PLANNED."
+      "component_evidence": "tests/foundation/test_consignments.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py; tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
     },
     {
       "id": "T28",
       "acceptance_status": "PLANNED",
-      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_b05_desktop.py",
-      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_b05_desktop.py; tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
     }
   ],
   "latest_local_validation": {
-    "date": "2026-10-04",
-    "commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+    "date": "2026-10-05",
+    "commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
     "suite": "scripts/check_application.py --gui --expected-pg-major 16",
-    "report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md",
-    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b14-reversal",
-    "passed": 970,
+    "report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md",
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-integrate-b07-b17",
+    "passed": 1060,
     "subtests_passed": 10,
     "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "duration_seconds": 1171.89,
-    "runtime_paths": 166,
-    "migrations": 20,
+    "duration_seconds": 1498.515,
+    "runtime_paths": 177,
+    "migrations": 22,
     "runtime_schema": {
-      "tables": 89,
-      "columns": 584,
-      "foreign_keys": 188,
+      "tables": 97,
+      "columns": 638,
+      "foreign_keys": 203,
       "roles": 10,
       "permissions": 58,
       "role_permissions": 125
@@ -1042,6 +1046,18 @@
       "source_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
       "merge_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
       "worktree_retained": true
+    },
+    {
+      "branch": "agent/b07-custom-fields",
+      "source_commit": "cef3d9013e1e86057f50a3b3cfd39a964b028948",
+      "merge_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b17-reports-export",
+      "source_commit": "b131b30cf7ea855ee22e696f786d11648d7c90a2",
+      "merge_commit": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+      "worktree_retained": true
     }
   ],
   "remaining_work_plan": {
@@ -1063,8 +1079,8 @@
     ],
     "initial_waiting": 18,
     "note": "Current local branch audit and validation recorded separately from initial assignment; GitHub snapshot not refreshed.",
-    "last_review_date": "2026-10-04",
-    "current_report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md",
+    "last_review_date": "2026-10-05",
+    "current_report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md",
     "integrated_task_ids": [
       "B01",
       "B02",
@@ -1072,6 +1088,7 @@
       "B04",
       "B05",
       "B06",
+      "B07",
       "B08",
       "B09",
       "B10",
@@ -1080,14 +1097,14 @@
       "B13",
       "B14",
       "B15",
-      "B16"
+      "B16",
+      "B17"
     ],
-    "prepared_task_ids": [
-      "B07"
+    "prepared_task_ids": [],
+    "ready_for_sync": [
+      "B18"
     ],
-    "ready_for_sync": [],
     "not_started_task_ids": [
-      "B17",
       "B18",
       "B19",
       "B20",
@@ -1098,15 +1115,16 @@
       "B25",
       "B26"
     ],
-    "ready_task_ids": [
-      "B07",
-      "B17"
-    ],
-    "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
-    "synchronization_commits": {
-      "B07": "40cabb94f367134568035e72c3224c75bbe727ec",
-      "B17": "101ef19331a42729a168a15edb474e1b99382eb5"
-    }
+    "ready_task_ids": [],
+    "activation_history": [
+      {
+        "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
+        "synchronization_commits": {
+          "B07": "40cabb94f367134568035e72c3224c75bbe727ec",
+          "B17": "101ef19331a42729a168a15edb474e1b99382eb5"
+        }
+      }
+    ]
   },
   "validation_history": [
     {
@@ -1151,6 +1169,42 @@
         "roles": 10,
         "permissions": 56,
         "role_permissions": 121
+      },
+      "local_sqlite_schema_version": 2,
+      "installed_wheel_checked": true,
+      "full_acceptance_completed": false,
+      "not_run": [
+        "PostgreSQL 15",
+        "Windows 10/11",
+        "hosted CI",
+        "target LAN/TLS",
+        "physical printer/scanner",
+        "15 CCU representative load",
+        "backup/restore RPO/RTO",
+        "business UAT"
+      ]
+    },
+    {
+      "date": "2026-10-04",
+      "commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+      "report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md",
+      "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b14-reversal",
+      "passed": 970,
+      "subtests_passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 1171.89,
+      "runtime_paths": 166,
+      "migrations": 20,
+      "runtime_schema": {
+        "tables": 89,
+        "columns": 584,
+        "foreign_keys": 188,
+        "roles": 10,
+        "permissions": 58,
+        "role_permissions": 125
       },
       "local_sqlite_schema_version": 2,
       "installed_wheel_checked": true,

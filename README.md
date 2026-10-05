@@ -4,7 +4,7 @@
 
 Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã nền tảng cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**, ứng dụng **0.1.0**.
 
-**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp 15/26 nhánh: nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md) và [đảo giao dịch](01_Tai_lieu/REVERSALS.md). Bản local cuối đạt 970 tests + 10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B14_INTEGRATION_2026_10_04.md). Báo cáo/xuất, in/scan, recovery chung, triển khai LAN/Windows, tải/DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
+**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp 17/26 nhánh: nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md), [đảo giao dịch](01_Tai_lieu/REVERSALS.md), [trường mở rộng](01_Tai_lieu/CUSTOM_FIELDS.md) và [báo cáo/xuất](01_Tai_lieu/REPORTS_EXPORT.md). Bản local cuối đạt 1060 tests + 10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md). In/scan, recovery chung, triển khai LAN/Windows, tải/DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
 
 **Bắt đầu chạy ứng dụng:** [hướng dẫn cài/chạy/kiểm thử và thứ tự issue](01_Tai_lieu/IMPLEMENTATION.md). Xem [kết quả kiểm tra đợt nền tảng](07_Kiem_tra/IMPLEMENTATION_REVIEW.md) và [trạng thái từng issue/test](07_Kiem_tra/implementation_status.json).
 
@@ -66,9 +66,10 @@ Chi tiết: [ARCHITECTURE.md](01_Tai_lieu/ARCHITECTURE.md), [INVARIANTS.md](01_T
 | [receiving_extension_model.json](02_CSDL/receiving_extension_model.json) | Migration 009 thêm execution ACK/hash; runtime sau 009: 63 bảng/430 cột/125 FK |
 | [opening_extension_model.json](02_CSDL/opening_extension_model.json) | Migration 010 thêm kế hoạch tồn đầu kỳ; sau 010: 65 bảng/440 cột/129 FK |
 | [reversal_extension_model.json](02_CSDL/reversal_extension_model.json) | Migration 020 thêm đảo giao dịch; runtime sau 020: 89 bảng/584 cột/188 FK |
+| [custom_field_extension_model.json](02_CSDL/custom_field_extension_model.json) | Release 021 báo cáo/xuất và 022 trường mở rộng: runtime 97 bảng/638 cột/203 FK |
 | [03_So_do](03_So_do) | Atlas 91 trang, SVG, draw.io, PlantUML; ERD, class, use case, trạng thái, sequence, BPMN và mô hình khái niệm |
 | [04_Phan_quyen](04_Phan_quyen) | 10 vai trò, 58 quyền, 125 ánh xạ role-permission, policy và phạm vi quyền |
-| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 166 paths; coverage theo use case |
+| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 177 paths; coverage theo use case |
 | [06_Nhap_lieu](06_Nhap_lieu) | Excel, 14 CSV templates, 22 dòng ví dụ và validator offline |
 | [07_Kiem_tra](07_Kiem_tra) | Báo cáo kiểm tra, truy vết và đặc tả acceptance T01–T28 |
 | [scripts](scripts) | Kiểm tra artifact/PostgreSQL và cập nhật ZIP/checksum |
@@ -143,7 +144,7 @@ CSV dùng UTF-8 BOM, dấu phẩy phân cột và dấu chấm thập phân. Mã
 
 [openapi_core.json](05_API/openapi_core.json) là hợp đồng thiết kế, có thể mở bằng công cụ hỗ trợ OpenAPI. `https://wms.example.internal/api/v1` là địa chỉ minh họa. Có path trong hợp đồng chưa đồng nghĩa endpoint đã chạy.
 
-Hợp đồng mô tả lệnh ghi sổ, giữ chỗ, chuyển kho, duyệt, kiểm kê, commit nhập và tra cứu operation. Decimal truyền dạng chuỗi; lệnh thay đổi dùng idempotency và kiểm soát version. Coverage thiết kế của từng UC được ghi tại [BA_COVERAGE.md](05_API/BA_COVERAGE.md). Các endpoint đã triển khai, gồm đăng nhập/MFA, chứng từ, kiểm kê và đảo giao dịch, nằm trong [OpenAPI runtime](05_API/openapi_runtime.json); báo cáo/xuất dữ liệu và các phần tiếp theo theo [sổ phân công](01_Tai_lieu/PHAN_CONG/README.md).
+Hợp đồng mô tả lệnh ghi sổ, giữ chỗ, chuyển kho, duyệt, kiểm kê, commit nhập và tra cứu operation. Decimal truyền dạng chuỗi; lệnh thay đổi dùng idempotency và kiểm soát version. Coverage thiết kế của từng UC được ghi tại [BA_COVERAGE.md](05_API/BA_COVERAGE.md). Các endpoint đã triển khai, gồm đăng nhập/MFA, chứng từ, kiểm kê và đảo giao dịch, nằm trong [OpenAPI runtime](05_API/openapi_runtime.json); các phần tiếp theo theo [sổ phân công](01_Tai_lieu/PHAN_CONG/README.md).
 
 Server đã kiểm tra grant/quyền theo kho, hiệu lực, thu hồi và quyền giá cho các API được liệt kê trong [OpenAPI runtime](05_API/openapi_runtime.json). `SYSADMIN` không mặc nhiên có quyền kho; API quản trị yêu cầu MFA. Các nghiệp vụ chưa triển khai vẫn cần tích hợp authorization khi được thêm. [Hướng dẫn IAM](01_Tai_lieu/IDENTITY.md) mô tả bootstrap, phiên và phân tách nhiệm vụ. [Hướng dẫn danh mục](01_Tai_lieu/MASTER_DATA.md) mô tả migration 005, API và các form mới. [Hướng dẫn truy vết](01_Tai_lieu/TRACEABILITY.md) mô tả migration 006/007, tồn theo owner và bảo hành serial. [PO/SO và phê duyệt](01_Tai_lieu/ORDERS_APPROVAL.md) mô tả migration 008, quyền, trạng thái và desktop mới.
 
@@ -174,14 +175,14 @@ Lần rà soát ngày **27/09/2026**: 12 test CSV đạt; JSON/CSV/XML, OpenAPI 
 
 Repository hiện thuộc **TEAM-DEV-FIVE**. Sau khi chuyển repo, CI đã khởi chạy được; [lần chạy 36308545818](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/36308545818) xác nhận hai job PostgreSQL 15/16 đạt và phát hiện thiếu đường dẫn cache cho `requirements-dev.txt`. Cấu hình cache đã được bổ sung; xem badge đầu trang để biết kết quả toàn bộ workflow trên commit mới nhất. Lỗi billing của lần push đầu tại tài khoản cũ được lưu trong báo cáo lịch sử.
 
-FastAPI/Tkinter và các race ghi sổ đã được kiểm thử trên Linux/PostgreSQL 16; xem [báo cáo B13/B16/B14](07_Kiem_tra/B14_INTEGRATION_2026_10_04.md). Chưa nghiệm thu nghiệp vụ, tải 15 CCU, máy quét/in, backup/restore hoặc Windows client đích. `acceptance_tests.csv` là **đặc tả T01–T28 chưa nghiệm thu đầy đủ**; test thành phần không thay thế kết quả các ca này. T27/T28 bổ sung cho ký gửi và tra cứu bảo hành theo Q02. Các báo cáo v1.x và BA trước đây là lịch sử; số liệu/trạng thái trong đó cần đọc theo phiên bản.
+FastAPI/Tkinter và các race ghi sổ đã được kiểm thử trên Linux/PostgreSQL 16; xem [báo cáo B07/B17](07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md). Chưa nghiệm thu nghiệp vụ, tải 15 CCU, máy quét/in, backup/restore hoặc Windows client đích. `acceptance_tests.csv` là **đặc tả T01–T28 chưa nghiệm thu đầy đủ**; test thành phần không thay thế kết quả các ca này. T27/T28 bổ sung cho ký gửi và tra cứu bảo hành theo Q02. Các báo cáo v1.x và BA trước đây là lịch sử; số liệu/trạng thái trong đó cần đọc theo phiên bản.
 
 Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lead; xem [baseline TL01](01_Tai_lieu/SCOPE_BASELINE.md) và [sổ câu hỏi](01_Tai_lieu/BA/open_questions.json) để phân biệt câu trả lời, người theo dõi và chi tiết cần làm rõ trước triển khai/production.
 
 ## Lộ trình triển khai
 
-Đã tích hợp 15/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
+Đã tích hợp 17/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
 
-1. Giao B17 báo cáo/xuất dữ liệu và B07 trường mở rộng: hai worktree đã đồng bộ nền `101ef19`, READY.
+1. Đồng bộ B18 in/scan, đã đủ dependency sau B17; B01–B17 đã tích hợp.
 2. Tiếp tục B18–B24 theo dependency: in/scan, recovery, worker, vận hành LAN/DR, Windows và tải.
 3. B25/B26 tổng rà soát và nghiệm thu T01–T28 trên môi trường mục tiêu.

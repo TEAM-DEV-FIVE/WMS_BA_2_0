@@ -9,9 +9,9 @@
 - Bằng chứng liên quan: T07, T21, T26, T27, T28; đây là phân công kiểm thử, chưa phải PASS.
 - Báo cáo tạo mới khi bàn giao: `01_Tai_lieu/PHAN_CONG/BAN_GIAO/B17.md`.
 
-**Kích hoạt 04/10/2026:** đã đồng bộ nền `101ef19`, READY theo [sổ tích hợp](integration_log.json).
-Có đầy đủ B14 và các dependency đã tích hợp; bắt đầu triển khai theo brief, giữ PostgreSQL 001–020 bất biến.
-Trạng thái ban đầu bên trên là lịch sử; chưa có runtime riêng, chưa CODE_READY/ACCEPTED.
+**Tích hợp 05/10/2026:** INTEGRATED local trên mã `005f4c81f78c`; chưa ACCEPTED.
+[Báo cáo bản ghép](../../07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md) ghi kết quả và số migration release.
+Mốc kích hoạt và trạng thái ban đầu là lịch sử; không giao lại nhánh này từ checkout cũ.
 
 Đọc [quy trình chung](QUY_TRINH_AGENT.md), [bảng toàn bộ công việc](KE_HOACH_CON_LAI.md) và AGENTS.md trước khi sửa.
 

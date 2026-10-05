@@ -25,7 +25,7 @@
 - `apps/desktop/printing/ và scanner/ (mới)`
 - `mẫu in và nhãn mới trong thư mục thiết kế/in`
 
-Revision phát triển dành riêng: `022_b18_printing_scanner.sql`, chỉ dùng DB tạm. Điều phối chốt số release khi tích hợp theo quy trình chung. Không tạo DDL rỗng nếu không cần.
+Revision phát triển dành riêng: `026_b18_printing_scanner.sql`, chỉ dùng DB tạm. Điều phối chốt số release khi tích hợp theo quy trình chung. Không tạo DDL rỗng nếu không cần.
 
 Test/fixture, tài liệu module và báo cáo riêng thuộc cùng nhánh. Các đường dẫn module mới là đề xuất; giữ ranh giới trách nhiệm. File dùng chung chỉ sửa hook cần thiết và liệt kê trong báo cáo.
 
