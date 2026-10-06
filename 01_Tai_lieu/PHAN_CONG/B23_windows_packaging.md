@@ -1,5 +1,7 @@
 # B23 — Bộ cài Windows và nâng cấp an toàn
 
+**Kích hoạt 06/10: READY trên nền B01–B20 đã tích hợp và kiểm thử.** Xem integration_log.json. Bảo toàn SQLite003, backup v1/v2, device identity và journal commands/receipts. Server hỗ trợ X-WMS-Recovery trước client; không downgrade cache. Theo dõi lỗi hosted Windows O_NOFOLLOW (#21), không bỏ/skip test để build xanh.
+
 - Nhánh: `agent/b23-windows-packaging`
 - Worktree: `/home/kien/Đồ án KHMT2_2/worktrees/wms-b23-windows-packaging`
 - Trạng thái ban đầu: **WAITING_DEPENDENCIES**, ưu tiên **P1**.

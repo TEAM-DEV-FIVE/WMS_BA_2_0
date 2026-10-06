@@ -2,8 +2,8 @@
 
 Worker chạy tách khỏi API. B20 ghép consumer thực tế import/export/print và thêm vận hành,
 heartbeat, replay được kiểm quyền và cleanup theo batch. Xem [runbook B20](OUTBOX_OPERATIONS.md)
-cho lệnh triển khai hiện hành. Migration phát triển `027_b20_outbox_operations.sql` chỉ dành
-DB tạm; điều phối chốt số release khi tích hợp. Không coi #22/QA03 hoặc T02/T24/T26 đã nghiệm thu.
+cho lệnh triển khai hiện hành. Migration release `024_b20_outbox_operations.sql` đã tích hợp và kiểm thử upgrade;
+revision phát triển027 chỉ tồn tại ở hồ sơ bàn giao/DB tạm cũ. Không coi #22/QA03 hoặc T02/T24/T26 đã nghiệm thu.
 
 ## Khởi động và cấu hình
 

@@ -1,5 +1,7 @@
 # B21 — Triển khai máy chủ và vận hành qua LAN
 
+**Kích hoạt 06/10: READY trên nền B01–B20 đã tích hợp và kiểm thử.** Xem integration_log.json. Dùng release024, registry mặc định và 6 kind heartbeat từ B20. Đọc OUTBOX_OPERATIONS.md. API và worker cùng wheel/registry/retry budget; không dùng dev027.
+
 - Nhánh: `agent/b21-lan-deployment`
 - Worktree: `/home/kien/Đồ án KHMT2_2/worktrees/wms-b21-lan-deployment`
 - Trạng thái ban đầu: **WAITING_DEPENDENCIES**, ưu tiên **P1**.

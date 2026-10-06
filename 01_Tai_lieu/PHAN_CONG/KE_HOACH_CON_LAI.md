@@ -1,7 +1,7 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
-**Cập nhật 05/10 sau B18:** B01–B18 đã tích hợp (18/26 nhánh). B19/B20 đã đồng bộ nền `80fcf3f`, READY để giao triển khai song song.
-Còn 8 nhánh B19–B26 chưa tích hợp. Xem [báo cáo mới](../../07_Kiem_tra/B18_INTEGRATION_2026_10_05.md) và [sổ tích hợp](integration_log.json).
+**Cập nhật 06/10 sau B19/B20:** B01–B20 đã tích hợp (20/26 nhánh). B21/B23 đã đồng bộ, READY để giao triển khai song song.
+Còn6 nhánh B21–B26 chưa tích hợp. Xem [báo cáo mới](../../07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md) và [sổ tích hợp](integration_log.json).
 
 Ngày 03/10/2026 · Mốc mã đã tích hợp: `06041b7bc0c6e6515cb396d2ab5a29fae772df19`.
 Nhánh điều phối: `feat/application-foundation`. Các nhánh mới lấy **cùng commit kế hoạch chứa tài liệu này**,

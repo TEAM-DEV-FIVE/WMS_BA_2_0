@@ -8,9 +8,9 @@ service trên máy vận hành, tải đại diện hay Q08.
 
 ## Khởi động
 
-Chạy migration bằng runner riêng của đúng release. Revision phát triển B20 là
-`027_b20_outbox_operations.sql`, không đưa trực tiếp lên DB vận hành. Điều phối chốt số
-release kế tiếp và kiểm thử upgrade. Worker/API không tự migrate. Dùng cùng phiên bản wheel,
+Chạy migration bằng runner riêng của đúng release. B20 đã chốt release
+`024_b20_outbox_operations.sql`, kiểm thử fresh install và upgrade010/023 có dữ liệu.
+Revision phát triển 027 chỉ dùng DB test bỏ được, không sửa lịch sử DB dùng chung. Worker/API không tự migrate. Dùng cùng phiên bản wheel,
 registry và `WMS_OUTBOX_*` trên API và mọi worker; không trộn retry budget.
 
 Service nhận `WMS_DATABASE_URL` và cấu hình khóa mã hóa IAM qua tệp môi trường quyền hạn chế,

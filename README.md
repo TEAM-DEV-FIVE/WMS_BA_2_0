@@ -4,7 +4,7 @@
 
 Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã nền tảng cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**, ứng dụng **0.1.0**.
 
-**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp 18/26 nhánh: nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md), [đảo giao dịch](01_Tai_lieu/REVERSALS.md), [trường mở rộng](01_Tai_lieu/CUSTOM_FIELDS.md), [báo cáo/xuất](01_Tai_lieu/REPORTS_EXPORT.md) và [in/tem/HID](01_Tai_lieu/PRINTING_SCANNER.md). Bản local cuối đạt 1106 tests + 10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B18_INTEGRATION_2026_10_05.md). Recovery chung, triển khai LAN/Windows, tải/DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
+**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp 20/26 nhánh: nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md), [đảo giao dịch](01_Tai_lieu/REVERSALS.md), [trường mở rộng](01_Tai_lieu/CUSTOM_FIELDS.md), [báo cáo/xuất](01_Tai_lieu/REPORTS_EXPORT.md) và [in/tem/HID](01_Tai_lieu/PRINTING_SCANNER.md). Recovery chung B19 và worker B20 đã tích hợp. Bản local cuối đạt 1156 tests +10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md). B21 LAN/B23 Windows đã sẵn sàng giao; tải/DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
 
 **Đồng bộ GitHub 06/10/2026:** đã đóng thêm 24 issue, hiện 27 CLOSED/13 OPEN. Mã ở
 [`feat/application-foundation` / PR #46](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/pull/46), chưa merge `main`. CI hồ sơ đạt; CI ứng dụng phát hiện lỗi
@@ -74,7 +74,7 @@ Chi tiết: [ARCHITECTURE.md](01_Tai_lieu/ARCHITECTURE.md), [INVARIANTS.md](01_T
 | [printing_extension_model.json](02_CSDL/printing_extension_model.json) | Release 023 in/tem/HID: runtime 100 bảng/679 cột/211 FK |
 | [03_So_do](03_So_do) | Atlas 91 trang, SVG, draw.io, PlantUML; ERD, class, use case, trạng thái, sequence, BPMN và mô hình khái niệm |
 | [04_Phan_quyen](04_Phan_quyen) | 10 vai trò, 58 quyền, 125 ánh xạ role-permission, policy và phạm vi quyền |
-| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 185 paths; coverage theo use case |
+| [05_API](05_API) | Contract thiết kế 23 paths lõi và OpenAPI runtime 189 paths; coverage theo use case |
 | [06_Nhap_lieu](06_Nhap_lieu) | Excel, 14 CSV templates, 22 dòng ví dụ và validator offline |
 | [07_Kiem_tra](07_Kiem_tra) | Báo cáo kiểm tra, truy vết và đặc tả acceptance T01–T28 |
 | [scripts](scripts) | Kiểm tra artifact/PostgreSQL và cập nhật ZIP/checksum |

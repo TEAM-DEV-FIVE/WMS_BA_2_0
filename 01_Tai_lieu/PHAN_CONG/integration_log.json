@@ -197,11 +197,11 @@
     },
     {
       "id": "B19",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": "Đã fast-forward worktree sạch từ 45e51a5 đến nền B18 đầy đủ 80fcf3f ngày 05/10/2026; READY để người dùng giao agent song song. Không tự khởi chạy agent. Sở hữu SQLite003; phục hồi command/ACK, không replay OS I/O.",
+      "handoff_commit": "e1b10182260413a62579f2533cbc30f5f9345a34",
+      "integrated_commit": "830146198169a8ed3a5433c483d726e170db6c45",
+      "note": "Tích hợp local 06/10/2026; 1156 tests +10 subtests PASS, 0 failed/errors/skips. PG024/SQLite003; 07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md. Chưa ACCEPTED/UAT.",
       "synchronization_commit": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
       "dependency_commits": {
         "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
@@ -220,30 +220,37 @@
         "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
         "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
         "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29"
-      }
+      },
+      "verified_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2"
     },
     {
       "id": "B20",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": "Đã fast-forward worktree sạch từ 45e51a5 đến nền B18 đầy đủ 80fcf3f ngày 05/10/2026; READY để người dùng giao agent song song. Không tự khởi chạy agent. Ghép consumer/executor import/export/print; dev PostgreSQL027, chỉ DB tạm.",
+      "handoff_commit": "37c44be04d209c3110bc912d368a289f95bcdcca",
+      "integrated_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "note": "Tích hợp local 06/10/2026; 1156 tests +10 subtests PASS, 0 failed/errors/skips. PG024/SQLite003; 07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md. Chưa ACCEPTED/UAT.",
       "synchronization_commit": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
       "dependency_commits": {
         "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
         "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
         "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
         "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29"
-      }
+      },
+      "verified_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2"
     },
     {
       "id": "B21",
-      "status": "NOT_STARTED",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": ""
+      "note": "Đủ phụ thuộc trên bản ghép đã kiểm chứng; đồng bộ worktree sạch rồi giao agent. Thiếu target environment vẫn ghi NOT_RUN; không tự đổi acceptance.",
+      "synchronization_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "dependency_commits": {
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2"
+      }
     },
     {
       "id": "B22",
@@ -255,11 +262,16 @@
     },
     {
       "id": "B23",
-      "status": "NOT_STARTED",
-      "activated_base": null,
+      "status": "READY",
+      "activated_base": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
       "handoff_commit": null,
       "integrated_commit": null,
-      "note": ""
+      "note": "Đủ phụ thuộc trên bản ghép đã kiểm chứng; đồng bộ worktree sạch rồi giao agent. Thiếu target environment vẫn ghi NOT_RUN; không tự đổi acceptance.",
+      "synchronization_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "dependency_commits": {
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B19": "830146198169a8ed3a5433c483d726e170db6c45"
+      }
     },
     {
       "id": "B24",
@@ -287,22 +299,22 @@
     }
   ],
   "last_review": {
-    "date": "2026-10-05",
-    "tested_commit": "684789f747244a23628e193792fca5d851dfed85",
-    "report": "07_Kiem_tra/B18_INTEGRATION_2026_10_05.md",
+    "date": "2026-10-06",
+    "tested_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+    "report": "07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md",
     "next_ready_for_sync": [
-      "B19",
-      "B20"
+      "B21",
+      "B23"
     ]
   },
   "last_activation": {
-    "date": "2026-10-05",
-    "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
+    "date": "2026-10-06",
+    "activated_base": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
     "tasks": [
-      "B19",
-      "B20"
+      "B21",
+      "B23"
     ],
     "status": "READY",
-    "note": "Đã đồng bộ cả hai worktree sạch, không mất commit riêng; cùng nền B01–B18. Chỉ người dùng giao agent, không đổi T01–T28/push."
+    "note": "Đồng bộ cả hai worktree tới commit metadata sau mốc runtime này; không khởi chạy agent tự động."
   }
 }
