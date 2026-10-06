@@ -16,6 +16,10 @@ def settings_for_startup():
     directory = Path(os.environ.get("WMS_LOCAL_DATA_DIR", default_data_directory())).absolute()
     if getattr(sys, "frozen", False):
         install = Path(sys.executable).resolve().parent
+        if sys.platform == "darwin":
+            from apps.desktop.macos_bundle import bundle_root
+
+            install = bundle_root()
         if directory.resolve() == install or install in directory.resolve().parents:
             raise ValueError("Dữ liệu cá nhân phải nằm ngoài thư mục cài đặt.")
     config = directory / "client.json"

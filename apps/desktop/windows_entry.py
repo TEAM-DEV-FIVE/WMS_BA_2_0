@@ -17,6 +17,14 @@ from packages.contracts.compatibility import CLIENT_VERSION
 APP_MUTEX = "Local\\WMSDesktopRunning"
 
 
+def verify_frozen_bundle():
+    if sys.platform == "darwin":
+        from apps.desktop.macos_bundle import verify_bundle
+
+        return verify_bundle()
+    return verify_manifest(Path(sys.executable).parent)
+
+
 def installed_self_test():
     import tkinter as tk
 
@@ -28,7 +36,7 @@ def installed_self_test():
     from apps.desktop.local_store.device import device_identity
     from apps.desktop.scanner.hid import HID
 
-    manifest = verify_manifest(Path(sys.executable).parent) if getattr(sys, "frozen", False) else None
+    manifest = verify_frozen_bundle() if getattr(sys, "frozen", False) else None
     assert Path(certifi.where()).is_file()
     import ssl
 
@@ -113,7 +121,7 @@ def main(argv=None):
             print(json.dumps(result, ensure_ascii=False))
         return 0
     if getattr(sys, "frozen", False):
-        verify_manifest(Path(sys.executable).parent)
+        verify_frozen_bundle()
     # The installer refuses updates/uninstall while this named mutex exists.
     if os.name == "nt":
         import ctypes
