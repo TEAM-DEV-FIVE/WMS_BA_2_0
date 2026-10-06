@@ -39,6 +39,10 @@ class IdentityClient(ApiClient):
 
     def _request(self, method, path, *, body=None, authenticated=False, extra_headers=None,
                  content=None, binary=False, recovery_hash=None):
+        # Check before transmitting credentials or any mutation, including recovery lookup.
+        # Recheck each write so a server rollback during a session cannot bypass the gate.
+        if self.require_compatibility and method != "GET":
+            self.health()
         headers = dict(extra_headers or {})
         if authenticated:
             if not self._tokens:

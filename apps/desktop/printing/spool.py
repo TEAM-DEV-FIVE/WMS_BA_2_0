@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 PAPERS = {"A4": (210, 297), "A5": (148, 210), "100x50": (100, 50), "80x40": (80, 40)}
 
@@ -26,12 +27,18 @@ def printers():
     return [dict(name=n, driver="CUPS") for n in output.stdout.splitlines() if n and not n.startswith("-")]
 
 
+def windows_command(printer, paper, copies):
+    if getattr(sys, "frozen", False):
+        return [str(Path(sys.executable).with_name("WMSHelper.exe")), "--spool", printer, paper, str(copies)]
+    return [sys.executable, "-m", "apps.desktop.printing.spool", printer, paper, str(copies)]
+
+
 def submit(data, printer, paper, copies=1, timeout=60):
     if paper not in PAPERS or not 1 <= copies <= 20 or not printer or any(ord(c) < 32 for c in printer):
         return Result("FAILED", error_code="SPOOL_ERROR")
     try:
         if os.name == "nt":
-            command = [sys.executable, "-m", "apps.desktop.printing.spool", printer, paper, str(copies)]
+            command = windows_command(printer, paper, copies)
         else:
             width, height = PAPERS[paper]
             command = [

@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy import Engine
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
@@ -60,6 +60,7 @@ from apps.server.infrastructure.database import make_engine
 from apps.server.infrastructure.migrations import is_ready
 from apps.server.worker import WorkerSettings, load_registry
 from packages.contracts import Error, FieldError, Health
+from packages.contracts.compatibility import server_headers
 from packages.contracts.consignments import (
     ConsignmentReceiptInput,
     ConsignmentReceiptUpdate,
@@ -183,11 +184,13 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
                      "Không tìm thấy tài nguyên." if exc.status_code == 404 else "Yêu cầu không được xử lý.")
 
     @app.get("/api/v1/health", response_model=Health, tags=["operations"])
-    def health():
+    def health(response: Response):
+        response.headers.update(server_headers())
         return Health(status="ok")
 
     @app.get("/api/v1/ready", response_model=Health, responses={503: {"model": Error}}, tags=["operations"])
-    def ready(request: Request):
+    def ready(request: Request, response: Response):
+        response.headers.update(server_headers())
         try:
             if is_ready(database):
                 return Health(status="ready")

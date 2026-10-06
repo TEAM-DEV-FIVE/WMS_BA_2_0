@@ -1,0 +1,5 @@
+{
+  "api_url": "https://wms.example.internal/api/v1",
+  "ca_file": "company-ca.pem",
+  "http_timeout_seconds": 5
+}

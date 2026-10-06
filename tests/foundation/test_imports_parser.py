@@ -127,7 +127,13 @@ def test_imports_storage_immutable_hash_symlink_and_private_mode(tmp_path):
     store = FileStorage(ImportSettings(storage_root=tmp_path / "files"))
     store.put(data, sha, "a" * 64)
     assert store.read("a" * 64, sha, len(data)) == data
-    assert store.path("a" * 64).stat().st_mode & 0o777 == 0o600
+    import os
+    if os.name == "nt":
+        from apps.server.infrastructure.private_files import private_windows_acl
+        acl = private_windows_acl(store.path("a" * 64))
+        assert acl in {"D:P(A;;FA;;;OW)(A;;FA;;;SY)", "D:P(A;;FA;;;SY)(A;;FA;;;OW)"}
+    else:
+        assert store.path("a" * 64).stat().st_mode & 0o777 == 0o600
     store.path("b" * 64).symlink_to(store.path("a" * 64))
     with pytest.raises(DomainError):
         store.read("b" * 64, sha, len(data))

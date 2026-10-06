@@ -10,6 +10,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from apps.server.domain.errors import DomainError
+from apps.server.infrastructure.private_files import open_private, sync_directory
 
 
 class ImportSettings(BaseSettings):
@@ -44,7 +45,7 @@ class FileStorage:
     def path(self, key):
         if not re.fullmatch(r"[0-9a-f]{64}", key):
             raise DomainError("FILE_UNAVAILABLE", "Tệp lưu trữ không hợp lệ.")
-        if self.root.is_symlink():
+        if self.root.is_symlink() or (hasattr(self.root, "is_junction") and self.root.is_junction()):
             raise DomainError("FILE_UNAVAILABLE", "Storage phải là thư mục riêng của máy chủ.")
         return self.root / key
 
@@ -55,7 +56,7 @@ class FileStorage:
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
         temporary = self.root / (uuid4().hex + ".part")
         try:
-            fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+            fd = open_private(temporary, create=True)
             with os.fdopen(fd, "wb") as stream:
                 stream.write(data)
                 stream.flush()
@@ -64,17 +65,13 @@ class FileStorage:
                 os.link(temporary, target)
             except FileExistsError:
                 self.read(key, digest, len(data))
-            directory_fd = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-            try:
-                os.fsync(directory_fd)
-            finally:
-                os.close(directory_fd)
+            sync_directory(self.root)
         finally:
             temporary.unlink(missing_ok=True)
 
     def read(self, key, digest, size):
         try:
-            fd = os.open(self.path(key), os.O_RDONLY | os.O_NOFOLLOW)
+            fd = open_private(self.path(key))
             with os.fdopen(fd, "rb") as stream:
                 data = stream.read(self.settings.max_file_bytes + 1)
         except OSError:
