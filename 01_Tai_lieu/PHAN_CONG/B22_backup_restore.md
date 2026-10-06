@@ -1,5 +1,7 @@
 # B22 — Sao lưu, PITR và diễn tập phục hồi
 
+**Kích hoạt 06/10: READY trên nền B21/B23 local đã review và kiểm thử.** Đọc LAN_DEPLOYMENT và deploy/lan: profile Unix socket/peer, owner/runtime tách biệt; backup DB + private files + khóa MFA. Chỉ restore vào môi trường tách biệt; không thay service/firewall/dữ liệu vận hành. Đo RPO/RTO và ghi rõ dataset.
+
 - Nhánh: `agent/b22-backup-restore`
 - Worktree: `/home/kien/Đồ án KHMT2_2/worktrees/wms-b22-backup-restore`
 - Trạng thái ban đầu: **WAITING_DEPENDENCIES**, ưu tiên **P1**.

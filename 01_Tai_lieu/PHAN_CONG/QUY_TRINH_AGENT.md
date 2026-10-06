@@ -2,7 +2,7 @@
 
 Đọc brief Bxx của nhánh trước khi sửa. Danh sách có máy đọc được: [backlog.json](backlog.json).
 Các brief ghi **phần còn thiếu**, không yêu cầu viết lại các module đã chạy. Mốc hiện tại là
-`1b0f12f89220`: 1156 tests + 10 subtests local, 0 failed/skip; B01–B20 đã tích hợp. B21/B23 READY để giao triển khai.
+`626e4a84a7e3`: 1210 tests +10 subtests local (gồm 28 LAN), 0 failed/skip; B01–B21 và phần chuẩn bị B23 đã tích hợp. B22/B24 READY; B21/B23 còn chờ target acceptance.
 Mốc `06041b7` với 301 tests là lịch sử chia việc ban đầu. T01–T28 vẫn PLANNED; số test này
 không thay thế nghiệm thu Windows, thiết bị, tải, backup/restore hoặc xác nhận nghiệp vụ.
 

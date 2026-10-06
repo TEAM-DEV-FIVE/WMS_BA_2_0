@@ -922,15 +922,40 @@
   ],
   "latest_local_validation": {
     "date": "2026-10-06",
-    "commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+    "commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
     "dirty": false,
-    "passed": 1156,
+    "suite": "Full tests + deploy/lan/tests; repo PG lifecycle, 4 pytest/Xvfb processes, audited collection",
+    "report": "07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md",
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/WMS_BA_2_0",
+    "passed": 1210,
     "subtests_passed": 10,
     "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "integration_tests": 604,
-    "gui_tests": 74,
+    "integration_tests": 611,
+    "gui_tests": 75,
+    "shards": [
+      {
+        "file": ".reports/b21-b23-full-shard0.xml",
+        "tests": 423,
+        "seconds": 636.531
+      },
+      {
+        "file": ".reports/b21-b23-full-shard1.xml",
+        "tests": 235,
+        "seconds": 500.579
+      },
+      {
+        "file": ".reports/b21-b23-full-shard2.xml",
+        "tests": 266,
+        "seconds": 691.636
+      },
+      {
+        "file": ".reports/b21-b23-full-shard3.xml",
+        "tests": 296,
+        "seconds": 622.101
+      }
+    ],
     "runtime_paths": 189,
     "desktop_sections": 26,
     "migrations": 24,
@@ -945,38 +970,15 @@
     },
     "installed_wheel_checked": true,
     "full_acceptance_completed": false,
-    "report": "07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md",
-    "suite": "check_application.py lifecycle + 4 pytest processes; audited complete collection",
-    "shards": [
-      {
-        "file": ".reports/b19-b20-full-shard0.xml",
-        "seconds": 347.242,
-        "tests": 289
-      },
-      {
-        "file": ".reports/b19-b20-full-shard1.xml",
-        "seconds": 569.179,
-        "tests": 299
-      },
-      {
-        "file": ".reports/b19-b20-full-shard2.xml",
-        "seconds": 576.825,
-        "tests": 289
-      },
-      {
-        "file": ".reports/b19-b20-full-shard3.xml",
-        "seconds": 765.39,
-        "tests": 289
-      }
-    ],
     "not_run": [
-      "PostgreSQL 15 at merged commit",
-      "Windows 10/11",
-      "physical printer/scanner and Q06/Q08",
-      "hosted CI at merged commit",
-      "target LAN/TLS",
-      "15 CCU load",
-      "backup/restore RPO/RTO",
+      "Windows EXE/installer build and code signing",
+      "PowerShell/Inno/Win32 execution",
+      "Windows 10/11 hardware and DPI acceptance",
+      "target LAN deployment, systemd reboot, peer mapping and nft firewall",
+      "PostgreSQL15 on merged commit",
+      "hosted CI on merged commit",
+      "15CCU representative load",
+      "backup/PITR RPO/RTO",
       "business UAT"
     ]
   },
@@ -1119,6 +1121,20 @@
       "source_commit": "37c44be04d209c3110bc912d368a289f95bcdcca",
       "merge_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
       "worktree_retained": true
+    },
+    {
+      "branch": "agent/b21-lan-deployment",
+      "source_commit": "e7177e013e957c4eb3a2b1696de40b107971fae9",
+      "merge_commit": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a",
+      "worktree_retained": true,
+      "integration_scope": "LAN deployment tooling and local component verification; target rollout NOT_RUN"
+    },
+    {
+      "branch": "agent/b23-windows-packaging",
+      "source_commit": "8399359ad79b699527f59b4e80ad74f3d40d49f6",
+      "merge_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "worktree_retained": true,
+      "integration_scope": "Windows packaging preparation and Linux regression; EXE/signing/native Windows NOT_RUN"
     }
   ],
   "remaining_work_plan": {
@@ -1139,9 +1155,9 @@
       "B15"
     ],
     "initial_waiting": 18,
-    "note": "B01–B20 integrated local; B21/B23 READY. GitHub issue audit above remains snapshot before this integration.",
+    "note": "22 branches have local code integrated: B01–B21 and B23. B23 is preparation only; target B21/B23 acceptance pending. B22/B24 READY.",
     "last_review_date": "2026-10-06",
-    "current_report": "07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md",
+    "current_report": "07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md",
     "integrated_task_ids": [
       "B01",
       "B02",
@@ -1162,19 +1178,19 @@
       "B17",
       "B18",
       "B19",
-      "B20"
+      "B20",
+      "B21",
+      "B23"
     ],
     "prepared_task_ids": [],
     "ready_for_sync": [],
     "not_started_task_ids": [
-      "B22",
-      "B24",
       "B25",
       "B26"
     ],
     "ready_task_ids": [
-      "B21",
-      "B23"
+      "B22",
+      "B24"
     ],
     "activation_history": [
       {
@@ -1353,6 +1369,66 @@
         "hosted CI",
         "target LAN/TLS",
         "15 CCU representative load",
+        "backup/restore RPO/RTO",
+        "business UAT"
+      ]
+    },
+    {
+      "date": "2026-10-06",
+      "commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "dirty": false,
+      "passed": 1156,
+      "subtests_passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "integration_tests": 604,
+      "gui_tests": 74,
+      "runtime_paths": 189,
+      "desktop_sections": 26,
+      "migrations": 24,
+      "local_sqlite_schema_version": 3,
+      "runtime_schema": {
+        "tables": 101,
+        "columns": 690,
+        "foreign_keys": 211,
+        "roles": 10,
+        "permissions": 58,
+        "role_permissions": 125
+      },
+      "installed_wheel_checked": true,
+      "full_acceptance_completed": false,
+      "report": "07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md",
+      "suite": "check_application.py lifecycle + 4 pytest processes; audited complete collection",
+      "shards": [
+        {
+          "file": ".reports/b19-b20-full-shard0.xml",
+          "seconds": 347.242,
+          "tests": 289
+        },
+        {
+          "file": ".reports/b19-b20-full-shard1.xml",
+          "seconds": 569.179,
+          "tests": 299
+        },
+        {
+          "file": ".reports/b19-b20-full-shard2.xml",
+          "seconds": 576.825,
+          "tests": 289
+        },
+        {
+          "file": ".reports/b19-b20-full-shard3.xml",
+          "seconds": 765.39,
+          "tests": 289
+        }
+      ],
+      "not_run": [
+        "PostgreSQL 15 at merged commit",
+        "Windows 10/11",
+        "physical printer/scanner and Q06/Q08",
+        "hosted CI at merged commit",
+        "target LAN/TLS",
+        "15 CCU load",
         "backup/restore RPO/RTO",
         "business UAT"
       ]

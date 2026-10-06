@@ -1,5 +1,7 @@
 # B24 — Kiểm thử cạnh tranh, phân quyền và tải 15 CCU
 
+**Kích hoạt 06/10: READY trên nền B21/B23 local đã review và kiểm thử.** Đọc LAN_DEPLOYMENT, quyền runtime wms_app, health headers compatibility và 6 worker B20. Test qua TLS/role thật, giữ invariant. Số đo fixture/laptop không thay nghiệm thu 15 CCU; phối hợp B22 để không dùng chung DB/cache/port.
+
 - Nhánh: `agent/b24-concurrency-security`
 - Worktree: `/home/kien/Đồ án KHMT2_2/worktrees/wms-b24-concurrency-security`
 - Trạng thái ban đầu: **WAITING_DEPENDENCIES**, ưu tiên **P1**.
