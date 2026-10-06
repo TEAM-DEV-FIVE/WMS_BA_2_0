@@ -1,0 +1,8 @@
+{
+  "name": "synthetic-history-50000-skus-1000000-moves",
+  "skus": 50000,
+  "rounds": 20,
+  "moves": 1000000,
+  "seed": 241006,
+  "method": "Direct SQL fixture expansion; constraints/triggers enabled; not API posting or business acceptance"
+}

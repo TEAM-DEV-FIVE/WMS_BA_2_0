@@ -8,5 +8,7 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA wms TO wms_app;
 GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA wms TO wms_app;
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA wms FROM PUBLIC;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA wms TO wms_app;
+-- Consumption provenance is append-only to the runtime role; services only INSERT it.
+REVOKE UPDATE,DELETE ON wms.reservation_consumption FROM wms_app;
 -- No owner membership, DDL, TRUNCATE, TRIGGER, or write to schema history.
 COMMIT;

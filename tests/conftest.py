@@ -144,4 +144,4 @@ def iam(database):
         yield fixture
 
 
-pytest_plugins = ["scripts.pytest_checks"]
+pytest_plugins = ["scripts.pytest_checks", "scripts.b24_fixtures"]
