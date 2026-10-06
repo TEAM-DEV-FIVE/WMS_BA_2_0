@@ -43,6 +43,22 @@ $after = Data-Inventory
 if ($before.Count -ne $after.Count) { throw 'Installer altered local-data file inventory' }
 foreach ($name in $before.Keys) { if (!$after.ContainsKey($name) -or $before[$name] -ne $after[$name]) { throw 'Installer changed local data' } }
 $helper = Join-Path $VersionDirectory 'WMSHelper.exe'
+if ($ExpectedSigner) {
+    $uninstallers = @(Get-ChildItem -LiteralPath $VersionDirectory -Filter 'unins*.exe' -File)
+    if ($uninstallers.Count -ne 1) { throw 'Expected one signed uninstaller' }
+    foreach ($file in @((Join-Path $VersionDirectory 'WMS.exe'), $helper, $uninstallers[0].FullName)) {
+        $signature = Get-AuthenticodeSignature -LiteralPath $file
+        if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Thumbprint -ne $ExpectedSigner -or !$signature.TimeStamperCertificate) {
+            throw 'Installed executable/uninstaller signature or timestamp invalid'
+        }
+    }
+    Get-ChildItem -LiteralPath $VersionDirectory -File -Recurse |
+        Where-Object { $_.Extension -in @('.exe','.dll','.pyd') } | ForEach-Object {
+            if ((Get-AuthenticodeSignature -LiteralPath $_.FullName).Status -ne 'Valid') {
+                throw "Installed native dependency signature invalid: $($_.Name)"
+            }
+        }
+}
 & $helper --check-cache $data
 if ($LASTEXITCODE -ne 0) { throw 'Cache compatibility check failed; preserve original data' }
 & $helper --self-test --report (Join-Path $env:TEMP 'wms-installed-smoke.json')

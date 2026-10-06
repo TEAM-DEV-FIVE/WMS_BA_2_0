@@ -31,6 +31,10 @@ Compression=lzma2
 SolidCompression=yes
 UninstallDisplayIcon={app}\WMS.exe
 WizardStyle=modern
+#ifdef WmsSignedBuild
+SignTool=WmsSign
+SignedUninstaller=yes
+#endif
 
 [Files]
 Source: "{#BundleDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

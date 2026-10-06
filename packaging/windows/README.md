@@ -2,6 +2,22 @@
 
 **Trạng thái 06/10/2026: đã build/ký thử và cài bộ EXE native thành công trên VM Windows Server 2022.** Commit `d9b547184626`, [workflow bằng chứng](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37464123861), [báo cáo](../../07_Kiem_tra/NATIVE_VM_2026_10_06.md). Chữ ký dùng chứng thư TEST ONLY tạo trong VM, SHA-256/RFC3161 và verify đạt; không phải chứng thư phát hành công khai. Windows 10/11, upgrade với API thật, DPI và máy in/quét vẫn cần nghiệm thu riêng.
 
+## Smart App Control và cảnh báo tải của Edge
+
+Bản tải `97d4c510dab8` dùng chứng thư tự ký **InternTechLead TEST ONLY**. Máy VM đã thêm
+chứng thư này vào trust store phục vụ kiểm thử; điều đó không cấp uy tín nhà phát hành trên máy nhận.
+Ảnh báo lỗi từ máy người dùng xác nhận Smart App Control chặn bộ cài trước khi WMS chạy.
+Edge đồng thời cảnh báo file ít lượt tải; đây là cơ chế reputation riêng.
+
+Để phát hành trực tiếp: cần chứng thư Code Signing từ CA được Windows tin cậy, xác minh danh tính
+nhà phát hành, ký lại bộ cài cùng mọi native dependency và kiểm tra trên Windows 11 có Smart App Control.
+Chữ ký chính thức không bảo đảm Edge ngừng cảnh báo ngay. Không coi đổi tên file, đóng ZIP hay
+checksum là cách sửa chữ ký. Tham khảo [Microsoft Smart App Control](https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/code-signing-for-smart-app-control)
+và [SmartScreen reputation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
+
+Xem [thiết lập ký chính thức](PUBLIC_SIGNING.md). Chưa có chứng thư chính thức; bản sửa quy trình
+ký không tự biến bộ EXE cũ thành bản được Windows tin cậy.
+
 ## Chuẩn bị máy build
 
 - Windows x64, CPython **3.12 x64** từ python.org, có launcher `py` và Tcl/Tk, Git; PowerShell 5.1 trở lên. Máy nhận bộ cài không cần Python/Git.
@@ -24,7 +40,9 @@ Chạy tại gốc checkout trong PowerShell. Thay đường dẫn SDK và thumb
   -SignTool 'C:\Program Files (x86)\Windows Kits\10\bin\<SDK-version>\x64\signtool.exe'
 ```
 
-Script ký `WMS.exe`, `WMSHelper.exe` bằng SHA-256/RFC3161, kiểm tra chữ ký, timestamp và đúng thumbprint, sau đó lập manifest chứa hash **sau ký**, tạo installer và ký installer. Timestamp mặc định `http://timestamp.digicert.com` theo [hướng dẫn DigiCert](https://knowledge.digicert.com/tutorials/ev-authenticode-using-signtool) và [Microsoft SignTool](https://learn.microsoft.com/windows/win32/seccrypto/signtool); SDK trên VM từ chối endpoint HTTPS cũ. RFC3161 timestamp có chữ ký được xác minh bằng `signtool verify /pa /all /tw` và bắt buộc có `TimeStamperCertificate`; không thay TLS của API WMS. Có thể truyền `-TimestampUrl` HTTP(S) của dịch vụ được tổ chức chấp nhận. Lỗi ký, timestamp hoặc verify làm build thất bại, không âm thầm xuất unsigned.
+Script ký `WMS.exe`, `WMSHelper.exe` bằng SHA-256/RFC3161; duyệt mọi EXE/DLL/PYD, giữ chữ ký nhà cung cấp đang hợp lệ, ký file chưa ký và dừng nếu chữ ký có sẵn không hợp lệ. Manifest chứa hash **sau ký**. Inno Setup ký cả installer, bản sao setup tạm và uninstaller; kiểm thử cài kiểm lại toàn bộ native dependency và chữ ký/timestamp của uninstaller. Timestamp mặc định `http://timestamp.digicert.com` theo [hướng dẫn DigiCert](https://knowledge.digicert.com/tutorials/ev-authenticode-using-signtool) và [Microsoft SignTool](https://learn.microsoft.com/windows/win32/seccrypto/signtool); SDK trên VM từ chối endpoint HTTPS cũ. RFC3161 timestamp có chữ ký được xác minh bằng `signtool verify /pa /all /tw` và bắt buộc có `TimeStamperCertificate`; không thay TLS của API WMS. Có thể truyền `-TimestampUrl` HTTP(S) của dịch vụ được tổ chức chấp nhận. Lỗi ký, timestamp hoặc verify làm build thất bại, không âm thầm xuất unsigned.
+
+Chứng thư tự ký/TEST ONLY mặc định bị từ chối; chỉ VM kiểm thử cách ly được truyền `-AllowTestCertificate`. Xác minh chain trên máy build không thay kiểm chứng public trust trên máy Windows sạch.
 
 Build thử không ký phải chỉ định rõ:
 

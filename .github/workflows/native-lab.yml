@@ -8,7 +8,7 @@ permissions:
 jobs:
   windows:
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
       PYTHONUTF8: '1'
     steps:
@@ -45,13 +45,21 @@ jobs:
           Import-Certificate -FilePath $cer -CertStoreLocation Cert:\LocalMachine\TrustedPublisher | Out-Null
           Write-Host 'Imported public test trust into disposable VM machine stores'
       - name: Build and timestamp signed Windows package
-        timeout-minutes: 10
+        timeout-minutes: 20
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $tools = @(Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' | Sort-Object FullName -Descending)
           if ($tools.Count -eq 0) { throw 'Windows SDK signing tool missing' }
-          ./packaging/windows/Build.ps1 -ISCC $env:WMS_ISCC -CertificateThumbprint $env:WMS_TEST_THUMBPRINT -SignTool $tools[0].FullName
+          $rejected = $false
+          try {
+            ./packaging/windows/Build.ps1 -ISCC $env:WMS_ISCC -CertificateThumbprint $env:WMS_TEST_THUMBPRINT -SignTool $tools[0].FullName
+          } catch {
+            if ($_.Exception.Message -notlike 'TEST_CERTIFICATE_REQUIRES_EXPLICIT_LAB_MODE:*') { throw }
+            $rejected = $true
+          }
+          if (!$rejected) { throw 'Test signer was accepted without explicit lab mode' }
+          ./packaging/windows/Build.ps1 -ISCC $env:WMS_ISCC -CertificateThumbprint $env:WMS_TEST_THUMBPRINT -SignTool $tools[0].FullName -AllowTestCertificate
           if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
       - name: Verify signed installer and per-user install
         timeout-minutes: 5

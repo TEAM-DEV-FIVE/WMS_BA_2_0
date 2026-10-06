@@ -5,12 +5,26 @@ param(
     [ValidateSet('CurrentUser','LocalMachine')][string]$CertificateStore = 'CurrentUser',
     [string]$SignTool,
     [uri]$TimestampUrl = 'http://timestamp.digicert.com',
-    [switch]$Unsigned
+    [switch]$Unsigned,
+    [switch]$AllowTestCertificate
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if ($env:OS -ne 'Windows_NT' -or $env:PROCESSOR_ARCHITECTURE -ne 'AMD64') { throw 'Windows x64 build host required' }
 if ([bool]$CertificateThumbprint -eq [bool]$Unsigned) { throw 'Choose a certificate thumbprint OR explicitly -Unsigned' }
+if ($Unsigned -and $AllowTestCertificate) { throw 'Test certificate mode requires a signing certificate' }
+if (!$Unsigned) {
+    if ($CertificateThumbprint -notmatch '^[0-9a-fA-F]{40}$') { throw 'Invalid certificate thumbprint' }
+    $cert = Get-Item -LiteralPath "Cert:\$CertificateStore\My\$CertificateThumbprint"
+    $codeSigning = @($cert.Extensions | Where-Object { $_.Oid.Value -eq '2.5.29.37' } |
+        ForEach-Object { $_.EnhancedKeyUsages } | Where-Object { $_.Value -eq '1.3.6.1.5.5.7.3.3' })
+    if (!$cert.HasPrivateKey -or $cert.NotAfter -le (Get-Date) -or $cert.NotBefore -gt (Get-Date) -or
+        $codeSigning.Count -eq 0) { throw 'Valid code-signing certificate with private key required' }
+    if (!$AllowTestCertificate -and ($cert.Subject -eq $cert.Issuer -or $cert.Subject -match '(?i)TEST ONLY|NOT FOR PRODUCTION')) {
+        throw 'TEST_CERTIFICATE_REQUIRES_EXPLICIT_LAB_MODE: use a trusted publisher certificate for distribution'
+    }
+    if (!$cert.Verify()) { throw 'Code-signing certificate chain verification failed' }
+}
 if (!(Test-Path -LiteralPath $ISCC)) {
     throw 'Install reviewed Inno Setup 6.7.3 and pass -ISCC'
 }
@@ -50,12 +64,6 @@ try {
     $bundle = Join-Path $work 'frozen\WMS'
     $signing = 'unsigned'
     if (!$Unsigned) {
-        if ($CertificateThumbprint -notmatch '^[0-9a-fA-F]{40}$') { throw 'Invalid certificate thumbprint' }
-        $cert = Get-Item -LiteralPath "Cert:\$CertificateStore\My\$CertificateThumbprint"
-        $codeSigning = @($cert.Extensions | Where-Object { $_.Oid.Value -eq '2.5.29.37' } |
-            ForEach-Object { $_.EnhancedKeyUsages } | Where-Object { $_.Value -eq '1.3.6.1.5.5.7.3.3' })
-        if (!$cert.HasPrivateKey -or $cert.NotAfter -le (Get-Date) -or $cert.NotBefore -gt (Get-Date) -or
-            $codeSigning.Count -eq 0) { throw 'Valid code-signing certificate with private key required' }
         if (!$SignTool -or !(Test-Path -LiteralPath $SignTool)) { throw 'Pass Windows SDK signtool.exe explicitly' }
         if ($TimestampUrl.Scheme -notin @('http','https') -or $TimestampUrl.UserInfo -or $TimestampUrl.Fragment) {
             throw 'Explicit HTTP(S) RFC3161 timestamp endpoint required'
@@ -77,6 +85,23 @@ try {
     if (!$Unsigned) {
         Sign-ReleaseFile (Join-Path $bundle 'WMS.exe')
         Sign-ReleaseFile (Join-Path $bundle 'WMSHelper.exe')
+        # Smart App Control checks loaded native dependencies too. Preserve valid
+        # vendor signatures; sign unsigned binaries and fail on invalid signatures.
+        $nativeFiles = @(Get-ChildItem -LiteralPath $bundle -File -Recurse |
+            Where-Object { $_.Extension -in @('.exe','.dll','.pyd') })
+        foreach ($file in $nativeFiles) {
+            $signature = Get-AuthenticodeSignature -LiteralPath $file.FullName
+            if ($signature.Status -eq 'NotSigned') {
+                Sign-ReleaseFile $file.FullName
+            } elseif ($signature.Status -ne 'Valid') {
+                throw "Invalid native dependency signature: $($file.Name)"
+            }
+            & $SignTool verify /pa /all $file.FullName
+            if ($LASTEXITCODE -ne 0) { throw "Native dependency trust verification failed: $($file.Name)" }
+        }
+        @{ test_only = [bool]$AllowTestCertificate; native_files_verified = $nativeFiles.Count;
+           signer = $CertificateThumbprint; smart_app_control_target_test = 'NOT_RUN' } |
+            ConvertTo-Json | Set-Content (Join-Path $output 'signing-policy.json') -Encoding utf8
     }
     & $python scripts/windows_release.py $bundle --signing $signing
     if ($LASTEXITCODE -ne 0) { throw 'Manifest generation failed' }
@@ -88,7 +113,17 @@ try {
         & (Join-Path $bundle 'WMSHelper.exe') --self-test --report (Join-Path $output 'frozen-smoke.json')
         if ($LASTEXITCODE -ne 0) { throw 'Frozen installed-resource smoke failed' }
     } finally { Pop-Location; $env:PYTHONPATH = $savedPath }
-    & $ISCC "/DBundleDir=$bundle" "/DReleaseId=$releaseId" "/DOutputDir=$output" packaging/windows/setup.iss
+    $compilerArgs = @("/DBundleDir=$bundle", "/DReleaseId=$releaseId", "/DOutputDir=$output")
+    if (!$Unsigned) {
+        # Inno must sign its uninstaller and temporary setup copies, not only
+        # the outer installer after compilation. $q/$f are Inno placeholders.
+        $innoSigner = '$q' + $SignTool + '$q sign /sha1 ' + $CertificateThumbprint + ' /s My /fd SHA256 /tr $q' + $TimestampUrl.AbsoluteUri + '$q /td SHA256'
+        if ($CertificateStore -eq 'LocalMachine') { $innoSigner += ' /sm' }
+        $innoSigner += ' $f'
+        $compilerArgs += '/DWmsSignedBuild'
+        $compilerArgs += '/SWmsSign=' + $innoSigner
+    }
+    & $ISCC @compilerArgs packaging/windows/setup.iss
     if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
     $setup = Join-Path $output "WMS-Setup-$releaseId-x64.exe"
     if (!$Unsigned) { Sign-ReleaseFile $setup }
