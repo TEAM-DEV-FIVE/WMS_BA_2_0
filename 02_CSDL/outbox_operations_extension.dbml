@@ -1,0 +1,16 @@
+Table worker_status {
+  id uuid [not null]
+  kind varchar(20) [not null]
+  registry_hash char(64) [not null]
+  state varchar(10) [not null]
+  started_at timestamptz [not null]
+  heartbeat_at timestamptz [not null]
+  result_code varchar(40)
+  completed_cycles bigint [not null]
+}
+
+Table outbox_event {
+  version integer [not null]
+  replay_count integer [not null]
+  replayed_at timestamptz
+}

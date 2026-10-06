@@ -73,7 +73,7 @@ class PostgresOutboxStore:
                 state = DeliveryState.EXHAUSTED if attempt >= retry.max_attempts else DeliveryState.RETRY
                 connection.execute(text("""
                     UPDATE wms.outbox_event
-                    SET attempts=:attempt, last_error=:error,
+                    SET attempts=:attempt, last_error=:error, version=version+1,
                         available_at=clock_timestamp() + :delay * interval '1 second'
                     WHERE id=:id
                 """), {"attempt": attempt, "error": error_code, "delay": retry.delay_seconds(attempt),
@@ -93,5 +93,5 @@ class PostgresOutboxStore:
     def _acknowledge(connection: Connection, event_id: UUID, attempt: int) -> None:
         connection.execute(text("""
             UPDATE wms.outbox_event
-            SET processed_at=clock_timestamp(), attempts=:attempt, last_error=NULL WHERE id=:id
+            SET processed_at=clock_timestamp(), attempts=:attempt, last_error=NULL,version=version+1 WHERE id=:id
         """), {"id": event_id, "attempt": attempt})

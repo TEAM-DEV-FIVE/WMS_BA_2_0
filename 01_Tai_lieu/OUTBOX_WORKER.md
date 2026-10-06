@@ -1,9 +1,9 @@
 # Worker outbox PostgreSQL
 
-Worker chạy tách khỏi API qua `python -m apps.server.worker`, dùng schema migration 001–009 hiện có.
-Đợt này bàn giao engine/adapter và consumer kiểm thử tạo hiệu ứng DB thật; **chưa có consumer nghiệp vụ
-được định nghĩa/triển khai để bật trên DB vận hành**. Không coi #22/QA03 hoặc T02/T24 đã nghiệm thu đầy đủ.
-Xem [bất biến](INVARIANTS.md) và [báo cáo bàn giao](../07_Kiem_tra/AGENT_OUTBOX_REPORT.md).
+Worker chạy tách khỏi API. B20 ghép consumer thực tế import/export/print và thêm vận hành,
+heartbeat, replay được kiểm quyền và cleanup theo batch. Xem [runbook B20](OUTBOX_OPERATIONS.md)
+cho lệnh triển khai hiện hành. Migration phát triển `027_b20_outbox_operations.sql` chỉ dành
+DB tạm; điều phối chốt số release khi tích hợp. Không coi #22/QA03 hoặc T02/T24/T26 đã nghiệm thu.
 
 ## Khởi động và cấu hình
 
@@ -14,25 +14,25 @@ Worker dùng `Settings`/`make_engine` hiện hành, gồm pool và timeout DB. C
 
 | Biến môi trường | Mặc định | Giới hạn/ý nghĩa |
 | --- | --- | --- |
-| `WMS_OUTBOX_CONSUMER_FACTORY` | Không có | `module:function` trả `ConsumerRegistry` không rỗng |
+| `WMS_OUTBOX_CONSUMER_FACTORY` | `apps.server.consumers.registry:consumer_factory` | `module:function` trả `ConsumerRegistry` không rỗng |
 | `WMS_OUTBOX_BATCH_SIZE` | 100 | 1–1000 event tối đa mỗi lượt |
 | `WMS_OUTBOX_POLL_SECONDS` | 1 | 0,05–60 giây nghỉ khi lượt chưa đầy |
 | `WMS_OUTBOX_MAX_ATTEMPTS` | 5 | 1–100 lần xử lý đã ghi nhận |
 | `WMS_OUTBOX_BACKOFF_BASE_SECONDS` | 5 | 1–86400 giây; không vượt mức trần |
 | `WMS_OUTBOX_BACKOFF_MAX_SECONDS` | 300 | 1–86400 giây |
 
-Sau khi có package consumer đã được review, ví dụ package tên `warehouse_consumers` có factory `create_registry`:
+Registry mặc định dùng các factories đã tích hợp của B01/B17/B18. Khởi động:
 
 ```bash
-python -m apps.server.worker --consumer-factory warehouse_consumers:create_registry --once
-python -m apps.server.worker --consumer-factory warehouse_consumers:create_registry
+rtk proxy python -m apps.server.worker --check
+rtk proxy python -m apps.server.worker --once
+rtk proxy python -m apps.server.worker
 ```
 
-`warehouse_consumers` trong ví dụ là package triển khai tương lai, không phải module đã có trong repo.
-Có thể bỏ `--consumer-factory` khi đã đặt biến môi trường tương ứng; cờ CLI ưu tiên hơn biến môi trường.
-Factory là mã Python tin cậy được operator chọn, không đọc mã/cấu hình plugin từ DB. Factory chỉ khai báo
-consumer, không thực hiện nghiệp vụ hay tự mở transaction. Chưa cấu hình factory hoặc registry rỗng thì
-worker thoát mã 2 trước khi kết nối DB; không có handler mặc định đánh dấu thành công giả.
+Cờ `--consumer-factory module:function` ưu tiên hơn biến môi trường và chỉ dùng cho mã
+triển khai tin cậy đã được review. Registry rỗng/đường dẫn sai bị từ chối; không dùng consumer
+no-op. API, DB worker và I/O worker phải có cùng cấu hình registry/retry. `--check` kiểm tra
+kết nối, migration và cấu hình; không chứng minh process worker khác đang sống.
 
 `--once` chỉ chạy tối đa một batch, không drain toàn bộ queue. Exit 0 nghĩa lượt đó không có lần xử lý thất bại,
 không khẳng định queue rỗng: event tương lai, đang bị khóa, hết retry hoặc chưa có handler đều có thể còn lại.
@@ -125,21 +125,12 @@ ORDER BY available_at, id LIMIT 100;
 Đối chiếu nhóm `event_type` pending với registry đang triển khai để nhận diện event không có handler.
 Số due bao gồm cả các event này; không đọc số due như số worker chắc chắn xử lý được.
 
-Sau khi đã sửa nguyên nhân và ghi nhận việc vận hành, operator có thể dừng worker rồi reset một event lỗi
-cụ thể. Ví dụ dưới dùng bind parameter `:event_id`, cần truyền UUID event đã review, không chạy update toàn queue:
-
-```sql
-BEGIN;
-SELECT id, attempts, last_error FROM wms.outbox_event WHERE id=:event_id FOR UPDATE;
-UPDATE wms.outbox_event
-SET attempts=0, available_at=clock_timestamp(), last_error=NULL
-WHERE id=:event_id AND processed_at IS NULL AND last_error IS NOT NULL;
-COMMIT;
-```
-
-Giữ nguyên receipts để không lặp hiệu ứng đã commit; không sửa audit hay payload gốc. Schema chỉ giữ lỗi cuối
-và bộ đếm hiện tại, không có lịch sử retry/admin replay; cần lưu biên bản vận hành riêng. Mở lại event đã
-processed hoặc đổi consumer name là backfill được thiết kế riêng, không thuộc thao tác retry trên.
+Sau khi sửa nguyên nhân, dùng `POST /api/v1/operations/outbox/{id}/replay` với quyền
+`config.manage` + MFA, `Idempotency-Key`, `expected_version` và reason. Replay chỉ áp dụng
+sự kiện chưa processed, đã hết retry và đúng phiên bản registry; tối đa 3 lần, cách nhau ít nhất
+60 giây. Event, audit và ACK commit nguyên tử. Giữ receipts và payload gốc; không reset queue
+bằng SQL vận hành. Lịch sử attempts trước replay nằm trong audit, attempts hiện tại là của chu kỳ mới.
+Event đã processed/đổi consumer name cần backfill riêng, không được mở lại bằng API replay.
 
 ## Giới hạn bảo đảm và kiểm thử
 
@@ -148,10 +139,10 @@ receipt và hiệu ứng cùng transaction. Đây không phải lời hứa exac
 gửi HTTP/email/in ấn, phải xây adapter riêng với delivery at-least-once, dedup phía nhận bằng event/consumer ID
 và chính sách retry tương ứng. Không gọi dịch vụ đó trong handler DB hiện tại.
 
-Không thay migration/API/producers/command kernel/dependency/CI. Chưa có consumer nghiệp vụ, service unit,
-metrics endpoint, UI retry, retention/purge hay lịch sử delivery; không tự coi queue đã được tiêu thụ trong
-nghiệp vụ chỉ vì test engine đạt. Index `ix_outbox_pending(available_at,id)` hiện có được tận dụng; queue lớn
-với nhiều event unknown/exhausted cần theo dõi/đo hiệu năng trước đề xuất index bổ sung.
+B20 có API vận hành, heartbeat và worker I/O thật; chưa có UI quản trị queue và không tự
+cài service lên máy vận hành. Event/receipt/audit/ACK và hồ sơ job giữ vô hạn trong ứng dụng,
+không tự purge. Tệp export/print dẫn xuất hết hạn được dọn có fencing/batch; xem chính sách
+trong runbook. Index pending hiện có vẫn cần benchmark queue lớn ở B24.
 
 Test riêng ở [test_outbox.py](../tests/foundation/test_outbox.py) dùng bảng hiệu ứng không có UNIQUE riêng
 để phát hiện xử lý lặp thật. Có PostgreSQL thật, nhiều kết nối, failpoint trước/sau receipt/ACK, SQL error,

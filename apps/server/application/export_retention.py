@@ -4,6 +4,7 @@ Only B17's private storage is touched. Export job tombstones retain the generati
 so old outbox deliveries cannot resurrect a deleted snapshot or file.
 """
 
+import os
 import re
 import time
 from contextlib import contextmanager
@@ -32,12 +33,21 @@ def storage_fence(engine, *, shared):
             c.commit()
 
 
-def cleanup(service):
+def cleanup(service, *, batch_size=100):
+    if not 1 <= batch_size <= 1000:
+        raise ValueError("Cleanup batch must be between 1 and 1000")
     engine, storage, now = service.identity.engine, service.storage, service.identity.clock()
     with storage_fence(engine, shared=False):
         with engine.begin() as c:
             expired = (
-                c.execute(text("SELECT id FROM wms.report_snapshot WHERE expires_at<=:now"), {"now": now})
+                c.execute(
+                    text("""SELECT s.id FROM wms.report_snapshot s WHERE expires_at<=:now
+                    AND NOT EXISTS (SELECT 1 FROM wms.export_job j
+                      WHERE j.snapshot_id=s.id AND (j.status IN ('QUEUED','RUNNING') OR EXISTS
+                        (SELECT 1 FROM wms.export_task t WHERE t.job_id=j.id AND t.status IN ('READY','RUNNING'))))
+                    ORDER BY expires_at,id LIMIT :limit"""),
+                    {"now": now, "limit": batch_size},
+                )
                 .scalars()
                 .all()
             )
@@ -78,7 +88,8 @@ def cleanup(service):
         orphan_count = 0
         if storage.root.exists():
             storage.path("0" * 64)  # Reject symlink storage root just like read/put.
-            for path in storage.root.iterdir():
+            for entry in os.scandir(storage.root):
+                path = storage.root / entry.name
                 if (
                     re.fullmatch(r"(?:[0-9a-f]{64}|[0-9a-f]{32}\.part)", path.name)
                     and path.name not in referenced
@@ -87,4 +98,6 @@ def cleanup(service):
                     if path.stat().st_mtime < time.time() - 86400:
                         path.unlink()
                         orphan_count += 1
+                        if orphan_count >= batch_size:
+                            break
         return dict(snapshots=len(expired), files=len(files), orphans=orphan_count)

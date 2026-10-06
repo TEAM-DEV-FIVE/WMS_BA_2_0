@@ -34,7 +34,7 @@ def test_every_write_has_explicit_recovery_policy():
         writes = {(m.upper(), p.removeprefix("/api/v1/")) for p, v in app.openapi()["paths"].items()
                   for m in v if m in {"post", "put", "patch", "delete"}}
         assert writes == {(m, p) for m, p, _ in ROUTES}
-        assert len(writes) == 119
+        assert len(writes) == 120
         assert app.openapi()["paths"]["/api/v1/master/uoms"]["post"]["x-wms-recovery"]["mode"] == "COMMAND"
         for method, path, mode in ROUTES:
             assert route_policy(method, path) == (mode, path)

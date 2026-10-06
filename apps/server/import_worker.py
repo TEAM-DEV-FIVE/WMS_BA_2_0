@@ -1,45 +1,13 @@
-"""Run separately from the DB-only outbox worker; bounded CSV/XLSX file work."""
+"""Supervised import executor (separate from the database-only outbox worker)."""
 
-import argparse
-import json
-import logging
-from threading import Event
+import sys
 
-from apps.server.application.identity import IdentityService
-from apps.server.application.import_jobs import ImportExecutor
-from apps.server.application.imports import ImportService
-from apps.server.infrastructure.config import Settings
-from apps.server.infrastructure.database import make_engine
-from apps.server.worker import stop_signals
+from apps.server.operations_worker import main as operations_main
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--once", action="store_true")
-    args = parser.parse_args(argv)
-    stop, engine = Event(), None
-    try:
-        settings = Settings()
-        engine = make_engine(settings)
-        executor = ImportExecutor(ImportService(IdentityService(engine, settings)))
-        with stop_signals(stop):
-            while not stop.is_set():
-                result = executor.run_one()
-                if result:
-                    print(json.dumps({"import_execution": result}), flush=True)
-                if args.once:
-                    return 1 if result in {"FAILED", "RETRY", "LOST_LEASE"} else 0
-                if not result:
-                    stop.wait(1)
-    except Exception:
-        logging.getLogger("wms.imports").error(
-            "import_worker_unavailable: check configuration, database and storage"
-        )
-        return 1
-    finally:
-        if engine is not None:
-            engine.dispose()
+    return operations_main(['--kind', 'import', *(sys.argv[1:] if argv is None else argv)])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     raise SystemExit(main())

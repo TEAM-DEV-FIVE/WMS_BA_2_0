@@ -20,6 +20,7 @@ from apps.server.api.issues import issue_router
 from apps.server.api.master_data import master_data_router
 from apps.server.api.moves import move_router
 from apps.server.api.openings import incoming_router, opening_router
+from apps.server.api.operations import operations_router
 from apps.server.api.orders import order_router
 from apps.server.api.periods import period_router
 from apps.server.api.printing import print_router
@@ -41,6 +42,7 @@ from apps.server.application.issues import IssueService
 from apps.server.application.master_data import MasterDataService
 from apps.server.application.moves import MoveService
 from apps.server.application.openings import OpeningService
+from apps.server.application.operations import OperationsService
 from apps.server.application.orders import OrderService
 from apps.server.application.periods import PeriodService
 from apps.server.application.picking import PickingService
@@ -56,6 +58,7 @@ from apps.server.domain.errors import DomainError
 from apps.server.infrastructure.config import Settings
 from apps.server.infrastructure.database import make_engine
 from apps.server.infrastructure.migrations import is_ready
+from apps.server.worker import WorkerSettings, load_registry
 from packages.contracts import Error, FieldError, Health
 from packages.contracts.consignments import (
     ConsignmentReceiptInput,
@@ -81,6 +84,9 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
                   docs_url="/api/v1/docs", openapi_url="/api/v1/openapi.json", redoc_url=None)
     app.state.database = database
     app.state.identity = IdentityService(database, settings)
+    worker_settings = WorkerSettings()
+    app.state.operations = OperationsService(app.state.identity, load_registry(worker_settings.consumer_factory), worker_settings.max_attempts)
+    app.include_router(operations_router(app.state.operations))
     app.include_router(identity_router(app.state.identity))
     app.state.master_data = MasterDataService(app.state.identity)
     app.include_router(master_data_router(app.state.master_data))

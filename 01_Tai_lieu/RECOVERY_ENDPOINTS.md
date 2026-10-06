@@ -1,6 +1,6 @@
 # Ma trận write endpoints B19
 
-Đối chiếu 119 method/path B01–B18 với OpenAPI runtime. Chi tiết semantics và UI tại [RECOVERY_ALL](RECOVERY_ALL.md). COMMAND: nháp/journal/lookup/explicit same-key retry; ONLINE: không journal; READ_ONLY: POST không ghi nghiệp vụ.
+Đối chiếu 120 method/path B01–B20 với OpenAPI runtime. Chi tiết semantics và UI tại [RECOVERY_ALL](RECOVERY_ALL.md). COMMAND: nháp/journal/lookup/explicit same-key retry; ONLINE: không journal; READ_ONLY: POST không ghi nghiệp vụ.
 
 | Method | Endpoint dưới `/api/v1/` | Phân loại |
 | --- | --- | --- |
@@ -123,3 +123,5 @@
 | POST | `printing/{job_id}/spool` | COMMAND |
 | POST | `printing/{job_id}/result` | COMMAND |
 | POST | `printing/{job_id}/{operation}` | COMMAND |
+
+| POST | `operations/outbox/{event_id}/replay` | COMMAND |

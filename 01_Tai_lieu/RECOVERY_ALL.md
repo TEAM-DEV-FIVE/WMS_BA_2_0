@@ -41,11 +41,11 @@ cách tạo key mới; thư mục cũ giữ nguyên dữ liệu và hash.
 
 ## Ma trận mọi write endpoint
 
-[Ma trận đầy đủ](RECOVERY_ENDPOINTS.md) liệt kê 119 method/path của B01–B18;
+[Ma trận đầy đủ](RECOVERY_ENDPOINTS.md) liệt kê 120 method/path của B01–B20;
 nguồn máy đọc được là `packages/contracts/recovery_routes.py`. Test đối chiếu chính xác
 với OpenAPI runtime, route mới chưa phân loại bị chặn. OpenAPI có `x-wms-recovery` cho từng write.
 
-- **COMMAND — 98**: draft và command bền, gồm danh mục/owner/hợp đồng/UOM/barcode/giá,
+- **COMMAND — 99**: draft và command bền, gồm danh mục/owner/hợp đồng/UOM/barcode/giá,
   bảo hành, PO/SO/assignment/approval, receipt/opening/ký gửi, issue/reservation,
   pick/package, QC/move, returns, transfer/transit, count/period, reversal, custom fields,
   import job/validate/commit/cancel, report snapshot/export và print DB commands.

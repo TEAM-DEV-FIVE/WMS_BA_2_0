@@ -1,6 +1,7 @@
-"""Reviewed B01–B18 write matrix. Unknown routes fail closed; update with new APIs."""
+"""Reviewed B01–B20 write matrix. Unknown routes fail closed; update with new APIs."""
 
 ROUTES = (
+    ('POST', 'operations/outbox/{event_id}/replay', 'COMMAND'),
     ('POST', 'auth/login', 'ONLINE'),
     ('POST', 'auth/mfa', 'ONLINE'),
     ('POST', 'auth/refresh', 'ONLINE'),
