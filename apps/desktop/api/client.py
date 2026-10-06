@@ -9,6 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from apps.desktop.local_store.device import default_data_directory
 from packages.contracts import Error, Health
+from packages.contracts.compatibility import compatible
 from packages.contracts.recovery import route_policy
 
 
@@ -30,6 +31,8 @@ class DesktopSettings(BaseSettings):
     ca_file: Path | None = None
     http_timeout_seconds: float = Field(default=5, gt=0, le=60)
     local_data_dir: Path = Field(default_factory=default_data_directory)
+    # The supported entry point forces this on. False preserves library/test clients.
+    require_compatibility: bool = False
 
     @field_validator("api_url")
     @classmethod
@@ -59,6 +62,7 @@ class ApiError(Exception):
 
 class ApiClient:
     def __init__(self, settings: DesktopSettings, *, transport: httpx.BaseTransport | None = None):
+        self.require_compatibility = settings.require_compatibility
         context = ssl.create_default_context(cafile=str(settings.ca_file) if settings.ca_file else None)
         self.client = httpx.Client(
             base_url=settings.api_url + "/", verify=context,
@@ -80,9 +84,12 @@ class ApiClient:
                 raise ApiError("INVALID_RESPONSE", "Máy chủ trả lỗi không đúng định dạng.") from None
             raise ApiError(error.code, error.message, str(error.request_id))
         try:
-            return Health.model_validate(response.json())
+            result = Health.model_validate(response.json())
         except (ValueError, TypeError):
             raise ApiError("INVALID_RESPONSE", "Phản hồi máy chủ không đúng định dạng.") from None
+        if self.require_compatibility and not compatible(response.headers):
+            raise ApiError("INCOMPATIBLE_SERVER", "Máy chủ chưa tương thích phiên bản phục hồi của client. Cập nhật máy chủ trước; giữ nguyên dữ liệu nháp.")
+        return result
 
     def close(self) -> None:
         self.client.close()

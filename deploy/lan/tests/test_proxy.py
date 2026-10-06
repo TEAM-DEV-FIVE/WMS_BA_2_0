@@ -145,7 +145,8 @@ def test_real_desktop_recovery_permissions_and_no_proxy_secret_logs(proxy):
     user, _ = iam.user("lan-operator")
     grant = iam.grant(user, "MASTER_DATA")
     api = IdentityClient(DesktopSettings(api_url=p["url"], ca_file=p["ca"],
-                                         local_data_dir=p["path"] / "client"))
+                                         local_data_dir=p["path"] / "client",
+                                         require_compatibility=True))
     body = {"code": "LAN", "name": "Cái", "decimal_places": 0, "reason": "LAN probe"}
     try:
         api.enable_recovery()
