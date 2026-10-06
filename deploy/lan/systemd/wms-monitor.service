@@ -1,0 +1,25 @@
+[Unit]
+Description=Check WMS schema, private storage and all six worker heartbeats
+After=wms-api.service
+PartOf=wms.target
+
+[Service]
+Type=oneshot
+User=wms
+Group=wms
+WorkingDirectory=/opt/wms/current
+LoadCredential=mfa.env:/etc/wms/mfa.env
+ExecStart=/opt/wms/current/venv/bin/python -I /opt/wms/current/lan_runtime.py monitor
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+CapabilityBoundingSet=
+ReadWritePaths=/srv/wms/import /srv/wms/export /srv/wms/print
+UMask=0077
+LimitCORE=0
+TimeoutStartSec=120
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=wms-monitor

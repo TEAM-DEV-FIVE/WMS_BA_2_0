@@ -25,7 +25,7 @@ def tests(environment, options, pg_version=None):
     report.parent.mkdir(parents=True, exist_ok=True)
     environment["WMS_TEST_COLLECTION_REPORT"] = str(report.with_suffix(".collection.json"))
     environment["WMS_TEST_SUITE"] = options.suite
-    args = [sys.executable, "-m", "pytest", "tests", "-q", "--tb=short", "--strict-markers",
+    args = [sys.executable, "-m", "pytest", *[str(p) for p in (options.test_path or ["tests"])], "-q", "--tb=short", "--strict-markers",
             f"--junitxml={report}"]
     marker = {"unit": "not integration and not gui", "gui": "gui and not integration"}.get(options.suite)
     if marker or not options.gui:
@@ -43,7 +43,9 @@ def tests(environment, options, pg_version=None):
             status = status or 1
     else:
         status = status or 1
-    evidence(report.with_suffix(".environment.json"), suite=options.suite, gui=options.gui or options.suite == "gui",
+    evidence(report.with_suffix(".environment.json"), suite=options.suite,
+             test_paths=[str(p) for p in (options.test_path or ["tests"])],
+             gui=options.gui or options.suite == "gui",
              postgres=pg_version, result=status, junit=counts)
     return status
 
@@ -75,7 +77,12 @@ def main():
     parser.add_argument("--report", type=Path, default=ROOT / ".reports/application.xml")
     parser.add_argument("--pg-bindir", type=Path, help="Select local PG binaries, e.g. /usr/lib/postgresql/15/bin")
     parser.add_argument("--expected-pg-major", type=int, choices=(15, 16))
+    parser.add_argument("--test-path", type=Path, action="append",
+                        help="Explicit local test path (repeatable); default: entire tests directory")
     args = parser.parse_args()
+    for path in args.test_path or []:
+        if not path.resolve().is_relative_to(ROOT) or not path.exists():
+            parser.error("--test-path must exist inside this worktree")
     environment = os.environ.copy()
     environment.pop("WMS_DATABASE_URL", None)
     environment.pop("PYTEST_ADDOPTS", None)

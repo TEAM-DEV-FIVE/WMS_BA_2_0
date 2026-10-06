@@ -1,0 +1,7 @@
+[Unit]
+Description=WMS LAN release (explicit migration required)
+Wants=wms-api.service wms-worker@outbox.service wms-worker@import.service wms-worker@export.service wms-worker@print.service wms-worker@export-cleanup.service wms-worker@print-cleanup.service wms-monitor.timer
+After=postgresql@16-main.service
+
+[Install]
+WantedBy=multi-user.target

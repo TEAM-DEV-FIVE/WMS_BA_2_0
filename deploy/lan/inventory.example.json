@@ -1,0 +1,27 @@
+{
+  "status": "NEEDS_ENVIRONMENT",
+  "target_os": "Ubuntu Server 24.04 LTS amd64",
+  "postgresql_major": 16,
+  "hostname": null,
+  "lan_ip": null,
+  "client_cidr": null,
+  "admin_cidr": null,
+  "certificate_dns_san": null,
+  "certificate_issuer_fingerprint": null,
+  "certificate_expiry_utc": null,
+  "cpu_vcpu": 4,
+  "memory_gib": 8,
+  "mounts": [
+    {"path": "/", "planned_gib": 40, "device_uuid": null, "fs": null},
+    {"path": "/var/lib/postgresql", "planned_gib": 120, "device_uuid": null, "fs": null},
+    {"path": "/srv/wms", "planned_gib": 80, "device_uuid": null, "fs": null},
+    {"path": "/mnt/wms-backup", "planned_gib": null, "device_uuid": null, "off_host_copy": null}
+  ],
+  "ups": null,
+  "clock_source": null,
+  "restore_drill_evidence": null,
+  "release_commit": null,
+  "wheel_sha256": null,
+  "bundle_manifest_sha256": null,
+  "measured_15_ccu_evidence": null
+}
