@@ -10,6 +10,7 @@ from uuid import UUID
 from sqlalchemy.exc import DBAPIError
 
 from apps.server.application.ports import UnitOfWork
+from apps.server.application.recovery import recovery_context
 from apps.server.domain.errors import DomainError
 
 
@@ -63,10 +64,24 @@ class CommandBus:
             if record is not None:
                 if record["request_hash"] != digest:
                     raise DomainError("IDEMPOTENCY_MISMATCH", "Key đã được dùng với nội dung khác.")
-                return CommandResult(record["response"], record["http_status"])
-            result = handle(uow)
+                result = CommandResult(record["response"], record["http_status"])
+                context = recovery_context.get()
+                if context is not None:
+                    context.key, context.result = str(key), result.body
+                return result
+            context = recovery_context.get()
+            if context is not None and context.lookup_only:
+                raise DomainError("OPERATION_UNCONFIRMED", "Chưa có ACK; chỉ gửi lại cùng key sau khi xác nhận.")
+            try:
+                result = handle(uow)
+            except DomainError:
+                if context is not None:
+                    context.key, context.rejected = str(key), True
+                raise
             if not 200 <= result.http_status < 300:
                 raise ValueError("Only committed successful commands may be recorded")
             uow.commands.save(actor_id, key, command, digest, result.body, result.http_status)
             uow.commit()
+            if context is not None:
+                context.key, context.result = str(key), result.body
             return result

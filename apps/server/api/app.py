@@ -25,6 +25,7 @@ from apps.server.api.periods import period_router
 from apps.server.api.printing import print_router
 from apps.server.api.quality import quality_router
 from apps.server.api.receipts import receipt_router
+from apps.server.api.recovery import document_recovery, recovery_request
 from apps.server.api.reports import report_router
 from apps.server.api.returns import return_router
 from apps.server.api.reversals import reversal_router
@@ -136,7 +137,7 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
         # Generate our own UUID: do not trust or log arbitrary client header values.
         request.state.request_id = UUID(str(uuid4()))
         try:
-            response = await call_next(request)
+            response = await recovery_request(request, call_next, error)
         except Exception:
             logger.error("unhandled_error request_id=%s", request.state.request_id)
             response = error(request, 500, "INTERNAL_ERROR", "Có lỗi máy chủ. Dùng request_id để tra cứu.")
@@ -189,4 +190,5 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
         return error(request, 503, "DATABASE_NOT_READY", "Cơ sở dữ liệu chưa sẵn sàng. Kiểm tra kết nối và migration.",
                      retryable=True)
 
+    document_recovery(app)
     return app

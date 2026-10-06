@@ -93,7 +93,8 @@ class ReceiptPresenter(OrderPresenter):
         future.add_done_callback(lambda f: self.recovery_results.put((epoch, user, generation, action, f)))
 
     def command(self, method, path, body):
-        if method == "POST" and path.startswith("receipts/") and path.endswith("/post"):
+        if (method == "POST" and path.startswith("receipts/") and path.endswith("/post")
+                and getattr(self.api, "recovery", None) is None):
             if self.uncertain:
                 self.view.orders_error(
                     "Cần hoàn tất kiểm tra/phục hồi lệnh trước trong tab Phục hồi nhận hàng."

@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from apps.desktop.api.client import ApiError
+from apps.desktop.api.client import ApiError, save_local_draft
 from apps.desktop.presenters.moves import MovePresenter
 from packages.contracts.fulfillment import (
     FulfillmentOperation,
@@ -33,6 +33,7 @@ def run_request(api, generation, cancelled, method, path, body, key, warehouse):
     def execute():
         if cancelled.is_set():
             return None, []
+        save_local_draft(api, method, path, body, key, warehouse)
         permissions = api.permissions(warehouse)
         if cancelled.is_set():
             return None, permissions

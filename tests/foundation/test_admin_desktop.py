@@ -401,7 +401,7 @@ def test_admin_900_by_690_navigation_layout_timeout_secret_and_cleanup(caplog, t
     try:
         root.update()
         assert root.winfo_width() == 900 and root.winfo_height() == 690
-        assert len(shell.navigation.cget("values")) == 25
+        assert len(shell.navigation.cget("values")) == 26
         assert {"Kiểm kê / điều chỉnh", "Kỳ kho", "Đảo giao dịch"} <= set(shell.navigation.cget("values"))
         assert "Import tệp / tồn đầu kỳ" in shell.navigation.cget("values")
         assert "Báo cáo / xuất dữ liệu" in shell.navigation.cget("values")
