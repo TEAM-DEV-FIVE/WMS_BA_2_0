@@ -1,5 +1,9 @@
 # Bàn giao WMS — InternTechLead
 
+**Quyết định bổ sung 06/10/2026:** chủ dự án chấp thuận bản bàn giao và yêu cầu đóng backlog,
+tích hợp PR #46 vào `main`. Xem [OWNER_ACCEPTANCE.md](OWNER_ACCEPTANCE.md).
+Quyết định này không thay đổi các kết quả thực nghiệm, cổng kỹ thuật và checksum bên dưới.
+
 Runtime: `97d4c510dab8370643b7d55e85d6788443b5e209`, ứng dụng 0.1.0; protocol 1,
 PostgreSQL 001–024, SQLite 001–003. Người nhận: Trần Trung Kiên.
 

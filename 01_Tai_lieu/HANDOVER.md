@@ -1,5 +1,9 @@
 # Bộ tài liệu bàn giao WMS — InternTechLead
 
+**Cập nhật 06/10/2026:** chủ dự án chấp thuận bàn giao, đóng backlog và đưa PR #46 lên `main`.
+Xem [quyết định và phạm vi bằng chứng](../07_Kiem_tra/release/OWNER_ACCEPTANCE.md).
+Các giới hạn kiểm thử dưới đây được giữ nguyên theo kết quả thực nghiệm.
+
 Tài liệu hiện hành cho mã nguồn B01–B26 và các sửa lỗi cuối tại `97d4c510dab8370643b7d55e85d6788443b5e209`.
 Đơn vị: **InternTechLead**, Đông Thạnh, Hóc Môn, TP. Hồ Chí Minh.
 Mã số thuế: **0869233973**; điện thoại: **0329511628**.

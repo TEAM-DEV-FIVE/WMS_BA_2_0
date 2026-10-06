@@ -1,5 +1,10 @@
 # Phân công và trạng thái tích hợp — 06/10/2026
 
+**Chấp thuận bàn giao: OWNER_ACCEPTED_BY_DECISION.** Chủ dự án yêu cầu kết thúc backlog
+và đưa bản bàn giao PR #46 lên `main`. [Quyết định](../../07_Kiem_tra/release/OWNER_ACCEPTANCE.md)
+được ghi riêng với trạng thái kiểm chứng môi trường bên dưới; không mở lại nhiệm vụ đã tích hợp
+chỉ vì brief lịch sử còn ghi chờ triển khai.
+
 B01–B26 đã tích hợp phần mã, tài liệu và công cụ bàn giao. Runtime97d4c51 đạt
 **1320test+10subtest**, không lỗi hoặc skip; CI PostgreSQL15/16 và native Windows/macOS đạt.
 #14 bố cục master và #19 lịch sử import/export đã hoàn thiện.

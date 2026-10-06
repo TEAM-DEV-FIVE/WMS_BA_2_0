@@ -5,6 +5,11 @@ Khi được yêu cầu tạo ảnh/bản vẽ/CAD, ưu tiên công cụ MCP ph�
 
 ## Worktree và nhiệm vụ
 
+Chủ dự án đã yêu cầu chấp thuận bàn giao, đóng backlog và tích hợp PR #46 vào `main`;
+xem [quyết định 06/10/2026](07_Kiem_tra/release/OWNER_ACCEPTANCE.md).
+Đây là quyết định quản lý riêng với trạng thái kiểm chứng kỹ thuật. Giữ nguyên bằng chứng
+và trạng thái T01–T28; các ghi chú phân công trước đây bên dưới là lịch sử triển khai.
+
 Trước khi sửa mã, kiểm tra `pwd`, `git branch --show-current`, `git status --short` và đọc
 [phân công worktree](01_Tai_lieu/PHAN_CONG/README.md). Mỗi agent chỉ làm trong worktree/nhánh được giao:
 

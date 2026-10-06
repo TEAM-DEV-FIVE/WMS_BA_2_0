@@ -1,14 +1,17 @@
-# Triển khai WMS — nền tảng, IAM, danh mục và truy vết
+# Triển khai WMS — trạng thái bàn giao và lịch sử tích hợp
 
 ## Hiện hành — 06/10/2026, sau B22/B24/B25/B26
 
-B01–B24 đã ghép local; B25 tài liệu và phần chuẩn bị release/UAT B26 đã tích hợp.
-Runtime7b168c0 đạt **1313tests+10subtests,0failed/error/skip** trên PostgreSQL16/NginxTLS/Tk.
-PG001–024,SQLite001–003,101bảng/690cột,189APIpaths. Có gói offline đã cài/smoke và nativeVMlab.
-[Hướng dẫn bàn giao](HANDOVER.md) · [Bằng chứng kiểm thử](../07_Kiem_tra/release/VERIFICATION.md) ·
-[Manifest/cổng còn mở](../07_Kiem_tra/release/README.md).
-B26 chưa ACCEPTED: lỗi#14layout CI, phần#19exporthistory, Win10/11/thiết bị/DRoff-host/tảiđích/
-kýpháthành/đào tạoUAT còn mở. Các mốc và "chưa push/chưa triển khai" phía dưới là **lịch sử từng đợt**.
+B01–B26 đã tích hợp mã nguồn, tài liệu và công cụ bàn giao. Runtime `97d4c51` đạt
+**1.320 test + 10 subtest**, không lỗi hoặc skip; CI PostgreSQL 15/16 và native VM đạt.
+PostgreSQL 001–024, SQLite 001–003, 101 bảng/690 cột, 189 API path. Đã hoàn thiện
+#14 bố cục master và #19 lịch sử import/export; gói offline và native có manifest/checksum.
+[Hướng dẫn bàn giao](HANDOVER.md) · [Bằng chứng cuối](../07_Kiem_tra/release/FINAL_HANDOVER.md).
+
+Chủ dự án chấp thuận bàn giao, đóng backlog và đưa PR #46 lên `main` theo
+[quyết định được ghi nhận](../07_Kiem_tra/release/OWNER_ACCEPTANCE.md).
+Kiểm chứng kho/thiết bị/DR độc lập/tải đích/chữ ký phát hành vẫn được mô tả đúng theo evidence.
+Các mốc và "chưa push/chưa triển khai" phía dưới là **lịch sử từng đợt**.
 
 ## Lịch sử khởi tạo
 
