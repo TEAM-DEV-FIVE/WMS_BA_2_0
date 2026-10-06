@@ -87,3 +87,12 @@ User đã cho bổ sung thiết bị sau. Windows TEST ONLY và macOS ad-hoc là
 Không triển khai vào DB/host sản xuất, không ghi chữ ký hoặc giả kết quả thực tế.
 T01–T28 giữ PLANNED; [recordUAT](uat-records.json) giữ scenario/steps gốc và actual/reviewer trống.
 Các báo cáo tại 7b168c0/d9b5471 giữ nguyên là lịch sử; kết quả phiên bản này thay thế hai khoảng trống phần mềm cũ.
+
+## Biên nhận gói đã chốt
+
+Bản nén `dist/WMS-InternTechLead-97d4c51.tar.gz`, 138.180.025 byte, chứa hướng dẫn bắt đầu và
+gói 116 file + manifest. Đã đọc lại toàn bộ 118 file trong tar và đối chiếu hash, không có symlink.
+SHA256 archive: `45f0bf247ffb846b334819a29f2a9ce64e20a22a20b8ad381f80d4b836e4ab37`.
+[Biên nhận đầy đủ](DELIVERY.json) · [Hướng dẫn bắt đầu](BAT_DAU_TAI_DAY.md).
+Source archive giữ snapshot158f9da; biên nhận này được tạo sau ghép/nén, không đổi runtime97d4c51.
+Issue #14/#19 đã cập nhật bằng chứng và đóng phần triển khai; các cổng nghiệm thu thực vẫn giữ mở.
