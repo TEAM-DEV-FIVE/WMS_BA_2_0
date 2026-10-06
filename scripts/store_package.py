@@ -7,7 +7,7 @@ import shutil
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 from apps.desktop.bundle import verify_manifest
 
@@ -102,13 +102,11 @@ def stage(bundle, output, identity, version, test_only=False):
     (output / "AppxManifest.xml").write_bytes(manifest(identity, version))
     assets = output / "Assets"
     assets.mkdir()
-    font_path = Path(__file__).resolve().parents[1] / "apps/server/printing_assets/DejaVuSans.ttf"
-    for filename, size in (("StoreLogo.png", 50), ("Square44x44Logo.png", 44), ("Square150x150Logo.png", 150)):
-        with Image.new("RGBA", (size, size), "#161b22") as image:
-            draw = ImageDraw.Draw(image)
-            font = ImageFont.truetype(str(font_path), max(10, size // 3))
-            draw.text((size / 2, size / 2), "WMS", font=font, fill="white", anchor="mm")
-            image.save(assets / filename)
+    logo_path = Path(__file__).resolve().parents[1] / "apps/desktop/assets/wms-logo.png"
+    with Image.open(logo_path) as logo:
+        for filename, size in (("StoreLogo.png", 50), ("Square44x44Logo.png", 44), ("Square150x150Logo.png", 150)):
+            with logo.convert("RGBA").resize((size, size), Image.Resampling.LANCZOS) as icon:
+                icon.save(assets / filename)
     return {"status": "TEST_PACKAGE_ONLY" if test_only else "AWAITING_STORE_SUBMISSION",
             "identity": identity, "package_version": version, "runtime_version": record["version"],
             "runtime_commit": record["commit"], "store_signed": False, "store_certified": False,

@@ -15,7 +15,7 @@ def main() -> None:
         lock = application_lock(settings.local_data_dir)
         preflight_cache(settings.local_data_dir)
         configure_display()
-        root = tk.Tk()
+        root = tk.Tk(className="WMSDesktop")
         shell = DesktopShell(root, settings)
         root.mainloop()
     except (ValidationError, ValueError, OSError, sqlite3.Error, tk.TclError):

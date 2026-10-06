@@ -1,4 +1,5 @@
 import tkinter as tk
+from importlib.resources import as_file, files
 from tkinter import messagebox, ttk
 
 from apps.desktop.api.client import ApiClient, DesktopSettings
@@ -36,6 +37,9 @@ class DesktopShell:
         self.root = root
         self.settings = settings
         self.root.title("WMS — Quản lý kho")
+        with as_file(files("apps.desktop.assets").joinpath("wms-logo.png")) as logo:
+            self.application_icon = tk.PhotoImage(master=root, file=str(logo))
+        self.root.iconphoto(True, self.application_icon)
         self.root.geometry("900x690")
         self.root.minsize(800, 620)
         self.closed = False
@@ -325,6 +329,7 @@ class DesktopShell:
             view.release_variables()
         self.session_view.release_variables()
         self.status = None
+        self.application_icon = None
         pending = [self.root]
         while pending:
             widget = pending.pop()
