@@ -24,7 +24,7 @@ Chạy tại gốc checkout trong PowerShell. Thay đường dẫn SDK và thumb
   -SignTool 'C:\Program Files (x86)\Windows Kits\10\bin\<SDK-version>\x64\signtool.exe'
 ```
 
-Script ký `WMS.exe`, `WMSHelper.exe` bằng SHA-256/RFC3161, kiểm tra chữ ký và đúng thumbprint, sau đó lập manifest chứa hash **sau ký**, tạo installer và ký installer. Timestamp mặc định HTTPS DigiCert; có thể truyền `-TimestampUrl` của dịch vụ được tổ chức chấp nhận. Lỗi ký, timestamp hoặc verify làm build thất bại, không âm thầm xuất unsigned.
+Script ký `WMS.exe`, `WMSHelper.exe` bằng SHA-256/RFC3161, kiểm tra chữ ký, timestamp và đúng thumbprint, sau đó lập manifest chứa hash **sau ký**, tạo installer và ký installer. Timestamp mặc định `http://timestamp.digicert.com` theo [hướng dẫn DigiCert](https://knowledge.digicert.com/tutorials/ev-authenticode-using-signtool) và [Microsoft SignTool](https://learn.microsoft.com/windows/win32/seccrypto/signtool); SDK trên VM từ chối endpoint HTTPS cũ. RFC3161 timestamp có chữ ký được xác minh bằng `signtool verify /pa /all /tw` và bắt buộc có `TimeStamperCertificate`; không thay TLS của API WMS. Có thể truyền `-TimestampUrl` HTTP(S) của dịch vụ được tổ chức chấp nhận. Lỗi ký, timestamp hoặc verify làm build thất bại, không âm thầm xuất unsigned.
 
 Build thử không ký phải chỉ định rõ:
 

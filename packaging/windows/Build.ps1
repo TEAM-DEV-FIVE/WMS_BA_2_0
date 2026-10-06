@@ -4,7 +4,7 @@ param(
     [string]$CertificateThumbprint,
     [ValidateSet('CurrentUser','LocalMachine')][string]$CertificateStore = 'CurrentUser',
     [string]$SignTool,
-    [uri]$TimestampUrl = 'https://timestamp.digicert.com',
+    [uri]$TimestampUrl = 'http://timestamp.digicert.com',
     [switch]$Unsigned
 )
 $ErrorActionPreference = 'Stop'
@@ -57,7 +57,9 @@ try {
         if (!$cert.HasPrivateKey -or $cert.NotAfter -le (Get-Date) -or $cert.NotBefore -gt (Get-Date) -or
             $codeSigning.Count -eq 0) { throw 'Valid code-signing certificate with private key required' }
         if (!$SignTool -or !(Test-Path -LiteralPath $SignTool)) { throw 'Pass Windows SDK signtool.exe explicitly' }
-        if ($TimestampUrl.Scheme -ne 'https') { throw 'HTTPS timestamp service required' }
+        if ($TimestampUrl.Scheme -notin @('http','https') -or $TimestampUrl.UserInfo -or $TimestampUrl.Fragment) {
+            throw 'Explicit HTTP(S) RFC3161 timestamp endpoint required'
+        }
         $signing = 'authenticode'
     }
     function Sign-ReleaseFile([string]$Path) {
@@ -65,11 +67,11 @@ try {
         if ($CertificateStore -eq 'LocalMachine') { $signArgs += '/sm' }
         & $SignTool @signArgs $Path
         if ($LASTEXITCODE -ne 0) { throw 'Signing failed' }
-        & $SignTool verify /pa /all $Path
+        & $SignTool verify /pa /all /tw $Path
         if ($LASTEXITCODE -ne 0) { throw 'Signature verification failed' }
         $signature = Get-AuthenticodeSignature -LiteralPath $Path
-        if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Thumbprint -ne $CertificateThumbprint) {
-            throw 'Unexpected signer or invalid signature'
+        if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Thumbprint -ne $CertificateThumbprint -or !$signature.TimeStamperCertificate) {
+            throw 'Unexpected signer, invalid signature or missing timestamp'
         }
     }
     if (!$Unsigned) {
