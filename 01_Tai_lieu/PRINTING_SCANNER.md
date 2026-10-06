@@ -4,6 +4,10 @@ Bản triển khai mẫu v1 trên nền B01–B17. Theo trao đổi người dù
 khổ tem thực tế và mẫu tham chiếu Q06/Q08 được bổ sung sau; vẫn triển khai đầy đủ local.
 Các mẫu dưới đây là lựa chọn khởi đầu, chưa thay cho mẫu nghiệp vụ đã được duyệt.
 
+Bổ sung 06/10/2026: cấu hình thông tin InternTechLead và bộ xem trước 12 mẫu PDF,
+[hướng dẫn Linux/chứng thư/chứng từ](LINUX_RELEASE_LAB.md). Thông tin đơn vị được chụp
+vào header tùy chọn của snapshot v1; bản in lại giữ thông tin lúc tạo job.
+
 ## Mẫu và dữ liệu
 
 | Mẫu | Nguồn thật | Khổ hỗ trợ | Quy tắc |

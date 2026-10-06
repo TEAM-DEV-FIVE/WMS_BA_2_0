@@ -54,16 +54,28 @@ def render(snapshot, max_bytes=16 * 1024 * 1024):
         output = BytesIO()
         width, height = PAPERS[snapshot["paper"]]
         header = snapshot["header"]
+        issuer = header.get("issuer", {})
         if snapshot["template"].endswith("LABEL"):
             canvas = Canvas(output, pagesize=(width, height), invariant=1, pageCompression=1)
             canvas.setTitle(TITLES[snapshot["template"]])
+            shift = 7 * mm if issuer else 0
+            if issuer:
+                label_contact = " | ".join(filter(None, (issuer.get("name"), issuer.get("phone"))))
+                for value, size, offset in ((label_contact, 7, 3),
+                                            (issuer.get("address", ""), 5.5, 6)):
+                    # Bounded server configuration; never draw branding through the barcode.
+                    while pdfmetrics.stringWidth(value, "WMS", size) > width - 8 * mm:
+                        value = value[:-2] + "…"
+                    canvas.setFont("WMS", size)
+                    canvas.drawString(4 * mm, height - offset * mm, value)
             code = header["barcode"]
-            style = ParagraphStyle("label", fontName="WMS", fontSize=8, leading=10)
+            style = ParagraphStyle("label", fontName="WMS", fontSize=6.5 if issuer else 8,
+                                   leading=8 if issuer else 10)
             canvas.setFont("WMS-Bold", 10)
             label = header["number"]
             while pdfmetrics.stringWidth(label, "WMS-Bold", 10) > width - 8 * mm:
                 label = label[:-2] + "…"
-            canvas.drawString(4 * mm, height - 6 * mm, label)
+            canvas.drawString(4 * mm, height - 6 * mm - shift, label)
 
             def description(text, available_width, available_height):
                 value = text
@@ -74,16 +86,16 @@ def render(snapshot, max_bytes=16 * 1024 * 1024):
                         return paragraph, text_height
                     value = value[:-2] + "…"
 
-            name, name_height = description(header["name"], width - 8 * mm, 8 * mm)
+            name, name_height = description(header["name"], width - 8 * mm, (5 if issuer else 8) * mm)
             if header["symbology"] == "Code128" and len(code) <= 24 and code.isascii():
-                name.drawOn(canvas, 4 * mm, height - 9 * mm - name_height)
+                name.drawOn(canvas, 4 * mm, height - 9 * mm - shift - name_height)
                 drawing = barcode(code, "Code128", width - 8 * mm, 10 * mm)
                 drawing.drawOn(canvas, (width - drawing.width) / 2, 8 * mm)
             else:
                 drawing = barcode(code, "QR", 22 * mm, 22 * mm)
                 drawing.drawOn(canvas, width - 26 * mm, 4 * mm)
-                name, h = description(header["name"], width - 34 * mm, height - 15 * mm)
-                name.drawOn(canvas, 4 * mm, height - 9 * mm - h)
+                name, h = description(header["name"], width - 34 * mm, height - 15 * mm - shift)
+                name.drawOn(canvas, 4 * mm, height - 9 * mm - shift - h)
             canvas.setFont("WMS", 6)
             if pdfmetrics.stringWidth(code, "WMS", 6) <= width - 8 * mm:
                 canvas.drawString(4 * mm, 3 * mm, code)
@@ -107,6 +119,11 @@ def render(snapshot, max_bytes=16 * 1024 * 1024):
                     f"Ngày: {header.get('business_date', '')} | Trạng thái nguồn: {header.get('status', '')} | Phiên bản: {snapshot['source_version']}"
                 ),
             ]
+            if issuer:
+                contact = " | ".join(f"{label}: {issuer[field]}" for field, label in
+                                     (("tax_code", "MST"), ("phone", "Điện thoại")) if issuer.get(field))
+                story[:0] = [p(issuer.get("name", "")), p(issuer.get("address", "")),
+                             p(contact), Spacer(1, 10)]
             if header.get("destination"):
                 story.append(p("Kho đích: " + header["destination"]))
             if header.get("partner_name"):
@@ -171,9 +188,16 @@ def render(snapshot, max_bytes=16 * 1024 * 1024):
             def footer(canvas, doc):
                 canvas.setFont("WMS", 7)
                 canvas.drawString(
-                    12 * mm, 15 * mm, "Người lập: ______________    Người giao/nhận/đếm: ______________"
+                    12 * mm, 15 * mm,
+                    ("Người ký" if issuer.get("signer") else "Người lập")
+                    + ": ______________    Người giao/nhận/đếm: ______________"
                 )
-                canvas.drawString(12 * mm, 9 * mm, f"Mẫu v1 | {header['number']} | Trang {doc.page}")
+                if issuer.get("signer"):
+                    canvas.drawString(12 * mm, 11 * mm, issuer["signer"])
+                canvas.drawString(
+                    12 * mm, (6 if issuer.get("signer") else 9) * mm,
+                    f"Mẫu v{snapshot['template_version']} | {header['number']} | Trang {doc.page}",
+                )
 
             def stable(*args, **kwargs):
                 return Canvas(*args, **dict(kwargs, invariant=1))

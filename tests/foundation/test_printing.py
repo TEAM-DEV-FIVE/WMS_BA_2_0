@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from uuid import uuid4
 
 import pytest
@@ -118,6 +119,31 @@ def test_print_live_revocation_price_expiry_snapshot_immutable(printing):
         404,
     }
     assert f.client.get("/api/v1/printing/" + job["id"], headers=f.headers["manager"]).status_code == 404
+
+
+def test_issuer_is_server_owned_snapshot_survives_configuration_change(printing):
+    import pypdfium2 as pdfium
+
+    f = printing
+    settings = f.client.app.state.printing.storage.settings
+    settings.issuer_name = "InternTechLead"
+    settings.issuer_address = "Đông Thạnh, Hóc Môn, TP. Hồ Chí Minh"
+    job = ok(create(f), 201)
+    with f.engine.connect() as connection:
+        snapshot = connection.execute(text("SELECT snapshot FROM wms.print_job WHERE id=:id"),
+                                      {"id": job["id"]}).scalar_one()
+    assert snapshot["template_version"] == job["template_version"] == 1
+    assert snapshot["header"]["issuer"]["name"] == "InternTechLead"
+    settings.issuer_name = "Changed after capture"
+    assert f.print_outbox.run_batch().processed == 1
+    assert f.printer.run_one() == "READY"
+    pdf = f.client.get(f"/api/v1/printing/{job['id']}/download", headers=f.headers["buyer"])
+    assert pdf.status_code == 200
+    with (pdfium.PdfDocument(pdf.content) as document,
+          closing(document[0]) as page, closing(page.get_textpage()) as textpage):
+        text_content = textpage.get_text_range()
+    assert "InternTechLead" in text_content and "Changed after capture" not in text_content
+    assert create(f, issuer={"name": "Forged"}).status_code == 422
 
 
 def test_print_wrong_warehouse_stale_render_failure_retry(printing, monkeypatch):

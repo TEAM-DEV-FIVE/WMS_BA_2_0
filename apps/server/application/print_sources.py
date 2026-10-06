@@ -114,6 +114,12 @@ def source(service, auth, criteria, *, capture=False):
         raise DomainError("PRINT_LIMIT", "Tối đa 1.000 dòng trong bản in.")
     wh = one(c, "SELECT code,name FROM wms.warehouse WHERE id=:id", id=warehouse)
     header.update(warehouse=wh["name"], warehouse_code=wh["code"])
+    # Capture server-owned branding once; later configuration changes cannot alter a reprint.
+    settings = service.storage.settings
+    issuer = {field: getattr(settings, "issuer_" + field)
+              for field in ("name", "address", "tax_code", "phone", "signer")}
+    if any(issuer.values()):
+        header["issuer"] = issuer
     return dict(
         template=template,
         template_version=1,

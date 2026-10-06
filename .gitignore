@@ -31,3 +31,8 @@ dist/
 .wms-export-files/
 
 .wms-print-files/
+*.pfx
+*.p12
+.local-test-pki*/
+tmp/pdfs/
+output/pdf/

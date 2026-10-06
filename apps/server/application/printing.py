@@ -22,6 +22,11 @@ class PrintSettings(ImportSettings):
     model_config = {"env_prefix": "WMS_PRINT_", "extra": "ignore"}
     storage_root: Path = Path(".wms-print-files")
     max_file_bytes: int = Field(default=5*1024*1024,ge=1024,le=16*1024*1024)
+    issuer_name: str = Field(default="", max_length=80, pattern=r"^[^\x00-\x1f\x7f]*$")
+    issuer_address: str = Field(default="", max_length=160, pattern=r"^[^\x00-\x1f\x7f]*$")
+    issuer_tax_code: str = Field(default="", max_length=20, pattern=r"^[0-9-]*$")
+    issuer_phone: str = Field(default="", max_length=30, pattern=r"^[0-9+() .-]*$")
+    issuer_signer: str = Field(default="", max_length=80, pattern=r"^[^\x00-\x1f\x7f]*$")
 
 
 class PrintService:
