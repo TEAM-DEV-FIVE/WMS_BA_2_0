@@ -29,21 +29,32 @@ jobs:
           $p = Start-Process $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/CURRENTUSER',"/DIR=`"$target`"" -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw 'Compiler install failed' }
           "WMS_ISCC=$target\ISCC.exe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Create ephemeral TEST ONLY signer and build signed EXE
+      - name: Create ephemeral TEST ONLY signer without interactive user-root import
+        timeout-minutes: 3
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=InternTechLead TEST ONLY' -CertStoreLocation Cert:\CurrentUser\My -KeyAlgorithm RSA -KeyLength 3072 -HashAlgorithm SHA256 -NotAfter (Get-Date).AddDays(2)
+          Write-Host 'Created ephemeral test signer'
+          "WMS_TEST_THUMBPRINT=$($cert.Thumbprint)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           $cer = Join-Path $env:RUNNER_TEMP 'windows-test-signer.cer'
           Export-Certificate -Cert $cert -FilePath $cer | Out-Null
-          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\CurrentUser\Root | Out-Null
-          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\CurrentUser\TrustedPublisher | Out-Null
-          "WMS_TEST_THUMBPRINT=$($cert.Thumbprint)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          # CurrentUser Root can show an interactive trust dialog and stall a headless job.
+          # This is an ephemeral GitHub VM with an administrator build account, never a user PC.
+          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\LocalMachine\TrustedPublisher | Out-Null
+          Write-Host 'Imported public test trust into disposable VM machine stores'
+      - name: Build and timestamp signed Windows package
+        timeout-minutes: 10
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
           $tools = @(Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' | Sort-Object FullName -Descending)
           if ($tools.Count -eq 0) { throw 'Windows SDK signing tool missing' }
-          ./packaging/windows/Build.ps1 -ISCC $env:WMS_ISCC -CertificateThumbprint $cert.Thumbprint -SignTool $tools[0].FullName
+          ./packaging/windows/Build.ps1 -ISCC $env:WMS_ISCC -CertificateThumbprint $env:WMS_TEST_THUMBPRINT -SignTool $tools[0].FullName
           if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
       - name: Verify signed installer and per-user install
+        timeout-minutes: 5
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -63,8 +74,10 @@ jobs:
         shell: pwsh
         run: |
           if ($env:WMS_TEST_THUMBPRINT) {
-            foreach ($store in @('My','Root','TrustedPublisher')) {
-              $path = "Cert:\CurrentUser\$store\$env:WMS_TEST_THUMBPRINT"
+            $private = "Cert:\CurrentUser\My\$env:WMS_TEST_THUMBPRINT"
+            if (Test-Path $private) { Remove-Item $private -DeleteKey -Force }
+            foreach ($store in @('Root','TrustedPublisher')) {
+              $path = "Cert:\LocalMachine\$store\$env:WMS_TEST_THUMBPRINT"
               if (Test-Path $path) { Remove-Item $path -Force }
             }
           }
