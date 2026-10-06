@@ -61,6 +61,17 @@ Workflow không tự gửi duyệt hay xuất bản. Mặc định/PR vẫn dùn
 
 ## Kết quả build theo identity của chủ tài khoản
 
+### Bản hiện tại: V2.1.0
+
+Commit `18837b1dce7ab5ffb19618c9717cd9080b1b0456` đã đạt
+[Windows CI #37497251235](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37497251235):
+build desktop, cài EXE/frozen self-test, MakeAppx validation/pack/unpack và hash payload đều PASS.
+Gói **WMS-Store-2.1.0.0-x64.msix** có tên **Ứng dụng quản lý tồn kho**, dùng nguyên identity/publisher
+đã cung cấp. Bộ kiểm thử đóng gói local đạt 43 tests; 2 integration/GUI không thuộc lượt unit.
+Trạng thái **AWAITING_STORE_SUBMISSION**; chưa có kết quả validation mới từ Partner Center.
+
+### Lịch sử gói bị từ chối
+
 **Partner Center đã từ chối gói 1.0.0.0:** `Package/Properties/DisplayName` là
 `WMS — Quản lý kho`, chưa được đặt trước. Không gửi lại gói này; dùng
 tên đã xác nhận **Ứng dụng quản lý tồn kho**, build 2.1.0.0 rồi thay gói bị lỗi trong Packages. Các kết quả SDK bên dưới
@@ -74,7 +85,7 @@ Ngày 06/10/2026, commit `9772e652ed7ac043ed15bc34af579fc4424f5eb7` đã đạt
 - Gói gửi: `WMS-Store-1.0.0.0-x64.msix`, identity `InternTechLead.WMS120`.
 - 39 kiểm thử đóng gói local đạt; 2 kiểm thử integration/GUI ngoài phạm vi unit không chọn.
 
-Đây là **AWAITING_STORE_SUBMISSION**. Gói chưa được Store ký/chứng nhận;
+Gói hiện tại chưa được Store ký/chứng nhận;
 kiểm thử cài, nâng cấp và gỡ MSIX theo package identity còn **NOT_RUN**.
 Kết quả cài EXE không thay thế kết quả cài MSIX. Bản EXE TEST ONLY đang trên Releases
 không tự hết cảnh báo sau khi tạo gói này.
