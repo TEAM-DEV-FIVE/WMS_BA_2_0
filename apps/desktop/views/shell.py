@@ -39,6 +39,9 @@ class DesktopShell:
         self.root.title("WMS — Quản lý kho")
         with as_file(files("apps.desktop.assets").joinpath("wms-logo.png")) as logo:
             self.application_icon = tk.PhotoImage(master=root, file=str(logo))
+        factor = (max(self.application_icon.width(), self.application_icon.height()) + 255) // 256
+        if factor > 1:
+            self.application_icon = self.application_icon.subsample(factor, factor)
         self.root.iconphoto(True, self.application_icon)
         self.root.geometry("900x690")
         self.root.minsize(800, 620)
