@@ -1,0 +1,12 @@
+[Unit]
+Description=Periodic WMS readiness check (failure requires operator alert routing)
+PartOf=wms.target
+
+[Timer]
+OnActiveSec=60
+OnUnitActiveSec=60
+AccuracySec=5
+Unit=wms-monitor.service
+
+[Install]
+WantedBy=wms.target
