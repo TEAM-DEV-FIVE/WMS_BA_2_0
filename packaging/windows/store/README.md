@@ -51,6 +51,27 @@ với `store_submission=true`. Tải artifact `store-msix-SUBMISSION-UNSIGNED-<c
 file `.msix` bên trong dùng để upload tại Partner Center → submission → Packages.
 Workflow không tự gửi duyệt hay xuất bản. Mặc định/PR vẫn dùng identity thử nghiệm.
 
+## Kết quả build theo identity của chủ tài khoản
+
+Ngày 06/10/2026, commit `9772e652ed7ac043ed15bc34af579fc4424f5eb7` đã đạt
+[Windows CI #37492393732](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37492393732):
+
+- Build Windows x64 theo dependency lock; cài EXE và frozen self-test: PASS.
+- Windows SDK MakeAppx kiểm manifest, pack/unpack MSIX và kiểm hash payload: PASS.
+- Gói gửi: `WMS-Store-1.0.0.0-x64.msix`, identity `InternTechLead.WMS120`.
+- 39 kiểm thử đóng gói local đạt; 2 kiểm thử integration/GUI ngoài phạm vi unit không chọn.
+
+Đây là **AWAITING_STORE_SUBMISSION**. Gói chưa được Store ký/chứng nhận;
+kiểm thử cài, nâng cấp và gỡ MSIX theo package identity còn **NOT_RUN**.
+Kết quả cài EXE không thay thế kết quả cài MSIX. Bản EXE TEST ONLY đang trên Releases
+không tự hết cảnh báo sau khi tạo gói này.
+
+Trong Partner Center, tạo submission cho ứng dụng tương ứng, mở **Packages** rồi upload
+file `.msix` (không upload ZIP artifact GitHub hay file EXE cũ). Sau khi Store phân tích,
+đối chiếu identity/version và xử lý thông báo validation trước khi gửi chứng nhận.
+Tên hiển thị trong manifest cần khớp tên ứng dụng đã đặt trước tại Partner Center;
+nếu Store báo không khớp, cập nhật DisplayName theo tên đã đặt rồi build lại.
+
 ## Quyền và dữ liệu
 
 - `runFullTrust`: Tkinter, HTTP LAN, SQLite, PDFium và helper in là ứng dụng desktop hiện có.
