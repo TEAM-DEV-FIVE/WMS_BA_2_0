@@ -23,6 +23,12 @@ Chủ tài khoản đã cung cấp identity; bản công khai được lưu tạ
 Đây là identity công khai. Không gửi password, token, giấy tờ xác minh hoặc khóa ký.
 Không lấy tên mẫu trong CI làm identity thật. Chưa có Store listing được duyệt hoặc URL tải chính thức.
 
+**Thông tin còn cần xác nhận:** tên đã đặt trước trong Product management → Manage app names.
+Thêm nguyên văn tên đó vào `display_name` trong JSON trước khi build gói gửi Store.
+`display_name` khác `name` (Package Identity) và `publisher_display_name` (tên nhà phát hành).
+Script bắt buộc trường này và dùng cho cả Properties/DisplayName lẫn VisualElements/DisplayName;
+không tự suy ra tên từ Package Identity. Local/SDK không truy vấn được danh sách tên Reserved.
+
 ## Đóng gói
 
 Build desktop unsigned bằng [Build.ps1](../Build.ps1) trong Windows x64 với dependency lock.
@@ -34,11 +40,11 @@ Dùng thư mục `build/windows-<uuid>/frozen/WMS` và interpreter trong `venv` 
   -Python 'build\windows-<uuid>\venv\Scripts\python.exe' `
   -MakeAppx 'C:\Program Files (x86)\Windows Kits\10\bin\<SDK-version>\x64\makeappx.exe' `
   -IdentityFile 'packaging\windows\store\identity.json' `
-  -Version '1.0.0.0' `
-  -OutputDirectory 'dist\store-submission-1.0.0.0'
+  -Version '1.0.1.0' `
+  -OutputDirectory 'dist\store-submission-1.0.1.0'
 ```
 
-MSIX version khởi đầu `1.0.0.0`; đây là phiên bản package của Store, runtime WMS vẫn 0.1.0.
+Gói sửa tên dùng MSIX version `1.0.1.0`; đây là phiên bản package của Store, runtime WMS vẫn 0.1.0.
 SDK kiểm manifest/pack/unpack và script kiểm lại hash mọi file ứng dụng sau unpack.
 `store-package.json` ghi identity, commit, hash và trạng thái **chưa được Store ký/duyệt**.
 Gói unsigned dùng để gửi Partner Center, không thay bộ cài công khai bằng sideload.
@@ -52,6 +58,11 @@ file `.msix` bên trong dùng để upload tại Partner Center → submission �
 Workflow không tự gửi duyệt hay xuất bản. Mặc định/PR vẫn dùng identity thử nghiệm.
 
 ## Kết quả build theo identity của chủ tài khoản
+
+**Partner Center đã từ chối gói 1.0.0.0:** `Package/Properties/DisplayName` là
+`WMS — Quản lý kho`, chưa được đặt trước. Không gửi lại gói này; chờ chủ tài khoản cung cấp
+tên Reserved, build 1.0.1.0 rồi thay gói bị lỗi trong Packages. Các kết quả SDK bên dưới
+chỉ xác nhận cấu trúc/toàn vẹn, không xác nhận Store chấp nhận metadata.
 
 Ngày 06/10/2026, commit `9772e652ed7ac043ed15bc34af579fc4424f5eb7` đã đạt
 [Windows CI #37492393732](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37492393732):

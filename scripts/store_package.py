@@ -21,12 +21,13 @@ TEST_IDENTITY = {
     "name": "InternTechLead.WMS.PackagingTest",
     "publisher": "CN=WMS Packaging Test Only",
     "publisher_display_name": "WMS Packaging Test Only",
+    "display_name": "WMS Packaging Test Only",
 }
 
 
 def validate_identity(identity, version, test_only=False):
-    if set(identity) != {"name", "publisher", "publisher_display_name"}:
-        raise ValueError("Exactly three Partner Center identity fields required")
+    if set(identity) != {"name", "publisher", "publisher_display_name", "display_name"}:
+        raise ValueError("Three Partner Center identity fields and reserved display_name required")
     if not all(isinstance(value, str) and value.strip() == value for value in identity.values()):
         raise ValueError("Invalid identity text")
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]{2,49}", identity["name"]):
@@ -35,6 +36,9 @@ def validate_identity(identity, version, test_only=False):
         raise ValueError("Partner Center Publisher required")
     if not 1 <= len(identity["publisher_display_name"]) <= 256:
         raise ValueError("PublisherDisplayName required")
+    display_name = identity["display_name"]
+    if not 1 <= len(display_name) <= 256 or any(ord(char) < 32 for char in display_name):
+        raise ValueError("Reserved display_name must be nonempty text without control characters")
     if not re.fullmatch(r"\d+\.\d+\.\d+\.0", version):
         raise ValueError("Store version must have four parts and final part 0")
     if any(int(part) > 65535 for part in version.split(".")) or int(version.split(".")[0]) == 0:
@@ -58,7 +62,7 @@ def manifest(identity, version):
     add(root, "Identity", {"Name": identity["name"], "Publisher": identity["publisher"],
                            "Version": version, "ProcessorArchitecture": "x64"})
     properties = add(root, "Properties")
-    add(properties, "DisplayName", text="WMS — Quản lý kho")
+    add(properties, "DisplayName", text=identity["display_name"])
     add(properties, "PublisherDisplayName", text=identity["publisher_display_name"])
     add(properties, "Logo", text="Assets/StoreLogo.png")
     # Keep the existing journal/cache outside package-managed state on uninstall.
@@ -72,7 +76,7 @@ def manifest(identity, version):
     apps = add(root, "Applications")
     app = add(apps, "Application", {"Id": "WMS", "Executable": "App/WMS.exe",
                                     "EntryPoint": "Windows.FullTrustApplication"})
-    add(app, "uap:VisualElements", {"DisplayName": "WMS — Quản lý kho",
+    add(app, "uap:VisualElements", {"DisplayName": identity["display_name"],
         "Description": "Quản lý kho qua WMS API trên mạng LAN", "BackgroundColor": "#161b22",
         "Square150x150Logo": "Assets/Square150x150Logo.png",
         "Square44x44Logo": "Assets/Square44x44Logo.png"})
@@ -116,7 +120,7 @@ def main():
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--stage", type=Path, required=True)
     parser.add_argument("--identity", type=Path)
-    parser.add_argument("--version", default="1.0.0.0")
+    parser.add_argument("--version", default="1.0.1.0")
     parser.add_argument("--test-identity", action="store_true")
     parser.add_argument("--report", type=Path, required=True)
     options = parser.parse_args()

@@ -5,7 +5,7 @@ param(
     [Parameter(Mandatory)][string]$Python,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$IdentityFile,
-    [string]$Version = '1.0.0.0',
+    [string]$Version = '1.0.1.0',
     [switch]$TestIdentity
 )
 $ErrorActionPreference = 'Stop'

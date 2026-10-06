@@ -63,11 +63,29 @@ def test_stage_does_not_overwrite_existing_directory(store_input, tmp_path):
 
 
 def test_real_identity_roundtrips_xml_special_characters():
-    identity = dict(name="12345.WMS", publisher="CN=Owner & Publisher", publisher_display_name="Kho & Thiết bị")
+    identity = dict(name="12345.WMS", publisher="CN=Owner & Publisher", publisher_display_name="Kho & Thiết bị",
+                    display_name="Tên đã đặt & Quản lý kho")
     validate_identity(identity, "1.0.0.0")
     root = ET.fromstring(manifest(identity, "1.0.0.0"))
     assert root.find(f"{{{NS['']}}}Identity").attrib["Publisher"] == identity["publisher"]
     assert root.find(f"{{{NS['']}}}Properties/{{{NS['']}}}PublisherDisplayName").text == identity["publisher_display_name"]
+    assert root.find(f"{{{NS['']}}}Properties/{{{NS['']}}}DisplayName").text == identity["display_name"]
+    visual = root.find(f"{{{NS['']}}}Applications/{{{NS['']}}}Application/{{{NS['uap']}}}VisualElements")
+    assert visual.attrib["DisplayName"] == identity["display_name"]
+
+
+def test_missing_reserved_name_rejected_before_staging(store_input, tmp_path):
+    identity = {key: value for key, value in TEST_IDENTITY.items() if key != "display_name"}
+    output = tmp_path / "staged"
+    with pytest.raises(ValueError, match="reserved display_name required"):
+        stage(store_input, output, identity, "1.0.0.0", test_only=True)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("display_name", ["", "x" * 257, "Name\nOther"])
+def test_invalid_display_name_rejected(display_name):
+    with pytest.raises(ValueError, match="display_name"):
+        validate_identity(dict(TEST_IDENTITY, display_name=display_name), "1.0.0.0", test_only=True)
 
 
 @pytest.mark.parametrize("version", ["0.1.0.0", "1.0.0", "1.0.0.1", "65536.0.0.0", "1.-1.0.0"])
