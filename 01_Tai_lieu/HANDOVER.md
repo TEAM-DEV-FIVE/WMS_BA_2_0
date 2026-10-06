@@ -1,6 +1,6 @@
 # Bộ tài liệu bàn giao WMS — InternTechLead
 
-Tài liệu hiện hành cho mã nguồn đã ghép B01–B24 tại `7b168c010756c194a33872571cd59d6258712b06`.
+Tài liệu hiện hành cho mã nguồn B01–B26 và các sửa lỗi cuối tại `97d4c510dab8370643b7d55e85d6788443b5e209`.
 Đơn vị: **InternTechLead**, Đông Thạnh, Hóc Môn, TP. Hồ Chí Minh.
 Mã số thuế: **0869233973**; điện thoại: **0329511628**.
 Đầu mối triển khai: **Trần Trung Kiên**. Tên này trên mẫu phiếu là tên người ký được cấu hình,
@@ -15,7 +15,7 @@ không phải chữ ký hoặc bằng chứng đã nghiệm thu.
 | IT vận hành | [Sổ vận hành](OPERATIONS_RUNBOOK.md), [LAN](LAN_DEPLOYMENT.md), [backup/PITR](BACKUP_RESTORE.md) |
 | Người nhận mã nguồn/QA | [Ma trận 49 yêu cầu](../07_Kiem_tra/handover/requirements.csv), [ghi chú kiến trúc hiện hành](../03_So_do/RUNTIME_GUIDE.md), [contract](../05_API/RUNTIME_HANDOVER.md) |
 
-Đọc `07_Kiem_tra/release/README.md` khi B26 đã được ghép để biết commit,
+Đọc [bàn giao cuối](../07_Kiem_tra/release/FINAL_HANDOVER.md) để biết commit,
 checksum, kiểm thử cuối và các cổng còn mở. Mọi status trong hồ sơ là status thành phần hoặc
 release candidate; chỉ người nghiệm thu thật mới xác nhận nghiệm thu nghiệp vụ.
 

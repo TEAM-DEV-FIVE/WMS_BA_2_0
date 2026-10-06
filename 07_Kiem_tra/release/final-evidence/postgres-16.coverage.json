@@ -1,0 +1,8 @@
+{
+  "coverage": true,
+  "expected_nodes": 1266,
+  "actual_nodes": 1266,
+  "normalization": "UUIDv4 labels only in 3 existing parametrized presenter tests",
+  "missing": [],
+  "extra": []
+}

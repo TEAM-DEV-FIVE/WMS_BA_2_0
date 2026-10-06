@@ -1,3 +1,7 @@
+> Bản hiện hành: [FINAL_HANDOVER.md](FINAL_HANDOVER.md), runtime97d4c51.
+> Nội dung dưới đây là bằng chứng lịch sử tại7b168c0; hai lỗi phần mềm G06/G08 đã sửa
+> và bộ cài đã rebuild. Giữ nguyên hash/kết quả cũ để truy xuất nguồn gốc.
+
 # Kiểm chứng bản ghép B22/B24 và chuẩn bị B26 — 06/10/2026
 
 Runtime **7b168c010756c194a33872571cd59d6258712b06**, worktree sạch khi chạy và khi ghi report.

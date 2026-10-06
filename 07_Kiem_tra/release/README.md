@@ -1,3 +1,7 @@
+> Bản hiện hành: [FINAL_HANDOVER.md](FINAL_HANDOVER.md), runtime97d4c51.
+> Nội dung dưới đây là bằng chứng lịch sử tại7b168c0; hai lỗi phần mềm G06/G08 đã sửa
+> và bộ cài đã rebuild. Giữ nguyên hash/kết quả cũ để truy xuất nguồn gốc.
+
 # B26 — Bản bàn giao ứng viên và hồ sơ nghiệm thu
 
 **RELEASE_CANDIDATE — chưa nghiệm thu/phát hành vận hành.** Phần chuẩn bị local B25/B26 đã được thực hiện;

@@ -268,14 +268,15 @@
       "component_tests": [
         "tests/concurrency/test_b24_process_races.py",
         "tests/foundation/test_iam_lifecycle.py",
+        "tests/foundation/test_job_history.py",
         "tests/foundation/test_reports_desktop.py",
         "tests/foundation/test_reports_exports.py",
         "tests/foundation/test_reports_files.py",
         "tests/security/test_b24_security.py"
       ],
       "component_evidence": [
-        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B17.md",
-        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B24.md"
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B24.md",
+        "07_Kiem_tra/release/FINAL_HANDOVER.md"
       ],
       "gap": "Client Windows/LAN, thu hồi quyền ngay trong phiên thật.",
       "technical_contact": "Trần Trung Kiên",
@@ -807,14 +808,15 @@
         "FR24"
       ],
       "component_tests": [
+        "tests/foundation/test_job_history.py",
         "tests/foundation/test_reports_desktop.py",
         "tests/foundation/test_reports_exports.py",
         "tests/foundation/test_reports_files.py"
       ],
       "component_evidence": [
-        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B17.md"
+        "07_Kiem_tra/release/FINAL_HANDOVER.md"
       ],
-      "gap": "Nghiệm thu số liệu R02/giá trên Windows; #19 lịch sử export còn mở.",
+      "gap": "Nghiệm thu số liệu R02/giá và thao tác lịch sử import/export trên Windows với người dùng kho.",
       "technical_contact": "Trần Trung Kiên",
       "executor": null,
       "reviewer": null,

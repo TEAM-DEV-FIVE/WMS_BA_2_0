@@ -15,12 +15,12 @@ Mỗi nhánh có brief Bxx riêng, phạm vi file/API/UI, dependency, kiểm th�
 
 - Trạng thái READY trong catalog là mốc phân công ban đầu. Xem README phân công và sổ tích hợp mới nhất
   trước khi làm. B01–B24 đã INTEGRATED local; B25 hồ sơ và phần chuẩn bị release/UAT B26 đã ghép.
-  Runtime7b168c0 đạt1313tests+10subtests; xem `07_Kiem_tra/release/VERIFICATION.md`.
-  B26 ACCEPTANCE_BLOCKED: #14layout CI/#19exporthistory và các cổng môi trường/nghiệp vụ G01–G08
-  còn mở. Không gọi26nhánh có bàn giao là26nhánh đã nghiệm thu. Các nhánh đã tích hợp không làm lại.
+  Runtime97d4c51 đạt1320tests+10subtests; xem `07_Kiem_tra/release/FINAL_HANDOVER.md`.
+  #14layout/#19history đã sửa và CI PG15/16 đạt. B26 SOFTWARE_HANDOVER_READY;
+  các cổng môi trường/nghiệp vụ G01–G05/G07 còn mở. Không gọi26nhánh có bàn giao là26nhánh đã nghiệm thu. Các nhánh đã tích hợp không làm lại.
   Worktree chờ phải đồng bộ giữ commit nghiên cứu trước khi triển khai phần phụ thuộc.
-  Bổ sung: build/ký lab native Windows Server 2022 và macOS 15 ARM64 đã đạt trên VM tại `d9b547184626`;
-  xem `07_Kiem_tra/NATIVE_VM_2026_10_06.md`. Không đồng nhất chữ ký test/ad-hoc với phát hành công khai,
+  Bổ sung: build/ký lab native Windows Server 2022 và macOS 15 ARM64 đã đạt trên VM tại `97d4c510dab8`;
+  xem `07_Kiem_tra/release/FINAL_HANDOVER.md`. Không đồng nhất chữ ký test/ad-hoc với phát hành công khai,
   hoặc Windows Server smoke với nghiệm thu Windows 10/11/thiết bị.
 - Kiểm tra sổ `integration_log.json` trên nhánh điều phối mới nhất, không chỉ bản trong worktree cũ.
 - `feat/application-foundation` là nhánh điều phối, review, tích hợp và kiểm thử tổng.

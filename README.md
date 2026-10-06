@@ -4,7 +4,7 @@
 
 Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã nền tảng cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**, ứng dụng **0.1.0**.
 
-**Trạng thái: bản ứng viên local, chưa nghiệm thu nghiệp vụ.** B01–B24 đã ghép; B25 tài liệu và phần chuẩn bị release/UAT B26 đã tích hợp. Runtime `7b168c0` đạt **1.313 test +10 subtest**,0failed/error/skip, gồm LAN và backup. [Bằng chứng](07_Kiem_tra/release/VERIFICATION.md) · [Gói offline/manifest/cổng phát hành](07_Kiem_tra/release/README.md) · [Hướng dẫn người dùng/IT](01_Tai_lieu/HANDOVER.md). Bộ cài Windows/macOS đã build/ký lab trên VM. Còn #14layout CI, #19exporthistory và nghiệm thu Win10/11/thiết bị/DRoff-host/tảiđích/kýpháthành/đào tạo. T01–T28 giữ PLANNED; không gọi26nhánh có bàn giao là26nhánh đã nghiệm thu.
+**Trạng thái: đã hoàn thiện phần mềm và gói bàn giao lab; chờ nghiệm thu tại kho.** B01–B26 đã tích hợp phần mã/tài liệu/công cụ. Runtime `97d4c51` đạt **1.320 test +10 subtest**, không lỗi hoặc skip, gồm LAN và backup. #14 bố cục và #19 lịch sử import/export đã sửa; CI PostgreSQL15/16, Windows unit/GUI/package và native Windows/macOS đạt. [Bàn giao cuối](07_Kiem_tra/release/FINAL_HANDOVER.md) · [Hướng dẫn người dùng/IT](01_Tai_lieu/HANDOVER.md). Bộ cài Windows ký TEST ONLY; macOS ký ad-hoc. T01–T28 vẫn PLANNED; thiết bị/DR độc lập/tải đích/chứng thư công khai và nghiệm thu người dùng cần môi trường thật.
 
 **Snapshot đồng bộ GitHub trước B19–B26 (06/10/2026):** đã đóng thêm 24 issue, hiện 27 CLOSED/13 OPEN. Mã ở
 [`feat/application-foundation` / PR #46](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/pull/46), chưa merge `main`. CI hồ sơ đạt; CI ứng dụng phát hiện lỗi
@@ -189,5 +189,5 @@ Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lea
 Đã tích hợp 18/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
 
 1. Giao song song B19 recovery và B20 worker: đã đồng bộ nền `80fcf3f`, READY; B01–B18 đã tích hợp.
-2. Sửa khoảng trống #14layout/#19exporthistory và kiểm chứng lại trên môi trường đích.
-3. Dùng hồ sơ B25/B26 đã chuẩn bị để chạy T01–T28, đóng các cổng G01–G08 bằng evidence thực.
+2. #14/#19 đã hoàn thiện và kiểm chứng trên CI; dùng gói mới trong báo cáo bàn giao cuối.
+3. Dùng hồ sơ B25/B26 đã chuẩn bị để chạy T01–T28, đóng các cổng G01–G05/G07 bằng evidence thực.

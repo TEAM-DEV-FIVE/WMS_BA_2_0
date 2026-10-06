@@ -285,8 +285,8 @@
       "verified_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
       "integration_scope": "Windows packaging plus native VM TEST ONLY signing/install/self-test; macOS15 ARM64 ad-hoc lab build",
       "acceptance_status": "NEEDS_ENVIRONMENT",
-      "native_verified_commit": "d9b547184626c168e54d7250b310568866e8cd41",
-      "native_report": "07_Kiem_tra/NATIVE_VM_2026_10_06.md"
+      "native_verified_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+      "native_report": "07_Kiem_tra/release/FINAL_HANDOVER.md"
     },
     {
       "id": "B24",
@@ -341,10 +341,10 @@
       "activated_base": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c",
       "handoff_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
       "integrated_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
-      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
-      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
-      "integration_scope": "Release candidate preparation, full local regression and offline install; UAT acceptance blocked by G01-G08",
-      "acceptance_status": "ACCEPTANCE_BLOCKED",
+      "note": "Current evidence: 07_Kiem_tra/release/FINAL_HANDOVER.md; prior evidence retained by commit.",
+      "verified_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+      "integration_scope": "Software candidate completed: history/layout, full local and hosted regression, rebuilt native clients and offline server. Operational UAT requires target environment.",
+      "acceptance_status": "NEEDS_ENVIRONMENT",
       "dependency_commits": {
         "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
         "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
@@ -372,31 +372,34 @@
         "B24": "7b168c010756c194a33872571cd59d6258712b06",
         "B25": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c"
       },
-      "preparation_status": "RELEASE_CANDIDATE_PREPARED"
+      "preparation_status": "SOFTWARE_HANDOVER_READY"
     }
   ],
   "last_review": {
     "date": "2026-10-06",
-    "tested_commit": "7b168c010756c194a33872571cd59d6258712b06",
-    "documentation_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
-    "report": "07_Kiem_tra/release/VERIFICATION.md",
-    "tests": 1313,
+    "tested_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+    "report": "07_Kiem_tra/release/FINAL_HANDOVER.md",
+    "tests": 1320,
     "subtests": 10,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "next_ready_for_sync": [],
-    "acceptance_status": "ACCEPTANCE_BLOCKED",
+    "acceptance_status": "NEEDS_ENVIRONMENT",
     "remaining_gates": [
       "G01",
       "G02",
       "G03",
       "G04",
       "G05",
+      "G07"
+    ],
+    "resolved_software_gates": [
       "G06",
-      "G07",
       "G08"
-    ]
+    ],
+    "native_run": 37471976127,
+    "application_run": 37471975858
   },
   "last_activation": {
     "date": "2026-10-06",

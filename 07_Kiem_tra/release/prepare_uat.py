@@ -17,7 +17,7 @@ GATES = {
     "T12": "File/mapping thực được duyệt và thao tác Windows qua LAN.",
     "T14": "Hai phiên người dùng desktop đích, bằng chứng stale/SOD từng bước.",
     "T15": "Thiết bị quét/kiện và quy trình soạn-xuất của kho.",
-    "T21": "Nghiệm thu số liệu R02/giá trên Windows; #19 lịch sử export còn mở.",
+    "T21": "Nghiệm thu số liệu R02/giá và thao tác lịch sử import/export trên Windows với người dùng kho.",
     "T22": "Q06/Q08 model in/HID, driver, khổ tem/lề/DPI, ảnh giấy và quét lại.",
     "T23": "Windows10/11 sạch, cài/nâng cấp/rollbackN-1, quyền cache, chữ ký phát hành.",
     "T26": "Host test độc lập, dữ liệu20GB/3năm, workload đại diện15CCU và soak; thống nhất công cụ đo.",

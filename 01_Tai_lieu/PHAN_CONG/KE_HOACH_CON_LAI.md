@@ -1,8 +1,8 @@
 # Toàn bộ phần còn lại và nhánh phân công
 
 **Cập nhật06/10 sau B22/B24/B25/B26:** B01–B24 code, B25 hồ sơ và phần chuẩn bị release/UAT B26 đã tích hợp local.
-Runtime7b168c0 đạt1313tests+10subtests; B26 chưa ACCEPTED. Còn #14layout/#19exporthistory và
-G01–G08 môi trường/nghiệp vụ. Xem [báo cáo mới](../../07_Kiem_tra/release/VERIFICATION.md),
+Runtime97d4c51 đạt1320tests+10subtests; #14layout/#19history đã sửa, CI PG15/16 và native VM đạt.
+B26 SOFTWARE_HANDOVER_READY; G01–G05/G07 cần môi trường/nghiệp vụ thật. Xem [báo cáo mới](../../07_Kiem_tra/release/FINAL_HANDOVER.md),
 [cổng phát hành](../../07_Kiem_tra/release/README.md) và [sổ tích hợp](integration_log.json).
 
 Ngày 03/10/2026 · Mốc mã đã tích hợp: `06041b7bc0c6e6515cb396d2ab5a29fae772df19`.
