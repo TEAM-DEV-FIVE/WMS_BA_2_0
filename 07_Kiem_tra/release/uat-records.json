@@ -1,0 +1,1102 @@
+{
+  "schema_version": 1,
+  "source": "07_Kiem_tra/acceptance_tests.csv",
+  "note": "Templates only; original scenarios preserved. Component evidence does not grant UAT PASS.",
+  "cases": [
+    {
+      "id": "T01",
+      "scenario": "Nhận 80/100 và chuyển cách ly 5",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "PO-2026-001 (100 item SKU-NONE-01, base UOM ROLL); vị trí WH01-INB, WH01-STORAGE, WH01-QUARANTINE, LOC-EXTERNAL",
+      "precondition": "PO mở 100 SKU-NONE-01; kho nhận WH01 sẵn sàng; user có quyền receipt.post và quality.decide",
+      "steps": "1. Tạo receipt 80/100 từ PO; 2. Post receipt nhận 80 từ LOC-EXTERNAL vào WH01-INB; 3. Chuyển kiểm định chất lượng: 75 đạt chuyển từ WH01-INB về WH01-STORAGE, 5 lỗi chuyển từ WH01-INB về WH01-QUARANTINE; 4. Truy vấn tồn kho và PO",
+      "expected": "Physical balance tại WH01 = 80; Available balance <= 75 (5 đơn vị bị giữ tại WH01-QUARANTINE không thể cấp phát); PO remaining = 20; ledger ghi nhận đúng 3 stock_move (EXTERNAL->INB: 80; INB->STORAGE: 75; INB->QUARANTINE: 5)",
+      "required_environment": "PostgreSQL 15/16, FastAPI, Desktop Windows",
+      "requirements": [
+        "GR01",
+        "FR06",
+        "FR07"
+      ],
+      "component_tests": [
+        "tests/foundation/test_count_period.py",
+        "tests/foundation/test_issues.py",
+        "tests/foundation/test_move_quality.py",
+        "tests/foundation/test_receipts.py",
+        "tests/foundation/test_transfers.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B03.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B13.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B15.md"
+      ],
+      "gap": "Nhận/chất lượng trên Windows qua LAN; người dùng đối chiếu hàng/phiếu.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T02",
+      "scenario": "Timeout sau COMMIT và kiểm soát Idempotency",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Idempotency-Key UUID-1: a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c; Idempotency-Key UUID-2: b2c3d4e5-f6a7-48b9-0c1d-2e3f4a5b6c7d; execution_key: exec-doc-rec-001-post; payload lệnh post phiếu nhập 10 SKU-NONE-01",
+      "precondition": "API posting service đang chạy; bảng idempotency_record hoạt động; chuẩn bị request key UUID chuẩn RFC 4122",
+      "steps": "1. Gửi request post với Idempotency-Key UUID-1 và execution_key; giả lập drop kết nối sau khi DB COMMIT thành công; 2. Client retry gửi lại request với cùng UUID-1 và payload; 3. Client gửi request mới với UUID-2 nhưng cùng execution_key; 4. Client gửi request với UUID-1 nhưng payload bị sửa đổi",
+      "expected": "Bước 2 trả về response thành công gốc, chỉ 1 inventory_transaction duy nhất; Bước 3 bị chặn không tạo giao dịch kép (trả kết quả trước hoặc 409 Conflict, ledger không tăng lần hai); Bước 4 trả lỗi 409 Conflict với thông báo khóa thao tác không khớp payload hash",
+      "required_environment": "PostgreSQL 15/16, FastAPI, HTTP client test",
+      "requirements": [
+        "TR01",
+        "FR06",
+        "FR09",
+        "FR11",
+        "FR25",
+        "NFR02",
+        "NFR03",
+        "NFR06"
+      ],
+      "component_tests": [
+        "tests/foundation/test_integrated_workflows.py",
+        "tests/foundation/test_issues.py",
+        "tests/foundation/test_receipt_recovery.py",
+        "tests/foundation/test_receipts.py",
+        "tests/foundation/test_recovery_all.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B02.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B15.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B19.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B21.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T03",
+      "scenario": "Hai phiên PostgreSQL cùng xuất 7 từ tồn 10",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "SKU-NONE-01, stock_balance on_hand = 10, reserved = 0 tại WH01-STORAGE; Phiên A request xuất 7; Phiên B request xuất 7; cờ đồng bộ barrier",
+      "precondition": "Vị trí WH01-STORAGE có đúng 10 đơn vị SKU-NONE-01; không có lệnh giữ chỗ nào khác đang hoạt động",
+      "steps": "1. Mở 2 kết nối C1 và C2 tới PostgreSQL; 2. Đồng thời kích hoạt giao dịch trừ kho/giữ chỗ 7 đơn vị qua barrier đồng bộ; 3. Đợi cả hai phiên hoàn tất; 4. Kiểm tra stock_balance",
+      "expected": "Một phiên thành công (ghi nhận trừ 7) và một phiên thất bại do thiếu tồn (báo lỗi Insufficient Stock/Lock timeout); số dư cuối cùng là 3; tồn kho và available không bao giờ bị âm",
+      "required_environment": "PostgreSQL 15/16 (2 active client connections độc lập)",
+      "requirements": [
+        "GR01",
+        "FR09",
+        "FR11"
+      ],
+      "component_tests": [
+        "tests/foundation/test_count_period.py",
+        "tests/foundation/test_issues.py",
+        "tests/foundation/test_receipts.py",
+        "tests/foundation/test_transfers.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B02.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B13.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T04",
+      "scenario": "Chuyển kho 20 qua vị trí trung chuyển nhưng chỉ nhận 18",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Transfer Order TO-2026-001 (20 SKU-NONE-01 từ WH01-STORAGE sang WH02-STORAGE qua LOC-TRANSIT)",
+      "precondition": "Kho nguồn WH01 có tồn 100 SKU-NONE-01; vị trí TRANSIT và kho đích WH02 đã cấu hình hợp lệ",
+      "steps": "1. Post dispatch 20 đơn vị từ WH01 sang LOC-TRANSIT; retry lệnh dispatch; 2. Post receive tại WH02 ghi nhận thực nhận 18 đơn vị, 2 đơn vị ghi nhận chênh lệch/hỏng; retry lệnh receive",
+      "expected": "Tồn WH01 còn 80; Tồn WH02 tăng 18; LOC-TRANSIT còn 2 đơn vị ghi nhận biên bản mất/hỏng chờ xử lý; các bước retry không làm nhân đôi số dư; balance đối soát khớp 100",
+      "required_environment": "PostgreSQL 15/16, FastAPI, Desktop Windows",
+      "requirements": [
+        "GR01",
+        "FR12",
+        "FR13"
+      ],
+      "component_tests": [
+        "tests/foundation/test_count_period.py",
+        "tests/foundation/test_issues.py",
+        "tests/foundation/test_receipts.py",
+        "tests/foundation/test_transfers.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B11.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B13.md"
+      ],
+      "gap": "Hai kho xác nhận dispatch/receive/chênh lệch qua desktop đích.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T05",
+      "scenario": "Kiểm kê phát hiện 100 thành 98 với quy trình phê duyệt 2 bước",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Count Session CS-2026-001; SKU-NONE-01; Counter 1: user_receiver_wh01 (RECEIVER), Counter 2: user_picker_wh01 (PICKER); Requester: user_wm_wh01 (WAREHOUSE_MANAGER); Approver 1: user_controller_wh01 (CONTROLLER); Approver 2: user_director (DIRECTOR)",
+      "precondition": "Kỳ kiểm kê đang mở; vị trí WH01-STORAGE có sổ sách 100 SKU-NONE-01; policy phê duyệt 2 bước bắt buộc 2 approver độc lập khác creator/counters",
+      "steps": "1. user_wm_wh01 tạo session và lock vị trí; user_receiver_wh01 đếm lần 1 = 98; user_picker_wh01 đếm lần 2 xác nhận 98; user_wm_wh01 submit điều chỉnh delta = -2; 2. Cố tình dùng user_receiver_wh01 hoặc user_wm_wh01 để duyệt -> chặn SOD; 3. user_controller_wh01 duyệt bước 1; thử gửi lệnh post khi mới có bước 1 -> chặn vì chưa đủ bước; 4. user_controller_wh01 cố duyệt luôn bước 2 -> chặn 1 người duyệt 2 bước; 5. user_director duyệt bước 2; 6. user_controller_wh01 thực hiện post điều chỉnh",
+      "expected": "Quy trình chặn SOD người lập/đếm tự duyệt; chặn post khi mới duyệt bước 1; chặn 1 người duyệt cả 2 bước; đủ 2 approver độc lập phê duyệt mới cho phép post điều chỉnh delta = -2; vị trí kiểm kê được mở lock trong cùng transaction commit; thẻ kho ghi nhận lý do điều chỉnh",
+      "required_environment": "PostgreSQL 15/16, FastAPI, Desktop Windows",
+      "requirements": [
+        "GR01",
+        "FR16",
+        "FR17",
+        "FR18"
+      ],
+      "component_tests": [
+        "tests/foundation/test_count_period.py",
+        "tests/foundation/test_count_period_races.py",
+        "tests/foundation/test_issues.py",
+        "tests/foundation/test_receipts.py",
+        "tests/foundation/test_transfers.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B13.md"
+      ],
+      "gap": "Hai người đếm, hai approver và người nghiệm thu thật.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T06",
+      "scenario": "Cạnh tranh nhập cùng một mã Serial vào hai vị trí khác nhau",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Serial: SN-TEST-001; Location 1: WH01-STORAGE; Location 2: WH01-INB; SKU-SERIAL-01",
+      "precondition": "SKU-SERIAL-01 được cấu hình tracking_mode = SERIAL; serial SN-TEST-001 chưa tồn tại trong hệ thống",
+      "steps": "1. Hai transaction T1 và T2 đồng thời thực hiện lệnh nhập hàng cho serial SN-TEST-001 vào hai vị trí khác nhau; 2. Cùng commit; 3. Truy vấn bảng serial_position",
+      "expected": "Ràng buộc UNIQUE trên serial_number đảm bảo chỉ đúng 1 transaction thành công, transaction còn lại bị từ chối bởi database constraint; tổng tồn vật lý của serial đó trên toàn hệ thống luôn bằng 1",
+      "required_environment": "PostgreSQL 15/16 (2 concurrent connections)",
+      "requirements": [
+        "FR06"
+      ],
+      "component_tests": [
+        "tests/foundation/test_receipts.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B15.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T07",
+      "scenario": "Người dùng phân quyền Kho A cố thao tác trên dữ liệu Kho B",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "User: user_multi_grant; Grants: [WAREHOUSE_MANAGER @ WH01, RECEIVER @ WH02]; Kho ngoài scope: WH03; Phiếu: REC-WH02-001; File export: report_wh01.xlsx",
+      "precondition": "User user_multi_grant có grant WAREHOUSE_MANAGER tại WH01 và RECEIVER tại WH02; kho WH03 ngoài scope hoàn toàn; phiếu receipt REC-WH02 thuộc WH02",
+      "steps": "1. user_multi_grant đăng nhập và gửi request duyệt phiếu REC-WH02 tại kho WH02; 2. user_multi_grant gửi request đọc/export báo cáo tồn tại kho WH03 (ngoài scope); 3. user_multi_grant export báo cáo tồn tại kho WH01 (hợp lệ) sinh file report_wh01.xlsx; 4. Admin thu hồi grant/quyền export của user_multi_grant; 5. user_multi_grant gọi API tải file report_wh01.xlsx vừa export",
+      "expected": "Bước 1 trả về 403 Forbidden (nhìn thấy tài nguyên kho WH02 nhưng role RECEIVER thiếu quyền duyệt, không được lấy hợp role từ WH01); Bước 2 trả về 404 Not Found theo 05_API/README.md để không làm lộ kho ngoài scope; Bước 3 export thành công; Bước 5 bị từ chối ngay lập tức với mã 403 Forbidden do quyền tải đã bị thu hồi; dữ liệu không bị lộ giá trái phép",
+      "required_environment": "PostgreSQL 15/16, FastAPI, Desktop Windows",
+      "requirements": [
+        "GR02",
+        "FR02",
+        "FR24",
+        "NFR01"
+      ],
+      "component_tests": [
+        "tests/concurrency/test_b24_process_races.py",
+        "tests/foundation/test_iam_lifecycle.py",
+        "tests/foundation/test_reports_desktop.py",
+        "tests/foundation/test_reports_exports.py",
+        "tests/foundation/test_reports_files.py",
+        "tests/security/test_b24_security.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B17.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B24.md"
+      ],
+      "gap": "Client Windows/LAN, thu hồi quyền ngay trong phiên thật.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T08",
+      "scenario": "Quản lý bản nháp SQLite offline và xử lý crash khi đang ở trạng thái SENDING",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Local Draft DRAFT-SO-001; 5 SKU-NONE-01; Transaction state = SENDING; SQLite local_drafts",
+      "precondition": "Client desktop cấu hình SQLite local_drafts; mạng LAN bị ngắt kết nối giả lập; người dùng đang tạo phiếu xuất",
+      "steps": "1. Tạo phiếu xuất trên client khi offline; lưu bản nháp SQLite; 2. Gửi lệnh post và buộc đóng ứng dụng (kill process) khi trạng thái đang chuyển sang SENDING; 3. Mở lại ứng dụng; 4. Khôi phục kết nối mạng và đối soát operation status",
+      "expected": "Bản nháp không bị mất; phiếu chuyển sang trạng thái UNKNOWN khi mở lại; client tra cứu operation key trước khi quyết định; không tự động gửi lệnh post bừa bãi khi online trở lại; nếu server chưa nhận thì cho phép gửi lại an toàn; nếu tồn kho bị thiếu báo lỗi CONFLICT tường minh",
+      "required_environment": "Windows 10/11 Desktop Client, SQLite local database",
+      "requirements": [
+        "TR01",
+        "TR03",
+        "FR25",
+        "NFR02",
+        "NFR03",
+        "NFR06"
+      ],
+      "component_tests": [
+        "tests/foundation/test_desktop.py",
+        "tests/foundation/test_integrated_workflows.py",
+        "tests/foundation/test_postgres.py",
+        "tests/foundation/test_receipt_recovery.py",
+        "tests/foundation/test_recovery_all.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B19.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B21.md"
+      ],
+      "gap": "Windows10/11, crash process và restart cache trên bản cài đích.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T09",
+      "scenario": "Khôi phục thảm họa từ Base Backup và WAL, đo lường RPO và RTO",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Base backup tarball + WAL archive logs từ T0 đến T1; kịch bản PITR khôi phục thảm họa",
+      "precondition": "Server chính chạy WAL archiving liên tục; base backup lúc T0; phát sinh giao dịch đến T1; giả lập sự cố máy chủ lúc T1+10 phút; máy chủ dự phòng sạch",
+      "steps": "1. Kích hoạt quy trình khôi phục trên máy chủ dự phòng; 2. Khôi phục base backup và replay WAL tới thời điểm T1; 3. Đo tổng thời gian (RTO) từ lúc phát lệnh khôi phục đến khi DB mở nhận kết nối, hoàn thành chạy script reconcile.sql trả 0 dòng lệch và Desktop Client đăng nhập thành công; 4. Kiểm tra độ lệch thời gian của giao dịch cuối cùng được cứu so với thời điểm xảy ra sự cố (RPO)",
+      "expected": "Đo đạc thực tế đạt mục tiêu RPO < 1 giờ và RTO < 4 giờ theo định nghĩa xuyên suốt (DB mở + reconcile trả 0 dòng lệch + client đăng nhập thành công); truy vấn đối soát 02_CSDL/reconcile.sql trả về đúng 0 dòng lệch trên toàn bộ ledger/balance/serial; đăng nhập client hoạt động bình thường; toàn bộ log phục hồi được lưu trữ đầy đủ",
+      "required_environment": "Standby Server Linux/Windows độc lập, PostgreSQL 15/16, scripts PITR",
+      "requirements": [
+        "GR04",
+        "FR27",
+        "NFR04"
+      ],
+      "component_tests": [
+        "deploy/backup/tests/test_pitr.py",
+        "deploy/backup/tests/test_repository.py",
+        "tests/foundation/test_openings.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B22.md"
+      ],
+      "gap": "Máy DR/thiết bị backup độc lập, đủ dữ liệu và đoRPO/RTO toàn chuỗi.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T10",
+      "scenario": "Kiểm soát nghiệp vụ xuất trả nhà cung cấp và đảo giao dịch (Reversal)",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Phiếu trả hàng RET-001 tham chiếu REC-001 với số lượng yêu cầu trả = 5; Phiếu đảo REV-001",
+      "precondition": "Receipt REC-001 đã nhập 10 SKU-NONE-01; 8 đơn vị đã được xuất đi cho khách hàng, chỉ còn 2 đơn vị trong kho",
+      "steps": "1. Cố tình lập phiếu trả 5 đơn vị khi chỉ còn tồn 2; 2. Cố tình đảo toàn bộ phiếu nhập REC-001 (10 đơn vị) khi hàng đã xuất đi một phần; 3. Người lập phiếu cố tình tự duyệt phiếu trả hàng của chính mình",
+      "expected": "Lệnh trả hàng vượt quá tồn hiện có bị chặn; lệnh đảo giao dịch thất bại do số lượng nguồn không đủ và rollback toàn bộ; quy trình phê duyệt chặn người tạo tự duyệt; lịch sử sổ cái của giao dịch gốc được bảo toàn nguyên vẹn",
+      "required_environment": "PostgreSQL 15/16, FastAPI, Desktop Windows",
+      "requirements": [
+        "GR03",
+        "FR14",
+        "FR15",
+        "FR20"
+      ],
+      "component_tests": [
+        "tests/foundation/test_returns.py",
+        "tests/foundation/test_reversals.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B12.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B14.md"
+      ],
+      "gap": "Vai trò trả/đảo trên desktop đích, đối chiếu nguồn và hàng thực.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T11",
+      "scenario": "Thu hồi phiên đăng nhập, xác thực MFA và bảo mật Token",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Access token, Refresh token của u_nhanvien; Admin revoke session API",
+      "precondition": "User u_nhanvien đăng nhập thành công với JWT token và MFA active; desktop client đang mở phiên làm việc",
+      "steps": "1. Admin thực hiện khóa tài khoản hoặc thu hồi phiên (revoke session) của u_nhanvien trên server; 2. Client đang mở gửi tiếp request nghiệp vụ kèm token cũ; 3. Client cố gắng sử dụng refresh token đã thu hồi để cấp mới access token; 4. Quét toàn bộ log server và client",
+      "expected": "Bước 2 trả về 401 Unauthorized ngay lập tức; Bước 3 bị từ chối; không xuất hiện access token, refresh token hay mật khẩu trong bất kỳ file log nào; client buộc người dùng quay lại màn hình đăng nhập",
+      "required_environment": "FastAPI, PostgreSQL 15/16, HTTP Client",
+      "requirements": [
+        "GR02",
+        "FR01",
+        "FR02",
+        "FR29",
+        "NFR01"
+      ],
+      "component_tests": [
+        "tests/concurrency/test_b24_process_races.py",
+        "tests/foundation/test_iam_lifecycle.py",
+        "tests/foundation/test_identity.py",
+        "tests/foundation/test_reports_files.py",
+        "tests/security/test_b24_security.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B04.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B24.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T12",
+      "scenario": "Nhập liệu Master Data từ CSV/Excel với kiểm tra Dry-run và toàn vẹn mã băm",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "File import chứa: dòng sai FK đơn vị tính, dòng trùng mã Barcode với hàng đã có, dòng có số thập phân sai định dạng; SHA-256 hash của file",
+      "precondition": "Danh mục sản phẩm đã có; chuẩn bị file CSV nhập liệu chứa các dòng hợp lệ và các dòng lỗi chủ đích",
+      "steps": "1. Thực hiện chạy Dry-run kiểm tra file nhập liệu; 2. Kiểm tra danh sách lỗi trả về; 3. Cố tình sửa đổi nội dung file trên đĩa sau khi Dry-run đạt nhưng trước khi Commit; 4. Gửi lệnh Commit",
+      "expected": "Dry-run báo cáo chính xác số dòng lỗi, chỉ rõ cột và nguyên nhân vi phạm mà không ghi bất kỳ dữ liệu nào vào database; Bước 4 phát hiện sai lệch mã băm (Hash mismatch) và từ chối toàn bộ tiến trình commit; không xảy ra hiện tượng commit một phần ngầm",
+      "required_environment": "Python import validator, FastAPI, Desktop Windows",
+      "requirements": [
+        "FR03",
+        "FR04",
+        "FR22",
+        "FR31"
+      ],
+      "component_tests": [
+        "tests/foundation/test_import_desktop.py",
+        "tests/foundation/test_imports.py",
+        "tests/foundation/test_imports_parser.py",
+        "tests/foundation/test_master_data.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B05.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B16.md"
+      ],
+      "gap": "File/mapping thực được duyệt và thao tác Windows qua LAN.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T13",
+      "scenario": "Phát hiện và ngăn chặn cấu trúc cây vị trí vòng lặp hoặc sai kho cha",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Vị trí LOC-ZONE-A, LOC-AISLE-1, LOC-BIN-01; Kho WH02",
+      "precondition": "Kho WH01 có vị trí cha LOC-ZONE-A; vị trí con LOC-AISLE-1 thuộc LOC-ZONE-A",
+      "steps": "1. Cập nhật LOC-ZONE-A có parent_id trỏ về LOC-BIN-01 (tạo chu trình kín/vòng lặp A -> 1 -> BIN -> A); 2. Tạo vị trí con thuộc kho WH01 nhưng parent_id trỏ sang vị trí thuộc kho WH02; 3. Thực hiện post chuyển hàng trực tiếp vào vị trí loại GROUP (chỉ dùng gom nhóm)",
+      "expected": "Database trigger và ràng buộc phát hiện vòng lặp đệ quy và từ chối cập nhật; ràng buộc cùng kho cha chặn thao tác khác kho; kiểm tra kiểu vị trí từ chối post hàng vào GROUP location; số dư kho không thay đổi",
+      "required_environment": "PostgreSQL 15/16",
+      "requirements": [
+        "FR03",
+        "FR04"
+      ],
+      "component_tests": [
+        "tests/foundation/test_master_data.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B05.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T14",
+      "scenario": "Đồng thời sửa đổi và phê duyệt chứng từ (Optimistic Lock & Stale State)",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "PO-001 (10 SKU-NONE-01, version 1); User1 sửa thành 12; User2 duyệt bản 10",
+      "precondition": "Purchase Order PO-001 đang ở trạng thái SUBMITTED, version = 1; User1 (staff) và User2 (manager) đều đang mở form chứng từ",
+      "steps": "1. User1 sửa số lượng lên 12 và submit; 2. Gần như đồng thời User2 bấm Duyệt dựa trên dữ liệu version 1 đang hiển thị trên màn hình; 3. Tạo phiếu nhập hàng từ PO đã duyệt và cố tình nhập vượt số lượng",
+      "expected": "Thao tác của User2 bị từ chối với lỗi Stale Object / 409 Conflict yêu cầu tải lại dữ liệu mới nhất; tiến trình phê duyệt trước đó bị hủy hiệu lực khi chứng từ bị chỉnh sửa; phiếu nhập kho không được phép nhận vượt quá số lượng PO cho phép",
+      "required_environment": "FastAPI, Desktop Windows, 2 user sessions",
+      "requirements": [
+        "FR05",
+        "FR08",
+        "FR19",
+        "FR30"
+      ],
+      "component_tests": [
+        "tests/foundation/test_document_reviews.py",
+        "tests/foundation/test_orders.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B15.md"
+      ],
+      "gap": "Hai phiên người dùng desktop đích, bằng chứng stale/SOD từng bước.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T15",
+      "scenario": "Hoàn thành soạn hàng (Picking) không làm thay đổi tồn vật lý trước khi xuất",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Pick Task PT-001; Package PKG-001; Issue Note ISS-001",
+      "precondition": "Đơn bán SO-001 đã được giữ chỗ 5 SKU-NONE-01; tạo Pick Task PT-001; on_hand = 10, reserved = 5, available = 5",
+      "steps": "1. Nhân viên thực hiện nhặt hàng và xác nhận DONE pick task PT-001; đóng kiện PKG-001; 2. In lại phiếu nhặt hàng lần 2; 3. Thực hiện post xuất kho từng phần (xuất 3/5 đơn vị)",
+      "expected": "Tại bước 1 và 2, physical on_hand trên thẻ kho không đổi (vẫn bằng 10); việc in lại phiếu không gây biến động dữ liệu; tại bước 3 khi post issue, on_hand giảm đúng 3 đơn vị (còn 7), reservation tiêu thụ tương ứng 3 đơn vị (còn giữ chỗ 2)",
+      "required_environment": "PostgreSQL 15/16, FastAPI, Desktop Windows",
+      "requirements": [
+        "FR10"
+      ],
+      "component_tests": [
+        "tests/foundation/test_fulfillment.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B10.md"
+      ],
+      "gap": "Thiết bị quét/kiện và quy trình soạn-xuất của kho.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T16",
+      "scenario": "Cạnh tranh giữa lệnh khóa kiểm kê (Freeze Location) và giao dịch xuất nhập kho",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Location WH01-STORAGE; Connection 1: Count Session Freeze; Connection 2: Receipt Post",
+      "precondition": "Vị trí WH01-STORAGE có 20 SKU-NONE-01; chuẩn bị session kiểm kê chuẩn bị freeze vị trí này",
+      "steps": "1. Connection 1 bắt đầu transaction đặt cờ lock vị trí WH01-STORAGE để lấy snapshot số dư kiểm kê; 2. Đồng thời Connection 2 gửi transaction post nhập 5 đơn vị vào vị trí WH01-STORAGE; 3. Theo dõi thứ tự thực thi",
+      "expected": "Hệ thống đảm bảo tính tuần tự (Serializable isolation): Nếu freeze commit trước, post của Connection 2 bị chặn hoặc chờ; snapshot kiểm kê ghi nhận chính xác 20 đơn vị không bị hiện tượng đọc bẩn cắt ngang; nếu post commit trước thì snapshot ghi nhận 25",
+      "required_environment": "PostgreSQL 15/16 (2 concurrent connections)",
+      "requirements": [
+        "FR16",
+        "FR17",
+        "FR18"
+      ],
+      "component_tests": [
+        "tests/foundation/test_count_period.py",
+        "tests/foundation/test_count_period_races.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B13.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T17",
+      "scenario": "Hủy đơn hàng khi đang có giao dịch ghi sổ hoặc đã xuất kho một phần",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "SO-001, 10 PCS; Issue Note ISS-001 (4 PCS posted); Lệnh CANCEL SO-001",
+      "precondition": "Đơn SO-001 gồm 10 đơn vị SKU-NONE-01; đã xuất kho thành công 4 đơn vị; còn giữ chỗ 6 đơn vị",
+      "steps": "1. Gửi lệnh Cancel SO-001 khi 4 đơn vị đã xuất kho xong; 2. Giả lập gửi lệnh Cancel đồng thời với một lệnh post xuất 3 đơn vị tiếp theo đang chạy",
+      "expected": "Phần 4 đơn vị đã post xuất không bị xóa hay đảo lùi tự động; số lượng giữ chỗ còn lại (6 đơn vị) được giải phóng về trạng thái available; trong trường hợp cạnh tranh, transaction nào kết thúc trước sẽ quyết định số lượng giải phóng chính xác",
+      "required_environment": "PostgreSQL 15/16, FastAPI",
+      "requirements": [
+        "FR05",
+        "FR08",
+        "FR19",
+        "FR30"
+      ],
+      "component_tests": [
+        "tests/foundation/test_document_reviews.py",
+        "tests/foundation/test_orders.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B15.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T18",
+      "scenario": "Cạnh tranh giữa hai yêu cầu đảo giao dịch (Reversal Concurrency)",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Transaction REC-TX-001; 2 request đảo: REV-REQ-A và REV-REQ-B",
+      "precondition": "Giao dịch nhập REC-TX-001 có giá trị 10 đơn vị SKU-NONE-01 tại WH01-STORAGE; số lượng hiện tại là 10",
+      "steps": "1. Gửi 2 request đảo giao dịch REV-REQ-A và REV-REQ-B gần như cùng mili-giây tới backend; 2. Kiểm tra bảng inventory_transaction và stock_balance",
+      "expected": "Nhờ cơ chế khóa bi quan và trạng thái liên kết chứng từ, chỉ có tối đa 1 yêu cầu đảo được thực hiện thành công; yêu cầu thứ hai bị từ chối do giao dịch gốc đã bị đảo trước đó; tồn kho giảm đúng 10 đơn vị, không bao giờ bị trừ 2 lần",
+      "required_environment": "PostgreSQL 15/16",
+      "requirements": [
+        "GR03",
+        "FR20"
+      ],
+      "component_tests": [
+        "tests/foundation/test_reversals.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B14.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T19",
+      "scenario": "Đóng kỳ kiểm kê và ngăn chặn ghi lùi ngày vào kỳ đã khóa (Period Close & Backdate)",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Kỳ PERIOD-2026-09; User: user_controller_wh01; Lệnh post phiếu với ngày nghiệp vụ 2026-09-25",
+      "precondition": "Kỳ kho Tháng 09/2026 (PERIOD-2026-09) đang mở; user_controller_wh01 có quyền period.close; user_director có quyền period.reopen",
+      "steps": "1. Thực hiện lệnh đóng kỳ PERIOD-2026-09 (chuyển trạng thái sang CLOSED); 2. Thử gửi lệnh post một phiếu nhập kho mới nhưng cố tình đặt ngày nghiệp vụ lùi vào 2026-09-25; 3. Thực hiện quy trình mở lại kỳ (Reopen) bởi user_director và kiểm tra audit log",
+      "expected": "Bước 2 bị hệ thống từ chối dứt khoát với thông báo lỗi kỳ kho đã đóng; không có dòng dữ liệu nào lọt vào sổ sách của kỳ đã đóng; thao tác Reopen tại bước 3 ghi nhận đầy đủ nhật ký kiểm toán (người mở, lý do, thời gian)",
+      "required_environment": "PostgreSQL 15/16, FastAPI",
+      "requirements": [
+        "FR21"
+      ],
+      "component_tests": [
+        "tests/foundation/test_count_period.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B13.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T20",
+      "scenario": "Nhập số dư đầu kỳ lặp lại và kiểm soát trùng lặp Serial",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "File opening_stock_batch.csv gồm 10 SKU thường và 5 SKU serial; File batch 2 cố tình trùng mã serial nhưng đổi vị trí",
+      "precondition": "Kho chuẩn bị nhập số dư ban đầu; hệ thống chưa có tồn kho",
+      "steps": "1. Import và commit file opening_stock_batch.csv lần 1; 2. Cố tình import và commit lại chính file đó lần 2; 3. Import file batch 2 chứa serial đã nhập ở lần 1 nhưng gán cho vị trí khác",
+      "expected": "Lần 2 bị phát hiện trùng lặp batch và từ chối, không làm nhân đôi số dư tồn kho; Bước 3 bị chặn do vi phạm tính duy nhất của serial trên toàn hệ thống; số dư đầu kỳ khớp hoàn toàn với bảng kê ban đầu",
+      "required_environment": "Python import, FastAPI, PostgreSQL 15/16",
+      "requirements": [
+        "GR04",
+        "FR22",
+        "FR23",
+        "FR31"
+      ],
+      "component_tests": [
+        "deploy/backup/tests/test_pitr.py",
+        "deploy/backup/tests/test_repository.py",
+        "tests/foundation/test_import_desktop.py",
+        "tests/foundation/test_imports.py",
+        "tests/foundation/test_imports_parser.py",
+        "tests/foundation/test_opening_desktop.py",
+        "tests/foundation/test_openings.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B06.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B16.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B22.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T21",
+      "scenario": "Kiểm tra ranh giới báo cáo Nhập-Xuất-Tồn (R02) và phân quyền che giá",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "10 đơn vị di chuyển nội bộ từ WH01-STORAGE sang WH01-PICK; 3 đơn vị xuất bán ra bên ngoài; Báo cáo R02",
+      "precondition": "Kho WH01 có 50 đơn vị; cấu hình vị trí WH01-STORAGE và WH01-PICK cùng thuộc kho WH01; user_receiver_wh01 không có quyền price.read",
+      "steps": "1. Thực hiện move nội bộ 10 đơn vị giữa 2 vị trí trong kho; 2. Thực hiện xuất bán 3 đơn vị; 3. Chạy báo cáo R02 (Nhập-Xuất-Tồn) của kho WH01; 4. Đăng nhập bằng user_receiver_wh01 mở báo cáo giá trị tồn kho R08",
+      "expected": "Trên báo cáo R02, số lượng 10 chuyển nội bộ không bị cộng đôi thành lượt Nhập/Xuất của kho (chỉ hiển thị biến động xuất 3); trên màn hình của user_receiver_wh01, các cột đơn giá và thành tiền bị ẩn hoàn toàn hoặc hiển thị dấu sao (***)",
+      "required_environment": "FastAPI, Desktop Windows Reports",
+      "requirements": [
+        "FR24"
+      ],
+      "component_tests": [
+        "tests/foundation/test_reports_desktop.py",
+        "tests/foundation/test_reports_exports.py",
+        "tests/foundation/test_reports_files.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B17.md"
+      ],
+      "gap": "Nghiệm thu số liệu R02/giá trên Windows; #19 lịch sử export còn mở.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T22",
+      "scenario": "Kiểm thử máy quét mã vạch và in ấn nhãn tem, phiếu khổ chuẩn",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Tem mã vạch Code128, QR Code; Phiếu xuất kho A4 có ký tự tiếng Việt Unicode; lệnh in lại (reprint)",
+      "precondition": "Desktop app kết nối máy in và máy quét barcode; cấu hình mẫu in tiếng Việt có dấu",
+      "steps": "1. Quét mã vạch Code128 và QR code vào ô tìm kiếm hàng hóa trên giao diện; 2. Thực hiện lệnh in phiếu xuất kho với font tiếng Việt ở tỷ lệ scale 100%; 3. Bấm in lại (reprint) phiếu xuất đã in",
+      "expected": "Máy quét điền mã chính xác, tự động nhận diện kết thúc bằng phím Enter; bản in không bị vỡ chữ, không lỗi font tiếng Việt; thao tác in và in lại không phát sinh thêm bất kỳ transaction trừ kho nào",
+      "required_environment": "Windows 10/11 Desktop, Barcode Scanner, máy in nhiệt tem / máy in laser A4",
+      "requirements": [
+        "FR26",
+        "NFR07"
+      ],
+      "component_tests": [
+        "tests/foundation/test_print_render_scanner.py",
+        "tests/foundation/test_printing.py",
+        "tests/foundation/test_printing_desktop.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B18.md"
+      ],
+      "gap": "Q06/Q08 model in/HID, driver, khổ tem/lề/DPI, ảnh giấy và quét lại.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T23",
+      "scenario": "Kiểm thử cài đặt và nâng cấp Client trên Windows x64 với tính tương thích ngược",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Bộ cài đặt WMS Client v1.0 và gói cập nhật v1.1; File local SQLite có 3 bản nháp",
+      "precondition": "Máy client đang chạy phiên bản N-1 có chứa các bản nháp chưa gửi trong SQLite local",
+      "steps": "1. Cài đặt bản mới đè lên bản cũ trên Windows 10 và Windows 11; 2. Mở ứng dụng sau khi nâng cấp; 3. Kiểm tra các bản nháp cũ; 4. Thử ngắt mạng khi đang thao tác giao diện",
+      "expected": "Quá trình cài đặt/nâng cấp diễn ra êm đẹp; 3 bản nháp trong SQLite cục bộ được bảo toàn nguyên vẹn; giao diện Desktop đáp ứng mượt mà (không bị đơ UI nhờ tách riêng worker thread); chứng chỉ TLS nội bộ được xác thực đúng chuẩn",
+      "required_environment": "Windows 10/11 x64 sạch, bản cài N-1 và bản cập nhật mới",
+      "requirements": [
+        "TR02",
+        "FR25",
+        "FR28",
+        "NFR02",
+        "NFR03",
+        "NFR06"
+      ],
+      "component_tests": [
+        "tests/foundation/test_macos_packaging.py",
+        "tests/foundation/test_receipt_recovery.py",
+        "tests/foundation/test_recovery_all.py",
+        "tests/foundation/test_windows_packaging.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B19.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B23.md"
+      ],
+      "gap": "Windows10/11 sạch, cài/nâng cấp/rollbackN-1, quyền cache, chữ ký phát hành.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T24",
+      "scenario": "Kiểm tra các ràng buộc toàn vẹn cơ sở dữ liệu và Rollback giao dịch nguyên tử",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "SKU mẫu; Kịch bản chèn dữ liệu vi phạm ràng buộc CHECK, FK, UNIQUE (bao gồm partial index NULLS NOT DISTINCT)",
+      "precondition": "Database PostgreSQL đã nạp DDL schema 001_schema.sql",
+      "steps": "1. Cố tình chèn 2 SKU có cùng mã hoặc barcode trùng lặp; 2. Cố tình chèn dòng stock_move trỏ tới product_id không tồn tại; 3. Khởi tạo một transaction ghi sổ gồm 3 bước, cố tình gây lỗi chia cho 0 hoặc lỗi ràng buộc ở bước 3",
+      "expected": "Database từ chối ngay lập tức các thao tác vi phạm ràng buộc; tại bước 3, toàn bộ giao dịch tự động Rollback nguyên tử, không có bất kỳ dòng nào ở bước 1 và 2 còn sót lại trong cơ sở dữ liệu",
+      "required_environment": "PostgreSQL 15/16",
+      "requirements": [
+        "TR01",
+        "TR02",
+        "TR04",
+        "FR27",
+        "FR28",
+        "NFR04",
+        "NFR08"
+      ],
+      "component_tests": [
+        "deploy/backup/tests/test_pitr.py",
+        "deploy/backup/tests/test_repository.py",
+        "tests/foundation/test_api_contracts.py",
+        "tests/foundation/test_integrated_workflows.py",
+        "tests/foundation/test_macos_packaging.py",
+        "tests/foundation/test_postgres.py",
+        "tests/foundation/test_windows_packaging.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B08.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B21.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B22.md",
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B23.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T25",
+      "scenario": "Ngăn chặn xuất kho hàng thuộc Lô hết hạn và giải phóng giữ chỗ an toàn",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Lô LOT-EXP-BAD (expiry_date quá hạn); Đơn SO-001; SKU-LOT-01",
+      "precondition": "Lô LOT-EXP-BAD có hạn sử dụng là ngày D-1 (đã hết hạn); SO-001 đã tạo trước đó",
+      "steps": "1. Thử gửi lệnh giữ chỗ cho lô LOT-EXP-BAD đã quá hạn -> chặn giữ chỗ; 2. Giả lập đơn SO đã giữ chỗ từ trước khi hết hạn, sang hôm nay lô hết hạn gửi lệnh post xuất kho; 3. Thực hiện hủy đơn hoặc giải phóng giữ chỗ của lô quá hạn",
+      "expected": "Lệnh giữ chỗ và lệnh post xuất kho hàng thuộc lô quá hạn bị hệ thống chặn dứt khoát với thông báo lỗi lô hàng đã hết hạn sử dụng; lệnh giải phóng giữ chỗ hoạt động bình thường, đưa số lượng về tồn vật lý không khả dụng; tồn available không bị âm",
+      "required_environment": "PostgreSQL 15/16, FastAPI",
+      "requirements": [
+        "FR09",
+        "FR11"
+      ],
+      "component_tests": [
+        "tests/foundation/test_issues.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B02.md"
+      ],
+      "gap": "Chạy đúng fixture/steps trên phiên bản đóng gói, lưu actual/log và reviewer thật; regression thành phần chưa là UAT.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T26",
+      "scenario": "Kiểm thử tải đại diện 15 CCU trên mô hình 1 kho trung tâm/3 phân khu",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Kịch bản tải: 5 user tra cứu tồn, 5 user quét barcode tạo phiếu, 3 user post nhập xuất, 2 user chạy báo cáo",
+      "precondition": "Database có sẵn dữ liệu nền đại diện cho 1 kho trung tâm và 3 phân khu; 15 người dùng ảo đồng thời",
+      "steps": "1. Khởi động 15 CCU chạy liên tục trong 60 phút; 2. Thu thập latency p95 và p99 cho từng endpoint nghiệp vụ; 3. Đo thời gian hoàn tất toàn bộ quy trình từ lúc mở tạo phiếu đến khi post thành công (< 15 phút); 4. Ghi nhận tài nguyên CPU/RAM/IOPS của server",
+      "expected": "Hệ thống hoạt động ổn định không xảy ra lỗi 500 hay deadlock; các chỉ số latency p95/p99 được ghi nhận trung thực vào báo cáo hiệu năng (không tự gán nhãn đạt khi chưa chạy benchmark thực tế); toàn bộ quy trình hoàn tất phiếu hoàn thành đúng mục tiêu vận hành < 15 phút",
+      "required_environment": "Server môi trường test độc lập, Locust/k6 giả lập 15 CCU, PostgreSQL 15/16",
+      "requirements": [
+        "NFR05"
+      ],
+      "component_tests": [
+        "tests/concurrency/test_b24_process_races.py",
+        "tests/performance/test_b24_load.py",
+        "tests/performance/test_b24_stress.py",
+        "tests/security/test_b24_security.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B24.md"
+      ],
+      "gap": "Host test độc lập, dữ liệu20GB/3năm, workload đại diện15CCU và soak; thống nhất công cụ đo.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T27",
+      "scenario": "Phân tách và quản lý tồn kho hàng ký gửi độc lập với hàng thuộc sở hữu doanh nghiệp",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Cùng vị trí WH01-STORAGE: Nhập 10 đơn vị hàng sở hữu doanh nghiệp (OWNED) và 5 đơn vị hàng ký gửi (CONSIGNED); Đối tác: PARTNER-CONSIGN",
+      "precondition": "SKU-ELEC-01 được cấu hình hỗ trợ theo dõi chủ sở hữu; đối tác ký gửi PARTNER-CONSIGN đã khai báo; phụ thuộc migration BE02/TL04",
+      "steps": "1. Thực hiện nhập kho 10 đơn vị hàng thuộc doanh nghiệp; 2. Thực hiện nhập kho 5 đơn vị hàng ký gửi của PARTNER-CONSIGN vào cùng SKU và cùng vị trí; 3. Truy vấn báo cáo tồn kho chi tiết; 4. Cố tình tạo phiếu xuất bán hoặc chuyển quyền sở hữu lô hàng ký gửi khi chưa có chính sách/hợp đồng phê duyệt; 5. Giả lập lỗi giữa chừng để kiểm tra rollback",
+      "expected": "Báo cáo hiển thị rõ ràng: Tồn vật lý = 15, Hàng sở hữu doanh nghiệp = 10, Hàng ký gửi = 5; không hòa lẫn hai nguồn tồn; bước 4 bị từ chối với lý do chưa có chính sách chuyển quyền ký gửi; thao tác retry hoặc rollback không làm thay đổi hoặc gán nhầm chủ sở hữu hàng hóa",
+      "required_environment": "PostgreSQL 15/16, FastAPI, Desktop Windows",
+      "requirements": [
+        "FR32"
+      ],
+      "component_tests": [
+        "tests/foundation/test_b09_dependencies.py",
+        "tests/foundation/test_consignments.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B09.md"
+      ],
+      "gap": "Policy/hợp đồng ký gửi thật; người nghiệp vụ kiểm tách10COMPANY+5CONSIGNED.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    },
+    {
+      "id": "T28",
+      "scenario": "Tra cứu nguồn gốc phiếu nhập và thời hạn bảo hành theo số Serial",
+      "source_plan_status": "PLANNED",
+      "execution_status": "NOT_RUN",
+      "acceptance_status": "PLANNED",
+      "fixture": "Serial SN-WAR-001 (còn hạn bảo hành), SN-WAR-002 (đã hết hạn), SN-WAR-003 (thiếu thông tin mốc bảo hành); User thiếu quyền xem giá/kho",
+      "precondition": "SKU-LAPTOP-01 quản lý theo Serial; đã nạp 3 máy có dữ liệu bảo hành khác nhau; phụ thuộc migration BE05/TL04",
+      "steps": "1. Tra cứu SN-WAR-001: kiểm tra thông tin phiếu nhập, nhà cung cấp, ngày nhập và hạn bảo hành; 2. Tra cứu SN-WAR-002: kiểm tra trạng thái hết hạn; 3. Tra cứu SN-WAR-003 (thiếu mốc thời hạn bảo hành trong hợp đồng/phiếu); 4. Dùng tài khoản thiếu quyền tra cứu",
+      "expected": "Hiển thị chính xác thông tin nguồn gốc phiếu nhập và nhà cung cấp; SN-WAR-001 báo Còn bảo hành; SN-WAR-002 báo Hết hạn; SN-WAR-003 trả về trạng thái Chưa xác định (tuyệt đối không tự suy diễn ngày hết hạn bằng cách cộng tháng tùy ý); tài khoản thiếu quyền không bị lộ thông tin kho nội bộ hay giá vốn nhập hàng",
+      "required_environment": "FastAPI, Desktop Windows",
+      "requirements": [
+        "FR33"
+      ],
+      "component_tests": [
+        "tests/foundation/test_traceability.py"
+      ],
+      "component_evidence": [
+        "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B05.md"
+      ],
+      "gap": "Nguồn thời hạn bảo hành thực, người nghiệp vụ kiểm serial có/không có bằng chứng.",
+      "technical_contact": "Trần Trung Kiên",
+      "executor": null,
+      "reviewer": null,
+      "started_at": null,
+      "finished_at": null,
+      "actual": null,
+      "evidence": [],
+      "environment_record": null,
+      "artifact_manifest_sha256": null,
+      "commit": null,
+      "defects": [],
+      "decision": null
+    }
+  ]
+}
