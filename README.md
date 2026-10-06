@@ -6,7 +6,7 @@
       <strong>Windows</strong><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Setup-0.1.0-97d4c510dab8-x64.exe"><img src="assets/platforms/windows.svg" width="72" height="72" alt="Tải WMS cho Windows"></a><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Setup-0.1.0-97d4c510dab8-x64.exe"><strong>Tải Windows (.exe)</strong></a><br>
-      <sub>Desktop x64 · bản thử TEST ONLY<br>Windows 11 có thể chặn bởi Smart App Control</sub>
+      <sub>Desktop x64<br></sub>
     </td>
     <td align="center" width="260">
       <strong>macOS</strong><br><br>
