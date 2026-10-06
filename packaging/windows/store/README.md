@@ -17,14 +17,14 @@ Chủ tài khoản đã cung cấp identity; bản công khai được lưu tạ
   "name": "InternTechLead.WMS120",
   "publisher": "CN=201AEB57-073D-4301-BFFC-13D1EA9EBBAC",
   "publisher_display_name": "InternTechLead",
-  "display_name": "App quản lý tồn kho"
+  "display_name": "Ứng dụng quản lý tồn kho"
 }
 ```
 
 Đây là identity công khai. Không gửi password, token, giấy tờ xác minh hoặc khóa ký.
 Không lấy tên mẫu trong CI làm identity thật. Chưa có Store listing được duyệt hoặc URL tải chính thức.
 
-Chủ tài khoản đã xác nhận đặt tên **App quản lý tồn kho** trong Partner Center.
+Chủ tài khoản đã xác nhận tên chính xác **Ứng dụng quản lý tồn kho** trong Partner Center.
 Tên được lưu nguyên văn trong `display_name` của JSON để build gói gửi Store.
 `display_name` khác `name` (Package Identity) và `publisher_display_name` (tên nhà phát hành).
 Script bắt buộc trường này và dùng cho cả Properties/DisplayName lẫn VisualElements/DisplayName;
@@ -63,7 +63,7 @@ Workflow không tự gửi duyệt hay xuất bản. Mặc định/PR vẫn dùn
 
 **Partner Center đã từ chối gói 1.0.0.0:** `Package/Properties/DisplayName` là
 `WMS — Quản lý kho`, chưa được đặt trước. Không gửi lại gói này; dùng
-tên đã xác nhận **App quản lý tồn kho**, build 2.1.0.0 rồi thay gói bị lỗi trong Packages. Các kết quả SDK bên dưới
+tên đã xác nhận **Ứng dụng quản lý tồn kho**, build 2.1.0.0 rồi thay gói bị lỗi trong Packages. Các kết quả SDK bên dưới
 chỉ xác nhận cấu trúc/toàn vẹn, không xác nhận Store chấp nhận metadata.
 
 Ngày 06/10/2026, commit `9772e652ed7ac043ed15bc34af579fc4424f5eb7` đã đạt
@@ -100,7 +100,7 @@ Chưa thử thực tế thì trạng thái vẫn NOT_RUN; không đổi đườn
 
 ## Nội dung Store cần hoàn thiện
 
-Tên đã xác nhận bởi chủ tài khoản: **App quản lý tồn kho**.
+Tên đã xác nhận bởi chủ tài khoản: **Ứng dụng quản lý tồn kho**.
 Mô tả: desktop quản lý kho qua máy chủ WMS trên LAN, theo dõi nhập–xuất–tồn/lô/serial,
 phê duyệt, kiểm kê, báo cáo, in phiếu/tem và phục hồi lệnh khi mất kết nối.
 Ghi rõ cần máy chủ và tài khoản do đơn vị vận hành cấp; không có server công cộng/mật khẩu mặc định.
