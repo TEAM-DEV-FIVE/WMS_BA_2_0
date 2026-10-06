@@ -1,0 +1,28 @@
+name: Capture Windows Store screenshots
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  screenshots:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    env:
+      PYTHONUTF8: '1'
+      PYTHONPATH: '.'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install locked dependencies
+        run: python -m pip install -r requirements-app-lock.txt
+      - name: Capture real Tk widgets with explicit sample data
+        run: python scripts/capture_store_screenshots.py --output dist/store-screenshots-windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-screenshots-windows-${{ github.sha }}
+          path: dist/store-screenshots-windows/
+          if-no-files-found: error
+          retention-days: 14
