@@ -78,7 +78,7 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-app-lock.txt
       - name: Install Linux GUI test requirements
-        run: sudo apt-get update && sudo apt-get install -y xvfb xauth
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth nginx
       - run: python scripts/ci_support.py --name dependencies -- python -m pip install -r requirements-app-lock.txt
       - run: python scripts/ci_support.py --name editable -- python -m pip install --no-deps --no-build-isolation -e .
       - name: Full discovered suite with real PostgreSQL and Linux GUI
