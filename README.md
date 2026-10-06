@@ -6,19 +6,19 @@
       <strong>Windows</strong><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Setup-0.1.0-97d4c510dab8-x64.exe"><img src="assets/platforms/windows.svg" width="72" height="72" alt="Tải WMS cho Windows"></a><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Setup-0.1.0-97d4c510dab8-x64.exe"><strong>Tải Windows (.exe)</strong></a><br>
-      <sub>Desktop x64 · bản thử TEST ONLY<br>Windows 11 có thể chặn bởi Smart App Control</sub>
+      <sub>Desktop x64<br></sub>
     </td>
     <td align="center" width="260">
       <strong>macOS</strong><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-macos-arm64-TEST-ONLY.zip"><img src="assets/platforms/macos.svg" width="72" height="72" alt="Tải WMS cho macOS"></a><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-macos-arm64-TEST-ONLY.zip"><strong>Tải macOS (.zip)</strong></a><br>
-      <sub>Desktop ARM64<br>Build VM: macOS 15</sub>
+      <sub>Desktop ARM64<br></sub>
     </td>
     <td align="center" width="260">
       <strong>Linux</strong><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Server-0.1.0-97d4c510dab8-linux-x64.tar.gz"><img src="assets/platforms/linux.svg" width="72" height="72" alt="Tải WMS cho Linux"></a><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Server-0.1.0-97d4c510dab8-linux-x64.tar.gz"><strong>Tải Linux Server (.tar.gz)</strong></a><br>
-      <sub>Server offline x64<br>Ubuntu 24.04</sub>
+      <sub>Ubuntu 24.04<br></sub>
     </td>
   </tr>
 </table>
