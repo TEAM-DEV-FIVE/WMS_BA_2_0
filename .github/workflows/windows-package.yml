@@ -1,6 +1,11 @@
 name: Build Windows desktop package
 on:
   workflow_dispatch:
+    inputs:
+      store_submission:
+        description: 'Build unsigned MSIX with owner-provided Partner Center identity'
+        type: boolean
+        default: false
   pull_request:
     paths:
       - 'apps/desktop/**'
@@ -52,7 +57,9 @@ jobs:
           $setup = $setups[0]
           $versionDirectory = Join-Path $env:LOCALAPPDATA ('Programs\WMS\0.1.0-' + $manifest.commit.Substring(0,12))
           ./packaging/windows/Test-Install.ps1 -Installer $setup.FullName -ExpectedSha256 (Get-FileHash $setup.FullName).Hash -VersionDirectory $versionDirectory -AllowUnsigned
-      - name: Validate MSIX packaging with explicit test identity
+      - name: Validate MSIX packaging with Windows SDK
+        env:
+          WMS_STORE_SUBMISSION: ${{ github.event_name == 'workflow_dispatch' && inputs.store_submission }}
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -60,7 +67,11 @@ jobs:
           if ($builds.Count -ne 1) { throw 'Expected one frozen build' }
           $sdk = @(Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe' | Sort-Object FullName -Descending)
           if ($sdk.Count -eq 0) { throw 'Windows SDK MakeAppx missing' }
-          ./packaging/windows/store/Build-Store.ps1 -Bundle (Join-Path $builds[0].FullName 'frozen\WMS') -Python (Join-Path $builds[0].FullName 'venv\Scripts\python.exe') -MakeAppx $sdk[0].FullName -OutputDirectory dist/store-msix-test -TestIdentity
+          $identityArgs = @{ TestIdentity = $true }
+          if ($env:WMS_STORE_SUBMISSION -eq 'true') {
+            $identityArgs = @{ IdentityFile = 'packaging/windows/store/identity.json' }
+          }
+          ./packaging/windows/store/Build-Store.ps1 -Bundle (Join-Path $builds[0].FullName 'frozen\WMS') -Python (Join-Path $builds[0].FullName 'venv\Scripts\python.exe') -MakeAppx $sdk[0].FullName -OutputDirectory dist/store-msix @identityArgs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -72,11 +83,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: store-msix-TEST-IDENTITY-${{ github.sha }}
+          name: store-msix-${{ inputs.store_submission && 'SUBMISSION-UNSIGNED' || 'TEST-IDENTITY' }}-${{ github.sha }}
           path: |
-            dist/store-msix-test/*.msix
-            dist/store-msix-test/*.json
-            dist/store-msix-test/SHA256SUMS.txt
+            dist/store-msix/*.msix
+            dist/store-msix/*.json
+            dist/store-msix/SHA256SUMS.txt
           if-no-files-found: warn
           retention-days: 14
 # CI is Windows Server 2022, not Windows 10/11 hardware acceptance.

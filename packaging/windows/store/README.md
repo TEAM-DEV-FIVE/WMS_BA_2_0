@@ -10,18 +10,18 @@ và [ký MSIX qua Store](https://learn.microsoft.com/en-us/windows/msix/package/
 ## Thông tin cần từ chủ tài khoản
 
 Partner Center → Apps and games → ứng dụng → Product management → Product identity.
-Lưu ba giá trị **đúng nguyên văn** vào JSON ngoài repository:
+Chủ tài khoản đã cung cấp identity; bản công khai được lưu tại [identity.json](identity.json):
 
 ```json
 {
-  "name": "<Package/Identity/Name>",
-  "publisher": "<Package/Identity/Publisher>",
-  "publisher_display_name": "<Package/Properties/PublisherDisplayName>"
+  "name": "InternTechLead.WMS120",
+  "publisher": "CN=201AEB57-073D-4301-BFFC-13D1EA9EBBAC",
+  "publisher_display_name": "InternTechLead"
 }
 ```
 
 Đây là identity công khai. Không gửi password, token, giấy tờ xác minh hoặc khóa ký.
-Không lấy tên mẫu trong CI làm identity thật. Chưa có identity, Store listing hoặc URL tải chính thức.
+Không lấy tên mẫu trong CI làm identity thật. Chưa có Store listing được duyệt hoặc URL tải chính thức.
 
 ## Đóng gói
 
@@ -33,7 +33,7 @@ Dùng thư mục `build/windows-<uuid>/frozen/WMS` và interpreter trong `venv` 
   -Bundle 'build\windows-<uuid>\frozen\WMS' `
   -Python 'build\windows-<uuid>\venv\Scripts\python.exe' `
   -MakeAppx 'C:\Program Files (x86)\Windows Kits\10\bin\<SDK-version>\x64\makeappx.exe' `
-  -IdentityFile 'C:\Release\store-identity.json' `
+  -IdentityFile 'packaging\windows\store\identity.json' `
   -Version '1.0.0.0' `
   -OutputDirectory 'dist\store-submission-1.0.0.0'
 ```
@@ -45,6 +45,11 @@ Gói unsigned dùng để gửi Partner Center, không thay bộ cài công khai
 
 CI dùng `-TestIdentity` tạo tên gói `TEST-IDENTITY`; chỉ chứng minh SDK chấp nhận cấu trúc.
 Không đăng gói thử này lên Releases và không coi đó là kiểm thử cài đặt MSIX đã đạt.
+
+Để tạo gói gửi Store trên VM Windows: chạy workflow **Build Windows desktop package**
+với `store_submission=true`. Tải artifact `store-msix-SUBMISSION-UNSIGNED-<commit>`;
+file `.msix` bên trong dùng để upload tại Partner Center → submission → Packages.
+Workflow không tự gửi duyệt hay xuất bản. Mặc định/PR vẫn dùng identity thử nghiệm.
 
 ## Quyền và dữ liệu
 
