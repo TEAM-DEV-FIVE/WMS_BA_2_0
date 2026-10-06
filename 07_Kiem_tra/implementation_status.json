@@ -1457,5 +1457,22 @@
       "postgres_16": "job cancelled at timeout30min; artifact reports the same B05 layout failure"
     },
     "issue_14_reopened_after_initial_closure": true
+  },
+  "latest_local_review": {
+    "date": "2026-10-06",
+    "runtime_commit": "7b168c010756c194a33872571cd59d6258712b06",
+    "handover_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
+    "report": "07_Kiem_tra/release/VERIFICATION.md",
+    "local_tests": 1313,
+    "subtests": 10,
+    "handovers": "B01-B24 code, B25 docs, B26 release/UAT preparation integrated",
+    "acceptance": "PLANNED / BLOCKED G01-G08",
+    "remote_mutations_this_review": false,
+    "remaining_software": {
+      "14": "master form overflow 914px at 900px on hosted Ubuntu CI",
+      "19": "full export-job history list missing"
+    },
+    "ci_run": "37464123932",
+    "ci_conclusion": "failure: PG15 UI test; PG16 cancelled; Ubuntu/Windows unit-package passed"
   }
 }

@@ -1,5 +1,17 @@
 # Triển khai WMS — nền tảng, IAM, danh mục và truy vết
 
+## Hiện hành — 06/10/2026, sau B22/B24/B25/B26
+
+B01–B24 đã ghép local; B25 tài liệu và phần chuẩn bị release/UAT B26 đã tích hợp.
+Runtime7b168c0 đạt **1313tests+10subtests,0failed/error/skip** trên PostgreSQL16/NginxTLS/Tk.
+PG001–024,SQLite001–003,101bảng/690cột,189APIpaths. Có gói offline đã cài/smoke và nativeVMlab.
+[Hướng dẫn bàn giao](HANDOVER.md) · [Bằng chứng kiểm thử](../07_Kiem_tra/release/VERIFICATION.md) ·
+[Manifest/cổng còn mở](../07_Kiem_tra/release/README.md).
+B26 chưa ACCEPTED: lỗi#14layout CI, phần#19exporthistory, Win10/11/thiết bị/DRoff-host/tảiđích/
+kýpháthành/đào tạoUAT còn mở. Các mốc và "chưa push/chưa triển khai" phía dưới là **lịch sử từng đợt**.
+
+## Lịch sử khởi tạo
+
 Ngày bắt đầu: 02/10/2026. Nhánh: `feat/application-foundation`.
 Người thực hiện hiện tại: Trần Trung Kiên, có Codex hỗ trợ theo yêu cầu.
 Phân công nhiều thành viên trong issue/hồ sơ cũ là lịch sử kế hoạch, không phải năng lực thực hiện hiện tại.

@@ -257,15 +257,18 @@
     },
     {
       "id": "B22",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": "Reviewed dependencies integrated locally; clean worktree synchronized to metadata descendant of verified runtime. Target environment gates remain open.",
+      "handoff_commit": "7178d536d0a8a124cde9fd8c0b1ebd14918c793c",
+      "integrated_commit": "473ceb28ca0bdef650642027553a446c761db64b",
+      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
       "synchronization_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
       "dependency_commits": {
         "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a"
-      }
+      },
+      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "integration_scope": "PG16 base/WAL/checkpoint/isolated PITR tooling and local fixture; off-host DR NOT_RUN",
+      "acceptance_status": "NEEDS_ENVIRONMENT"
     },
     {
       "id": "B23",
@@ -273,23 +276,25 @@
       "activated_base": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
       "handoff_commit": "8399359ad79b699527f59b4e80ad74f3d40d49f6",
       "integrated_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
-      "note": "Local integration06/10/2026;1210 tests +10 subtests PASS, including28 LAN. Windows packaging preparation and Linux regression; EXE/signing/native Windows NOT_RUN. See 07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md; T01–T28 remain PLANNED.",
+      "note": "Native VM lab passed; Windows10/11/device/public signing acceptance remains open. Historical 626e4a8 evidence retained.",
       "synchronization_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
       "dependency_commits": {
         "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
         "B19": "830146198169a8ed3a5433c483d726e170db6c45"
       },
       "verified_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
-      "integration_scope": "Windows packaging preparation and Linux regression; EXE/signing/native Windows NOT_RUN",
-      "acceptance_status": "NEEDS_ENVIRONMENT"
+      "integration_scope": "Windows packaging plus native VM TEST ONLY signing/install/self-test; macOS15 ARM64 ad-hoc lab build",
+      "acceptance_status": "NEEDS_ENVIRONMENT",
+      "native_verified_commit": "d9b547184626c168e54d7250b310568866e8cd41",
+      "native_report": "07_Kiem_tra/NATIVE_VM_2026_10_06.md"
     },
     {
       "id": "B24",
-      "status": "READY",
+      "status": "INTEGRATED",
       "activated_base": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": "Reviewed dependencies integrated locally; clean worktree synchronized to metadata descendant of verified runtime. Target environment gates remain open.",
+      "handoff_commit": "a526cb7945bace3bb31e933d2c6e77827991ca09",
+      "integrated_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
       "synchronization_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
       "dependency_commits": {
         "B04": "5e6989f614ee298fd171cb7eb24f31141caaf592",
@@ -301,42 +306,106 @@
         "B19": "830146198169a8ed3a5433c483d726e170db6c45",
         "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
         "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a"
-      }
+      },
+      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "integration_scope": "TLS process races/security/runtime grants/load harness; local 15CCU and stress evidence, target acceptance NOT_RUN",
+      "acceptance_status": "NEEDS_ENVIRONMENT"
     },
     {
       "id": "B25",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "7b168c010756c194a33872571cd59d6258712b06",
+      "handoff_commit": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c",
+      "integrated_commit": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c",
+      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
+      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "integration_scope": "Role manuals/runbooks/training/49-requirement matrix; training/sign-off NOT_RUN",
+      "acceptance_status": "NEEDS_ENVIRONMENT",
+      "dependency_commits": {
+        "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+        "B19": "830146198169a8ed3a5433c483d726e170db6c45",
+        "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+        "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a",
+        "B22": "473ceb28ca0bdef650642027553a446c761db64b",
+        "B23": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+        "B24": "7b168c010756c194a33872571cd59d6258712b06"
+      }
     },
     {
       "id": "B26",
-      "status": "NOT_STARTED",
-      "activated_base": null,
-      "handoff_commit": null,
-      "integrated_commit": null,
-      "note": ""
+      "status": "INTEGRATED",
+      "activated_base": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c",
+      "handoff_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
+      "integrated_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
+      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
+      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "integration_scope": "Release candidate preparation, full local regression and offline install; UAT acceptance blocked by G01-G08",
+      "acceptance_status": "ACCEPTANCE_BLOCKED",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B04": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+        "B05": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B06": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B10": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+        "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+        "B19": "830146198169a8ed3a5433c483d726e170db6c45",
+        "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+        "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a",
+        "B22": "473ceb28ca0bdef650642027553a446c761db64b",
+        "B23": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+        "B24": "7b168c010756c194a33872571cd59d6258712b06",
+        "B25": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c"
+      },
+      "preparation_status": "RELEASE_CANDIDATE_PREPARED"
     }
   ],
   "last_review": {
     "date": "2026-10-06",
-    "tested_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
-    "report": "07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md",
-    "next_ready_for_sync": [
-      "B22",
-      "B24"
+    "tested_commit": "7b168c010756c194a33872571cd59d6258712b06",
+    "documentation_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
+    "report": "07_Kiem_tra/release/VERIFICATION.md",
+    "tests": 1313,
+    "subtests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "next_ready_for_sync": [],
+    "acceptance_status": "ACCEPTANCE_BLOCKED",
+    "remaining_gates": [
+      "G01",
+      "G02",
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
     ]
   },
   "last_activation": {
     "date": "2026-10-06",
-    "activated_base": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
     "tasks": [
-      "B22",
-      "B24"
+      "B25",
+      "B26"
     ],
-    "status": "READY",
-    "note": "Synchronize clean worktrees to metadata descendant of this runtime; user assigns agents. B21/B23 integration is local code/preparation only, not target acceptance."
+    "status": "INTEGRATED_LOCAL_PREPARATION",
+    "activated_base": "7b168c010756c194a33872571cd59d6258712b06",
+    "note": "Primary completed docs/release preparation after B22/B24; no subagents spawned; target acceptance still blocked."
   }
 }

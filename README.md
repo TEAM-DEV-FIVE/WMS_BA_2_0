@@ -4,9 +4,9 @@
 
 Bộ hồ sơ phân tích nghiệp vụ (BA), thiết kế kỹ thuật và mã nền tảng cho hệ thống quản lý kho dùng **Python/Tkinter, FastAPI và PostgreSQL**, phiên bản hồ sơ **2.0**, ứng dụng **0.1.0**.
 
-**Trạng thái: đang triển khai, chưa nghiệm thu nghiệp vụ kho.** Đã tích hợp mã local của 22/26 nhánh (B01–B21 và B23): nền server/desktop, IAM/MFA/quyền theo kho, danh mục/owner/serial, PO/SO và duyệt, nhận/tồn đầu/giữ hàng/xuất/QC/di chuyển/soạn-đóng kiện/chuyển kho/trả hàng, [kiểm kê và kỳ kho](01_Tai_lieu/COUNTING_PERIODS.md), [UI import](01_Tai_lieu/IMPORT_DESKTOP.md), [đảo giao dịch](01_Tai_lieu/REVERSALS.md), [trường mở rộng](01_Tai_lieu/CUSTOM_FIELDS.md), [báo cáo/xuất](01_Tai_lieu/REPORTS_EXPORT.md) và [in/tem/HID](01_Tai_lieu/PRINTING_SCANNER.md). Recovery chung B19 và worker B20 đã tích hợp. Mốc tích hợp B21/B23 đạt 1210 tests +10 subtests; [báo cáo và giới hạn](07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md). Bổ sung: [EXE Windows và APP macOS đã build/ký lab và chạy thử trên VM](07_Kiem_tra/NATIVE_VM_2026_10_06.md); chứng thư công khai, Windows 10/11, thiết bị và rollout target còn chờ. B22 backup/B24 tải-bảo mật READY; DR/UAT tiếp tục theo [phân công](01_Tai_lieu/PHAN_CONG/README.md). `requirements-dev.txt` chỉ phục vụ kiểm tra hồ sơ.
+**Trạng thái: bản ứng viên local, chưa nghiệm thu nghiệp vụ.** B01–B24 đã ghép; B25 tài liệu và phần chuẩn bị release/UAT B26 đã tích hợp. Runtime `7b168c0` đạt **1.313 test +10 subtest**,0failed/error/skip, gồm LAN và backup. [Bằng chứng](07_Kiem_tra/release/VERIFICATION.md) · [Gói offline/manifest/cổng phát hành](07_Kiem_tra/release/README.md) · [Hướng dẫn người dùng/IT](01_Tai_lieu/HANDOVER.md). Bộ cài Windows/macOS đã build/ký lab trên VM. Còn #14layout CI, #19exporthistory và nghiệm thu Win10/11/thiết bị/DRoff-host/tảiđích/kýpháthành/đào tạo. T01–T28 giữ PLANNED; không gọi26nhánh có bàn giao là26nhánh đã nghiệm thu.
 
-**Đồng bộ GitHub 06/10/2026:** đã đóng thêm 24 issue, hiện 27 CLOSED/13 OPEN. Mã ở
+**Snapshot đồng bộ GitHub trước B19–B26 (06/10/2026):** đã đóng thêm 24 issue, hiện 27 CLOSED/13 OPEN. Mã ở
 [`feat/application-foundation` / PR #46](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/pull/46), chưa merge `main`. CI hồ sơ đạt; CI ứng dụng phát hiện lỗi
 layout danh mục và Windows/timeout runner, đã ghi tại #14/#21. [Báo cáo và danh sách issue](07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md).
 
@@ -189,5 +189,5 @@ Q01–Q08 đã được tiếp nhận từ bảng quyết định của tech lea
 Đã tích hợp 18/26 nhánh. Phần còn lại theo [dependency và phân công](01_Tai_lieu/PHAN_CONG/README.md):
 
 1. Giao song song B19 recovery và B20 worker: đã đồng bộ nền `80fcf3f`, READY; B01–B18 đã tích hợp.
-2. Tiếp tục B19–B24 theo dependency: recovery, worker, vận hành LAN/DR, Windows và tải.
-3. B25/B26 tổng rà soát và nghiệm thu T01–T28 trên môi trường mục tiêu.
+2. Sửa khoảng trống #14layout/#19exporthistory và kiểm chứng lại trên môi trường đích.
+3. Dùng hồ sơ B25/B26 đã chuẩn bị để chạy T01–T28, đóng các cổng G01–G08 bằng evidence thực.

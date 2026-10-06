@@ -2,7 +2,9 @@
 
 Đọc brief Bxx của nhánh trước khi sửa. Danh sách có máy đọc được: [backlog.json](backlog.json).
 Các brief ghi **phần còn thiếu**, không yêu cầu viết lại các module đã chạy. Mốc hiện tại là
-`626e4a84a7e3`: 1210 tests +10 subtests local (gồm 28 LAN), 0 failed/skip; B01–B21 và phần chuẩn bị B23 đã tích hợp. B22/B24 READY; B21/B23 còn chờ target acceptance.
+`7b168c010756`:1313tests+10subtests local,0failed/error/skip, gồm tests+LAN+backup.
+B01–B24 đã ghép; B25fb2e3d8 và phần chuẩn bị B26 đã ghép. B26 vẫn ACCEPTANCE_BLOCKED,
+xem [cổng phát hành](../../07_Kiem_tra/release/README.md) và [bằng chứng](../../07_Kiem_tra/release/VERIFICATION.md).
 Mốc `06041b7` với 301 tests là lịch sử chia việc ban đầu. T01–T28 vẫn PLANNED; số test này
 không thay thế nghiệm thu Windows, thiết bị, tải, backup/restore hoặc xác nhận nghiệp vụ.
 
