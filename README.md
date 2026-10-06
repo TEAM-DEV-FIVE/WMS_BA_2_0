@@ -12,7 +12,7 @@
       <strong>macOS</strong><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-macos-arm64-TEST-ONLY.zip"><img src="assets/platforms/macos.svg" width="72" height="72" alt="Tải WMS cho macOS"></a><br><br>
       <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-macos-arm64-TEST-ONLY.zip"><strong>Tải macOS (.zip)</strong></a><br>
-      <sub>Desktop ARM64<br></sub>
+      <sub><br>Desktop ARM64</sub>
     </td>
     <td align="center" width="260">
       <strong>Linux</strong><br><br>
