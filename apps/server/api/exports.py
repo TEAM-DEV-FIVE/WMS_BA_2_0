@@ -1,13 +1,15 @@
+from datetime import datetime
 from typing import Annotated, Literal
 from urllib.parse import quote
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Header, Query, Request
 from fastapi.responses import JSONResponse, Response
 
 from apps.server.api.dependencies import identity_dependencies
 from packages.contracts import Error
-from packages.contracts.reports import ExportAction, ExportCreate, ExportView
+from packages.contracts.job_history import JobHistoryPage
+from packages.contracts.reports import ExportAction, ExportCreate, ExportView, ReportCode
 
 
 def export_router(service):
@@ -17,6 +19,14 @@ def export_router(service):
         responses={c: {"model": Error} for c in [401, 403, 404, 409, 422, 503]},
     )
     token, authorization = identity_dependencies(service.identity)
+
+    @router.get("", response_model=JobHistoryPage)
+    def history(warehouse_id: UUID, code: ReportCode | None = None, after: UUID | None = None,
+                limit: int = Query(25, ge=1, le=100), since: datetime | None = None, until: datetime | None = None,
+                status: Literal["QUEUED", "RUNNING", "READY", "FAILED", "CANCELLED"] | None = None,
+                auth=Depends(authorization)):
+        return service.history(auth, warehouse_id, code=code, after=after, limit=limit,
+                               since=since, until=until, status=status)
 
     @router.post("", response_model=ExportView, status_code=201)
     def create(

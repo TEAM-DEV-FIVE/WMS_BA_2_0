@@ -89,3 +89,13 @@ Preview POST là kiểm tra không ghi, nhận key theo convention nhưng không
 Payload JSON phẳng có whitelist kiểu, giới hạn 64 KiB/depth 8, từ chối key trùng và
 namespace lõi. Projection giá áp dụng quyền hiện tại ở read/history/preview.
 Core OpenAPI giữ thiết kế ban đầu; không suy nghiệm thu từ các route runtime mới.
+
+## Lịch sử import/export (#19)
+
+GET `/imports` nhận kind và warehouse_id theo scope của template; GET `/exports` nhận warehouse_id,
+code R01–R08 tùy chọn. Cả hai nhận since/until có múi giờ (đầu bao gồm, cuối loại trừ), status,
+limit 1–100 và after UUID. Trả JobHistoryPage chỉ có metadata, cursor theo (created_at,id) giảm dần.
+Mỗi hàng được kiểm tra quyền hiện tại và requested_by trước projection. Cursor người khác bị từ chối.
+Cleanup export giữ riêng history_scope tối thiểu để kiểm tra quyền; không giữ rows/giá/file đã hết hạn.
+Tombstone phiên bản cũ không còn scope được bỏ khỏi danh sách, không suy đoán quyền cũ.
+Không đổi các lệnh ghi, key/version hoặc migration001–024.

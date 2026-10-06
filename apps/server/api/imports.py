@@ -1,4 +1,5 @@
-from typing import Annotated
+from datetime import datetime
+from typing import Annotated, Literal
 from urllib.parse import quote, unquote
 from uuid import UUID
 
@@ -25,6 +26,7 @@ from packages.contracts.imports import (
     ImportRows,
     ImportView,
 )
+from packages.contracts.job_history import JobHistoryPage
 
 
 def import_router(service):
@@ -34,6 +36,14 @@ def import_router(service):
         responses={c: {"model": Error} for c in [401, 403, 404, 409, 413, 422, 503]},
     )
     token, authorization = identity_dependencies(service.identity)
+
+    @router.get("/imports", response_model=JobHistoryPage)
+    def history(kind: ImportKind, warehouse_id: UUID | None = None, after: UUID | None = None,
+                limit: int = Query(25, ge=1, le=100), since: datetime | None = None, until: datetime | None = None,
+                status: Literal["QUEUED", "VALIDATING", "VALIDATED", "INVALID", "COMMITTED", "CANCELLED", "FAILED"] | None = None,
+                auth=Depends(authorization)):
+        return service.history(auth, kind, warehouse_id, after=after, limit=limit,
+                               since=since, until=until, status=status)
 
     @router.get("/import-templates", response_model=ImportCapabilities)
     def templates(auth=Depends(authorization)):

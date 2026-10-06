@@ -41,6 +41,8 @@ def main():
     parser.add_argument("--dependency-bundle", type=Path, required=True)
     parser.add_argument("--dependency-manifest-sha256", required=True)
     parser.add_argument("--native-root", type=Path, required=True)
+    parser.add_argument("--native-evidence", default="07_Kiem_tra/NATIVE_VM_2026_10_06.artifacts.json",
+                        help="Committed artifact metadata path in docs-commit")
     parser.add_argument("--destination", type=Path, required=True)
     args = parser.parse_args()
     runtime = git("rev-parse", "--verify", f"{args.runtime_commit}^{{commit}}").decode().strip()
@@ -49,7 +51,7 @@ def main():
     subprocess.run(["git", "merge-base", "--is-ancestor", runtime, docs], cwd=ROOT, check=True)
     code_paths = ["apps", "packages", "migrations", "requirements-app-lock.txt", "pyproject.toml"]
     assert not git("diff", runtime, docs, "--", *code_paths), "Docs commit changed runtime"
-    native = json.loads(committed(docs, "07_Kiem_tra/NATIVE_VM_2026_10_06.artifacts.json"))
+    native = json.loads(committed(docs, args.native_evidence))
     assert not git("diff", native["commit"], runtime, "--", *code_paths), "Rebuild native clients for changed code"
     # Validate the installed Python package bytes against the named runtime, not a wheel filename.
     source_files = git("ls-tree", "-r", "--name-only", runtime, "--", "apps", "packages", "migrations").decode().splitlines()

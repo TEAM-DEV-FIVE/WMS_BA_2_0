@@ -174,6 +174,9 @@ def test_b05_forms_fit_default_window_and_clear_user_state():
     from packages.contracts.traceability import SerialWarranty
 
     root = tk.Tk()
+    # Match a wider Ubuntu font rather than relying on the developer desktop default.
+    import tkinter.font as tkfont
+    tkfont.nametofont("TkDefaultFont", root=root).configure(family="DejaVu Sans", size=11)
     shell = DesktopShell(root, DesktopSettings())
     user = CurrentUser(id=uuid4(), username="layout", display_name="Người kiểm thử", is_active=True, mfa_verified=False,
                        global_permissions=["master.read", "master.write", "partner.read", "partner.write", "warehouse.configure", "price.write"])

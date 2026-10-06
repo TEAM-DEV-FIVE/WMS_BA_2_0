@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 
 from apps.desktop.presenters.reports import ReportPresenter
+from apps.desktop.views.job_history import JobHistoryPanel
 
 LABELS = [
     "R01 · Tồn theo vị trí",
@@ -108,6 +109,7 @@ class ReportView(ttk.Frame):
         self.report = ttk.Combobox(top, state="readonly", values=LABELS, width=36)
         self.report.current(0)
         self.report.pack(side="left", padx=8)
+        self.report.bind("<<ComboboxSelected>>", lambda event: self.scope_changed())
         filters = ttk.Frame(self)
         filters.pack(fill="x", pady=6)
         fields = [
@@ -145,8 +147,14 @@ class ReportView(ttk.Frame):
             self,
             text="R01/R06: tồn hiện tại. R03: thứ tự ghi sổ cố định. R05: cần quyền cả hai kho. Ngày: YYYY-MM-DD.",
         ).pack(anchor="w", pady=3)
-        grid = ttk.Frame(self)
-        grid.pack(fill="both", expand=True)
+        self.tabs = ttk.Notebook(self)
+        self.tabs.pack(fill="both", expand=True)
+        grid = ttk.Frame(self.tabs)
+        self.tabs.add(grid, text="Dữ liệu báo cáo")
+        self.history = JobHistoryPanel(self.tabs,
+            lambda filters: self.presenter.history(filters, self.report.get()[:3]), self.presenter.open_history,
+            ["QUEUED", "RUNNING", "READY", "FAILED", "CANCELLED"])
+        self.tabs.add(self.history, text="Lịch sử export")
         self.tree = ttk.Treeview(grid, show="headings", height=8)
         self.tree.grid(row=0, column=0, sticky="nsew")
         x = ttk.Scrollbar(grid, orient="horizontal", command=self.tree.xview)
@@ -220,6 +228,7 @@ class ReportView(ttk.Frame):
 
     def report_clear(self):
         self.tree.delete(*self.tree.get_children())
+        self.history.clear()
         self.status.set("Chọn báo cáo và bộ lọc; snapshot có hiệu lực một giờ.")
 
     def report_busy(self):
@@ -255,9 +264,14 @@ class ReportView(ttk.Frame):
             f"Xuất {job['format'].upper()}: {job['status']} · {job['error_code'] or ''}. Bấm Trạng thái để cập nhật."
         )
 
+    def report_history(self, result):
+        self.history.show(result)
+        self.status.set("Chọn job trong lịch sử để đọc trạng thái, tải tệp, hủy hoặc retry theo quyền hiện tại.")
+
     def report_saved(self, path):
         self.status.set("Đã lưu: " + path)
 
     def release_variables(self):
+        self.history.release_variables()
         self.variables.clear()
         self.status = self.desc = self.price = None

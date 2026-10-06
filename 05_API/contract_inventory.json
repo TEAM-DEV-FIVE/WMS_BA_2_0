@@ -480,6 +480,26 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/exports",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/exports/{job_id}",
       "tags": [
         "exports"
@@ -782,6 +802,27 @@
     {
       "method": "GET",
       "path": "/api/v1/import-templates",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/imports",
       "tags": [
         "imports"
       ],

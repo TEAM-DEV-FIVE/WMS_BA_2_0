@@ -69,7 +69,7 @@ Cutover có biên bản kiểm đếm thực và người phê duyệt. Kho open
 Upload → tạo job/dry-run → đọc tất cả lỗi → xác nhận hash/token → commit. Commit import chứng từ chỉ
 tạo DRAFT; tiếp tục gửi/duyệt/ghi sổ trên form nghiệp vụ. Không chia tệp để vượt quy tắc opening một lần.
 
-Giữ mã job để **Đọc / tiếp tục**. Tệp đổi sau dry-run phải chọn/kiểm lại; hết hạn token phải validate lại.
+Mở tab **Lịch sử import**, chọn loại/kho, ngày UTC và trạng thái rồi **Tải lịch sử**; chọn job để **Mở job đã chọn**. Có thể nhập mã job trực tiếp để **Đọc / tiếp tục**. Tệp đổi sau dry-run phải chọn/kiểm lại; hết hạn token phải validate lại.
 Trường hợp UNKNOWN tra trạng thái bằng mã cũ trước khi gửi lại. [Import](IMPORT_DESKTOP.md),
 [Opening](OPENING_DESKTOP.md), [giới hạn dữ liệu](IMPORTS.md).
 
@@ -107,3 +107,13 @@ kiểm máy/giấy/hàng đợi trước **In lại**, không bấm liên tục.
 
 Gửi hỗ trợ: commit/version, thời điểm, kho, loại thao tác, mã phiếu/job/operation và mã lỗi, các bước tái lập.
 Không gửi password, OTP, token hoặc nội dung dump. [Quy tắc phục hồi đầy đủ](RECOVERY_ALL.md).
+
+## Lịch sử export
+
+Trong Báo cáo, chọn kho và R01–R08, mở tab **Lịch sử export** rồi **Tải lịch sử**.
+Ngày nhập theo YYYY-MM-DD (UTC), ngày kết thúc bao gồm cả ngày đó. Trang trước/sau dùng con trỏ
+ổn định; đổi bộ lọc bắt đầu lại trang đầu. Mở job còn hiệu lực để đọc trạng thái, tải file READY,
+hủy hoặc retry job FAILED. Mỗi thao tác kiểm tra lại quyền hiện tại.
+Chỉ thấy job của chính mình còn đủ quyền (bao gồm quyền giá/hai kho/kiểm kê nếu có).
+Job hết hạn chỉ còn metadata; tạo snapshot mới để xuất dữ liệu hiện tại.
+Các tombstone đã dọn bằng phiên bản cũ và mất thông tin quyền không được khôi phục vào lịch sử.

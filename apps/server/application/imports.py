@@ -108,6 +108,15 @@ class ImportService:
         self.file(auth, row["file_id"])
         return row
 
+    def history(self, auth, kind, warehouse_id=None, **filters):
+        from apps.server.application.job_history import history_page
+
+        authorize_kind(auth, kind, warehouse_id)
+        return history_page(auth, "import_job",
+            "kind=:kind AND warehouse_id IS NOT DISTINCT FROM CAST(:warehouse AS uuid) AND auth_version IS NOT NULL",
+            dict(kind=kind, warehouse=warehouse_id), lambda j: self.job(auth, j["id"]),
+            lambda j: dict(id=j["id"], kind=j["kind"], status=j["status"], created_at=j["created_at"]), **filters)
+
     def read(self, auth, job_id):
         job = self.job(auth, job_id)
         return ImportView.model_validate({k: job[k] for k in ImportView.model_fields})

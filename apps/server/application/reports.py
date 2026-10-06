@@ -82,7 +82,7 @@ class ReportService:
             for permission in permissions(code, criteria) + (["report.export"] if export else []):
                 auth.require(permission, warehouse)
 
-    def snapshot(self, auth, snapshot_id, *, export=False):
+    def snapshot(self, auth, snapshot_id, *, export=False, allow_expired=False):
         snapshot = one(
             auth.connection,
             """SELECT * FROM wms.report_snapshot
@@ -95,7 +95,7 @@ class ReportService:
         self.authorize(
             auth, snapshot["report_code"], snapshot["criteria"], snapshot["required_warehouses"], export
         )
-        if snapshot["expires_at"] <= self.identity.clock():
+        if not allow_expired and snapshot["expires_at"] <= self.identity.clock():
             raise DomainError("REPORT_EXPIRED", "Snapshot hết hạn; tạo báo cáo mới.")
         if snapshot["report_code"] == "R07" and one(
             auth.connection,

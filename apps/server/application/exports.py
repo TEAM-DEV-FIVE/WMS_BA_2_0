@@ -8,6 +8,7 @@ from sqlalchemy import text
 
 from apps.server.application.authorization import Authorization, Principal
 from apps.server.application.commands import CommandResult
+from apps.server.application.job_history import history_page
 from apps.server.application.master_data import one
 from apps.server.application.reports import serialize_actor, serialized
 from apps.server.domain.errors import DomainError, require_version
@@ -26,6 +27,30 @@ class ExportService:
     def __init__(self, reports, storage=None):
         self.reports, self.identity = reports, reports.identity
         self.storage = storage or FileStorage(ExportSettings())
+
+    def history(self, auth, warehouse_id, code=None, **filters):
+        for permission in ("report.read", "report.export", "ownership.read"):
+            auth.require(permission, warehouse_id)
+
+        def authorize(job):
+            if job["snapshot_id"]:
+                self.reports.snapshot(auth, job["snapshot_id"], export=True, allow_expired=True)
+                return
+            scope = job["filters"]["history_scope"]
+            self.reports.authorize(auth, job["report_code"], scope, scope["required_warehouses"], export=True)
+            if scope.get("count_sessions") and one(auth.connection,
+                "SELECT id FROM wms.count_assignment WHERE user_id=:actor AND session_id=ANY(CAST(:ids AS uuid[])) LIMIT 1",
+                actor=auth.principal.user_id, ids=scope["count_sessions"]):
+                raise DomainError("FORBIDDEN", "Người đếm không được xem lịch sử báo cáo kiểm kê.")
+
+        predicate = """format IS NOT NULL AND (filters->>'warehouse_id'=:warehouse OR
+            filters->'history_scope'->>'warehouse_id'=:warehouse)"""
+        if code:
+            predicate += " AND report_code=:code"
+        return history_page(auth, "export_job", predicate, dict(warehouse=str(warehouse_id), code=code),
+            authorize, lambda j: dict(id=j["id"], kind=j["report_code"] + " / " + j["format"],
+                                     status=j["status"], created_at=j["created_at"], error_code=j["error_code"],
+                                     expired=j["snapshot_id"] is None or j["expires_at"] <= self.identity.clock()), **filters)
 
     def job(self, auth, job_id, lock=False):
         job = one(

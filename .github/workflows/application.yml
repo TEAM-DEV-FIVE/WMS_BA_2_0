@@ -48,7 +48,7 @@ jobs:
 
   application-postgres:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -82,7 +82,7 @@ jobs:
       - run: python scripts/ci_support.py --name dependencies -- python -m pip install -r requirements-app-lock.txt
       - run: python scripts/ci_support.py --name editable -- python -m pip install --no-deps --no-build-isolation -e .
       - name: Full discovered suite with real PostgreSQL and Linux GUI
-        run: xvfb-run -a python scripts/check_application.py --gui --expected-pg-major ${{ matrix.version }}
+        run: xvfb-run -a python scripts/check_application.py --gui --jobs 2 --expected-pg-major ${{ matrix.version }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

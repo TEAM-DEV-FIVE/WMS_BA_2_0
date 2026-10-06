@@ -21,6 +21,9 @@ def run(*args, **kwargs):
 
 
 def tests(environment, options, pg_version=None):
+    if options.jobs > 1:
+        from check_parallel import tests as parallel_tests
+        return parallel_tests(environment, options, pg_version)
     report = options.report.resolve()
     report.parent.mkdir(parents=True, exist_ok=True)
     environment["WMS_TEST_COLLECTION_REPORT"] = str(report.with_suffix(".collection.json"))
@@ -79,7 +82,11 @@ def main():
     parser.add_argument("--expected-pg-major", type=int, choices=(15, 16))
     parser.add_argument("--test-path", type=Path, action="append",
                         help="Explicit local test path (repeatable); default: entire tests directory")
+    parser.add_argument("--jobs", type=int, choices=range(1, 5), default=1,
+                        help="Linux full GUI suite: 1–4 audited process shards")
     args = parser.parse_args()
+    if args.jobs > 1 and (sys.platform != "linux" or not args.gui or args.suite != "all"):
+        parser.error("--jobs requires Linux --gui --suite all")
     for path in args.test_path or []:
         if not path.resolve().is_relative_to(ROOT) or not path.exists():
             parser.error("--test-path must exist inside this worktree")

@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from apps.desktop.api.client import ApiError
 from apps.desktop.api.imports import save_bytes, validated
+from packages.contracts.job_history import JobHistoryPage
 from packages.contracts.reports import ExportView, ReportCriteria, ReportPage, ReportSnapshot
 
 
@@ -168,9 +169,9 @@ class ReportPresenter:
 
         self.submit("page", run)
 
-    def refresh(self):
-        if self.job:
-            job_id = self.job["id"]
+    def refresh(self, job_id=None):
+        if job_id or self.job:
+            job_id = job_id or self.job["id"]
 
             def run():
                 result = validated(ExportView, self.api.get("exports/" + job_id))
@@ -179,6 +180,20 @@ class ReportPresenter:
                 return result
 
             self.submit("status", run)
+
+    def history(self, filters, code=None):
+        query = dict(filters, warehouse_id=self.warehouse)
+        if code:
+            query["code"] = code
+        return self.submit("history", lambda: validated(JobHistoryPage, self.api.get("exports?" + urlencode(query))))
+
+    def open_history(self, job_id):
+        if self.uncertain or self.pending is not None:
+            self.view.report_error("Hoàn tất lệnh đang chờ trước khi mở job khác.")
+            return
+        self.snapshot = self.next_after = None
+        self.job = None
+        self.refresh(job_id)
 
     def download(self, path):
         if not self.job:
@@ -248,6 +263,8 @@ class ReportPresenter:
             elif action == "page":
                 self.snapshot, self.next_after = result["snapshot"], result["next_after"]
                 self.view.report_page(result)
+            elif action == "history":
+                self.view.report_history(result)
             elif action in {"job", "status"}:
                 if action == "job":
                     self.commands.pop(self.scope, None)

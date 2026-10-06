@@ -55,8 +55,9 @@ bằng chứng mới. Xem [phục hồi B19](RECOVERY_ALL.md), [native VM](../07
 - B22 đã PITR ở fixture cách ly cùng máy; chưa có thiết bị backup độc lập/off-host và chưa đo DR đích.
 - Q06/Q08 model máy in, máy quét, giấy/tem và mẫu thật được người dùng cho bổ sung sau.
   Mẫu InternTechLead hiện có cần duyệt bố cục/nghiệp vụ; không coi PDF render thành công là in giấy đạt.
-- Màn import cần giữ mã job để đọc tiếp; màn báo cáo hiện theo dõi job đang mở, chưa có danh sách lịch sử
-  export đầy đủ (#19). Nháp/lệnh được B19 lưu bền; upload tệp/IAM không thuộc journal replay tự động.
+- Import/export có tab lịch sử theo người dùng, loại/kho, ngày UTC và trạng thái; mở lại job kiểm tra
+  quyền hiện tại. Export hết hạn chỉ còn metadata, không tải lại tệp. Nháp/lệnh được B19 lưu bền;
+  upload tệp/IAM không thuộc journal replay tự động.
 - Không có offline posting, không hỗ trợ tự chuyển quyền hàng ký gửi thiếu policy/hợp đồng;
   bảo hành thiếu nguồn trả "Chưa xác định". Giá tham chiếu không phải giá vốn/kế toán.
 

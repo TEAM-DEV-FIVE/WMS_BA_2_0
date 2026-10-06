@@ -35,6 +35,16 @@ def test_reports_gui_real_http_pg_export_and_stale_download(reports, opening_ui,
     assert f.exporter.run_one() == "READY"
     view.presenter.refresh()
     wait(lambda: view.presenter.pending is None)
+    # Reopen after losing the current in-memory job, through real API history.
+    job_id = view.presenter.job["id"]
+    view.presenter.job = None
+    view.history.load()
+    wait(lambda: view.presenter.pending is None)
+    assert job_id in view.history.rows
+    view.history.tree.selection_set(job_id)
+    view.history.open_selected()
+    wait(lambda: view.presenter.pending is None)
+    assert view.presenter.job["id"] == job_id
     destination = tmp_path / "report.xlsx"
     view.presenter.download(str(destination))
     wait(lambda: view.presenter.pending is None)
@@ -59,6 +69,7 @@ def test_reports_gui_real_http_pg_export_and_stale_download(reports, opening_ui,
     assert destination.read_bytes() == b"Keep original"
     assert not view.tree.get_children()
     assert view.presenter.snapshot is None
+    assert not view.history.rows
 
 
 def test_reports_gui_unknown_ack_retries_exact_key(reports, opening_ui, monkeypatch):  # noqa: F811

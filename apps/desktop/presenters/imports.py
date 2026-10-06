@@ -11,6 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from queue import Empty, Queue
+from urllib.parse import urlencode
 from uuid import uuid4
 
 from apps.desktop.api.client import ApiError
@@ -22,8 +23,10 @@ from apps.desktop.api.imports import (
     save_bytes,
     source_file,
     upload_path,
+    validated,
 )
 from packages.contracts.imports import ImportAction, ImportCommit, ImportCreate
+from packages.contracts.job_history import JobHistoryPage
 
 UNKNOWN = {"TIMEOUT", "NETWORK_ERROR", "INTERNAL_ERROR", "INVALID_RESPONSE", "UNAUTHENTICATED",
            "REFRESH_REPLAY", "FORBIDDEN", "NOT_FOUND", "DATABASE_NOT_READY", "SERVICE_UNAVAILABLE"}
@@ -88,6 +91,12 @@ class ImportPresenter:
         self.pending.add_done_callback(lambda future: self.results.put(
             (sequence, generation, action, context, future)))
         return True
+
+    def history(self, filters):
+        query = dict(filters, kind=self.kind)
+        if self.warehouse:
+            query["warehouse_id"] = self.warehouse
+        return self.submit("history", lambda: validated(JobHistoryPage, self.imports.client.get("imports?" + urlencode(query))))
 
     def load(self):
         warehouse = self.warehouse
@@ -259,6 +268,8 @@ class ImportPresenter:
             else:
                 if action == "load":
                     self.view.import_loaded(*result)
+                elif action == "history":
+                    self.view.import_history(result)
                 elif action == "source":
                     self.source = result
                     self.view.import_source(result)

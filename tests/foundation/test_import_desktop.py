@@ -215,6 +215,14 @@ def test_import_gui_paged_errors_download_revoke_and_cancel(import_ui, tmp_path)
     f, view = import_ui, import_ui.import_view
     f.import_prepare(rows=[[f"BAD{i}", "Sai độ chính xác", 7] for i in range(105)])
     assert view.job["status"] == "INVALID" and len(view.rows) == 50
+    job_id = view.job["id"]
+    view.history.load()
+    f.import_idle()
+    assert job_id in view.history.rows
+    view.history.tree.selection_set(job_id)
+    view.history.open_selected()
+    f.import_idle()
+    assert view.job["id"] == job_id and len(view.rows) == 50
     assert view.buttons["commit"].instate(["disabled"])
     view.page(1)
     f.import_idle()
@@ -239,6 +247,7 @@ def test_import_gui_paged_errors_download_revoke_and_cancel(import_ui, tmp_path)
     view.download(True, str(destination))
     f.import_idle()
     assert destination.read_bytes() == b"original" and view.job is None and not view.rows
+    assert not view.history.rows
     assert "FORBIDDEN" in view.variables["status"].get()
 
 

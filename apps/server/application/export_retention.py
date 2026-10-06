@@ -69,9 +69,17 @@ def cleanup(service, *, batch_size=100):
                 WHERE job_id IN (SELECT id FROM wms.export_job WHERE snapshot_id=ANY(CAST(:expired AS uuid[])))"""),
                 {"expired": expired},
             )
+            # Preserve only authorization metadata for history, never rows, prices or original filters.
+            c.execute(text("""UPDATE wms.export_job j SET filters=jsonb_build_object('history_scope',
+                jsonb_build_object('warehouse_id',s.criteria->>'warehouse_id',
+                  'include_price',s.criteria->'include_price','required_warehouses',to_jsonb(s.required_warehouses),
+                  'count_sessions',COALESCE((SELECT jsonb_agg(DISTINCT r.payload->>'session_id')
+                     FROM wms.report_snapshot_row r WHERE r.snapshot_id=s.id AND s.report_code='R07'), '[]'::jsonb)))
+                FROM wms.report_snapshot s WHERE j.snapshot_id=s.id AND s.id=ANY(CAST(:expired AS uuid[]))"""),
+                {"expired": expired})
             c.execute(
                 text("""UPDATE wms.export_job SET status='CANCELLED',generation=generation+1,version=version+1,
-                file_id=NULL,snapshot_id=NULL,filters='{}',error_code='REPORT_EXPIRED'
+                file_id=NULL,snapshot_id=NULL,error_code='REPORT_EXPIRED'
                 WHERE snapshot_id=ANY(CAST(:expired AS uuid[]))"""),
                 {"expired": expired},
             )

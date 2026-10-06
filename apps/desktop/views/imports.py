@@ -6,6 +6,7 @@ from uuid import UUID
 
 from apps.desktop.presenters.imports import ImportPresenter
 from apps.desktop.views.document_review import ScrollPanel
+from apps.desktop.views.job_history import JobHistoryPanel
 
 LABELS = {
     "01_uom": "01 · Đơn vị tính", "02_categories": "02 · Nhóm hàng", "03_warehouses": "03 · Kho",
@@ -128,6 +129,9 @@ class ImportView(ttk.Frame):
         self.detail.pack(fill="x")
         self.table.bind("<<TreeviewSelect>>", self.show_row)
         self.table.bind("<Return>", lambda event: self.open_target())
+        self.history = JobHistoryPanel(tabs, self.presenter.history, self.open_history,
+            ["QUEUED", "VALIDATING", "VALIDATED", "INVALID", "COMMITTED", "CANCELLED", "FAILED"])
+        tabs.add(self.history, text="Lịch sử import")
         self.form.bind_scrolling()
         self.import_clear()
 
@@ -168,6 +172,7 @@ class ImportView(ttk.Frame):
             self.presenter.load()
 
     def import_clear_data(self):
+        self.history.clear()
         self.job, self.rows = None, []
         self.trusted = False
         self.cursors, self.page_index, self.next_after = [0], 0, None
@@ -325,6 +330,19 @@ class ImportView(ttk.Frame):
         except ValueError:
             self.import_error("Nhập lý do (3–2000 ký tự); tồn đầu kỳ cần biên bản kiểm đếm đã ký.")
 
+    def open_history(self, job_id):
+        if self.presenter.uncertain or self.presenter.pending is not None:
+            self.import_error("Hoàn tất lệnh đang chờ trước khi mở job khác.")
+            return
+        self.variables["job_id"].set(job_id)
+        self.refresh()
+
+    def import_history(self, result):
+        self.busy = False
+        self.history.show(result)
+        self.variables["status"].set("Chọn job để đọc lại dữ liệu, lỗi và tiếp tục theo quyền hiện tại.")
+        self.enable()
+
     def import_checked(self):
         self.busy = False
         self.variables["status"].set("Chưa có ACK xác nhận. Có thể gửi lại đúng key/nội dung; không tạo yêu cầu mới.")
@@ -371,6 +389,7 @@ class ImportView(ttk.Frame):
             self.on_open_document(dict(kind=kind, warehouse_id=self.warehouse_id(), id=row["target_id"]))
 
     def release_variables(self):
+        self.history.release_variables()
         self.variables.clear()
         self.confirm = None
         self.on_open_document = None
