@@ -80,7 +80,8 @@ seed cố định phân phối lựa chọn, không cố định lịch điều 
 API pool 3/max_overflow 0. Sáu worker production (outbox/import/export/print/export-cleanup/print-cleanup)
 dùng pool độc lập 3, chạy dưới thread supervision local. Cleanup cần hơn 1 connection vì storage fence
 giữ connection trong lúc mở transaction khác. Đây không phải bằng chứng systemd process supervision.
-Outbox xử lý sự kiện thật; các worker job/cleanup thực hiện vòng poll nhưng profile không tạo hàng đợi
+Outbox dùng registry thật nhưng processed=0 vì profile không tạo job thuộc subscription.
+Các worker job/cleanup thực hiện vòng poll nhưng profile không tạo hàng đợi
 import/export/print có tải. Không suy ra năng lực xử lý đồng thời các loại job từ số đo này.
 
 Thu thập count/status/p50/p95/p99/max từng API, throughput, số post thật kể cả warmup, replay,
