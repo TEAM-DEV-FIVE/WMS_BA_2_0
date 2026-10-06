@@ -120,7 +120,7 @@ def main():
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--stage", type=Path, required=True)
     parser.add_argument("--identity", type=Path)
-    parser.add_argument("--version", default="1.0.1.0")
+    parser.add_argument("--version", default="2.1.0.0")
     parser.add_argument("--test-identity", action="store_true")
     parser.add_argument("--report", type=Path, required=True)
     options = parser.parse_args()
