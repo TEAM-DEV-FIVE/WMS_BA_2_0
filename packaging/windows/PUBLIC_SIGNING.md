@@ -28,6 +28,24 @@ tự chứng minh tư cách pháp nhân. Chủ dự án tự nhập giấy tờ,
 cổng chính thức; không đưa chúng vào Git, Actions log hoặc cuộc hội thoại.
 Không đăng ký gói Open Source khi chưa đáp ứng điều kiện giấy phép/phân phối của CA.
 
+## Phương án miễn phí
+
+**Microsoft Store / MSIX:** [luồng đăng ký mới](https://learn.microsoft.com/en-us/windows/apps/publish/faq/open-developer-account)
+miễn phí; Microsoft cung cấp ký và phân phối cho gói MSIX qua Store. Cần tài khoản đã xác minh,
+identity của ứng dụng trên Partner Center, gói MSIX và duyệt Store. Không cần đổi giấy phép mã nguồn
+chỉ để dùng hướng này. Đây không phải chứng thư miễn phí cho EXE tự host trên GitHub.
+WMS hiện chưa có gói MSIX hay Store listing; phải bổ sung và kiểm thử cache/quyền/LAN/in trong gói mới.
+
+**SignPath Foundation / EXE:** [điều kiện](https://signpath.org/terms.html) yêu cầu giấy phép
+OSI-approved, thành phần mã nguồn mở phù hợp, dự án duy trì/phát hành công khai, MFA cho nhóm
+và policy ký/privacy. Phải được xét duyệt; chưa có cấp ký cho WMS. Repository hiện chưa có
+license cho mã WMS; không tự thêm MIT/GPL hoặc đổi quyền phân phối của các tác giả.
+Chủ dự án cần chốt quyền cấp phép trước khi gửi hồ sơ. Chứng thư thuộc SignPath Foundation.
+
+Chủ dự án chọn hướng dễ nhất và miễn phí; triển khai **Microsoft Store / MSIX**.
+Xem [quy trình và thông tin identity cần cung cấp](store/README.md). Chưa mở tài khoản thay người dùng,
+chấp nhận điều khoản, thanh toán, gửi hồ sơ hoặc tuyên bố đã được duyệt.
+
 ## Máy ký và lệnh build
 
 1. Chuẩn bị máy Windows x64 riêng, Python 3.12/Tk, Windows SDK SignTool và Inno Setup 6.7.3.

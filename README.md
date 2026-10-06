@@ -25,6 +25,7 @@
 
 Windows đã build/cài thử trên **Server 2022 x64**; macOS đã build/cài thử trên **15 ARM64**.
 Phạm vi kiểm chứng và chữ ký bộ cài được ghi tại [trạng thái phát hành](#trạng-thái-nghiệm-thu-và-phát-hành).
+Hướng phát hành Windows miễn phí qua [Microsoft Store / MSIX](packaging/windows/store/README.md) đang được chuẩn bị; chưa có bản Store được duyệt.
 
 **Hệ thống quản lý kho desktop qua mạng LAN dành cho hàng điện tử và thiết bị IT.**
 
