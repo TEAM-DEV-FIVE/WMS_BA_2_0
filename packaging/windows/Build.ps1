@@ -11,8 +11,8 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if ($env:OS -ne 'Windows_NT' -or $env:PROCESSOR_ARCHITECTURE -ne 'AMD64') { throw 'Windows x64 build host required' }
 if ([bool]$CertificateThumbprint -eq [bool]$Unsigned) { throw 'Choose a certificate thumbprint OR explicitly -Unsigned' }
-if (!(Test-Path -LiteralPath $ISCC) -or (Get-Item -LiteralPath $ISCC).VersionInfo.FileVersion -notmatch '^6\.7\.3(\.|$)') {
-    throw 'Install reviewed Inno Setup 6.7.3 and pass -ISCC; no unpinned compiler fallback'
+if (!(Test-Path -LiteralPath $ISCC)) {
+    throw 'Install reviewed Inno Setup 6.7.3 and pass -ISCC'
 }
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 Push-Location $repo
@@ -26,6 +26,16 @@ try {
     $output = Join-Path $repo ('dist\windows-' + $releaseId)
     if (Test-Path -LiteralPath $output) { throw 'Output already exists; preserve it and use a new release commit' }
     New-Item -ItemType Directory -Path $work, $output | Out-Null
+    # ISCC PE FileVersion can be 0.0.0.0. Ask the actual compiler engine by
+    # compiling a no-output probe, not by trusting file metadata or a path name.
+    $probe = Join-Path $work 'compiler-probe.iss'
+    [IO.File]::WriteAllText($probe, "[Setup]`nAppName=WMS Compiler Probe`nAppVersion=0`nCreateAppDir=no`nUninstallable=no`nOutput=no`n", [Text.UTF8Encoding]::new($false))
+    $compilerOutput = & $ISCC /O- $probe 2>&1
+    $compilerExit = $LASTEXITCODE
+    $compilerOutput | ForEach-Object { Write-Host $_ }
+    if ($compilerExit -ne 0 -or ($compilerOutput -join "`n") -notmatch '(?m)^Compiler engine version: Inno Setup 6\.7\.3(\s|$)') {
+        throw 'Compiler engine must be exactly Inno Setup 6.7.3; no unpinned compiler fallback'
+    }
     & py -3.12 -m venv (Join-Path $work 'venv')
     if ($LASTEXITCODE -ne 0) { throw 'CPython 3.12 x64 with Tk is required' }
     $python = Join-Path $work 'venv\Scripts\python.exe'

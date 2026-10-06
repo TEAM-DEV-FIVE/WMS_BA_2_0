@@ -87,7 +87,9 @@ class LocalStore:
             self.connection.backup(target)
             if target.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise ValueError("Local store backup validation failed")
-        with path.open("rb") as stream:
+        # Windows CRT _commit (os.fsync) requires a writable descriptor even when
+        # SQLite has already written and closed the validated backup.
+        with path.open("r+b") as stream:
             os.fsync(stream.fileno())
         if os.name != "nt":
             descriptor = os.open(path.parent, os.O_RDONLY)
