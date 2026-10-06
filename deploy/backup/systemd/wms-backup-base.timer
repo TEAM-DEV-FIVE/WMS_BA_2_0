@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily WMS base backup (not a substitute for checkpoints/WAL)
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+RandomizedDelaySec=120
+Unit=wms-backup-base.service
+
+[Install]
+WantedBy=timers.target

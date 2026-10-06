@@ -1,0 +1,11 @@
+[Unit]
+Description=Proposed 15 minute WMS recovery checkpoints (measure write-pause budget first)
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=false
+AccuracySec=5
+Unit=wms-backup-checkpoint.service
+
+[Install]
+WantedBy=timers.target

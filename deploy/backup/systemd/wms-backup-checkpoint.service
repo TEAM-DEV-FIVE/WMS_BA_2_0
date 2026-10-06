@@ -1,0 +1,20 @@
+[Unit]
+Description=WMS coordinated DB/files recovery checkpoint with a brief write pause
+After=postgresql@16-main.service
+RequiresMountsFor=/mnt/wms-backup /srv/wms
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+LimitCORE=0
+ExecStart=/usr/bin/python3 -I /opt/wms/backup/backup_admin.py cycle
+# Must exceed measured scan/copy/restart time; operator handles any interrupted maintenance.
+TimeoutStartSec=20min
+Nice=10
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/mnt/wms-backup /etc/wms
+StandardOutput=journal
+StandardError=journal
