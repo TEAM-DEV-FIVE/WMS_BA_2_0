@@ -1,0 +1,83 @@
+{
+  "commit": "d9b547184626c168e54d7250b310568866e8cd41",
+  "artifacts": [
+    {
+      "platform": "windows",
+      "name": "Rollback.ps1",
+      "size": 1886,
+      "sha256": "62738ee69938d3dd27c35a59374953dfeaa0e625c44240e9d0a97741d9bfe753"
+    },
+    {
+      "platform": "windows",
+      "name": "SHA256SUMS.txt",
+      "size": 532,
+      "sha256": "c527241ad0a5c9e0d881e110662ef604437578b24b1c66606ced737d0df70a5e"
+    },
+    {
+      "platform": "windows",
+      "name": "Test-Install.ps1",
+      "size": 2931,
+      "sha256": "ffb4ac2ecda46fc5f844b2a4b559b6f1660a6f31404b431c3b098f59f1437bd4"
+    },
+    {
+      "platform": "windows",
+      "name": "WMS-0.1.0-d9b547184626-x64.zip",
+      "size": 38287680,
+      "sha256": "7ad3b54681fc95f996b69e06b63df1166a4420a36b0526e4da12a8e321b788c8"
+    },
+    {
+      "platform": "windows",
+      "name": "WMS-Setup-0.1.0-d9b547184626-x64.exe",
+      "size": 24087552,
+      "sha256": "15c9a8b9b98a4c6afae0acce9e32ba9ba007095c9a633c4b144a0e1e2f736108"
+    },
+    {
+      "platform": "windows",
+      "name": "frozen-smoke.json",
+      "size": 319,
+      "sha256": "06b315b29d70d1886aa65e07eb4ca13e5af22832a092ad30cd35f8d995e61d75"
+    },
+    {
+      "platform": "windows",
+      "name": "lab-signature.json",
+      "size": 218,
+      "sha256": "cca788523c7816fcc8ee5fd039da06907839b1eb728724a7636ff0fe0fe340ac"
+    },
+    {
+      "platform": "windows",
+      "name": "manifest.json",
+      "size": 173917,
+      "sha256": "2b98de2aa525c4b8c5742b03d0b4289d7274b0b94a52852cc52d3a5e50fbd603"
+    },
+    {
+      "platform": "windows",
+      "name": "windows-test-signer.cer",
+      "size": 1050,
+      "sha256": "d2bb3de2e0e86b072b27b9bec9a44037d4310c3aa86ac9e353607a94cda3cd03"
+    },
+    {
+      "platform": "macos",
+      "name": "SHA256SUMS.txt",
+      "size": 262,
+      "sha256": "6a150bb28244c9331f83d8c88aa874e0ee7c5a9123b6ff8790113831f2982a4e"
+    },
+    {
+      "platform": "macos",
+      "name": "WMS-macos-arm64-TEST-ONLY.zip",
+      "size": 25878696,
+      "sha256": "e74a6ee0dcb96b2019748437c8ea8cb3f76f8eb500d3e15e50804c294e27e83c"
+    },
+    {
+      "platform": "macos",
+      "name": "installed-smoke.json",
+      "size": 298,
+      "sha256": "3dac5f3c8299dc1172f572aa73f87d4086cc892f5b7c4fc8a0df49847bbae4d2"
+    },
+    {
+      "platform": "macos",
+      "name": "release.json",
+      "size": 336,
+      "sha256": "d517bb57137326df176f9d5f074a8fb8ed37b56db28ddf9bd802515ba29f27cb"
+    }
+  ]
+}

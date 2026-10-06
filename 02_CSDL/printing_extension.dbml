@@ -1,0 +1,47 @@
+Table print_job {
+  id uuid [not null]
+  requested_by uuid [not null]
+  session_id uuid [not null]
+  warehouse_id uuid [not null]
+  source_id uuid [not null]
+  source_version integer [not null]
+  template varchar(20) [not null]
+  template_version integer [not null]
+  paper varchar(10) [not null]
+  include_price boolean [not null]
+  criteria jsonb [not null]
+  snapshot jsonb [not null]
+  snapshot_hash char(64) [not null]
+  status varchar(12) [not null]
+  version integer [not null]
+  generation integer [not null]
+  file_id uuid
+  created_at timestamptz [not null]
+  expires_at timestamptz [not null]
+  error_code varchar(40)
+}
+Table print_task {
+  id uuid [not null]
+  job_id uuid [not null]
+  generation integer [not null]
+  status varchar(10) [not null]
+  attempts integer [not null]
+  available_at timestamptz [not null]
+  lease_token uuid
+  lease_until timestamptz
+}
+Table print_attempt {
+  id uuid [not null]
+  job_id uuid [not null]
+  generation integer [not null]
+  actor_id uuid [not null]
+  session_id uuid [not null]
+  printer varchar(200) [not null]
+  driver varchar(20) [not null]
+  copies integer [not null]
+  status varchar(10) [not null]
+  spool_id varchar(200)
+  error_code varchar(40)
+  created_at timestamptz [not null]
+  finished_at timestamptz
+}

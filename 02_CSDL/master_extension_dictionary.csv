@@ -1,0 +1,9 @@
+table,column,data_type,nullable,references
+uom,version,integer,NO,
+uom,is_active,boolean,NO,
+product_category,version,integer,NO,
+product_category,is_active,boolean,NO,
+warehouse,version,integer,NO,
+location,version,integer,NO,
+partner,version,integer,NO,
+barcode,version,integer,NO,

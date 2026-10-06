@@ -1,0 +1,2 @@
+wms_services    wms             wms_app
+wms_services    wms-migrate     wms_owner

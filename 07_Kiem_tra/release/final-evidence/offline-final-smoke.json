@@ -1,0 +1,1 @@
+{"result": "PASS", "prefix": "/tmp/wms-offline-final-97d4c51/venv", "modules": 209, "runtime_paths": 189, "postgres_migrations": 24, "local_cache": "PASS", "pdf": "PASS", "pdf_sha256": "127cc86608ce598aff9976897b2e3897882979e2723ce3676c4afc9490aab8cb", "runtime_db_contacted": false}

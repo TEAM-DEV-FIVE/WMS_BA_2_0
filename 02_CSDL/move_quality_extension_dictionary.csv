@@ -1,0 +1,6 @@
+table,column,data_type,nullable,references
+move_line,document_line_id,uuid,NO,document_line.id
+move_line,stock_item_id,uuid,NO,stock_item.id
+move_line,source_location_id,uuid,NO,location.id
+move_line,destination_location_id,uuid,NO,location.id
+move_line,quality_decision_id,uuid,YES,quality_decision.id

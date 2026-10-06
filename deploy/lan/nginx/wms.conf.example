@@ -1,0 +1,43 @@
+# Loaded inside nginx http {}. Replace wms.example.internal with the issued DNS SAN.
+# No HTTP listener/redirect: clients must configure HTTPS explicitly.
+log_format wms_safe '$time_iso8601 $status $request_time';
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name wms.example.internal;
+    ssl_certificate /etc/wms/tls/server-chain.pem;
+    ssl_certificate_key /etc/wms/tls/server-key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_tickets off;
+    server_tokens off;
+    access_log /var/log/nginx/wms-access.log wms_safe;
+    # Nginx errors can contain full URI/query strings. Request errors are discarded;
+    # rely on status-only access log + WMS structured logs for request diagnostics.
+    error_log /dev/null;
+    if ($host != wms.example.internal) { return 421; }
+    if (-f /etc/wms/maintenance.on) { return 503; }
+    client_max_body_size 21m;
+    client_body_timeout 30s;
+    add_header Strict-Transport-Security 'max-age=31536000' always;
+    location /api/v1/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_set_header X-Forwarded-For '';
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_pass_request_headers on;
+        # Includes Authorization, Idempotency-Key, X-WMS-Recovery and response proof headers.
+        proxy_next_upstream off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        proxy_buffering off;
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_intercept_errors on;
+        error_page 502 504 =503 @unavailable;
+    }
+    location @unavailable { return 503; }
+    location / { return 404; }
+}

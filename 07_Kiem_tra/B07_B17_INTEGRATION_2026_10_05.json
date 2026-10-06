@@ -1,0 +1,135 @@
+{
+  "validation": {
+    "date": "2026-10-05",
+    "commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+    "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+    "report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md",
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-integrate-b07-b17",
+    "passed": 1060,
+    "subtests_passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 1498.515,
+    "runtime_paths": 177,
+    "migrations": 22,
+    "runtime_schema": {
+      "tables": 97,
+      "columns": 638,
+      "foreign_keys": 203,
+      "roles": 10,
+      "permissions": 58,
+      "role_permissions": 125
+    },
+    "local_sqlite_schema_version": 2,
+    "installed_wheel_checked": true,
+    "full_acceptance_completed": false,
+    "not_run": [
+      "PostgreSQL 15",
+      "Windows 10/11",
+      "hosted CI",
+      "target LAN/TLS",
+      "physical printer/scanner",
+      "15 CCU representative load",
+      "backup/restore RPO/RTO",
+      "business UAT"
+    ]
+  },
+  "source_commits": {
+    "B07": "cef3d9013e1e86057f50a3b3cfd39a964b028948",
+    "B17": "b131b30cf7ea855ee22e696f786d11648d7c90a2"
+  },
+  "merge_commits": {
+    "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+    "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb"
+  },
+  "integrated_task_ids": [
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07",
+    "B08",
+    "B09",
+    "B10",
+    "B11",
+    "B12",
+    "B13",
+    "B14",
+    "B15",
+    "B16",
+    "B17"
+  ],
+  "ready_for_sync": [
+    "B18"
+  ],
+  "wheel_sha256": "8bd9b1bfd87b1775ee28f948faf6c94ab83a99b3948b8ebe8c912aa5cf29b989",
+  "evidence": [
+    {
+      "file": ".reports/b07-b17-build.log",
+      "sha256": "1076d3e1fe0bb5aa1fdae600e068407a48d34d68ea9cb6d35fd5eb751aa43bf2"
+    },
+    {
+      "file": ".reports/b07-b17-full-console.log",
+      "sha256": "f867043ed072477f235371f275c68a8a471668cdced7fb425d2f3378fcc2284d"
+    },
+    {
+      "file": ".reports/b07-b17-full.collection.json",
+      "sha256": "8c714ee601259f49dc7038d13233440525279ae80fdd736d67b2ef473719f088"
+    },
+    {
+      "file": ".reports/b07-b17-full.environment.json",
+      "sha256": "059a612a39c1fec593ce3c1ac34a6f119ca6589796f496c2f9161341d1c3b729"
+    },
+    {
+      "file": ".reports/b07-b17-full.log",
+      "sha256": "f867043ed072477f235371f275c68a8a471668cdced7fb425d2f3378fcc2284d"
+    },
+    {
+      "file": ".reports/b07-b17-full.xml",
+      "sha256": "47cebaee1568b61f5fe1922237cea6a86b969ebe1363ac556a4e7d07725e5a28"
+    },
+    {
+      "file": ".reports/b07-b17-interrupted-status.json",
+      "sha256": "dc1781cad0ca23728ec65d9098c061a29a7306c81a3c1a0d725210dc60dc96e5"
+    },
+    {
+      "file": ".reports/b07-b17-interrupted.collection.json",
+      "sha256": "3aa8c511fa13cade6efbd1e6e02d8bffcd133511c293dd580a60f9b0355abc97"
+    },
+    {
+      "file": ".reports/b07-b17-interrupted.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": ".reports/b07-b17-scoped.collection.json",
+      "sha256": "6a86874907aa2ac91e441289c7e51f76a4baeee95641b7aac4ff3ed9f4ac33b1"
+    },
+    {
+      "file": ".reports/b07-b17-scoped.environment.json",
+      "sha256": "5900177b676354baf801f35a8dc8e9539114982b2da0e8d0cf51f97d558bcbb4"
+    },
+    {
+      "file": ".reports/b07-b17-scoped.log",
+      "sha256": "11d8adc4ae4b8baf17803866740b4f6115c4386812843a5842adfae99da8fc34"
+    },
+    {
+      "file": ".reports/b07-b17-scoped.xml",
+      "sha256": "dee4e79da7df551c5d4fac7d4e34ada4b6547d7fc83a7d02df4ef8a03baa46cd"
+    },
+    {
+      "file": ".reports/b07-b17-wheel.environment.json",
+      "sha256": "5bf3bd41f99b8ceae3893896fda3db55ca2cba73abd938eea9e0fab9110d19c0"
+    },
+    {
+      "file": ".reports/b07-b17-wheel.install.log",
+      "sha256": "10bf49ac8a01f68c99299d5ca50ebf0bbe19203c4c06623e45d085b90164a518"
+    },
+    {
+      "file": ".reports/b07-b17-wheel.log",
+      "sha256": "f61c5b9676056eee37ad46bdcb93945f2cc5b06055858dc0faa55dcb5089c17b"
+    }
+  ]
+}

@@ -29,7 +29,7 @@
       "roles": [
         "SYSADMIN"
       ],
-      "condition": "Không tự cấp quyền nghiệp vụ cho chính mình; grant nghiệp vụ cần người thứ hai phê chuẩn qua quy trình vận hành và audit"
+      "condition": "MFA; không tự yêu cầu/cấp quyền; quản trị viên thứ hai không phải người nhận quyền phê duyệt; audit"
     },
     {
       "code": "config.manage",
@@ -257,9 +257,10 @@
       "scope": "WAREHOUSE",
       "description": "Duyệt phiếu thông thường",
       "roles": [
-        "WAREHOUSE_MANAGER"
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER"
       ],
-      "condition": "Bước policy đúng role; không là creator/requester; hai bước do hai người khác nhau"
+      "condition": "Thủ kho/Kế toán kho được duyệt thay phiếu thông thường, không hạn mức; đúng kho/policy/version; không là creator/requester; SOD luôn áp dụng"
     },
     {
       "code": "adjustment.approve",
@@ -431,9 +432,10 @@
       "roles": [
         "WAREHOUSE_MANAGER",
         "CONTROLLER",
+        "DIRECTOR",
         "AUDITOR"
       ],
-      "condition": "API tách khỏi màn hình đếm mù"
+      "condition": "DTO REVIEW chỉ cho người không được phân công đếm của phiên; BLIND tuyệt đối không trả snapshot/delta/vòng trước"
     },
     {
       "code": "count.submit",
@@ -442,7 +444,7 @@
       "roles": [
         "WAREHOUSE_MANAGER"
       ],
-      "condition": "Đủ vị trí/dòng, đếm lại nếu vượt ngưỡng; không bỏ hàng ngoài snapshot"
+      "condition": "Mọi dòng có hai vòng liên tiếp độc lập cùng số lượng; hàng ngoài snapshot là dòng snapshot 0; không bỏ sai lệch nhỏ"
     },
     {
       "code": "period.close",
@@ -544,6 +546,61 @@
         "SYSADMIN"
       ],
       "condition": "Tác vụ hạ tầng có runbook; không cung cấp API sửa kho tùy ý; MFA và biên bản"
+    },
+    {
+      "code": "ownership.read",
+      "scope": "WAREHOUSE",
+      "description": "Đọc phân tách tồn theo chủ sở hữu",
+      "roles": [
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER",
+        "DIRECTOR",
+        "AUDITOR"
+      ],
+      "condition": "Đồng thời có stock.read tại kho; stock.read riêng không tiết lộ chủ hàng"
+    },
+    {
+      "code": "serial.read",
+      "scope": "WAREHOUSE",
+      "description": "Tra serial và nguồn bảo hành",
+      "roles": [
+        "RECEIVER",
+        "PICKER",
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER",
+        "DIRECTOR",
+        "AUDITOR"
+      ],
+      "condition": "Cần stock.read tại kho và document.read/assignment cho receipt nguồn; không trả giá"
+    },
+    {
+      "code": "warranty.write",
+      "scope": "WAREHOUSE",
+      "description": "Ghi bổ sung chứng cứ bảo hành",
+      "roles": [
+        "WAREHOUSE_MANAGER",
+        "CONTROLLER"
+      ],
+      "condition": "Append revision có nguồn receipt đã post, version/idempotency/audit; không suy thời hạn"
+    },
+    {
+      "code": "count.approve",
+      "scope": "WAREHOUSE",
+      "description": "Duyệt kiểm kê hai bước",
+      "roles": [
+        "CONTROLLER",
+        "DIRECTOR"
+      ],
+      "condition": "Policy kiểm kê v1: CONTROLLER rồi DIRECTOR độc lập; khác creator/requester/counters; duyệt snapshot bất biến"
+    },
+    {
+      "code": "period.create",
+      "scope": "WAREHOUSE",
+      "description": "Mở kỳ kho",
+      "roles": [
+        "CONTROLLER"
+      ],
+      "condition": "Khóa warehouse; khoảng ngày không chồng kỳ hiện hữu; audit và version"
     }
   ]
 }

@@ -1,0 +1,55 @@
+{
+  "revision": "020_b14_reversal.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "reversal_document",
+      "purpose": "Approved full-transaction inverse source and immutable approval content.",
+      "cols": [
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "source_transaction_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "inventory_transaction.id"
+        },
+        {
+          "name": "source_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "reversal_reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "reversal_line",
+      "purpose": "One exact original stock move per derived reversal line.",
+      "cols": [
+        {
+          "name": "document_line_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document_line.id"
+        },
+        {
+          "name": "source_move_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "stock_move.id"
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

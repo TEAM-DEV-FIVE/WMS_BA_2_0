@@ -1,0 +1,31 @@
+{
+  "source_commit": "7b168c010756c194a33872571cd59d6258712b06",
+  "stage": {
+    "exit_code": 0,
+    "offline": true,
+    "dependency_wheels": 58,
+    "prefix": "/tmp/wms-b26-offline-7b168c0",
+    "pip_check": "PASS",
+    "verified_manifest_sha256": "0b6a104e1016e81cecaeef5196a854e62295b4175064b85ea776256c1ea4d9e1"
+  },
+  "installed_smoke": {
+    "exit_code": 0,
+    "result": "PASS",
+    "modules": 206,
+    "runtime_paths": 189,
+    "postgres_migrations": 24,
+    "local_cache": "PASS",
+    "pdf": "PASS",
+    "pdf_sha256": "127cc86608ce598aff9976897b2e3897882979e2723ce3676c4afc9490aab8cb",
+    "runtime_db_contacted": false
+  },
+  "delivery_verify": {
+    "exit_code": 0,
+    "verified_files": 116,
+    "acceptance": "NOT_ACCEPTED"
+  },
+  "verifier_tests": {
+    "passed": 7,
+    "failed": 0
+  }
+}

@@ -1,0 +1,19 @@
+# Dedicated server only. Fill reviewed IPv4 ranges; nft -c -f before loading.
+# Merge with host rules if shared; never flush an existing ruleset blindly.
+define client_lan = 192.0.2.0/24
+define admin_lan = 198.51.100.0/24
+table inet wms_filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+        iifname "lo" accept
+        ct state established,related accept
+        ct state invalid drop
+        ip protocol icmp accept
+        meta l4proto ipv6-icmp accept
+        ip saddr $admin_lan tcp dport 22 accept
+        ip saddr $client_lan tcp dport 443 accept
+        # No client-facing TCP 5432 or 8000. IPv6 HTTPS/SSH denied until separately scoped.
+    }
+    chain forward { type filter hook forward priority 0; policy drop; }
+    chain output { type filter hook output priority 0; policy accept; }
+}

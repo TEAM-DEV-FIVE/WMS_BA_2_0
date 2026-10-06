@@ -1,0 +1,62 @@
+name: Build Windows desktop package
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'apps/desktop/**'
+      - 'packages/contracts/**'
+      - 'packaging/windows/**'
+      - 'scripts/windows_release.py'
+      - '.github/workflows/windows-package.yml'
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install versioned Inno compiler after publisher signature verification
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Join-Path $env:RUNNER_TEMP 'innosetup-6.7.3.exe'
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe' -OutFile $installer
+          $signature = Get-AuthenticodeSignature -LiteralPath $installer
+          if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'CN=Pyrsys B\.V\.') { throw 'Invalid Inno installer publisher signature' }
+          $target = Join-Path $env:RUNNER_TEMP 'InnoSetup673'
+          $p = Start-Process $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/CURRENTUSER',"/DIR=`"$target`"" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Inno install failed' }
+          "WMS_ISCC=$target\ISCC.exe" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build isolated locked unsigned test package
+        shell: pwsh
+        run: ./packaging/windows/Build.ps1 -Unsigned -ISCC $env:WMS_ISCC
+      - name: Install package under standard per-user paths and verify
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $releases = @(Get-ChildItem dist -Directory -Filter 'windows-*')
+          if ($releases.Count -ne 1) { throw 'Expected one release directory' }
+          $release = $releases[0]
+          $manifest = Get-Content (Join-Path $release.FullName 'manifest.json') -Raw | ConvertFrom-Json
+          $setups = @(Get-ChildItem $release.FullName -Filter '*Setup*.exe')
+          if ($setups.Count -ne 1) { throw 'Expected one installer' }
+          $setup = $setups[0]
+          $versionDirectory = Join-Path $env:LOCALAPPDATA ('Programs\WMS\0.1.0-' + $manifest.commit.Substring(0,12))
+          ./packaging/windows/Test-Install.ps1 -Installer $setup.FullName -ExpectedSha256 (Get-FileHash $setup.FullName).Hash -VersionDirectory $versionDirectory -AllowUnsigned
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-client-${{ github.sha }}
+          path: |
+            dist/windows-*/
+            build/windows-*/pyinstaller/WMS/warn-WMS.txt
+          retention-days: 14
+# CI is Windows Server 2022, not Windows 10/11 hardware acceptance.
+# Signing is a separate local/restricted-host Build.ps1 invocation; PRs never receive keys.

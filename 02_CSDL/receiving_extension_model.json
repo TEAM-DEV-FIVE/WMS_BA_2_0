@@ -1,0 +1,9 @@
+{
+  "revision": "009_receiving.sql",
+  "baseline": "model.json",
+  "tables": [],
+  "added_columns": [
+    {"table": "inventory_transaction", "name": "request_hash", "type": "char(64)", "null": true, "ref": null},
+    {"table": "inventory_transaction", "name": "response", "type": "jsonb", "null": true, "ref": null}
+  ]
+}

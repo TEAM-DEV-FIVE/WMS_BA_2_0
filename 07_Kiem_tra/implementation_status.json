@@ -1,0 +1,1478 @@
+{
+  "date": "2026-10-06",
+  "repository": "TEAM-DEV-FIVE/WMS_BA_2_0",
+  "branch": "feat/application-foundation",
+  "current_implementation_owner": "Trần Trung Kiên",
+  "github_counts": {
+    "open": 13,
+    "closed": 27
+  },
+  "remote_changes_performed": true,
+  "source_commits": {
+    "origin/main": "e4de9e54b5e850e3cea0e7234c5db17c47e30846",
+    "origin/docs/api-contracts": "07ccffd13f79d07262a85bd2f50c0c2966d31023",
+    "origin/test/acceptance-plan": "30671c41865cede2ca834a53d862ef4b3f9efbf1",
+    "origin/docs/desktop-flows": "0a4bcdb0eadfa20d71796cc7f2ace634354839c9"
+  },
+  "issues": [
+    {
+      "number": 1,
+      "title": "[TL01] Chốt phạm vi và baseline",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/1",
+      "github_state_at_read": "CLOSED",
+      "local_status": "CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T27",
+        "T28"
+      ],
+      "note": "Đã đóng trước đợt rà soát; giữ nguyên.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 2,
+      "title": "[BE01] Hoàn thiện hợp đồng API",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/2",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T28"
+      ],
+      "note": "Contract/DTO, ví dụ nhận hàng và coverage đã có; runtime OpenAPI185 paths được sinh/validate, khoảng trống thiết kế được ghi rõ.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 3,
+      "title": "[TL02] Khởi tạo nền tảng ứng dụng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/3",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        1,
+        2
+      ],
+      "tests": [
+        "T01",
+        "T28"
+      ],
+      "note": "Khung server/desktop/contracts, health, UoW và cấu hình đã chạy qua HTTP/PG/Tk và wheel ngoài source.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 4,
+      "title": "[BE02] Migration và hạ tầng PostgreSQL",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/4",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        3
+      ],
+      "tests": [
+        "T01",
+        "T24",
+        "T27",
+        "T28"
+      ],
+      "note": "Migration001–023, seed/RBAC, repository/UoW, fresh install và upgrade dữ liệu/owner/serial đã được kiểm chứng PG16.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 5,
+      "title": "[BE03] Đăng nhập, phiên và MFA",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/5",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        4
+      ],
+      "tests": [
+        "T01",
+        "T11",
+        "T28"
+      ],
+      "note": "Login/refresh/logout/MFA, rotation/replay, khóa user/thu hồi phiên và chống lộ secret đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 6,
+      "title": "[BE04] Phân quyền theo kho",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/6",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        5
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T11",
+        "T28"
+      ],
+      "note": "RBAC live theo kho/thời hạn, SOD, quyền giá và revoke tải import/export/print đã kiểm thử; SYSADMIN không tự có quyền kho.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 7,
+      "title": "[TL03] Command, version và idempotency",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/7",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        3,
+        4,
+        6
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T24",
+        "T28"
+      ],
+      "note": "Kernel/key/version và operation lookup ở các domain đã có; chưa hoàn tất ma trận mọi write endpoint, lookup/recovery dùng chung và phân loại IAM online-only. B19 tiếp tục.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 8,
+      "title": "[BE05] Danh mục hàng, kho và đối tác",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/8",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        4,
+        6
+      ],
+      "tests": [
+        "T01",
+        "T12",
+        "T13",
+        "T28"
+      ],
+      "note": "CRUD/pagination danh mục, cây vị trí, barcode/UOM/giá, owner/agreement và bảo hành có nguồn đã có API và test.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 9,
+      "title": "[BE06] Vòng đời chứng từ PO/SO",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/9",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        8
+      ],
+      "tests": [
+        "T01",
+        "T14",
+        "T17",
+        "T28"
+      ],
+      "note": "PO/SO CRUD, assignment, snapshot/version, nguồn/remaining và cancel/close giữ lịch sử đã post đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 10,
+      "title": "[BE07] Phê duyệt và phân tách nhiệm vụ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/10",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        9
+      ],
+      "tests": [
+        "T01",
+        "T10",
+        "T14",
+        "T28"
+      ],
+      "note": "Submit/approve/reject, duyệt thay theo grant, SOD và snapshot/revision làm mất hiệu lực duyệt khi sửa đã kiểm thử cạnh tranh.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 11,
+      "title": "[UI01] Thiết kế luồng màn hình",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/11",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T28"
+      ],
+      "note": "Hồ sơ luồng/wireframe theo quyền/trạng thái và bảng screen–UC–API đã có; B08 đã review checklist xuyên domain.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 12,
+      "title": "[UI02] Khung Tkinter và API client",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/12",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        11,
+        3
+      ],
+      "tests": [
+        "T01",
+        "T08",
+        "T28"
+      ],
+      "note": "Shell25 mục, HTTP worker/queue/timeout, TLS và loại phản hồi cũ/main-thread cleanup đã kiểm thử; đây là khung UI, không phải bộ cài Windows.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 13,
+      "title": "[UI03] Giao diện đăng nhập và quản trị",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/13",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        12,
+        2
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T11",
+        "T28"
+      ],
+      "note": "Auth/admin UI đã có kiểm thử HTTP/PG/Tk; tiêu chí issue còn yêu cầu kiểm tra API thật tại UAT, đồng thời kiểm việc giữ nháp khi hết phiên/đổi kho sau tích hợp B19. Chưa có UAT mục tiêu.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 14,
+      "title": "[UI04] Giao diện danh mục",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/14",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        13
+      ],
+      "tests": [
+        "T01",
+        "T12",
+        "T13",
+        "T28"
+      ],
+      "note": "CI PG15 và PG16 phát hiện test_b05_forms_fit_default_window_and_clear_user_state thất bại: nút Tìm của form danh mục tràn cửa sổ900px (mép phải914px). Mở lại issue để sửa layout và chạy lại GUI/CI; không giữ trạng thái hoàn thành khi có lỗi tái hiện trên runner.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 15,
+      "title": "[UI05] Giao diện chứng từ và duyệt",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/15",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        14,
+        2
+      ],
+      "tests": [
+        "T01",
+        "T14",
+        "T28"
+      ],
+      "note": "PO/SO/receipt và inbox duyệt, lịch sử/snapshot, nguồn/remaining, SOD và giữ form khi stale đã có UI/API thật.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 16,
+      "title": "[UI06] Màn hình vận hành kho",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/16",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        15
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T04",
+        "T15",
+        "T22",
+        "T27",
+        "T28"
+      ],
+      "note": "Các màn vận hành và HID đã có; phục hồi UNKNOWN bền xuyên restart cho mọi flow còn B19, scan/thiết bị mục tiêu còn T22. Chưa hoàn tất toàn tiêu chí.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 17,
+      "title": "[UI07] Giao diện kiểm kê",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/17",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        16
+      ],
+      "tests": [
+        "T01",
+        "T05",
+        "T16",
+        "T28"
+      ],
+      "note": "UI phiên/freeze/phân công/đếm mù/đếm lại/chọn kết quả/duyệt/post/unlock đã kiểm thử HTTP/PG/Tk.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 18,
+      "title": "[UI08] Nháp và phục hồi mất LAN",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/18",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        16
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T08",
+        "T28"
+      ],
+      "note": "Recovery bền hiện chủ yếu receipt.post; B19 đã READY, còn journal mọi luồng, SQLite003/migration pending và kiểm thử crash/restart/ngắt mạng đầy đủ.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 19,
+      "title": "[UI09] Giao diện import và báo cáo",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/19",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        17,
+        18
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T12",
+        "T20",
+        "T21",
+        "T27",
+        "T28"
+      ],
+      "note": "Import/report UI và quyền tải đã có; export UI hiện giữ job đang mở, chưa có API/list và màn tra lịch sử export hoàn chỉnh theo tiêu chí issue. Cần bổ sung history và kiểm recovery với B19.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 20,
+      "title": "[QA01] Kế hoạch nghiệm thu và fixtures",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/20",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": [
+        "T01",
+        "T27",
+        "T28"
+      ],
+      "note": "Kế hoạch28 ca, fixtures, phân công và cách đo đã được review; hoàn thành kế hoạch không có nghĩa T01–T28 đã nghiệm thu PASS.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 21,
+      "title": "[QA02] CI cho mã ứng dụng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/21",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        20,
+        3
+      ],
+      "tests": [
+        "T01",
+        "T24",
+        "T28"
+      ],
+      "note": "Đã có hosted CI tại https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37328273820: design và Ubuntu unit/package PASS; Windows unit FAIL do server FileStorage dùng os.O_NOFOLLOW không có trên Windows; PG15/16 có lỗi layout B05 (issue14), PG16 còn chạm timeout30phút. Giữ mở để sửa phân định test theo target/server storage, layout và budget runner, rồi chạy lại đủ matrix. Chưa kết luận CI đạt.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 22,
+      "title": "[QA03] Audit, outbox và worker",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/22",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        21,
+        4
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T07",
+        "T24",
+        "T28"
+      ],
+      "note": "Audit/outbox/consumer factories import/export/print đã có; B20 đã READY để ghép registry mặc định, quan sát lỗi/replay/retention/shutdown và vận hành worker đầy đủ.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 23,
+      "title": "[TL04] Ledger, balance và danh tính hàng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/23",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        7,
+        22
+      ],
+      "tests": [
+        "T01",
+        "T03",
+        "T06",
+        "T24",
+        "T27",
+        "T28"
+      ],
+      "note": "Ledger/balance/serial/owner/audit/outbox nguyên tử, không âm, khóa và rollback đã được test qua các domain tích hợp.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 24,
+      "title": "[TL05] Nhận hàng và tồn đầu kỳ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/24",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        23,
+        8,
+        9,
+        10
+      ],
+      "tests": [
+        "T01",
+        "T14",
+        "T20",
+        "T27",
+        "T28"
+      ],
+      "note": "Nhận từng phần/không vượt nguồn, opening qua service tồn, idempotency và truy vết owner/serial/nguồn bảo hành đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 25,
+      "title": "[TL06] Giữ hàng và xuất kho",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/25",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        24
+      ],
+      "tests": [
+        "T01",
+        "T03",
+        "T15",
+        "T17",
+        "T25",
+        "T27",
+        "T28"
+      ],
+      "note": "Reserve/release/expiry/consume, xuất cạnh tranh7 từ10, bảo vệ lượng giữ phiếu khác và tái kiểm hạn dùng đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 26,
+      "title": "[TL07] Chuyển kho và di chuyển nội bộ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/26",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        25
+      ],
+      "tests": [
+        "T01",
+        "T04",
+        "T21",
+        "T27",
+        "T28"
+      ],
+      "note": "Move/dispatch/receive từng phần, thiếu hàng/transit, danh tính owner/serial và retry đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 27,
+      "title": "[TL08] Trả hàng và đảo giao dịch",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/27",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        26
+      ],
+      "tests": [
+        "T01",
+        "T10",
+        "T18",
+        "T28"
+      ],
+      "note": "Customer/supplier returns và full reversal một lần, source/remaining, race/rollback/kỳ/tồn/ledger bất biến đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 28,
+      "title": "[TL09] Kiểm kê và khóa kỳ",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/28",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        27,
+        10
+      ],
+      "tests": [
+        "T01",
+        "T05",
+        "T16",
+        "T19",
+        "T27",
+        "T28"
+      ],
+      "note": "Freeze/snapshot/đếm mù/rounds/SOD, adjustment+unlock nguyên tử và close/post đã kiểm thử với PG sessions thật.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 29,
+      "title": "[BE08] Soạn, đóng kiện và chất lượng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/29",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        10,
+        24
+      ],
+      "tests": [
+        "T01",
+        "T15",
+        "T28"
+      ],
+      "note": "Pick/task/package/quality, scan theo assignment/reservation; pick/pack/in không giảm tồn, issue mới post đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 30,
+      "title": "[BE09] Định nghĩa trường mở rộng",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/30",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        29
+      ],
+      "tests": [
+        "T01",
+        "T28"
+      ],
+      "note": "B07 đã được giao và tích hợp: typed/versioned definitions, immutable revisions, validation/history/giá và approval snapshots đã kiểm thử.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 31,
+      "title": "[QA04] Tệp và pipeline nhập dữ liệu",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/31",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        22,
+        8,
+        9
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T12",
+        "T20",
+        "T27",
+        "T28"
+      ],
+      "note": "Private file authorization, staging/validate/preview/hash/checkpoint/commit, lỗi dòng và opening gọi service đã kiểm thử; B20 nhận vận hành registry chung.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 32,
+      "title": "[QA05] Báo cáo và export",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/32",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        22,
+        24
+      ],
+      "tests": [
+        "T01",
+        "T07",
+        "T21",
+        "T27",
+        "T28"
+      ],
+      "note": "R01–R08, ranh giới kho/owner/quyền giá, snapshot/paging, CSV/XLSX export và recheck download đã kiểm thử; không đồng nghĩa đạt tải15CCU.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 33,
+      "title": "[QA06] In chứng từ, tem và barcode",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/33",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        22,
+        9
+      ],
+      "tests": [
+        "T01",
+        "T22",
+        "T28"
+      ],
+      "note": "B18 phần mềm4 mẫu phiếu/2 tem, font/PDF/preview/HID/reprint đã test. Model máy in/scanner, Windows USB/LAN, khổ/mẫu Q06/Q08 và bản scan giấy thực NOT_RUN theo yêu cầu bổ sung sau.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 34,
+      "title": "[QA07] Triển khai máy chủ LAN",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/34",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        22
+      ],
+      "tests": [
+        "T01",
+        "T23",
+        "T28"
+      ],
+      "note": "B21 chưa tích hợp; còn target Linux, HTTPS/LAN/firewall/service/storage/restart và bằng chứng cài từ máy sạch.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 35,
+      "title": "[QA08] Kiểm thử đồng thời và đối soát",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/35",
+      "github_state_at_read": "CLOSED",
+      "local_status": "COMPLETED_SCOPE_CLOSED_ON_GITHUB",
+      "dependencies": [
+        28,
+        29
+      ],
+      "tests": [
+        "T01",
+        "T02",
+        "T03",
+        "T06",
+        "T16",
+        "T18",
+        "T19",
+        "T24",
+        "T27",
+        "T28"
+      ],
+      "note": "Bộ concurrency PG thật đã phủ xuất/serial/retry/rollback/freeze/close/reversal và owner; test chứa reconcile/assertions có thể tái lập. B24 còn mở cho hardening/tải15CCU, thuộc phạm vi mở rộng/#38.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 36,
+      "title": "[QA09] Diễn tập backup và restore",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/36",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        34,
+        24
+      ],
+      "tests": [
+        "T01",
+        "T09",
+        "T28"
+      ],
+      "note": "B22 chưa tích hợp; chưa diễn tập restore môi trường khác và đo RPO<1giờ/RTO<4giờ kèm reconcile/app.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 37,
+      "title": "[QA10] Đóng gói và nâng cấp desktop",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/37",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        19,
+        34
+      ],
+      "tests": [
+        "T01",
+        "T23",
+        "T28"
+      ],
+      "note": "B23 chưa tích hợp; còn bộ cài Windows10/11, metadata/checksum, upgrade N-1 giữ draft/pending và kiểm trên máy đích.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 38,
+      "title": "[QA11] UAT, hiệu năng và bàn giao",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/38",
+      "github_state_at_read": "OPEN",
+      "local_status": "INCOMPLETE_OR_VALIDATION_PENDING",
+      "dependencies": [
+        35,
+        36,
+        37,
+        28,
+        30,
+        19,
+        31,
+        32,
+        33
+      ],
+      "tests": [
+        "T01",
+        "T27",
+        "T28"
+      ],
+      "note": "T01–T28 còn PLANNED; chưa đủ UAT mục tiêu, tải15CCU, thiết bị, Windows upgrade và DR/biên bản bàn giao.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 39,
+      "title": "OpenAPI, DTO, phân trang, decimal chuỗi, lỗi và payload mẫu cho luồng nhận hàng.",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/39",
+      "github_state_at_read": "CLOSED",
+      "local_status": "CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": [],
+      "note": "Đã đóng trước đợt rà soát; giữ nguyên.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    },
+    {
+      "number": 41,
+      "title": "ghi coverage phần chưa có.",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/issues/41",
+      "github_state_at_read": "CLOSED",
+      "local_status": "CLOSED_ON_GITHUB",
+      "dependencies": [],
+      "tests": [],
+      "note": "Đã đóng trước đợt rà soát; giữ nguyên.",
+      "review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md"
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "T01",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_receipts.py",
+      "note": "Receipt API/desktop/PostgreSQL component evidence; full acceptance, Windows UAT and other workflows remain pending."
+    },
+    {
+      "id": "T02",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation; tests/foundation/test_receipts.py; tests/foundation/test_receipt_recovery.py; tests/foundation/test_outbox.py; tests/foundation/test_openings.py; tests/foundation/test_integrated_workflows.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py",
+      "note": "B14 local component/PG/HTTP/GUI evidence added; see 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Acceptance remains PLANNED."
+    },
+    {
+      "id": "T03",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_issues.py; tests/foundation/test_fulfillment.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T04",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_transfers.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T05",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_count_period.py; tests/foundation/test_count_period_desktop.py; tests/foundation/test_reversals.py",
+      "note": "B13 count and B14 freeze race covered locally; target business acceptance remains PLANNED."
+    },
+    {
+      "id": "T06",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T07",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_identity.py; tests/foundation/test_admin_desktop.py; tests/foundation/test_admin_presenter.py; tests/foundation/test_openings.py; tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
+    },
+    {
+      "id": "T08",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation; tests/foundation/test_receipt_recovery.py; tests/foundation/test_receipts.py",
+      "note": "Receipt.post recovery component evidence: real child process exits after PostgreSQL commit before local ACK, new desktop looks up original operation with one stock effect; SQLite migration/rollback/disk failures/session separation covered. Other drafts/commands, Windows and full business acceptance pending."
+    },
+    {
+      "id": "T09",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T10",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_returns.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py",
+      "note": "B14 local component/PG/HTTP/GUI evidence added; see 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Acceptance remains PLANNED."
+    },
+    {
+      "id": "T11",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_iam_lifecycle.py; tests/foundation/test_iam_lifecycle_desktop.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T12",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_imports.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T13",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_master_data.py; tests/foundation/test_master_desktop.py",
+      "note": "Live master APIs + Linux desktop; import and full UAT pending. No complete business acceptance claim."
+    },
+    {
+      "id": "T14",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_document_reviews.py; tests/foundation/test_documents_desktop.py; tests/foundation/test_custom_fields.py; tests/foundation/test_custom_fields_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
+    },
+    {
+      "id": "T15",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_fulfillment.py; tests/foundation/test_fulfillment_desktop.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T16",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_count_period.py; tests/foundation/test_count_period_desktop.py; tests/foundation/test_reversals.py",
+      "note": "B13 count and B14 freeze race covered locally; target business acceptance remains PLANNED."
+    },
+    {
+      "id": "T17",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_issues.py; tests/foundation/test_fulfillment.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T18",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py",
+      "note": "B14 local component/PG/HTTP/GUI evidence added; see 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Acceptance remains PLANNED."
+    },
+    {
+      "id": "T19",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py",
+      "note": "B14 local component/PG/HTTP/GUI evidence added; see 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Acceptance remains PLANNED."
+    },
+    {
+      "id": "T20",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_openings.py; tests/foundation/test_imports.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T21",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
+    },
+    {
+      "id": "T22",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T23",
+      "acceptance_status": "PLANNED",
+      "component_evidence": null,
+      "note": "Business acceptance not executed."
+    },
+    {
+      "id": "T24",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_postgres.py; tests/foundation/test_iam_lifecycle.py; tests/foundation/test_api_contracts.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py; tests/foundation/test_custom_fields.py; tests/foundation/test_custom_fields_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
+    },
+    {
+      "id": "T25",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_issues.py; tests/foundation/test_fulfillment.py",
+      "note": "Local component/integration coverage; see 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Full scenario and target UAT not accepted."
+    },
+    {
+      "id": "T26",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
+    },
+    {
+      "id": "T27",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_consignments.py; tests/foundation/test_reversals.py; tests/foundation/test_reversal_desktop.py; tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
+    },
+    {
+      "id": "T28",
+      "acceptance_status": "PLANNED",
+      "component_evidence": "tests/foundation/test_traceability.py; tests/foundation/test_b05_desktop.py; tests/foundation/test_reports_exports.py; tests/foundation/test_reports_desktop.py; tests/foundation/test_b07_b17_integration.py",
+      "note": "Local B07/B17 evidence added; 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Target acceptance remains PLANNED."
+    }
+  ],
+  "latest_local_validation": {
+    "date": "2026-10-06",
+    "commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+    "dirty": false,
+    "suite": "Full tests + deploy/lan/tests; repo PG lifecycle, 4 pytest/Xvfb processes, audited collection",
+    "report": "07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md",
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/WMS_BA_2_0",
+    "passed": 1210,
+    "subtests_passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "integration_tests": 611,
+    "gui_tests": 75,
+    "shards": [
+      {
+        "file": ".reports/b21-b23-full-shard0.xml",
+        "tests": 423,
+        "seconds": 636.531
+      },
+      {
+        "file": ".reports/b21-b23-full-shard1.xml",
+        "tests": 235,
+        "seconds": 500.579
+      },
+      {
+        "file": ".reports/b21-b23-full-shard2.xml",
+        "tests": 266,
+        "seconds": 691.636
+      },
+      {
+        "file": ".reports/b21-b23-full-shard3.xml",
+        "tests": 296,
+        "seconds": 622.101
+      }
+    ],
+    "runtime_paths": 189,
+    "desktop_sections": 26,
+    "migrations": 24,
+    "local_sqlite_schema_version": 3,
+    "runtime_schema": {
+      "tables": 101,
+      "columns": 690,
+      "foreign_keys": 211,
+      "roles": 10,
+      "permissions": 58,
+      "role_permissions": 125
+    },
+    "installed_wheel_checked": true,
+    "full_acceptance_completed": false,
+    "not_run": [
+      "Windows EXE/installer build and code signing",
+      "PowerShell/Inno/Win32 execution",
+      "Windows 10/11 hardware and DPI acceptance",
+      "target LAN deployment, systemd reboot, peer mapping and nft firewall",
+      "PostgreSQL15 on merged commit",
+      "hosted CI on merged commit",
+      "15CCU representative load",
+      "backup/PITR RPO/RTO",
+      "business UAT"
+    ]
+  },
+  "github_counts_note": "Live verification after authorized issue updates;24 newly closed, issue14 reopened after hosted CI failure. See GITHUB_ISSUE_REVIEW_2026_10_06.",
+  "integrated_agent_branches": [
+    {
+      "branch": "agent/outbox",
+      "source_commit": "849a97a9b4d0fb9b1094f3c0f50aa172c1df2d9e",
+      "merge_commit": "e75c939",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/admin-ui",
+      "source_commit": "f126186183509fb145c75d00c735177959437201",
+      "merge_commit": "8246e00",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/opening",
+      "source_commit": "039384987f402884151bcc736cf57505cd1407e5",
+      "merge_commit": "1463854",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b01-import-files",
+      "source_commit": "b70d43ac8e16b2744b023091e42fa56f9068a6a5",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b02-issue-reservation",
+      "source_commit": "9d3fbd1177d27350c73163885ab65260b9d72ec2",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b03-move-quality",
+      "source_commit": "dd659b620a9160854f24aa09cc40718414703574",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b04-iam-lifecycle",
+      "source_commit": "2e844a02845a8e96da6b9ca598a48696fa6de355",
+      "merge_commit": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b05-master-traceability-ui",
+      "source_commit": "784e6697c72c741e78a635995174503231d3c287",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b06-opening-ui",
+      "source_commit": "cb1c99d632cbe58facd97039ccb2ee28b1d37523",
+      "merge_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b08-ci-contracts",
+      "source_commit": "b5e2685a10e41a8e7c037c4ebe2fff6a98972bc4",
+      "merge_commit": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b09-consignment",
+      "source_commit": "94bd7232173b60bf899ca5001f1687464011899a",
+      "merge_commit": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b10-fulfillment",
+      "source_commit": "238a30bcd43936ad2973540672dccbc5ef40e783",
+      "merge_commit": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b11-transfer",
+      "source_commit": "cc45621be81249e229655b1899f76bf1dbf4b313",
+      "merge_commit": "dce35f92b32015146f23d48229d641b558715b8c",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b12-returns",
+      "source_commit": "f37c0bb80fbd9f82c26494a71c9e00574f121039",
+      "merge_commit": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b15-documents-ui",
+      "source_commit": "8bb824ce4e84180d0b167805b2d9e0fa12c05b28",
+      "merge_commit": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b13-count-period",
+      "source_commit": "04250f3825111311dc5196297495ad0a76a87fad",
+      "merge_commit": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b16-import-ui",
+      "source_commit": "e0e94c74bdd4e5063d0b1a77aa1235624d1be728",
+      "merge_commit": "f81d985cc0e288196a9cee457db3e69252dcd534",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b14-reversal",
+      "source_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "merge_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b07-custom-fields",
+      "source_commit": "cef3d9013e1e86057f50a3b3cfd39a964b028948",
+      "merge_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b17-reports-export",
+      "source_commit": "b131b30cf7ea855ee22e696f786d11648d7c90a2",
+      "merge_commit": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b18-printing-scanner",
+      "source_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+      "merge_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b19-recovery-all",
+      "source_commit": "e1b10182260413a62579f2533cbc30f5f9345a34",
+      "merge_commit": "830146198169a8ed3a5433c483d726e170db6c45",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b20-outbox-operations",
+      "source_commit": "37c44be04d209c3110bc912d368a289f95bcdcca",
+      "merge_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "worktree_retained": true
+    },
+    {
+      "branch": "agent/b21-lan-deployment",
+      "source_commit": "e7177e013e957c4eb3a2b1696de40b107971fae9",
+      "merge_commit": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a",
+      "worktree_retained": true,
+      "integration_scope": "LAN deployment tooling and local component verification; target rollout NOT_RUN"
+    },
+    {
+      "branch": "agent/b23-windows-packaging",
+      "source_commit": "8399359ad79b699527f59b4e80ad74f3d40d49f6",
+      "merge_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "worktree_retained": true,
+      "integration_scope": "Windows packaging preparation and Linux regression; EXE/signing/native Windows NOT_RUN"
+    }
+  ],
+  "remaining_work_plan": {
+    "date": "2026-10-03",
+    "code_baseline": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+    "catalog": "01_Tai_lieu/PHAN_CONG/backlog.json",
+    "board": "01_Tai_lieu/PHAN_CONG/KE_HOACH_CON_LAI.md",
+    "integration_log": "01_Tai_lieu/PHAN_CONG/integration_log.json",
+    "task_count": 26,
+    "initial_ready": [
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B08",
+      "B15"
+    ],
+    "initial_waiting": 18,
+    "note": "22 branches have local code integrated: B01–B21 and B23. B23 is preparation only; target B21/B23 acceptance pending. B22/B24 READY.",
+    "last_review_date": "2026-10-06",
+    "current_report": "07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md",
+    "integrated_task_ids": [
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B09",
+      "B10",
+      "B11",
+      "B12",
+      "B13",
+      "B14",
+      "B15",
+      "B16",
+      "B17",
+      "B18",
+      "B19",
+      "B20",
+      "B21",
+      "B23"
+    ],
+    "prepared_task_ids": [],
+    "ready_for_sync": [],
+    "not_started_task_ids": [
+      "B25",
+      "B26"
+    ],
+    "ready_task_ids": [
+      "B22",
+      "B24"
+    ],
+    "activation_history": [
+      {
+        "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
+        "synchronization_commits": {
+          "B07": "40cabb94f367134568035e72c3224c75bbe727ec",
+          "B17": "101ef19331a42729a168a15edb474e1b99382eb5"
+        }
+      }
+    ]
+  },
+  "validation_history": [
+    {
+      "suite": "xvfb-run -a .venv/bin/python scripts/check_application.py --gui",
+      "passed": 301,
+      "subtests_passed": 10,
+      "runtime_schema": {
+        "tables": 65,
+        "columns": 440,
+        "foreign_keys": 129,
+        "roles": 10,
+        "permissions": 56,
+        "role_permissions": 121
+      },
+      "full_acceptance_completed": false,
+      "runtime_paths": 65,
+      "migrations": 10,
+      "local_sqlite_schema_version": 2,
+      "failed": 0,
+      "skipped": 0,
+      "duration_seconds": 182.74,
+      "installed_wheel_checked": true
+    },
+    {
+      "date": "2026-10-04",
+      "commit": "1386b2419dfa42a8dba48fc2028464d18da3d696",
+      "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+      "report": "07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md",
+      "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-integration-review-20261004",
+      "passed": 823,
+      "subtests_passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 845.52,
+      "runtime_paths": 141,
+      "migrations": 18,
+      "runtime_schema": {
+        "tables": 81,
+        "columns": 542,
+        "foreign_keys": 172,
+        "roles": 10,
+        "permissions": 56,
+        "role_permissions": 121
+      },
+      "local_sqlite_schema_version": 2,
+      "installed_wheel_checked": true,
+      "full_acceptance_completed": false,
+      "not_run": [
+        "PostgreSQL 15",
+        "Windows 10/11",
+        "hosted CI",
+        "target LAN/TLS",
+        "physical printer/scanner",
+        "15 CCU representative load",
+        "backup/restore RPO/RTO",
+        "business UAT"
+      ]
+    },
+    {
+      "date": "2026-10-04",
+      "commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+      "report": "07_Kiem_tra/B14_INTEGRATION_2026_10_04.md",
+      "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b14-reversal",
+      "passed": 970,
+      "subtests_passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 1171.89,
+      "runtime_paths": 166,
+      "migrations": 20,
+      "runtime_schema": {
+        "tables": 89,
+        "columns": 584,
+        "foreign_keys": 188,
+        "roles": 10,
+        "permissions": 58,
+        "role_permissions": 125
+      },
+      "local_sqlite_schema_version": 2,
+      "installed_wheel_checked": true,
+      "full_acceptance_completed": false,
+      "not_run": [
+        "PostgreSQL 15",
+        "Windows 10/11",
+        "hosted CI",
+        "target LAN/TLS",
+        "physical printer/scanner",
+        "15 CCU representative load",
+        "backup/restore RPO/RTO",
+        "business UAT"
+      ]
+    },
+    {
+      "date": "2026-10-05",
+      "commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+      "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+      "report": "07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md",
+      "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-integrate-b07-b17",
+      "passed": 1060,
+      "subtests_passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 1498.515,
+      "runtime_paths": 177,
+      "migrations": 22,
+      "runtime_schema": {
+        "tables": 97,
+        "columns": 638,
+        "foreign_keys": 203,
+        "roles": 10,
+        "permissions": 58,
+        "role_permissions": 125
+      },
+      "local_sqlite_schema_version": 2,
+      "installed_wheel_checked": true,
+      "full_acceptance_completed": false,
+      "not_run": [
+        "PostgreSQL 15",
+        "Windows 10/11",
+        "hosted CI",
+        "target LAN/TLS",
+        "physical printer/scanner",
+        "15 CCU representative load",
+        "backup/restore RPO/RTO",
+        "business UAT"
+      ]
+    },
+    {
+      "date": "2026-10-05",
+      "commit": "684789f747244a23628e193792fca5d851dfed85",
+      "handoff_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+      "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+      "report": "07_Kiem_tra/B18_INTEGRATION_2026_10_05.md",
+      "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b18-printing-scanner",
+      "passed": 1106,
+      "subtests_passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 1454.909,
+      "integration_tests": 574,
+      "gui_tests": 73,
+      "runtime_paths": 185,
+      "desktop_sections": 25,
+      "migrations": 23,
+      "runtime_schema": {
+        "tables": 100,
+        "columns": 679,
+        "foreign_keys": 211,
+        "roles": 10,
+        "permissions": 58,
+        "role_permissions": 125
+      },
+      "local_sqlite_schema_version": 2,
+      "installed_wheel_checked": true,
+      "full_acceptance_completed": false,
+      "not_run": [
+        "PostgreSQL 15",
+        "Windows 10/11",
+        "physical USB/LAN printers and HID scanners",
+        "approved business templates Q08",
+        "hosted CI",
+        "target LAN/TLS",
+        "15 CCU representative load",
+        "backup/restore RPO/RTO",
+        "business UAT"
+      ]
+    },
+    {
+      "date": "2026-10-06",
+      "commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "dirty": false,
+      "passed": 1156,
+      "subtests_passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "integration_tests": 604,
+      "gui_tests": 74,
+      "runtime_paths": 189,
+      "desktop_sections": 26,
+      "migrations": 24,
+      "local_sqlite_schema_version": 3,
+      "runtime_schema": {
+        "tables": 101,
+        "columns": 690,
+        "foreign_keys": 211,
+        "roles": 10,
+        "permissions": 58,
+        "role_permissions": 125
+      },
+      "installed_wheel_checked": true,
+      "full_acceptance_completed": false,
+      "report": "07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md",
+      "suite": "check_application.py lifecycle + 4 pytest processes; audited complete collection",
+      "shards": [
+        {
+          "file": ".reports/b19-b20-full-shard0.xml",
+          "seconds": 347.242,
+          "tests": 289
+        },
+        {
+          "file": ".reports/b19-b20-full-shard1.xml",
+          "seconds": 569.179,
+          "tests": 299
+        },
+        {
+          "file": ".reports/b19-b20-full-shard2.xml",
+          "seconds": 576.825,
+          "tests": 289
+        },
+        {
+          "file": ".reports/b19-b20-full-shard3.xml",
+          "seconds": 765.39,
+          "tests": 289
+        }
+      ],
+      "not_run": [
+        "PostgreSQL 15 at merged commit",
+        "Windows 10/11",
+        "physical printer/scanner and Q06/Q08",
+        "hosted CI at merged commit",
+        "target LAN/TLS",
+        "15 CCU load",
+        "backup/restore RPO/RTO",
+        "business UAT"
+      ]
+    }
+  ],
+  "github_review_report": "07_Kiem_tra/GITHUB_ISSUE_REVIEW_2026_10_06.md",
+  "github_publication": {
+    "branch": "feat/application-foundation",
+    "code_commit": "a3979a50d4515599028980c51621afcbe7f8a3f2",
+    "main_merged": false,
+    "pull_request": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/pull/46",
+    "draft": true
+  },
+  "latest_hosted_validation": {
+    "commit": "a3979a50d4515599028980c51621afcbe7f8a3f2",
+    "design": {
+      "status": "success",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37328274132"
+    },
+    "application": {
+      "status": "failure",
+      "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37328273820",
+      "ubuntu_unit_package": "success",
+      "windows_unit": "failure: FileStorage os.O_NOFOLLOW unavailable",
+      "postgres_15": "failure: B05 layout exceeds 900px",
+      "postgres_16": "job cancelled at timeout30min; artifact reports the same B05 layout failure"
+    },
+    "issue_14_reopened_after_initial_closure": true
+  },
+  "latest_local_review": {
+    "date": "2026-10-06",
+    "runtime_commit": "7b168c010756c194a33872571cd59d6258712b06",
+    "handover_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
+    "report": "07_Kiem_tra/release/VERIFICATION.md",
+    "local_tests": 1313,
+    "subtests": 10,
+    "handovers": "B01-B24 code, B25 docs, B26 release/UAT preparation integrated",
+    "acceptance": "PLANNED / BLOCKED G01-G08",
+    "remote_mutations_this_review": false,
+    "remaining_software": {
+      "14": "master form overflow 914px at 900px on hosted Ubuntu CI",
+      "19": "full export-job history list missing"
+    },
+    "ci_run": "37464123932",
+    "ci_conclusion": "failure: PG15 UI test; PG16 cancelled; Ubuntu/Windows unit-package passed"
+  }
+}

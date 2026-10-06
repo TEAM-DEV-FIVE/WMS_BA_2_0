@@ -1,0 +1,191 @@
+{
+  "validation": {
+    "date": "2026-10-05",
+    "commit": "684789f747244a23628e193792fca5d851dfed85",
+    "handoff_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+    "suite": "scripts/check_application.py --gui --expected-pg-major 16",
+    "report": "07_Kiem_tra/B18_INTEGRATION_2026_10_05.md",
+    "artifact_worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b18-printing-scanner",
+    "passed": 1106,
+    "subtests_passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 1454.909,
+    "integration_tests": 574,
+    "gui_tests": 73,
+    "runtime_paths": 185,
+    "desktop_sections": 25,
+    "migrations": 23,
+    "runtime_schema": {
+      "tables": 100,
+      "columns": 679,
+      "foreign_keys": 211,
+      "roles": 10,
+      "permissions": 58,
+      "role_permissions": 125
+    },
+    "local_sqlite_schema_version": 2,
+    "installed_wheel_checked": true,
+    "full_acceptance_completed": false,
+    "not_run": [
+      "PostgreSQL 15",
+      "Windows 10/11",
+      "physical USB/LAN printers and HID scanners",
+      "approved business templates Q08",
+      "hosted CI",
+      "target LAN/TLS",
+      "15 CCU representative load",
+      "backup/restore RPO/RTO",
+      "business UAT"
+    ]
+  },
+  "integration_method": "fast-forward, identical tested runtime; documentation/checksum only afterwards",
+  "integrated_task_ids": [
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07",
+    "B08",
+    "B09",
+    "B10",
+    "B11",
+    "B12",
+    "B13",
+    "B14",
+    "B15",
+    "B16",
+    "B17",
+    "B18"
+  ],
+  "ready_for_sync": [
+    "B19",
+    "B20"
+  ],
+  "wheel_sha256": "02ebb9cbeb5d6a418abc6ebf64ab253f14c7bd8bba56858dcd4b38fa07b0586f",
+  "evidence": [
+    {
+      "file": ".reports/b18-all-console.log",
+      "sha256": "d1e324577fcb1253d781cbe729ab4823010ea76d1932f6b80ea6265b87fe0cf6"
+    },
+    {
+      "file": ".reports/b18-all.collection.json",
+      "sha256": "39987776642d3e3c0783f35285963bb32edc91f186b2d8c6df85d838b97792af"
+    },
+    {
+      "file": ".reports/b18-all.environment.json",
+      "sha256": "a7e0c915b9a31e696ba82772473127835d3037bbdde6deb1146e1d075c21850b"
+    },
+    {
+      "file": ".reports/b18-all.log",
+      "sha256": "d1e324577fcb1253d781cbe729ab4823010ea76d1932f6b80ea6265b87fe0cf6"
+    },
+    {
+      "file": ".reports/b18-all.xml",
+      "sha256": "9e7e010f8fb93cff94d2d64af41b1415efed7afb4a7704717e6fb328836a2a98"
+    },
+    {
+      "file": ".reports/b18-focused-gui-4.collection.json",
+      "sha256": "e3c37d35ca1e61108cf42a699ba5ab6b15c18c99d232b673a2b57a18b2864b29"
+    },
+    {
+      "file": ".reports/b18-focused-gui-4.environment.json",
+      "sha256": "4901838d107c471f2fcc014ad83544811a9b31f35a72aff87e430ac724ebb2e5"
+    },
+    {
+      "file": ".reports/b18-focused-gui-4.log",
+      "sha256": "44e064a7870e55030ff890c8cd56a4cff49866f492af0374e8e18344f311ccc1"
+    },
+    {
+      "file": ".reports/b18-focused-gui-4.xml",
+      "sha256": "fd14e6c04f7799219542cc48e693e888557a1a7187a15b00a44619149448e671"
+    },
+    {
+      "file": ".reports/b18-print-preview.png",
+      "sha256": "42020b3161a44687144f7cfab62d6fb276f6af698613cb939dffbccce1f94e49"
+    },
+    {
+      "file": ".reports/b18-print-samples/COUNT-last.png",
+      "sha256": "f818566e64039a36f5093259592a43332a686c21deea6493449cc790d10da67b"
+    },
+    {
+      "file": ".reports/b18-print-samples/COUNT.pdf",
+      "sha256": "2c7bbf4fb48a5d4b7028cc32ae25a30e4f8f445637e38aff30166efdb9c3e1f4"
+    },
+    {
+      "file": ".reports/b18-print-samples/COUNT.png",
+      "sha256": "f718ca2ccd59efd65f6ec70106c9bf73da6711d16d922fa29effc068cb7c59d2"
+    },
+    {
+      "file": ".reports/b18-print-samples/ISSUE-last.png",
+      "sha256": "25d314db321a95e5cf49aceca1130789eb134cbcbdf39fd3a4a5fbd7744251c9"
+    },
+    {
+      "file": ".reports/b18-print-samples/ISSUE.pdf",
+      "sha256": "8232b6afa2998cba3183b051eb7912f0bad55f791d762a7c27361bd875b0fcbf"
+    },
+    {
+      "file": ".reports/b18-print-samples/ISSUE.png",
+      "sha256": "57f49bd3d3edb919edf19a22c6966d375a00b31ee9b41f99de7452b68b526138"
+    },
+    {
+      "file": ".reports/b18-print-samples/LOCATION_LABEL.pdf",
+      "sha256": "262f7446dbb9133a01d74ea9c07fe34f0bbb39366b0a2983cc471507b2434f79"
+    },
+    {
+      "file": ".reports/b18-print-samples/LOCATION_LABEL.png",
+      "sha256": "cf55e81a7cc19d18af16e0756230434590c90ed0223a3cf780cf436b4bd7cdb0"
+    },
+    {
+      "file": ".reports/b18-print-samples/PRODUCT_LABEL.pdf",
+      "sha256": "882e08bd282d31cec904e6a86bd69bbdbe190e6259c4e510315d2da872c4a651"
+    },
+    {
+      "file": ".reports/b18-print-samples/PRODUCT_LABEL.png",
+      "sha256": "e95f1c2f0b749659a336edf21aab10c997381c7dd32634abe48a78210253f9c5"
+    },
+    {
+      "file": ".reports/b18-print-samples/RECEIPT-last.png",
+      "sha256": "25d314db321a95e5cf49aceca1130789eb134cbcbdf39fd3a4a5fbd7744251c9"
+    },
+    {
+      "file": ".reports/b18-print-samples/RECEIPT.pdf",
+      "sha256": "813dd1e5fcd70b3c2a0d839f8a973224cb7d3aef2762b247d0e8088777872e05"
+    },
+    {
+      "file": ".reports/b18-print-samples/RECEIPT.png",
+      "sha256": "fbcf81619be0a3912169cf0034c2aa7ef6e6116cf0cf27d26027ffbb0dea5e3d"
+    },
+    {
+      "file": ".reports/b18-print-samples/TRANSFER-last.png",
+      "sha256": "25d314db321a95e5cf49aceca1130789eb134cbcbdf39fd3a4a5fbd7744251c9"
+    },
+    {
+      "file": ".reports/b18-print-samples/TRANSFER.pdf",
+      "sha256": "2954276a86ab86bb497926a48cfb0713bbc01e96ce7e7785cfe3b638646f0717"
+    },
+    {
+      "file": ".reports/b18-print-samples/TRANSFER.png",
+      "sha256": "5e557a8356ca790ec445bfc63f430aedb92bd38f0c3d7c044d5b43815e6e88ec"
+    },
+    {
+      "file": ".reports/b18-print-samples/contact.png",
+      "sha256": "efe84e9ec338342c84443bb52624ed3ce8f44c58e02a4a9168e11be7f4db50c8"
+    },
+    {
+      "file": ".reports/b18-wheel-verified.environment.json",
+      "sha256": "24982c72e888f4467be6a8d58c6c44cf140ee214f665552c8d0af0bedb349ab7"
+    },
+    {
+      "file": ".reports/b18-wheel-verified.install.log",
+      "sha256": "2abf5c0830585068193fe86ef785c4fe734e9a465d8a30e09cffe822e413d8d8"
+    },
+    {
+      "file": ".reports/b18-wheel-verified.log",
+      "sha256": "15c0113a9cdd46ca2ee8668ba908b8f4b2e1e98231267babf70a2480ff239643"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "local-linux-15ccu",
+  "seed": 241006,
+  "ccu": 15,
+  "warehouses": 1,
+  "zones": 3,
+  "skus": 150,
+  "warmup_seconds": 10,
+  "duration_seconds": 60,
+  "think_seconds": 0.05,
+  "mix": {"receipt_list": 40, "receipt_read": 30, "receipt_partial_post": 30},
+  "replay_every_successful_posts": 10,
+  "business_date": "2026-10-02",
+  "description": "Synthetic current Linux measurement; three-zone dataset, hot receiving workload. Not an observed Q05/Q07 production mix."
+}

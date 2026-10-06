@@ -1,0 +1,894 @@
+{
+  "recorded_utc": "2026-10-06T12:11:01.219458+00:00",
+  "status": "CODE_READY_LOCAL_VERIFIED_NOT_BUSINESS_ACCEPTED",
+  "regression": {
+    "code_commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+    "distinct_tests": 1266,
+    "subtests": 10,
+    "final_failures": 0,
+    "final_errors": 0,
+    "skips": 0,
+    "method": "Four disjoint groups; 17 initial missing-Nginx errors/failures rerun exactly and passed. Original failures retained.",
+    "initial_environment_failures": 17,
+    "retried_tests": 17,
+    "reports": [
+      {
+        "report": ".reports/b24-regression-0.xml",
+        "sha256": "aac1e4872535d379fbee7c98c3cb773db03e52936833de2fea4b7051a70961ed",
+        "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+        "utc": "2026-10-06T11:54:44.108817+00:00",
+        "junit": {
+          "tests": 235,
+          "failures": 15,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected": 235
+      },
+      {
+        "report": ".reports/b24-regression-1.xml",
+        "sha256": "ad28bbb4c0d721a40d1d86df4b5e431be70c6ab850c4dee125f2e2599e467b4f",
+        "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+        "utc": "2026-10-06T12:00:27.755061+00:00",
+        "junit": {
+          "tests": 541,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected": 541
+      },
+      {
+        "report": ".reports/b24-regression-2.xml",
+        "sha256": "0104e2ddee92352427e4833a84e550358356a1c4a833558ed786b3eafab09e7e",
+        "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+        "utc": "2026-10-06T11:57:14.113904+00:00",
+        "junit": {
+          "tests": 233,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected": 233
+      },
+      {
+        "report": ".reports/b24-regression-3.xml",
+        "sha256": "9f4b831ef9d31916c21ab73f0757980965f8f87ec1a646692d3361e94d1ea3e9",
+        "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+        "utc": "2026-10-06T11:55:45.760842+00:00",
+        "junit": {
+          "tests": 267,
+          "failures": 0,
+          "errors": 2,
+          "skipped": 0
+        },
+        "selected": 257
+      },
+      {
+        "report": ".reports/b24-retry-0.xml",
+        "sha256": "3ec53f889d7a20e79af942cd8788fcefc32c07ec63f6a80aecdc36846cf75ad7",
+        "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+        "utc": "2026-10-06T11:57:59.019460+00:00",
+        "junit": {
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected": 15
+      },
+      {
+        "report": ".reports/b24-retry-proxy.xml",
+        "sha256": "1becdb5345ae36e86c1a355235d5cef86199e4884fcb240c535bcbfd6bd6f832",
+        "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+        "utc": "2026-10-06T11:56:33.784654+00:00",
+        "junit": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "selected": 2
+      }
+    ]
+  },
+  "load": {
+    "schema": 1,
+    "kind": "synthetic-local-15ccu",
+    "seed": 241006,
+    "ccu": 15,
+    "session_posts_including_warmup": [
+      101,
+      106,
+      113,
+      106,
+      100,
+      110,
+      98,
+      117,
+      106,
+      101,
+      97,
+      98,
+      106,
+      100,
+      111
+    ],
+    "pool_size": 3,
+    "warmup_seconds": 10,
+    "configured_duration_seconds": 60,
+    "observed_duration_seconds": 60.16618476000008,
+    "completed_requests": 4528,
+    "throughput_requests_per_second": 75.2582205114379,
+    "operations": {
+      "receipt_list": {
+        "count": 1753,
+        "p50_seconds": 0.10355988099991009,
+        "p95_seconds": 0.23825132299998586,
+        "p99_seconds": 0.3596608890002244,
+        "max_seconds": 0.5204608690000896
+      },
+      "receipt_post": {
+        "count": 1340,
+        "p50_seconds": 0.17494806700005938,
+        "p95_seconds": 0.31197894600018117,
+        "p99_seconds": 0.428853608000054,
+        "max_seconds": 0.5907463769999595
+      },
+      "receipt_read": {
+        "count": 1299,
+        "p50_seconds": 0.12766873800001122,
+        "p95_seconds": 0.27038028900005884,
+        "p99_seconds": 0.38879520099999354,
+        "max_seconds": 0.6265173570000115
+      },
+      "same_key_replay": {
+        "count": 136,
+        "p50_seconds": 0.11490859999980785,
+        "p95_seconds": 0.25231809499996416,
+        "p99_seconds": 0.4073654130002069,
+        "max_seconds": 0.4776048990001982
+      }
+    },
+    "statuses": {
+      "200": 4528
+    },
+    "failures": [],
+    "warmup_failures": [],
+    "successful_posts_including_warmup": 1570,
+    "client_database_busy_retries": 0,
+    "runtime_db_backend_pids": [
+      53027,
+      53127,
+      53131
+    ],
+    "transactions_and_sqlstates_including_warmup": {
+      "transactions_committed": 6910,
+      "transactions_rolled_back": 151
+    },
+    "database_deadlocks_delta": 0,
+    "lock_samples": 1049,
+    "samples_with_lock_waiters": 113,
+    "max_lock_waiters": 2,
+    "max_ungranted_locks": 1,
+    "process_cpu_seconds": 79.526491745,
+    "host_cpu_count": 8,
+    "os": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "postgres": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+    "postgres_settings": {
+      "max_connections": "100",
+      "shared_buffers": "128MB",
+      "work_mem": "4MB",
+      "fsync": "on",
+      "synchronous_commit": "on",
+      "max_wal_size": "1GB"
+    },
+    "nginx": "nginx version: nginx/1.24.0 (Ubuntu)",
+    "cpu_model": "11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz",
+    "python": "3.12.3",
+    "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+    "dirty": false,
+    "limitations": [
+      "closed-loop synthetic mix; not Q05/Q07 business acceptance",
+      "API latency is not 15-minute document process time",
+      "lock counters are sampled, not every lock wait",
+      "CPU covers Python driver/API process, not PostgreSQL or Nginx"
+    ],
+    "workers": {
+      "outbox": {
+        "cycles": 266,
+        "failures": 0,
+        "processed": 0
+      },
+      "import": {
+        "cycles": 70,
+        "failures": 0
+      },
+      "export": {
+        "cycles": 70,
+        "failures": 0
+      },
+      "print": {
+        "cycles": 70,
+        "failures": 0
+      },
+      "export-cleanup": {
+        "cycles": 69,
+        "failures": 0
+      },
+      "print-cleanup": {
+        "cycles": 69,
+        "failures": 0
+      }
+    },
+    "profile": {
+      "name": "local-linux-15ccu",
+      "seed": 241006,
+      "ccu": 15,
+      "warehouses": 1,
+      "zones": 3,
+      "skus": 150,
+      "warmup_seconds": 10,
+      "duration_seconds": 60,
+      "think_seconds": 0.05,
+      "mix": {
+        "receipt_list": 40,
+        "receipt_read": 30,
+        "receipt_partial_post": 30
+      },
+      "replay_every_successful_posts": 10,
+      "business_date": "2026-10-02",
+      "description": "Synthetic current Linux measurement; three-zone dataset, hot receiving workload. Not an observed Q05/Q07 production mix."
+    },
+    "reconcile": {
+      "reconcile.sql:0": 0,
+      "reconcile.sql:1": 0,
+      "reconcile.sql:2": 0,
+      "reconcile.sql:3": 0,
+      "reconcile_ownership.sql:0": 0,
+      "reconcile_ownership.sql:1": 0,
+      "reconcile_ownership.sql:2": 0,
+      "reconcile_ownership.sql:3": 0,
+      "reconcile_ownership.sql:4": 0,
+      "reconcile_fulfillment.sql:0": 0,
+      "reconcile_fulfillment.sql:1": 0,
+      "reconcile_fulfillment.sql:2": 0,
+      "reconcile_fulfillment.sql:3": 0,
+      "reconcile_fulfillment.sql:4": 0,
+      "reconcile_fulfillment.sql:5": 0,
+      "reconcile_fulfillment.sql:6": 0,
+      "reconcile_transfers.sql:0": 0,
+      "reconcile_transfers.sql:1": 0,
+      "reconcile_transfers.sql:2": 0,
+      "reconcile_b24.sql:0": 0,
+      "reconcile_b24.sql:1": 0,
+      "reconcile_b24.sql:2": 0,
+      "reconcile_b24.sql:3": 0,
+      "reconcile_b24.sql:4": 0,
+      "reconcile_b24.sql:5": 0
+    },
+    "actual_dataset": {
+      "warehouse": 1,
+      "product": 150,
+      "location": 18,
+      "stock_move": 1570,
+      "inventory_transaction": 1570,
+      "auth_session": 18
+    },
+    "memory_kib": {
+      "MemTotal": 7819964,
+      "MemAvailable": 1952068
+    }
+  },
+  "stress": {
+    "profile": {
+      "name": "synthetic-history-50000-skus-1000000-moves",
+      "skus": 50000,
+      "rounds": 20,
+      "moves": 1000000,
+      "seed": 241006,
+      "method": "Direct SQL fixture expansion; constraints/triggers enabled; not API posting or business acceptance"
+    },
+    "actual_dataset": {
+      "product": 50000,
+      "stock_move": 1000000,
+      "stock_balance": 50000,
+      "inventory_transaction": 20
+    },
+    "seed_seconds": 94.74641410499999,
+    "reconcile_seconds": 6.762454099000024,
+    "reconcile": {
+      "reconcile.sql:0": 0,
+      "reconcile.sql:1": 0,
+      "reconcile.sql:2": 0,
+      "reconcile.sql:3": 0,
+      "reconcile_ownership.sql:0": 0,
+      "reconcile_ownership.sql:1": 0,
+      "reconcile_ownership.sql:2": 0,
+      "reconcile_ownership.sql:3": 0,
+      "reconcile_ownership.sql:4": 0,
+      "reconcile_fulfillment.sql:0": 0,
+      "reconcile_fulfillment.sql:1": 0,
+      "reconcile_fulfillment.sql:2": 0,
+      "reconcile_fulfillment.sql:3": 0,
+      "reconcile_fulfillment.sql:4": 0,
+      "reconcile_fulfillment.sql:5": 0,
+      "reconcile_fulfillment.sql:6": 0,
+      "reconcile_transfers.sql:0": 0,
+      "reconcile_transfers.sql:1": 0,
+      "reconcile_transfers.sql:2": 0,
+      "reconcile_b24.sql:0": 0,
+      "reconcile_b24.sql:1": 0,
+      "reconcile_b24.sql:2": 0,
+      "reconcile_b24.sql:3": 0,
+      "reconcile_b24.sql:4": 0,
+      "reconcile_b24.sql:5": 0
+    },
+    "database_bytes": 317840407,
+    "postgres": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+    "os": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "commit": "35a3e2787bd9c10f881baeac7e5e5b6bfac0022b",
+    "dirty": false,
+    "limitations": [
+      "Direct SQL data-volume fixture: does not replay approval/posting/worker workflows",
+      "No claim of 15 CCU or representative business mix for this dataset",
+      "Expanded synthetic document lines exceed API document-size limits intentionally for storage stress"
+    ]
+  },
+  "evidence_sha256": {
+    ".reports/b24-load-local.xml": "e8bea1b7d4842685b189f1ce0449459fa91f657f94a5f836b518542e2de5aaab",
+    ".reports/b24-stress-final.xml": "5fb6864db5c6d5e296605065fb0c501884e24f8cab682f037ceefd50ccc6f09a",
+    ".reports/b24-build.log": "4ea064dbb291a8dcbbb3477ecfe0b98b5f14704976abb595039e82f9f49067de",
+    ".reports/b24-wheel.log": "15c0113a9cdd46ca2ee8668ba908b8f4b2e1e98231267babf70a2480ff239643"
+  },
+  "wheel": "faf12f477bcd07815c105f6cfed0f695e57ac1e3ee07294e5475be1caab68743",
+  "limitations": [
+    "Synthetic receipt-only closed-loop workload; Q05/Q07 distribution not supplied",
+    "Six worker bodies poll with production registry; outbox processed zero subscribed jobs",
+    "Stress seeds SQL relational volume and does not replay business workflows",
+    "Windows/LAN clients, 20 GB/three-year dataset, long soak, physical count and full document cycle not measured",
+    "PostgreSQL 15 and hosted CI not run in this session; local evidence uses PostgreSQL 16.15"
+  ],
+  "races": [
+    {
+      "name": "race-approval-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "894cdaa8b8a805f8158a580895255438c5e77567434b50e0b18764a0551f846a"
+    },
+    {
+      "name": "race-approval-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "fad93e4dd0b88eebbf4d0b01a1ed97734a271b0ca0962b3f42a31d818bd6ab0d"
+    },
+    {
+      "name": "race-arrival-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "df53a6f42c856557c48f9c878ecb350c55b47d3826651aed35f090d8b11210f2"
+    },
+    {
+      "name": "race-arrival-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "721fe5c5fba75ba06a721c5bc560d720ad5303ada43a0fb852824d363b847484"
+    },
+    {
+      "name": "race-cancel_post-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "34eb436ed0a66580e0900769d15be7acfd4cea1a58a3ce2a0a117f0a97a4c926"
+    },
+    {
+      "name": "race-cancel_post-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "8ce85b4edb4c6bcd32bf77d6e62661437db0cdc3f16a377d84d4f7d398ba4453"
+    },
+    {
+      "name": "race-consignment-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "99b0121e8af866a9b53824eba4360880c609a6f4dee5a79870e19dbae2995add"
+    },
+    {
+      "name": "race-consignment-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "87584e0a4fddf2c1bd0e419b6661b98f6e5b888a5f079094cbbbf282cd854d43"
+    },
+    {
+      "name": "race-count-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "b596156aeacc3247b194f8e40d84a2353a10f292a74d42a05afa6f27014c69ed"
+    },
+    {
+      "name": "race-count-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "67372c36be6c6f3f803e2fbf80e167e283bd6f15591744a369c8edc9f5ff57af"
+    },
+    {
+      "name": "race-customer_return-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "286c7cfe36f152c272dfbadc0666cc92f13338a360611076b3a331ae24728e88"
+    },
+    {
+      "name": "race-customer_return-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "edf2a3ef5d66a6d33a36f744429abecf2719ce17b45945b2f821de9036456b17"
+    },
+    {
+      "name": "race-dispatch-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "0eaf643422897fbe46cd37c983664685fcb03a0e82936e463ba6862ee67da7e7"
+    },
+    {
+      "name": "race-dispatch-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "4268669669dc3d5ab53f2e0f6a9dd6a083a42e8b4c9c66f764d5722f24f839d1"
+    },
+    {
+      "name": "race-freeze_post-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "e21cfcb6c86a2decd73a0a46eccc4967af909596de94410443a7ea200e9c3e42"
+    },
+    {
+      "name": "race-freeze_post-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "308766824ed4367495cd53d71db41bd0114e64c2de806c7c58a6836be7b56a55"
+    },
+    {
+      "name": "race-issue-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "1c33e65c5bcc51572229bf56d2ed50ad33b29de5aac0ac2f99b7b0a1faf91a80"
+    },
+    {
+      "name": "race-issue-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "ec7e1d853df358ce53654c90bb8f9748b3214f27e3bc2de1ac0bc32bc9ceb3be"
+    },
+    {
+      "name": "race-loss-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "472cedcb1e623c1b7a9be10e81569989d229b803744b5c6e7c0a66df8f0dea57"
+    },
+    {
+      "name": "race-loss-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "271d05d915411c355d1e36255891dbd0c14fc4d355f59ce8dfa5d6ea85e7fcf7"
+    },
+    {
+      "name": "race-move-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "265eaa5fe1fcc847671942ca987682b1eaa67718379d3f0f5e18fe7f30cbf2a9"
+    },
+    {
+      "name": "race-move-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "63e6c967bd9cbf45dca1aacb14829ee35caaf88253d50ebcd1417af83340a679"
+    },
+    {
+      "name": "race-opening-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "c52f72eb29e6e88bd527cf39691ee9faac6d64dd1cc41ef5bc6f449750930481"
+    },
+    {
+      "name": "race-opening-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "3f03dd819b1b12bba12c6eb3f43cf5c3611fc2b7fb8fa428da6be842c9558325"
+    },
+    {
+      "name": "race-period_post-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "58c26f40ce4bab2b5f16eb7a17ebeb29d26bbeca972728cca482431fe52f85a8"
+    },
+    {
+      "name": "race-period_post-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "c8523af976c7f967eb6e6ea7544cafca9b655a4a96cbcada6d38f8ea7b9155be"
+    },
+    {
+      "name": "race-receipt-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "3840ad59e284e5395c7297355a19235bffbcf334a0f230fe6c832166b4bdd869"
+    },
+    {
+      "name": "race-receipt-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "eec7d568efd2c07ed556f4884071f0a737e068c39e5550e7399c6413b8769693"
+    },
+    {
+      "name": "race-reserve-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "30fd894a32be3139424c0dc4f4b5f98e02d2e90fd0212dec04865a1af94baa45"
+    },
+    {
+      "name": "race-reserve-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "95ef0c379bc0704b7f4dab7702809d0a8ea4cb6dcd1abcac239b10ada48d53f1"
+    },
+    {
+      "name": "race-reversal-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "cd487f639c722c09b179ea55fbd0cc8a3587c17d553986a0fe37141123e3952f"
+    },
+    {
+      "name": "race-reversal-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "59aa05cc8bcf19e8ac3bb2a4e78e12b7567448e246ff22b44d35c47a5864a604"
+    },
+    {
+      "name": "race-serial-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "59b554e0fd33e644ef1701a1d95681f9198c98f814d4179108244c2070ce03e1"
+    },
+    {
+      "name": "race-serial-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        409
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "1d9e2f8266c0300808e722be1ebf230344ef0df269fb69fdde92a9c404a30b04"
+    },
+    {
+      "name": "race-supplier_return-0",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 3,
+        "rollback": 1
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "eb576193635a93b89a0128678a61888d5f995978e7812101000e11a4a3e4d53a"
+    },
+    {
+      "name": "race-supplier_return-1",
+      "db_connections": 2,
+      "client_processes": 2,
+      "transactions": {
+        "commit": 4,
+        "rollback": 0
+      },
+      "statuses": [
+        200,
+        200
+      ],
+      "reconcile_nonempty": 0,
+      "source_sha256": "40b9a343b4b2eac628d1cc2ef53ae76bc9c70d1c7934748437e184499f062989"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+table,column,data_type,nullable,references
+worker_status,id,uuid,NO,
+worker_status,kind,varchar(20),NO,
+worker_status,registry_hash,char(64),NO,
+worker_status,state,varchar(10),NO,
+worker_status,started_at,timestamptz,NO,
+worker_status,heartbeat_at,timestamptz,NO,
+worker_status,result_code,varchar(40),YES,
+worker_status,completed_cycles,bigint,NO,
+outbox_event,version,integer,NO,
+outbox_event,replay_count,integer,NO,
+outbox_event,replayed_at,timestamptz,YES,

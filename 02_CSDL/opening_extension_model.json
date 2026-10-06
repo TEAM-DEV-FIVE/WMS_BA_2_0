@@ -1,0 +1,79 @@
+{
+  "revision": "010_opening.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "opening_document",
+      "purpose": "Cutover batch and signed count reference; immutable batch per warehouse.",
+      "cols": [
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document.id"
+        },
+        {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "warehouse.id"
+        },
+        {
+          "name": "batch_key",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "signed_count_reference",
+          "type": "varchar(2000)",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "opening_line",
+      "purpose": "Typed location and tracking plan, included in approval snapshot.",
+      "cols": [
+        {
+          "name": "document_line_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "document_line.id"
+        },
+        {
+          "name": "destination_location_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "location.id"
+        },
+        {
+          "name": "lot_code",
+          "type": "varchar(100)",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "serial_code",
+          "type": "varchar(160)",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "manufactured_on",
+          "type": "date",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "expires_on",
+          "type": "date",
+          "null": true,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

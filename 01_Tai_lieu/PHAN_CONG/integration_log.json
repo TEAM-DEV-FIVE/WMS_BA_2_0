@@ -1,0 +1,420 @@
+{
+  "schema_version": 1,
+  "code_baseline": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+  "note": "Chỉ điều phối cập nhật. NOT_STARTED không có nghĩa chức năng hiện có bị mất; đây là trạng thái nhiệm vụ bổ sung. integrated_commit phải là commit thật đã chứa toàn bộ nhiệm vụ và được review.",
+  "tasks": [
+    {
+      "id": "B01",
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "b70d43ac8e16b2744b023091e42fa56f9068a6a5",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
+    },
+    {
+      "id": "B02",
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "9d3fbd1177d27350c73163885ab65260b9d72ec2",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
+    },
+    {
+      "id": "B03",
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "dd659b620a9160854f24aa09cc40718414703574",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
+    },
+    {
+      "id": "B04",
+      "status": "INTEGRATED",
+      "activated_base": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "handoff_commit": "2e844a02845a8e96da6b9ca598a48696fa6de355",
+      "integrated_commit": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
+    },
+    {
+      "id": "B05",
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "784e6697c72c741e78a635995174503231d3c287",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
+    },
+    {
+      "id": "B06",
+      "status": "INTEGRATED",
+      "activated_base": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+      "handoff_commit": "cb1c99d632cbe58facd97039ccb2ee28b1d37523",
+      "integrated_commit": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "note": "Review/tích hợp được người dùng giao 2026-10-03; hồi quy 469 tests + 10 subtests; xem BAN_GIAO/B09_DEPENDENCIES.md. Chưa thay thế nghiệm thu UAT."
+    },
+    {
+      "id": "B07",
+      "status": "INTEGRATED",
+      "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
+      "handoff_commit": "cef3d9013e1e86057f50a3b3cfd39a964b028948",
+      "integrated_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+      "note": "Tích hợp local 05/10/2026; bản ghép 1060 tests + 10 subtests, 0 failed/errors/skips. B17 release 021, B07 release 022 (dev 025). Xem 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Giữ source worktree bàn giao; chưa ACCEPTED/UAT.",
+      "synchronization_commit": "40cabb94f367134568035e72c3224c75bbe727ec",
+      "dependency_commits": {
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
+      },
+      "verified_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf"
+    },
+    {
+      "id": "B08",
+      "status": "INTEGRATED",
+      "activated_base": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "handoff_commit": "b5e2685a10e41a8e7c037c4ebe2fff6a98972bc4",
+      "integrated_commit": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
+    },
+    {
+      "id": "B09",
+      "status": "INTEGRATED",
+      "activated_base": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+      "handoff_commit": "94bd7232173b60bf899ca5001f1687464011899a",
+      "integrated_commit": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "note": "Người dùng giao review/tích hợp để mở B11 ngày 2026-10-03; release 014, 491 tests + 10 subtests; BAN_GIAO/B11_DEPENDENCIES.md. Chưa thay thế UAT/chính sách thương mại ký gửi."
+    },
+    {
+      "id": "B10",
+      "status": "INTEGRATED",
+      "activated_base": "1a17cc5b13377bbaafd70f025756aa8d23717ccb",
+      "handoff_commit": "238a30bcd43936ad2973540672dccbc5ef40e783",
+      "integrated_commit": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
+    },
+    {
+      "id": "B11",
+      "status": "INTEGRATED",
+      "activated_base": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+      "handoff_commit": "cc45621be81249e229655b1899f76bf1dbf4b313",
+      "integrated_commit": "dce35f92b32015146f23d48229d641b558715b8c",
+      "note": "Người dùng giao tích hợp B11 ngày 2026-10-04; release 015, 523 tests + 10 subtests trên bản ghép, 0 failed/skip; BAN_GIAO/B11_INTEGRATION.md. Windows/UAT chưa chạy; không đổi trạng thái nghiệm thu tổng."
+    },
+    {
+      "id": "B12",
+      "status": "INTEGRATED",
+      "activated_base": "ef99946038539483ed3e740b2dbd60594c7394c5",
+      "handoff_commit": "f37c0bb80fbd9f82c26494a71c9e00574f121039",
+      "integrated_commit": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+      "note": "Người dùng cho phép đồng bộ/triển khai và giao tích hợp B12 ngày 2026-10-04; nối nền B11 release 015, B12 release 016; hồi quy 551 tests + 10 subtests, 0 failed/skip. BAN_GIAO/B12_INTEGRATION.md. Windows/UAT chưa chạy; không đổi trạng thái nghiệm thu tổng."
+    },
+    {
+      "id": "B13",
+      "status": "INTEGRATED",
+      "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
+      "handoff_commit": "04250f3825111311dc5196297495ad0a76a87fad",
+      "integrated_commit": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+      "note": "Tích hợp local ngày 2026-10-04. B13/B16: 906 tests + 10 subtests; bản B14 cuối: 970 tests + 10 subtests, 0 lỗi/skip. Xem 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Chưa UAT/Windows/LAN/thiết bị/tải/DR.",
+      "synchronization_commit": "b51e087617d0270cf06bc329d30a580b970255c8",
+      "dependency_commits": {
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1"
+      },
+      "verified_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
+    },
+    {
+      "id": "B14",
+      "status": "INTEGRATED",
+      "activated_base": "f81d985cc0e288196a9cee457db3e69252dcd534",
+      "handoff_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "integrated_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "note": "Tích hợp local ngày 2026-10-04. B13/B16: 906 tests + 10 subtests; bản B14 cuối: 970 tests + 10 subtests, 0 lỗi/skip. Xem 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Chưa UAT/Windows/LAN/thiết bị/tải/DR.",
+      "verified_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+      "synchronization_commit": "517f6448286a38780407f25830ddf34c4ec222a4"
+    },
+    {
+      "id": "B15",
+      "status": "INTEGRATED",
+      "activated_base": "45e51a55004b6e808b5b051a757a77a265df1d05",
+      "handoff_commit": "8bb824ce4e84180d0b167805b2d9e0fa12c05b28",
+      "integrated_commit": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+      "note": "Review/tích hợp ngày 2026-10-04; toàn bộ 823 tests + 10 subtests đạt trên bản ghép. Xem 07_Kiem_tra/BRANCH_REVIEW_2026_10_04.md. Chưa thay thế UAT Windows/thiết bị/LAN/DR/tải.",
+      "verified_commit": "1386b2419dfa42a8dba48fc2028464d18da3d696"
+    },
+    {
+      "id": "B16",
+      "status": "INTEGRATED",
+      "activated_base": "d4676b67e1302e0ea545d22da5ec16c4f9453840",
+      "handoff_commit": "e0e94c74bdd4e5063d0b1a77aa1235624d1be728",
+      "integrated_commit": "f81d985cc0e288196a9cee457db3e69252dcd534",
+      "note": "Tích hợp local ngày 2026-10-04. B13/B16: 906 tests + 10 subtests; bản B14 cuối: 970 tests + 10 subtests, 0 lỗi/skip. Xem 07_Kiem_tra/B14_INTEGRATION_2026_10_04.md. Chưa UAT/Windows/LAN/thiết bị/tải/DR.",
+      "synchronization_commit": "ae4db4694ccacba2849f096f99baa21f881d465e",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B06": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780"
+      },
+      "verified_commit": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
+    },
+    {
+      "id": "B17",
+      "status": "INTEGRATED",
+      "activated_base": "101ef19331a42729a168a15edb474e1b99382eb5",
+      "handoff_commit": "b131b30cf7ea855ee22e696f786d11648d7c90a2",
+      "integrated_commit": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+      "note": "Tích hợp local 05/10/2026; bản ghép 1060 tests + 10 subtests, 0 failed/errors/skips. B17 release 021, B07 release 022 (dev 025). Xem 07_Kiem_tra/B07_B17_INTEGRATION_2026_10_05.md. Giữ source worktree bàn giao; chưa ACCEPTED/UAT.",
+      "synchronization_commit": "101ef19331a42729a168a15edb474e1b99382eb5",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B10": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+        "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a"
+      },
+      "verified_commit": "005f4c81f78c3b30fef652e221a1ad01bc429faf"
+    },
+    {
+      "id": "B18",
+      "status": "INTEGRATED",
+      "activated_base": "933f4b773e6406c1f24d2646271f0dea6b24a228",
+      "handoff_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+      "integrated_commit": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+      "note": "Tích hợp fast-forward local 05/10/2026, runtime giống nguyên byte bản kiểm chứng: 1106 tests + 10 subtests PASS, không failed/errors/skips. Release023; 001–022/SQLite001–002 giữ nguyên. Windows/thiết bị/mẫu Q06/Q08 NOT_RUN, chưa ACCEPTED. Xem 07_Kiem_tra/B18_INTEGRATION_2026_10_05.md.",
+      "verified_commit": "684789f747244a23628e193792fca5d851dfed85",
+      "dependency_commits": {
+        "B05": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb"
+      }
+    },
+    {
+      "id": "B19",
+      "status": "INTEGRATED",
+      "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
+      "handoff_commit": "e1b10182260413a62579f2533cbc30f5f9345a34",
+      "integrated_commit": "830146198169a8ed3a5433c483d726e170db6c45",
+      "note": "Tích hợp local 06/10/2026; 1156 tests +10 subtests PASS, 0 failed/errors/skips. PG024/SQLite003; 07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md. Chưa ACCEPTED/UAT.",
+      "synchronization_commit": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B04": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+        "B05": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B06": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B10": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+        "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29"
+      },
+      "verified_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2"
+    },
+    {
+      "id": "B20",
+      "status": "INTEGRATED",
+      "activated_base": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
+      "handoff_commit": "37c44be04d209c3110bc912d368a289f95bcdcca",
+      "integrated_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "note": "Tích hợp local 06/10/2026; 1156 tests +10 subtests PASS, 0 failed/errors/skips. PG024/SQLite003; 07_Kiem_tra/B19_B20_INTEGRATION_2026_10_06.md. Chưa ACCEPTED/UAT.",
+      "synchronization_commit": "80fcf3f9c14fe5b53228aebf565ef1543134d0e7",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29"
+      },
+      "verified_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2"
+    },
+    {
+      "id": "B21",
+      "status": "INTEGRATED",
+      "activated_base": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "handoff_commit": "e7177e013e957c4eb3a2b1696de40b107971fae9",
+      "integrated_commit": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a",
+      "note": "Local integration06/10/2026;1210 tests +10 subtests PASS, including28 LAN. LAN deployment tooling and local component verification; target rollout NOT_RUN. See 07_Kiem_tra/B21_B23_INTEGRATION_2026_10_06.md; T01–T28 remain PLANNED.",
+      "synchronization_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "dependency_commits": {
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2"
+      },
+      "verified_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "integration_scope": "LAN deployment tooling and local component verification; target rollout NOT_RUN",
+      "acceptance_status": "NEEDS_ENVIRONMENT"
+    },
+    {
+      "id": "B22",
+      "status": "INTEGRATED",
+      "activated_base": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "handoff_commit": "7178d536d0a8a124cde9fd8c0b1ebd14918c793c",
+      "integrated_commit": "473ceb28ca0bdef650642027553a446c761db64b",
+      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
+      "synchronization_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "dependency_commits": {
+        "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a"
+      },
+      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "integration_scope": "PG16 base/WAL/checkpoint/isolated PITR tooling and local fixture; off-host DR NOT_RUN",
+      "acceptance_status": "NEEDS_ENVIRONMENT"
+    },
+    {
+      "id": "B23",
+      "status": "INTEGRATED",
+      "activated_base": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "handoff_commit": "8399359ad79b699527f59b4e80ad74f3d40d49f6",
+      "integrated_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "note": "Native VM lab passed; Windows10/11/device/public signing acceptance remains open. Historical 626e4a8 evidence retained.",
+      "synchronization_commit": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+      "dependency_commits": {
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B19": "830146198169a8ed3a5433c483d726e170db6c45"
+      },
+      "verified_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "integration_scope": "Windows packaging plus native VM TEST ONLY signing/install/self-test; macOS15 ARM64 ad-hoc lab build",
+      "acceptance_status": "NEEDS_ENVIRONMENT",
+      "native_verified_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+      "native_report": "07_Kiem_tra/release/FINAL_HANDOVER.md"
+    },
+    {
+      "id": "B24",
+      "status": "INTEGRATED",
+      "activated_base": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "handoff_commit": "a526cb7945bace3bb31e933d2c6e77827991ca09",
+      "integrated_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
+      "synchronization_commit": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+      "dependency_commits": {
+        "B04": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+        "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+        "B19": "830146198169a8ed3a5433c483d726e170db6c45",
+        "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+        "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a"
+      },
+      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "integration_scope": "TLS process races/security/runtime grants/load harness; local 15CCU and stress evidence, target acceptance NOT_RUN",
+      "acceptance_status": "NEEDS_ENVIRONMENT"
+    },
+    {
+      "id": "B25",
+      "status": "INTEGRATED",
+      "activated_base": "7b168c010756c194a33872571cd59d6258712b06",
+      "handoff_commit": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c",
+      "integrated_commit": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c",
+      "note": "Integrated locally 2026-10-06; 1313 tests +10 subtests, 0 failed/errors/skips. Scope is code/docs/preparation only; T01-T28 remain PLANNED. 07_Kiem_tra/release/VERIFICATION.md.",
+      "verified_commit": "7b168c010756c194a33872571cd59d6258712b06",
+      "integration_scope": "Role manuals/runbooks/training/49-requirement matrix; training/sign-off NOT_RUN",
+      "acceptance_status": "NEEDS_ENVIRONMENT",
+      "dependency_commits": {
+        "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+        "B19": "830146198169a8ed3a5433c483d726e170db6c45",
+        "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+        "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a",
+        "B22": "473ceb28ca0bdef650642027553a446c761db64b",
+        "B23": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+        "B24": "7b168c010756c194a33872571cd59d6258712b06"
+      }
+    },
+    {
+      "id": "B26",
+      "status": "INTEGRATED",
+      "activated_base": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c",
+      "handoff_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
+      "integrated_commit": "987f692a98421f1d0191950a76b42ded0e1b11c0",
+      "note": "Current evidence: 07_Kiem_tra/release/FINAL_HANDOVER.md; prior evidence retained by commit.",
+      "verified_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+      "integration_scope": "Software candidate completed: history/layout, full local and hosted regression, rebuilt native clients and offline server. Operational UAT requires target environment.",
+      "acceptance_status": "NEEDS_ENVIRONMENT",
+      "dependency_commits": {
+        "B01": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B02": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B03": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B04": "5e6989f614ee298fd171cb7eb24f31141caaf592",
+        "B05": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B06": "bd15277c7142708b595ac9d16aa77b5a4db90745",
+        "B07": "005f4c81f78c3b30fef652e221a1ad01bc429faf",
+        "B08": "dd8e62fbe5ff72e97598b01c35cfbd00228599c6",
+        "B09": "97f9d02796a01fabd6974eec5ff741981c45eb00",
+        "B10": "4e7db5d90d6fa28c068bb2f058352c5d5e8d168e",
+        "B11": "dce35f92b32015146f23d48229d641b558715b8c",
+        "B12": "97947c9d0202e73ef56a67b19535f7e105adb5d1",
+        "B13": "3ae926483b1dc3ad84bca0eeea33545d93ea1bc9",
+        "B14": "6b92d2aec012073572e5b29a46039b6b46e10f7a",
+        "B15": "44b72d14877c9581e80e5db89035a2d4db7d5780",
+        "B16": "f81d985cc0e288196a9cee457db3e69252dcd534",
+        "B17": "81e87e4e7f2274e96984d944d19017167ee8bbdb",
+        "B18": "71b3821e1fe63b974e84b7a51ab415656ff46c29",
+        "B19": "830146198169a8ed3a5433c483d726e170db6c45",
+        "B20": "1b0f12f892203e0c10c5d81719d9560e0c08f4f2",
+        "B21": "74ad87ffa523828fc73b91a8da9ff8cef7f0901a",
+        "B22": "473ceb28ca0bdef650642027553a446c761db64b",
+        "B23": "626e4a84a7e31aa9d012fb4320ab50d7e4d0e433",
+        "B24": "7b168c010756c194a33872571cd59d6258712b06",
+        "B25": "fb2e3d8e0cbb5428fe98f263c65b70009b5f198c"
+      },
+      "preparation_status": "SOFTWARE_HANDOVER_READY"
+    }
+  ],
+  "last_review": {
+    "date": "2026-10-06",
+    "tested_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+    "report": "07_Kiem_tra/release/FINAL_HANDOVER.md",
+    "tests": 1320,
+    "subtests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "next_ready_for_sync": [],
+    "acceptance_status": "NEEDS_ENVIRONMENT",
+    "remaining_gates": [
+      "G01",
+      "G02",
+      "G03",
+      "G04",
+      "G05",
+      "G07"
+    ],
+    "resolved_software_gates": [
+      "G06",
+      "G08"
+    ],
+    "native_run": 37471976127,
+    "application_run": 37471975858,
+    "owner_decision": {
+      "date": "2026-10-06",
+      "status": "OWNER_ACCEPTED_BY_DECISION",
+      "record": "07_Kiem_tra/release/OWNER_ACCEPTANCE.md",
+      "scope": "Accept software handover, close remaining implementation issues, merge PR #46 into main. Existing technical gates and empirical evidence remain unchanged."
+    }
+  },
+  "last_activation": {
+    "date": "2026-10-06",
+    "tasks": [
+      "B25",
+      "B26"
+    ],
+    "status": "INTEGRATED_LOCAL_PREPARATION",
+    "activated_base": "7b168c010756c194a33872571cd59d6258712b06",
+    "note": "Primary completed docs/release preparation after B22/B24; no subagents spawned; target acceptance still blocked."
+  }
+}

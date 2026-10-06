@@ -1,0 +1,38 @@
+// Additive ownership/warranty model; merge added columns into baseline tables.
+Table stock_owner {
+  id uuid [not null]
+  code varchar(80) [not null]
+  name varchar(240) [not null]
+  kind varchar(20) [not null]
+  partner_id uuid [null, ref: > partner.id]
+  is_active boolean [not null]
+  version integer [not null]
+}
+Table consignment_agreement {
+  id uuid [not null]
+  code varchar(80) [not null]
+  owner_id uuid [not null, ref: > stock_owner.id]
+  warehouse_id uuid [not null, ref: > warehouse.id]
+  valid_from date [not null]
+  valid_until date [not null]
+  source_ref text [not null]
+  is_active boolean [not null]
+  version integer [not null]
+}
+Table serial_warranty_record {
+  id uuid [not null]
+  serial_id uuid [not null, ref: > serial.id]
+  receipt_move_id uuid [not null, ref: > stock_move.id]
+  revision integer [not null]
+  starts_on date [null]
+  ends_on date [null]
+  evidence_ref text [null]
+  recorded_by uuid [not null, ref: > app_user.id]
+  recorded_at timestamptz [not null]
+  reason text [not null]
+}
+// Add to stock_item: owner_id uuid; FK stock_owner.id
+// Add to stock_item: consignment_id uuid; FK consignment_agreement.id
+// Add to document_line: owner_id uuid; FK stock_owner.id
+// Add to document_line: consignment_id uuid; FK consignment_agreement.id
+// Add to serial: warranty_version integer not null

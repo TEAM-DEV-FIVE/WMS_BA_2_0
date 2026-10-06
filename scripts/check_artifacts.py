@@ -3,7 +3,6 @@
 import csv
 import hashlib
 import json
-from pathlib import Path
 import re
 import sqlite3
 import sys
@@ -141,6 +140,33 @@ def check_policy_and_traceability():
     print(f"PASS RBAC, traceability and OpenAPI: {len(roles)} roles, {len(permissions)} permissions, {len(api['paths'])} paths")
 
 
+def check_extensions():
+    baseline = read_json("02_CSDL/model.json")
+    combined = {(table["name"], col["name"]): col for table in baseline for col in table["cols"]}
+    for path in sorted((ROOT / "02_CSDL").glob("*_extension_model.json")):
+        extension = read_json(path.relative_to(ROOT))
+        require((ROOT / "migrations" / extension["revision"]).exists(), "Unknown extension migration")
+        columns = {(t["name"], c["name"]): c for t in extension["tables"] for c in t["cols"]}
+        for col in extension["added_columns"]:
+            key = (col["table"], col["name"])
+            require(key not in columns, "Duplicate extension column")
+            columns[key] = col
+        require(not (combined.keys() & columns.keys()), "Extension redefines an existing column")
+        dictionary = read_csv(path.relative_to(ROOT).as_posix().replace("_model.json", "_dictionary.csv"))
+        require(len(dictionary) == len(columns), "Extension dictionary count differs")
+        require({(r["table"], r["column"]) for r in dictionary} == set(columns), "Extension dictionary fields differ")
+        dbml = path.with_name(path.name.replace("_model.json", ".dbml")).read_text(encoding="utf-8")
+        for row in dictionary:
+            col = columns[(row["table"], row["column"])]
+            require(row["data_type"] == col["type"], "Extension dictionary type differs")
+            require(row["nullable"] == ("YES" if col["null"] else "NO"), "Extension dictionary nullability differs")
+            require(row["references"] == (col["ref"] or ""), "Extension dictionary FK differs")
+            require(re.search(r"\b" + re.escape(col["name"]) + r"\s+" + re.escape(col["type"]), dbml), "Extension DBML declaration missing")
+        combined.update(columns)
+    require(all(tuple(c["ref"].split(".")) in combined for c in combined.values() if c["ref"]), "Unknown runtime FK target")
+    print(f"PASS additive models/dictionaries/DBML: {len({key[0] for key in combined})} tables, {len(combined)} columns")
+
+
 def check_distribution():
     with zipfile.ZipFile(ROOT / "06_Nhap_lieu/CSV_mau_va_vi_du.zip") as archive:
         expected = {
@@ -165,6 +191,7 @@ if __name__ == "__main__":
     try:
         check_files()
         check_model()
+        check_extensions()
         check_policy_and_traceability()
         check_distribution()
     except (ValueError, KeyError, OSError, ImportError, ET.ParseError, zipfile.BadZipFile) as exc:

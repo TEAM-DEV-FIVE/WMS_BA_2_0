@@ -1,0 +1,4973 @@
+{
+  "note": "Generated route inventory only; permission policy and DTO differences: CONTRACT_REVIEW.md. PLANNED routes remain in openapi_core.json. No acceptance status is inferred.",
+  "design_operations": [
+    {
+      "method": "GET",
+      "design_path": "/operations/{key}",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/operations/{key}"
+    },
+    {
+      "method": "GET",
+      "design_path": "/purchase-orders",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/purchase-orders"
+    },
+    {
+      "method": "GET",
+      "design_path": "/purchase-orders/{id}",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/purchase-orders/{document_id}"
+    },
+    {
+      "method": "GET",
+      "design_path": "/receipts",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/receipts"
+    },
+    {
+      "method": "GET",
+      "design_path": "/receipts/{id}",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/receipts/{document_id}"
+    },
+    {
+      "method": "GET",
+      "design_path": "/serials/{id}/warranty",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/serials/{serial_id}/warranty"
+    },
+    {
+      "method": "GET",
+      "design_path": "/stock-ownership",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/stock-ownership"
+    },
+    {
+      "method": "PATCH",
+      "design_path": "/receipts/{id}",
+      "status": "PLANNED",
+      "runtime_path": null
+    },
+    {
+      "method": "POST",
+      "design_path": "/adjustments/{id}/post",
+      "status": "PLANNED",
+      "runtime_path": null
+    },
+    {
+      "method": "POST",
+      "design_path": "/approval-requests/{id}/decide",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/approval-requests/{approval_id}/decide"
+    },
+    {
+      "method": "POST",
+      "design_path": "/counts/{id}/freeze",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/counts/{session_id}/freeze"
+    },
+    {
+      "method": "POST",
+      "design_path": "/counts/{id}/submit",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/counts/{session_id}/submit"
+    },
+    {
+      "method": "POST",
+      "design_path": "/documents/{id}/cancel",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/documents/{document_id}/cancel"
+    },
+    {
+      "method": "POST",
+      "design_path": "/documents/{id}/submit",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/documents/{document_id}/submit"
+    },
+    {
+      "method": "POST",
+      "design_path": "/imports/{id}/commit",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/imports/{job_id}/commit"
+    },
+    {
+      "method": "POST",
+      "design_path": "/issues/{id}/post",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/issues/{document_id}/post"
+    },
+    {
+      "method": "POST",
+      "design_path": "/issues/{id}/reserve",
+      "status": "PLANNED",
+      "runtime_path": null
+    },
+    {
+      "method": "POST",
+      "design_path": "/moves/{id}/post",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/moves/{doc_id}/post"
+    },
+    {
+      "method": "POST",
+      "design_path": "/openings/{id}/post",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/openings/{document_id}/post"
+    },
+    {
+      "method": "POST",
+      "design_path": "/receipts",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/receipts"
+    },
+    {
+      "method": "POST",
+      "design_path": "/receipts/{id}/post",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/receipts/{document_id}/post"
+    },
+    {
+      "method": "POST",
+      "design_path": "/receipts/{id}/revise",
+      "status": "PLANNED",
+      "runtime_path": null
+    },
+    {
+      "method": "POST",
+      "design_path": "/returns/{id}/post",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/returns/{doc_id}/post"
+    },
+    {
+      "method": "POST",
+      "design_path": "/transfers/{id}/dispatch",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/transfers/{doc_id}/dispatch"
+    },
+    {
+      "method": "POST",
+      "design_path": "/transfers/{id}/receive",
+      "status": "IMPLEMENTED_ROUTE_REVIEW_DTO",
+      "runtime_path": "/api/v1/transfers/{doc_id}/receive"
+    }
+  ],
+  "runtime_operations": [
+    {
+      "method": "GET",
+      "path": "/api/v1/approval-requests/{request_id}",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/consignment-receipts",
+      "tags": [
+        "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/consignment-receipts/operations/{key}",
+      "tags": [
+        "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/consignment-receipts/owners",
+      "tags": [
+        "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/consignment-receipts/{document_id}",
+      "tags": [
+        "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts/catalog/{resource}",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts/operations/{key}",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/counts/{session_id}",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/custom-fields/schemas/{entity_type}",
+      "tags": [
+        "custom-fields"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/custom-fields/{target_type}/{target_id}",
+      "tags": [
+        "custom-fields"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/custom-fields/{target_type}/{target_id}/history",
+      "tags": [
+        "custom-fields"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/{document_id}",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/{document_id}/approval-snapshots",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/{document_id}/assignment-candidates",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exports",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exports/{job_id}",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exports/{job_id}/download",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/files/{file_id}",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/files/{file_id}/download",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/fulfillment",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/fulfillment/operations/{key}",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/fulfillment/{document_id}",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/fulfillment/{document_id}/assignees",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/grant-requests",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/grants",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "tags": [
+        "operations"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/iam/events",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/iam/lookup/users",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/iam/lookup/warehouses",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/iam/sessions",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/import-templates",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/imports",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/imports/{job_id}",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/imports/{job_id}/errors",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/imports/{job_id}/rows",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/issues",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/issues/operations/{key}",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/issues/{document_id}",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/issues/{document_id}/reservation-plan",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/barcodes",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/barcodes/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/categories",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/categories/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/consignment-agreements",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/consignment-agreements/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/locations",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/locations/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/partners",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/partners/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/product-uoms",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/products",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/products/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/products/{product_id}/prices",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/scan",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/stock-owners",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/stock-owners/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/uoms",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/uoms/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/warehouses",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/master/warehouses/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/moves",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/moves/locations",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/moves/operations/{key}",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/moves/stock",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/moves/{doc_id}",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/openings",
+      "tags": [
+        "openings"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/openings/operations/{key}",
+      "tags": [
+        "openings"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/openings/owners",
+      "tags": [
+        "openings"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/openings/{document_id}",
+      "tags": [
+        "openings"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations/jobs",
+      "tags": [
+        "operations"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations/outbox",
+      "tags": [
+        "operations"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations/workers",
+      "tags": [
+        "operations"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/operations/{key}",
+      "tags": [
+        "receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/periods",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/periods/operations/{key}",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/periods/{period_id}",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/printing/sources",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/printing/{job_id}",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/printing/{job_id}/download",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/purchase-orders",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/purchase-orders/{document_id}",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/quality/sources",
+      "tags": [
+        "quality"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/quality/sources/{source_id}",
+      "tags": [
+        "quality"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ready",
+      "tags": [
+        "operations"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/receipts",
+      "tags": [
+        "receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/receipts/locations",
+      "tags": [
+        "receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/receipts/{document_id}",
+      "tags": [
+        "receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/lookups/{kind}",
+      "tags": [
+        "reports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reports/snapshots/{snapshot_id}",
+      "tags": [
+        "reports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/returns",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/returns/locations",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/returns/operations/{key}",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/returns/sources",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/returns/{doc_id}",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reversals",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reversals/operations/{key}",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reversals/sources",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/reversals/{doc_id}",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/roles",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sales-orders",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sales-orders/{document_id}",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/serials/lookup",
+      "tags": [
+        "traceability"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/serials/{serial_id}/warranty",
+      "tags": [
+        "traceability"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/stock-ownership",
+      "tags": [
+        "traceability"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transactions/{transaction_id}/reversal-preview",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/locations",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/operations/{key}",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/stock",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/{doc_id}",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/{doc_id}/adjustments",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/{doc_id}/assignees",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/{doc_id}/discrepancies",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/transfers/{doc_id}/history",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/warehouses",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/warehouses/{warehouse_id}/permissions",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/users/{user_id}/active",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/approval-requests/{approval_id}/decide",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/mfa",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/mfa/confirm",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/mfa/enroll",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/mfa/recover",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/mfa/recovery-codes",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/mfa/reset",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/password/change",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/password/reset",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/refresh",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/consignment-receipts",
+      "tags": [
+        "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/consignment-receipts/{document_id}/post",
+      "tags": [
+        "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/cancel",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/confirm-empty",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/decide",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/extra",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/freeze",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/observe",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/post",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/counts/{session_id}/submit",
+      "tags": [
+        "counting"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/custom-fields/{target_type}/{target_id}/preview",
+      "tags": [
+        "custom-fields"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/{document_id}/assignments",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/{document_id}/cancel",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/{document_id}/close",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/{document_id}/revise",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/{document_id}/submit",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/exports",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/exports/{job_id}/{operation}",
+      "tags": [
+        "exports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/files",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/packages",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/packages/{entity_id}/cancel",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/packages/{entity_id}/seal",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/picks",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/picks/{entity_id}/assign",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/picks/{entity_id}/cancel",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/picks/{entity_id}/confirm",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/picks/{entity_id}/reject",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fulfillment/{document_id}/picks/{entity_id}/start",
+      "tags": [
+        "fulfillment"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/grant-requests",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/grant-requests/{grant_request_id}/approve",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/grants/{grant_id}/revoke",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/imports",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/imports/{job_id}/cancel",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/imports/{job_id}/commit",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/imports/{job_id}/validate",
+      "tags": [
+        "imports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/issues",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/issues/{document_id}/post",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/issues/{document_id}/reservations/expire",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/issues/{document_id}/reservations/release",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/issues/{document_id}/reservations/reserve",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/barcodes",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/categories",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/consignment-agreements",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/locations",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/partners",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/product-uoms",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/products",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/products/{product_id}/prices",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/stock-owners",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/uoms",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/master/warehouses",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/moves",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/moves/{doc_id}/post",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/openings",
+      "tags": [
+        "openings"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/openings/{document_id}/post",
+      "tags": [
+        "openings"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/operations/outbox/{event_id}/replay",
+      "tags": [
+        "operations"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods/{period_id}/close",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods/{period_id}/confirm-reopen",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/periods/{period_id}/reopen",
+      "tags": [
+        "periods"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/scan",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/{job_id}/result",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/{job_id}/spool",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/printing/{job_id}/{operation}",
+      "tags": [
+        "prints"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/purchase-orders",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/quality/sources/{source_id}/decide",
+      "tags": [
+        "quality"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/receipts",
+      "tags": [
+        "receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/receipts/{document_id}/post",
+      "tags": [
+        "receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reports/{code}/snapshots",
+      "tags": [
+        "reports"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/returns",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/returns/{doc_id}/post",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reversals",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/reversals/{doc_id}/post",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/sales-orders",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/serials/{serial_id}/warranty-records",
+      "tags": [
+        "traceability"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/transfers",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/transfers/{doc_id}/adjustments",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/transfers/{doc_id}/discrepancies",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/transfers/{doc_id}/dispatch",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/transfers/{doc_id}/loss-post",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/transfers/{doc_id}/receive",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": true,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/{user_id}/password-reset",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/{user_id}/revoke-sessions",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/consignment-receipts/{document_id}",
+      "tags": [
+        "consignment-receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/custom-fields/schemas/{entity_type}",
+      "tags": [
+        "custom-fields"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/custom-fields/{target_type}/{target_id}",
+      "tags": [
+        "custom-fields"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "413",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/issues/{document_id}",
+      "tags": [
+        "issues"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/barcodes/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/categories/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/consignment-agreements/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/locations/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/partners/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/products/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/stock-owners/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/uoms/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/master/warehouses/{entity_id}",
+      "tags": [
+        "master-data"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/moves/{doc_id}",
+      "tags": [
+        "moves"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/openings/{document_id}",
+      "tags": [
+        "openings"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/purchase-orders/{document_id}",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/receipts/{document_id}",
+      "tags": [
+        "receipts"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/returns/{doc_id}",
+      "tags": [
+        "returns"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/reversals/{doc_id}",
+      "tags": [
+        "reversals"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/sales-orders/{document_id}",
+      "tags": [
+        "orders"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/transfers/{doc_id}",
+      "tags": [
+        "transfers"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": true,
+      "expected_version_required": true,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "503"
+      ],
+      "untyped_success": false
+    }
+  ]
+}

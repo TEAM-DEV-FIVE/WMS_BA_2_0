@@ -34,4 +34,4 @@ Q01–Q08 đã được tech lead trả lời trong bảng quyết định; tr�
 
 ## 8. Bổ sung Q02 trong TL01
 
-FR32/UC32 quản lý hàng ký gửi theo chủ sở hữu, FR33/UC33 tra cứu bảo hành theo serial. T27/T28 là đặc tả chưa chạy. Phần mô hình vật lý/permission/API mới chưa có; không coi các sơ đồ/56 bảng/53 quyền hiện tại đã bao phủ hai UC này. BE01/BE02/TL04 phải bổ sung trước nghiệm thu, tham chiếu CR-TL01-Q02-20261002.
+FR32/UC32 quản lý hàng ký gửi theo chủ sở hữu, FR33/UC33 tra cứu bảo hành theo serial. T27/T28 là đặc tả chưa chạy. Baseline 56 bảng/53 quyền chưa bao phủ hai UC này. Migration 006/007 và API/desktop mới có bằng chứng thành phần tại [TRACEABILITY.md](../TRACEABILITY.md); luồng posting/policy ký gửi và nghiệm thu T27/T28 còn thiếu, tham chiếu CR-TL01-Q02-20261002.

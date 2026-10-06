@@ -1,0 +1,39 @@
+{
+  "status": "SOFTWARE_HANDOVER_READY_NEEDS_ENVIRONMENT",
+  "runtime_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+  "source_commit": "158f9dacc06fa76ca50a2d0a0193a55ecf78d54b",
+  "native_commit": "97d4c510dab8370643b7d55e85d6788443b5e209",
+  "bundle": "dist/wms-handover-97d4c51",
+  "bundle_files": 116,
+  "manifest_sha256": "4b80057cb0f693966e847bc44d0ec94de7d0dd2663fe74104925bfb82d0c0d7c",
+  "server_manifest_sha256": "6ab87d732ef36e128d2a984b0465bedbd224327f6841ad4baec43ba37a87d093",
+  "archive": "dist/WMS-InternTechLead-97d4c51.tar.gz",
+  "archive_sha256": "45f0bf247ffb846b334819a29f2a9ce64e20a22a20b8ad381f80d4b836e4ab37",
+  "archive_bytes": 138180025,
+  "archive_files_verified": 118,
+  "offline_installed_inputs_match_delivery": true,
+  "offline_inputs_verified": 61,
+  "offline_prefix": "/tmp/wms-offline-final-97d4c51",
+  "offline_probe_manifest_sha256": "40da6712c2d8628fc5c599f821fbe281c97f41c8e980ca3b0d6f1f74312c210d",
+  "runtime_tests": 1320,
+  "subtests": 10,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "application_ci_run": 37471975858,
+  "native_ci_run": 37471976127,
+  "public_signing": false,
+  "uat": "PLANNED",
+  "remaining_gates": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G07"
+  ],
+  "completed_issues": [
+    14,
+    19
+  ]
+}

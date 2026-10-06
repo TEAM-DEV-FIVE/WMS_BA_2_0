@@ -1,0 +1,9 @@
+# Review/install only on the assigned PostgreSQL16 WMS host. Restart for archive_mode.
+wal_level = replica
+archive_mode = on
+archive_timeout = '60s'
+# Replace UUID in BOTH repository markers and root config. No password in command.
+# archive is postgres:postgres0700 below the dedicated mount root0755; catalog is root0700.
+archive_command = '/usr/bin/python3 /opt/wms/backup/wms_backup.py archive --repository /mnt/wms-backup/archive --repository-id REPLACE_UUID --max-bytes 107374182400 --source "%p" --name "%f"'
+# Retain B21 listen_addresses='' and local peer HBA. No new client TCP access.
+# max_wal_size is NOT an archive-failure disk cap; monitor primary pg_wal separately.

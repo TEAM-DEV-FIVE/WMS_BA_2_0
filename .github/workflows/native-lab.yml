@@ -1,0 +1,108 @@
+name: Native Windows and macOS lab builds
+on:
+  push:
+    branches: ['build/native-vm']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install verified Inno Setup 6.7.3
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Join-Path $env:RUNNER_TEMP 'innosetup-6.7.3.exe'
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe' -OutFile $installer
+          $signature = Get-AuthenticodeSignature -LiteralPath $installer
+          if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'CN=Pyrsys B\.V\.') { throw 'Invalid compiler publisher' }
+          $target = Join-Path $env:RUNNER_TEMP 'InnoSetup673'
+          $p = Start-Process $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/CURRENTUSER',"/DIR=`"$target`"" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Compiler install failed' }
+          "WMS_ISCC=$target\ISCC.exe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Create ephemeral TEST ONLY signer without interactive user-root import
+        timeout-minutes: 3
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=InternTechLead TEST ONLY' -CertStoreLocation Cert:\CurrentUser\My -KeyAlgorithm RSA -KeyLength 3072 -HashAlgorithm SHA256 -NotAfter (Get-Date).AddDays(2)
+          Write-Host 'Created ephemeral test signer'
+          "WMS_TEST_THUMBPRINT=$($cert.Thumbprint)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $cer = Join-Path $env:RUNNER_TEMP 'windows-test-signer.cer'
+          Export-Certificate -Cert $cert -FilePath $cer | Out-Null
+          # CurrentUser Root can show an interactive trust dialog and stall a headless job.
+          # This is an ephemeral GitHub VM with an administrator build account, never a user PC.
+          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\LocalMachine\TrustedPublisher | Out-Null
+          Write-Host 'Imported public test trust into disposable VM machine stores'
+      - name: Build and timestamp signed Windows package
+        timeout-minutes: 10
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tools = @(Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' | Sort-Object FullName -Descending)
+          if ($tools.Count -eq 0) { throw 'Windows SDK signing tool missing' }
+          ./packaging/windows/Build.ps1 -ISCC $env:WMS_ISCC -CertificateThumbprint $env:WMS_TEST_THUMBPRINT -SignTool $tools[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+      - name: Verify signed installer and per-user install
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $release = @(Get-ChildItem dist -Directory -Filter 'windows-*')
+          if ($release.Count -ne 1) { throw 'Expected one release' }
+          $manifest = Get-Content (Join-Path $release[0].FullName 'manifest.json') -Raw | ConvertFrom-Json
+          $setup = @(Get-ChildItem $release[0].FullName -Filter '*Setup*.exe')
+          if ($setup.Count -ne 1) { throw 'Expected one installer' }
+          $versionDirectory = Join-Path $env:LOCALAPPDATA ('Programs\WMS\0.1.0-' + $manifest.commit.Substring(0,12))
+          ./packaging/windows/Test-Install.ps1 -Installer $setup[0].FullName -ExpectedSha256 (Get-FileHash $setup[0].FullName).Hash -ExpectedSigner $env:WMS_TEST_THUMBPRINT -VersionDirectory $versionDirectory
+          $signature = Get-AuthenticodeSignature -LiteralPath $setup[0].FullName
+          if ($signature.Status -ne 'Valid' -or !$signature.TimeStamperCertificate) { throw 'Missing valid timestamped signature' }
+          @{ test_only = $true; public_release = $false; signer = $env:WMS_TEST_THUMBPRINT; signature = [string]$signature.Status; timestamped = $true; commit = $manifest.commit } | ConvertTo-Json | Set-Content (Join-Path $release[0].FullName 'lab-signature.json') -Encoding utf8
+          Copy-Item (Join-Path $env:RUNNER_TEMP 'windows-test-signer.cer') $release[0].FullName
+      - name: Remove ephemeral trust and private key
+        if: always()
+        shell: pwsh
+        run: |
+          if ($env:WMS_TEST_THUMBPRINT) {
+            $private = "Cert:\CurrentUser\My\$env:WMS_TEST_THUMBPRINT"
+            if (Test-Path $private) { Remove-Item $private -DeleteKey -Force }
+            foreach ($store in @('Root','TrustedPublisher')) {
+              $path = "Cert:\LocalMachine\$store\$env:WMS_TEST_THUMBPRINT"
+              if (Test-Path $path) { Remove-Item $path -Force }
+            }
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Windows-TEST-ONLY-${{ github.sha }}
+          path: dist/windows-*/
+          if-no-files-found: warn
+          retention-days: 14
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: arm64
+      - name: Native arm64 app, ad-hoc codesign, installed Tk and PDFium smoke
+        run: python packaging/macos/build.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macOS-ARM64-TEST-ONLY-${{ github.sha }}
+          path: dist/macos-*/
+          if-no-files-found: warn
+          retention-days: 14

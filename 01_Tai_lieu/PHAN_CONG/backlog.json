@@ -1,0 +1,1495 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-03",
+  "code_baseline": "06041b7bc0c6e6515cb396d2ab5a29fae772df19",
+  "coordination_branch": "feat/application-foundation",
+  "note": "Phân công phần còn lại theo mã và hồ sơ local; không phải trạng thái GitHub trực tiếp hay bằng chứng nghiệm thu. Các nhánh mới bắt đầu ở commit kế hoạch chung sau code_baseline. Trạng thái READY chỉ áp dụng tại thời điểm phân công; kiểm tra bàn giao/tích hợp trước khi kích hoạt nhánh phụ thuộc.",
+  "tasks": [
+    {
+      "id": "B01",
+      "slug": "import-files",
+      "title": "Tệp và import có kiểm tra trước khi ghi",
+      "dependencies": [],
+      "issues": [
+        31,
+        4,
+        24
+      ],
+      "requirements": [
+        "FR03",
+        "FR22",
+        "FR23",
+        "FR31",
+        "NFR01",
+        "NFR02"
+      ],
+      "acceptance": [
+        "T07",
+        "T12",
+        "T20",
+        "T24"
+      ],
+      "owned_paths": [
+        "apps/server/application/imports.py (mới)",
+        "apps/server/api/imports.py (mới)",
+        "apps/server/infrastructure/file_storage.py (mới)",
+        "packages/contracts/imports.py (mới)",
+        "06_Nhap_lieu/validators/ và fixtures import"
+      ],
+      "deliverables": [
+        "Upload/storage nội bộ với hạn mức, hash nội dung, tên tệp an toàn và quyền truy cập theo user/kho; không lộ đường dẫn vật lý hoặc dùng URL công khai để bỏ kiểm tra quyền.",
+        "Pipeline CSV/XLSX: parse → dry-run → báo lỗi theo dòng/cột → staging → commit bằng token gắn hash, loại import và phiên bản dữ liệu. Chặn file đã đổi sau dry-run, công thức nguy hiểm khi xuất lỗi và trùng mã/serial.",
+        "Import danh mục, PO/SO đang mở và tồn đầu kỳ qua service nghiệp vụ; có progress/cancel trước điểm commit, retry không tạo bản ghi trùng, không bỏ qua approval hoặc tự phát sinh stock từ đơn mở.",
+        "Tồn đầu kỳ hiện giới hạn 200 dòng, một lần post/kho và batch key duy nhất. Thiết kế staging/cutover giữ một lần ghi sổ được duyệt; không chia thành nhiều OPENING để lách giới hạn. Giới hạn chưa mở rộng phải được báo rõ trước commit.",
+        "Consumer outbox nghiệp vụ đăng ký theo factory/version, chỉ enqueue durable import job trong transaction DB. Bộ thực thi file I/O tách khỏi handler outbox, có lease/retry/dedup và phục hồi sau crash; bàn giao giao diện cho B16/B20."
+      ],
+      "verification": [
+        "PG thật: lỗi giữa batch rollback đúng cam kết, cùng hash/key không nhập hai lần, trùng serial và stale master data bị chặn.",
+        "Upload/dry-run/download lỗi sau thu hồi quyền và qua kho khác bị từ chối; test file quá lớn/sai định dạng/path traversal.",
+        "Crash giữa enqueue/execution/ACK phục hồi được; đối soát ledger opening, receipt và import không làm thay đổi ngoài phạm vi."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "011_b01_import_files.sql",
+      "branch": "agent/b01-import-files",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b01-import-files",
+      "brief": "01_Tai_lieu/PHAN_CONG/B01_import_files.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B01.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B02",
+      "slug": "issue-reservation",
+      "title": "Giữ hàng, xuất kho và đóng phần còn lại",
+      "dependencies": [],
+      "issues": [
+        25,
+        23,
+        9,
+        10,
+        16,
+        7
+      ],
+      "requirements": [
+        "FR08",
+        "FR09",
+        "FR11",
+        "FR19",
+        "FR30",
+        "GR01",
+        "GR03",
+        "NFR02"
+      ],
+      "acceptance": [
+        "T02",
+        "T03",
+        "T14",
+        "T17",
+        "T25",
+        "T27"
+      ],
+      "owned_paths": [
+        "apps/server/application/issues.py, reservations.py (mới)",
+        "apps/server/api/issues.py (mới)",
+        "packages/contracts/issues.py (mới)",
+        "apps/desktop/views/issues.py và presenters/issues.py (mới)"
+      ],
+      "deliverables": [
+        "Luồng từ SO đã duyệt: tạo/sửa/gửi/duyệt phiếu xuất, giữ chỗ theo SKU/lô/vị trí/owner, partial post, giải phóng/tiêu thụ reservation, đóng thiếu/hủy phần còn lại; UI gọi API thật.",
+        "FEFO cho hàng có expiry; không lấy quarantine/blocked/expired, không xuất âm, không chiếm giữ của phiếu khác; serial quantity=1. Tính remaining theo source/consumed/released chính xác.",
+        "Chốt contract reservation/issue cho picking, transfer, return và recovery; trả execution ACK và operation lookup tương ứng.",
+        "Giữ chiều owner trong khóa và truy vấn ngay từ đầu; tạm từ chối outbound ký gửi chưa có policy, B09 hoàn thiện. Tích hợp tối thiểu service orders hiện có, không viết lại approval/kernel."
+      ],
+      "verification": [
+        "Hai session PG đồng thời xuất 7 từ tồn 10: chỉ lượng hợp lệ thành công; không lock bằng mutex Python để né race.",
+        "Race cancel/post, approve/edit, expiry/release; rollback giữa ledger/balance/reservation/audit/outbox/ACK.",
+        "Retry cùng key/payload không trùng; key khác/hash khác/stale version và quyền bị thu hồi xử lý đúng; UI hiển thị partial và UNKNOWN."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "012_b02_issue_reservation.sql",
+      "branch": "agent/b02-issue-reservation",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b02-issue-reservation",
+      "brief": "01_Tai_lieu/PHAN_CONG/B02_issue_reservation.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B02.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B03",
+      "slug": "move-quality",
+      "title": "Kiểm định, cất hàng và di chuyển nội bộ",
+      "dependencies": [],
+      "issues": [
+        29,
+        26,
+        24,
+        16,
+        23
+      ],
+      "requirements": [
+        "FR06",
+        "FR07",
+        "GR01",
+        "FR32"
+      ],
+      "acceptance": [
+        "T01",
+        "T06",
+        "T13",
+        "T24",
+        "T27"
+      ],
+      "owned_paths": [
+        "apps/server/application/quality.py, moves.py (mới)",
+        "apps/server/api/quality.py, moves.py (mới)",
+        "packages/contracts/quality.py, moves.py (mới)",
+        "apps/desktop/views/quality.py, moves.py và presenters tương ứng (mới)"
+      ],
+      "deliverables": [
+        "Tạo quyết định chất lượng có nguồn receipt; chuyển inbound→storage/quarantine, putaway và di chuyển vị trí trong cùng kho.",
+        "Kiểm tra cây vị trí, kho, trạng thái location, lô/serial/owner, lượng còn của nguồn và hàng đang giữ; move không làm tăng tổng tồn kho.",
+        "UI chọn nguồn/đích, số lượng đạt/lỗi, lịch sử decision, lý do và quyền; dùng command/version/ACK thật.",
+        "Công bố helper/contract khả dụng và kiểm tra freeze/period để các luồng tiếp nối dùng; không tự xây transfer liên kho hoặc picking thuộc B10/B11."
+      ],
+      "verification": [
+        "T01 nhận 80/100, chuyển 75 storage và 5 quarantine: tổng 80, available≤75, PO remaining 20, đúng ledger.",
+        "Race cùng serial, move với reservation, sai kho/vị trí inactive/cycle; không đổi owner trong move.",
+        "Rollback và idempotency post, race period/freeze khi đã có B13 sẽ được chạy lại tại tích hợp."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "013_b03_move_quality.sql",
+      "branch": "agent/b03-move-quality",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b03-move-quality",
+      "brief": "01_Tai_lieu/PHAN_CONG/B03_move_quality.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B03.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B04",
+      "slug": "iam-lifecycle",
+      "title": "Hoàn thiện mật khẩu, MFA và quản trị phiên",
+      "dependencies": [],
+      "issues": [
+        5,
+        6,
+        13
+      ],
+      "requirements": [
+        "FR01",
+        "FR02",
+        "FR29",
+        "NFR01"
+      ],
+      "acceptance": [
+        "T07",
+        "T11"
+      ],
+      "owned_paths": [
+        "apps/server/application/identity.py",
+        "apps/server/api/identity.py",
+        "packages/contracts/identity.py",
+        "apps/desktop/api/identity.py, admin.py",
+        "apps/desktop/views/admin.py, session.py và presenters tương ứng"
+      ],
+      "deliverables": [
+        "Đổi mật khẩu và quy trình reset được kiểm soát; recovery/reset MFA với re-auth/thu hồi phiên và audit; kiểm tra policy có sẵn trước bổ sung, không bỏ MFA vì có tên role SYSADMIN.",
+        "UI thực hiện đầy đủ flow, tra kho/user bằng lookup thay vì nhập ID khó dùng, lịch sử cấp/thu hồi quyền và session; giữ hai người trong grant workflow hiện có.",
+        "Giới hạn/throttle tác vụ nhạy cảm, secret/recovery code chỉ hiển thị khi cần và không log; không lưu password/TOTP/recovery payload trong SQLite hoặc command replay journal.",
+        "Khi timeout thao tác IAM, tra cứu trạng thái an toàn hoặc yêu cầu đăng nhập lại; không tự replay reset/đổi mật khẩu."
+      ],
+      "verification": [
+        "Mã recovery dùng một lần; replay/đoán mã/rate limit/phiên cũ và quyền vừa thu hồi bị chặn.",
+        "PG + API + presenter/GUI: người không đủ quyền hoặc chéo kho không đọc audit nhạy cảm.",
+        "Kiểm tra response/log/cache SQLite không chứa secret; test logout/login đổi user loại phản hồi phiên cũ."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "014_b04_iam_lifecycle.sql",
+      "branch": "agent/b04-iam-lifecycle",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b04-iam-lifecycle",
+      "brief": "01_Tai_lieu/PHAN_CONG/B04_iam_lifecycle.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B04.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B05",
+      "slug": "master-traceability-ui",
+      "title": "Danh mục nâng cao, chủ hàng và bảo hành serial",
+      "dependencies": [],
+      "issues": [
+        8,
+        14
+      ],
+      "requirements": [
+        "FR03",
+        "FR04",
+        "FR24",
+        "FR32",
+        "FR33",
+        "NFR07"
+      ],
+      "acceptance": [
+        "T07",
+        "T12",
+        "T13",
+        "T27",
+        "T28"
+      ],
+      "owned_paths": [
+        "apps/desktop/views/master_data.py, serial_lookup.py",
+        "apps/desktop/presenters/master_data.py, serial_lookup.py",
+        "apps/desktop/views/ownership.py và presenters/ownership.py (mới)"
+      ],
+      "deliverables": [
+        "Hoàn thiện form SKU/UOM/barcode, cây Warehouse→Zone→Rack→Bin, đối tác/giá tham chiếu với quyền; paging/search/version và lỗi validation.",
+        "Form owner/hợp đồng ký gửi, truy vấn stock tách physical/owned/consigned theo API đang có; phối hợp B09 khi thêm policy.",
+        "CRUD chứng cứ thời hạn bảo hành có nguồn, tra serial→receipt→NCC→ngày nhập; thiếu nguồn hiển thị Chưa xác định, không tự suy số tháng.",
+        "Keyboard/tab order, tiếng Việt, dropdown tra dữ liệu lớn và phản hồi phiên cũ; không chỉnh UI quản trị của B04 hoặc UI orders của B15."
+      ],
+      "verification": [
+        "Presenter + GUI qua API thật cho tạo/sửa/trùng/stale và quyền giá; lookup không chỉ hoạt động với fixture nhỏ.",
+        "T28 có/không có chứng cứ, hết/còn bảo hành, serial không tồn tại/khác kho; không tiết lộ dữ liệu.",
+        "T27 company 10 / consigned 5 hiển thị đúng tổng 15 và từng owner."
+      ],
+      "external_gates": [
+        "Nguồn thời hạn bảo hành và hợp đồng ký gửi thật cần chủ kho cung cấp để UAT; fixture chỉ là dữ liệu giả."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b05-master-traceability-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b05-master-traceability-ui",
+      "brief": "01_Tai_lieu/PHAN_CONG/B05_master_traceability_ui.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B05.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B06",
+      "slug": "opening-ui",
+      "title": "Giao diện tồn đầu kỳ thủ công",
+      "dependencies": [],
+      "issues": [
+        24,
+        16
+      ],
+      "requirements": [
+        "FR23",
+        "FR30",
+        "NFR03"
+      ],
+      "acceptance": [
+        "T02",
+        "T07",
+        "T14",
+        "T20"
+      ],
+      "owned_paths": [
+        "apps/desktop/views/openings.py (mới)",
+        "apps/desktop/presenters/openings.py (mới)",
+        "apps/desktop/api/openings.py (nếu cần, mới)"
+      ],
+      "deliverables": [
+        "Form tồn đầu kỳ theo API đã tích hợp: batch key, kho, ngày, dòng SKU/UOM/location/lô/serial; validate giới hạn trước submit.",
+        "Tạo/sửa/gửi/duyệt riêng người, post, tra execution/ACK và kết quả đối soát; stale version làm mới dữ liệu, timeout hiển thị UNKNOWN.",
+        "Dùng COMPANY đúng phạm vi backend hiện tại, không tự mở consignment/import. B09 mở owner; B16 nối import; B19 bổ sung journal bền.",
+        "Phân biệt lập nháp/sync/ghi sổ; tra trạng thái trước khi người dùng retry. Không tạo batch mới để thử lại cùng tác vụ."
+      ],
+      "verification": [
+        "Presenter/GUI + PG/API: tự duyệt bị chặn, batch/serial trùng và kho đã có tồn bị từ chối.",
+        "Timeout sau commit → lookup chỉ có một transaction; giữ UI không báo POSTED khi chưa có ACK.",
+        "201 dòng bị báo giới hạn rõ; pending phản hồi phiên cũ không ghi đè màn hình."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b06-opening-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b06-opening-ui",
+      "brief": "01_Tai_lieu/PHAN_CONG/B06_opening_ui.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B06.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B07",
+      "slug": "custom-fields",
+      "title": "Trường mở rộng có kiểu và phiên bản",
+      "dependencies": [
+        "B14"
+      ],
+      "issues": [
+        30
+      ],
+      "requirements": [
+        "TR04",
+        "NFR08",
+        "FR30"
+      ],
+      "acceptance": [
+        "T14",
+        "T24"
+      ],
+      "owned_paths": [
+        "apps/server/application/custom_fields.py (mới)",
+        "apps/server/api/custom_fields.py (mới)",
+        "packages/contracts/custom_fields.py (mới)",
+        "apps/desktop/views/custom_fields.py và presenters/custom_fields.py (mới)"
+      ],
+      "deliverables": [
+        "Định nghĩa trường kiểu dữ liệu/ràng buộc/phạm vi/phiên bản/quyền; UI quản trị và nhập giá trị theo metadata.",
+        "Validation server, snapshot/version schema với chứng từ; thay definition không phá dữ liệu/approval đã phát sinh.",
+        "Không cho custom JSON override quantity/baseUOM/owner/warehouse/price permission/ledger; receipt_plan phải theo contract typed.",
+        "Ghi kế hoạch migrate definition, audit thay đổi và contract cho import/export, cập nhật extension model nếu cần."
+      ],
+      "verification": [
+        "Đổi kiểu/xóa definition có dữ liệu cũ không làm mất lịch sử; stale approval/version bị chặn.",
+        "Payload giả để ghi trường lõi hoặc lộ giá bị từ chối; kiểm tra giới hạn độ sâu/kích thước/kiểu."
+      ],
+      "external_gates": [],
+      "priority": "P3",
+      "development_migration": "025_b07_custom_fields.sql",
+      "branch": "agent/b07-custom-fields",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b07-custom-fields",
+      "brief": "01_Tai_lieu/PHAN_CONG/B07_custom_fields.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B07.md",
+      "initial_status": "WAITING_DEPENDENCIES",
+      "release_migration": "022_b07_custom_fields.sql"
+    },
+    {
+      "id": "B08",
+      "slug": "ci-contracts",
+      "title": "CI, hợp đồng API và nền kiểm thử",
+      "dependencies": [],
+      "issues": [
+        2,
+        3,
+        11,
+        20,
+        21,
+        4
+      ],
+      "requirements": [
+        "TR02",
+        "TR03",
+        "TR04",
+        "NFR08"
+      ],
+      "acceptance": [
+        "T02",
+        "T07",
+        "T11",
+        "T14",
+        "T24"
+      ],
+      "owned_paths": [
+        ".github/workflows/",
+        "scripts/check_application.py, check_postgres.py, export_runtime_contract.py",
+        "tests/foundation/test_api_contracts.py, test_runtime_contract.py",
+        "05_API/ và tài liệu kiểm thử/contract liên quan"
+      ],
+      "deliverables": [
+        "Review runtime OpenAPI so với thiết kế nhập sẵn; ghi rõ implemented/planned, kiểm tra permission/version/idempotency và response lỗi cho contract đang có. Giữ planned APIs, không giả runtime hỗ trợ hết.",
+        "CI lint/unit/PG15-16/GUI Linux/build+cài wheel; job Windows phù hợp và artifact log có commit/environment. Sửa runner để test module mới được thu thập tự động.",
+        "Kiểm tra architecture desktop chỉ gọi API, package imports ngoài source và migration readiness; giữ workflow có thể chạy local.",
+        "Review flow UI gốc và lập checklist acceptance/traceability xuyên domain; B24/B26 hoàn thiện bằng chứng tích hợp sau các nhánh.",
+        "Được đề xuất/cập nhật dependencies phục vụ CI, ghi lock diff và phối hợp điều phối; không tự push để tạo bằng chứng CI giả."
+      ],
+      "verification": [
+        "Chạy các job tương đương local khả dụng, export contract tái lập và wheel import ngoài repo.",
+        "Negative contract tests có thiếu quyền/stale/unknown operation; kiểm tra CI không bỏ integration vì marker sai.",
+        "Ghi NOT_RUN cho hosted CI/Windows chưa thực chạy; không biến file YAML thành bằng chứng pass."
+      ],
+      "external_gates": [
+        "Hosted CI chỉ có kết quả sau khi người dùng đưa commit lên GitHub; Windows cần runner Windows thật."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b08-ci-contracts",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b08-ci-contracts",
+      "brief": "01_Tai_lieu/PHAN_CONG/B08_ci_contracts.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B08.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B09",
+      "slug": "consignment",
+      "title": "Hoàn thiện nghiệp vụ hàng ký gửi và phân loại dữ liệu cũ",
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B05",
+        "B06"
+      ],
+      "issues": [
+        4,
+        8,
+        23,
+        24,
+        25,
+        31
+      ],
+      "requirements": [
+        "FR32",
+        "FR33",
+        "GR01",
+        "GR03"
+      ],
+      "acceptance": [
+        "T01",
+        "T06",
+        "T20",
+        "T24",
+        "T27",
+        "T28"
+      ],
+      "owned_paths": [
+        "apps/server/application/stock_identity.py, traceability.py",
+        "apps/server/application/receipts.py, openings.py (mở rộng owner có kiểm soát)",
+        "packages/contracts/receipts.py, openings.py, traceability.py",
+        "UI ownership/opening và fixtures owner, sau khi B05/B06 tích hợp"
+      ],
+      "deliverables": [
+        "Nhận ký gửi và tồn đầu kỳ theo owner/hợp đồng; nối import B01 và UI B05/B06; snapshot quyền sở hữu bền, không gộp item đồng SKU nhưng khác owner.",
+        "Rà reservation/move/issue đã tích hợp để luôn dùng owner; chỉ cho outbound/đổi chủ khi có contract và policy rõ. Thiếu policy thì từ chối có lý do, ghi phần UAT còn chờ thay vì tự coi là COMPANY.",
+        "Thiết kế workflow phân loại legacy UNCLASSIFIED có quyền, chứng cứ, audit và đối soát; không UPDATE/DELETE ledger lịch sử để gán lại owner.",
+        "Nếu cần chuyển quyền sở hữu, lập thao tác nghiệp vụ có truy vết và được duyệt; không đổi owner âm thầm trong move/return.",
+        "Chốt contract owner cho transfer/return/count/report; bảo hành giữ liên kết nguồn sau các giao dịch."
+      ],
+      "verification": [
+        "Company 10 + consigned 5 cùng SKU/location = physical 15; eligible/reserved/owned riêng đúng từng owner.",
+        "Race/rollback theo owner, chống mượn reservation khác owner; receipt/opening/import/replay không làm trộn tồn.",
+        "Legacy chưa phân loại mặc định bị chặn nghiệp vụ cần owner; chứng cứ và audit đầy đủ sau phân loại."
+      ],
+      "external_gates": [
+        "Chủ kho cần cung cấp hợp đồng/quy tắc tiêu thụ hoặc đổi chủ ký gửi; không tự dựng chính sách thương mại."
+      ],
+      "priority": "P1",
+      "development_migration": "015_b09_consignment.sql",
+      "branch": "agent/b09-consignment",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b09-consignment",
+      "brief": "01_Tai_lieu/PHAN_CONG/B09_consignment.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B09.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B10",
+      "slug": "fulfillment",
+      "title": "Soạn hàng và đóng kiện",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09"
+      ],
+      "issues": [
+        29,
+        16
+      ],
+      "requirements": [
+        "FR10",
+        "FR11",
+        "FR32"
+      ],
+      "acceptance": [
+        "T03",
+        "T15",
+        "T17",
+        "T25",
+        "T27"
+      ],
+      "owned_paths": [
+        "apps/server/application/picking.py, packing.py (mới)",
+        "apps/server/api/fulfillment.py (mới)",
+        "packages/contracts/fulfillment.py (mới)",
+        "apps/desktop/views/fulfillment.py và presenters tương ứng (mới)"
+      ],
+      "deliverables": [
+        "Pick task từ reservation hợp lệ, phân công, xác nhận/reject thiếu hàng; package/package_line theo số lượng đã pick và source.",
+        "Picking/packing không tạo stock_move và không giảm physical stock; chỉ issue.post tiêu thụ reservation và tạo sổ.",
+        "UI danh sách pick/scan input, đóng kiện, trạng thái/khóa version; công bố scanner hooks cho B18.",
+        "Cancel/release/update phiếu không bỏ lại pick/package mồ côi; bảo toàn lô/serial/owner."
+      ],
+      "verification": [
+        "T15 soạn/đóng kiện xong balance không đổi; xuất mới trừ đúng một lần.",
+        "Race pick/release/cancel/post, vượt số lượng/serial trùng/package khác kho bị chặn.",
+        "Desktop không tạo thay đổi stock bằng thao tác đổi trạng thái local."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "016_b10_fulfillment.sql",
+      "branch": "agent/b10-fulfillment",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b10-fulfillment",
+      "brief": "01_Tai_lieu/PHAN_CONG/B10_fulfillment.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B10.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B11",
+      "slug": "transfer",
+      "title": "Chuyển kho và nhận hàng đang vận chuyển",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09"
+      ],
+      "issues": [
+        26,
+        16,
+        23
+      ],
+      "requirements": [
+        "FR12",
+        "FR13",
+        "FR19",
+        "FR32",
+        "GR01"
+      ],
+      "acceptance": [
+        "T02",
+        "T04",
+        "T17",
+        "T21",
+        "T27"
+      ],
+      "owned_paths": [
+        "apps/server/application/transfers.py (mới)",
+        "apps/server/api/transfers.py (mới)",
+        "packages/contracts/transfers.py (mới)",
+        "apps/desktop/views/transfers.py và presenters tương ứng (mới)"
+      ],
+      "deliverables": [
+        "Lập/duyệt/dispatch kho nguồn→transit, nhận từng phần transit→kho đích; quantity remaining và source links.",
+        "Nhận thiếu/hư hỏng có chứng cứ, workflow xử lý phần còn lại không tự cân bằng về 0; phân biệt transit với available kho.",
+        "Kiểm tra quyền cả kho nguồn/đích tùy thao tác, approval/version/idempotency, serial/lot/owner bất biến.",
+        "UI chứng từ và history dispatch/receive/missing; dùng kho thứ hai trong fixture, không mô tả thành kho vận hành thật."
+      ],
+      "verification": [
+        "Dispatch 20, nhận 18: transit còn2; không double ledger khi nhận/retry.",
+        "Hai người cùng nhận phần còn, sai owner/kho/serial và dispatch quá tồn bị chặn.",
+        "Atomic rollback + period/freeze guards; R02 internal boundary và R05 có dữ liệu đúng."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "017_b11_transfer.sql",
+      "branch": "agent/b11-transfer",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b11-transfer",
+      "brief": "01_Tai_lieu/PHAN_CONG/B11_transfer.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B11.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B12",
+      "slug": "returns",
+      "title": "Khách trả hàng và trả nhà cung cấp",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09"
+      ],
+      "issues": [
+        27,
+        16,
+        23
+      ],
+      "requirements": [
+        "FR14",
+        "FR15",
+        "FR19",
+        "FR32",
+        "FR33"
+      ],
+      "acceptance": [
+        "T02",
+        "T06",
+        "T10",
+        "T17",
+        "T27",
+        "T28"
+      ],
+      "owned_paths": [
+        "apps/server/application/returns.py (mới)",
+        "apps/server/api/returns.py (mới)",
+        "packages/contracts/returns.py (mới)",
+        "apps/desktop/views/returns.py và presenters tương ứng (mới)"
+      ],
+      "deliverables": [
+        "Customer return từ issue và supplier return từ receipt, trả từng phần có lý do/nguồn/approval.",
+        "Khóa nguồn và tính lượng ròng đã trả, chặn trả vượt hoặc serial không thuộc nguồn; return vào quarantine/eligible đúng policy, không tự bỏ bước chất lượng.",
+        "Supplier return phải kiểm tra số dư, reservation, owner và kỳ/freeze; không dùng reversal để đại diện trả hàng vật lý.",
+        "UI hai flow, source lookup, lịch sử và warranty provenance; không mở sửa chữa/RMA/công nợ."
+      ],
+      "verification": [
+        "T10 trả NCC hợp lệ/thiếu tồn/sai serial; customer return không vượt issued net.",
+        "Concurrent returns cùng nguồn không trả hai lần; replay cùng key đúng ACK.",
+        "Owner/serial/source và ledger/balance nhất quán; receipt provenance bảo hành không bị mất."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "018_b12_returns.sql",
+      "branch": "agent/b12-returns",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b12-returns",
+      "brief": "01_Tai_lieu/PHAN_CONG/B12_returns.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B12.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B13",
+      "slug": "count-period",
+      "title": "Kiểm kê, điều chỉnh và khóa kỳ",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09",
+        "B11",
+        "B12"
+      ],
+      "issues": [
+        28,
+        17,
+        10,
+        23
+      ],
+      "requirements": [
+        "FR16",
+        "FR17",
+        "FR18",
+        "FR21",
+        "FR30",
+        "FR32"
+      ],
+      "acceptance": [
+        "T05",
+        "T07",
+        "T16",
+        "T19",
+        "T24",
+        "T27"
+      ],
+      "owned_paths": [
+        "apps/server/application/counting.py, periods.py (mới)",
+        "apps/server/api/counting.py, periods.py (mới)",
+        "packages/contracts/counting.py, periods.py (mới)",
+        "apps/desktop/views/counting.py, periods.py và presenters tương ứng (mới)"
+      ],
+      "deliverables": [
+        "Mở phiên/snapshot theo scope, freeze vị trí, đếm mù/đếm lại, tính delta, duyệt hai bước theo policy kiểm kê và posting adjustment.",
+        "UI không lộ snapshot cho người đếm mù, phân vai người đếm/người duyệt, theo dõi rounds và lý do chênh lệch.",
+        "Mở/khóa kỳ, backdate rules và audit; thống nhất locking period/location với mọi engine đã tích hợp.",
+        "Điều chỉnh kiểm kê giữ owner/lot/serial, không sửa ledger cũ; quy trình giải freeze khi hoàn tất/hủy có kiểm tra."
+      ],
+      "verification": [
+        "Snapshot 100, đếm 98 → đúng -2 sau đủ bước duyệt; không tự duyệt hoặc tự post khi nhập số đếm.",
+        "Freeze vs receipt/issue/move/transfer/return/opening race bằng PG sessions; close-period vs post/backdate cũng phải được tuần tự hóa.",
+        "Serial mất/thừa, count trùng, quyền chéo kho và retry adjustment không tạo lần ghi sổ thứ hai."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "019_b13_count_period.sql",
+      "branch": "agent/b13-count-period",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b13-count-period",
+      "brief": "01_Tai_lieu/PHAN_CONG/B13_count_period.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B13.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B14",
+      "slug": "reversal",
+      "title": "Đảo giao dịch và bảo toàn lịch sử",
+      "dependencies": [
+        "B02",
+        "B03",
+        "B09",
+        "B11",
+        "B12",
+        "B13"
+      ],
+      "issues": [
+        27,
+        23,
+        16
+      ],
+      "requirements": [
+        "FR20",
+        "GR03",
+        "FR32"
+      ],
+      "acceptance": [
+        "T02",
+        "T10",
+        "T18",
+        "T19",
+        "T24",
+        "T27"
+      ],
+      "owned_paths": [
+        "apps/server/application/reversals.py (mới)",
+        "apps/server/api/reversals.py (mới)",
+        "packages/contracts/reversals.py (mới)",
+        "apps/desktop/views/reversals.py và presenters tương ứng (mới)"
+      ],
+      "deliverables": [
+        "Đảo transaction đủ điều kiện bằng bút toán nghịch có lý do/duyệt/source linkage; giữ ledger gốc bất biến.",
+        "Ma trận đủ điều kiện cho receipt/opening/issue/move/transfer/return/adjustment: downstream vật lý/return/reservation, kỳ và trạng thái serial/owner; nêu rõ các trường hợp bị chặn.",
+        "Không đảo một reversal hoặc đảo trùng transaction; không tự hủy downstream để ép reversal thành công.",
+        "UI xem ảnh hưởng trước gửi/duyệt/post và trace gốc→đảo, ACK/operation lookup."
+      ],
+      "verification": [
+        "Hai session đảo cùng transaction: chỉ một reversal, balance/serial/reservation/source net nhất quán.",
+        "Chặn đã chuyển/tiêu thụ, còn reservation, kỳ khóa hoặc thiếu quyền; test transaction lỗi giữa các cập nhật rollback toàn bộ.",
+        "Đối soát toàn chuỗi nhận/xuất/trả/chuyển/kiểm kê rồi reversal, không UPDATE/DELETE sổ gốc."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "020_b14_reversal.sql",
+      "branch": "agent/b14-reversal",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b14-reversal",
+      "brief": "01_Tai_lieu/PHAN_CONG/B14_reversal.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B14.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B15",
+      "slug": "documents-ui",
+      "title": "Hoàn thiện PO/SO, phân công và màn hình duyệt",
+      "dependencies": [],
+      "issues": [
+        9,
+        10,
+        11,
+        12,
+        15
+      ],
+      "requirements": [
+        "FR05",
+        "FR08",
+        "FR19",
+        "FR30",
+        "NFR03",
+        "NFR07"
+      ],
+      "acceptance": [
+        "T07",
+        "T14",
+        "T17"
+      ],
+      "owned_paths": [
+        "apps/desktop/views/orders.py",
+        "apps/desktop/presenters/orders.py",
+        "apps/desktop/views/approvals.py và presenters/approvals.py (mới)"
+      ],
+      "deliverables": [
+        "Phân công người xử lý qua API assignment đang có, tra cứu/paging/filter chứng từ, so sánh các version và approval snapshot.",
+        "Inbox duyệt PO/SO/receipt hiện có; phân biệt grant theo kho và SOD, stale version phải đọc lại, không tái gửi ghi tự động.",
+        "Hiển thị received/issued/remaining/closed-partial và lỗi source rõ; trước khi issue có API thật chỉ hiển thị dữ liệu đang được hỗ trợ.",
+        "Hoàn thiện navigation của các màn này và điểm mở form nghiệp vụ; các agent domain sở hữu form riêng. B19 nối durable draft chung sau."
+      ],
+      "verification": [
+        "Presenter/GUI: edit vs approve, assignment bị thu hồi, tự duyệt, paging và đổi kho khi request cũ còn chạy.",
+        "Partial close/cancel không hiển thị thành fully posted; UNKNOWN không bị mất khi đổi màn hình.",
+        "Giữ API thread/SQLite worker tách Tk main thread; không sửa receipt/opening form của nhánh khác trong đợt đầu."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b15-documents-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b15-documents-ui",
+      "brief": "01_Tai_lieu/PHAN_CONG/B15_documents_ui.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B15.md",
+      "initial_status": "READY"
+    },
+    {
+      "id": "B16",
+      "slug": "import-ui",
+      "title": "Giao diện import và theo dõi xử lý tệp",
+      "dependencies": [
+        "B01",
+        "B06",
+        "B09",
+        "B15"
+      ],
+      "issues": [
+        19,
+        31,
+        24
+      ],
+      "requirements": [
+        "FR22",
+        "FR23",
+        "FR31",
+        "NFR03",
+        "NFR07"
+      ],
+      "acceptance": [
+        "T07",
+        "T12",
+        "T20"
+      ],
+      "owned_paths": [
+        "apps/desktop/views/imports.py (mới)",
+        "apps/desktop/presenters/imports.py (mới)",
+        "apps/desktop/api/imports.py (nếu cần, mới)"
+      ],
+      "deliverables": [
+        "Chọn loại import/mẫu, upload, dry-run, bảng lỗi theo dòng, tải lỗi, xác nhận commit bằng hash/token, progress/cancel/resume lookup.",
+        "Nối import opening vào approval/post của B06; hiển thị owner/hợp đồng, hạn mức và cutover theo B01/B09.",
+        "Phân biệt lỗi từng dòng với failure toàn job; mất LAN không tạo lại job/file/batch mới. B19 chịu journal bền, B16 cung cấp adapter contract.",
+        "UI theo quyền kho/file và nguồn tệp; không tự đọc/ghi server storage hoặc DB."
+      ],
+      "verification": [
+        "Sửa file sau dry-run, quyền bị thu hồi trước download/commit, file invalid/duplicate và job cancel đúng điểm được xử lý.",
+        "Timeout sau tạo/commit job → lookup/resume không trùng; quá giới hạn opening báo trước hành động.",
+        "GUI tiếng Việt/bàn phím, bảng lỗi lớn có phân trang và không block main thread."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b16-import-ui",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b16-import-ui",
+      "brief": "01_Tai_lieu/PHAN_CONG/B16_import_ui.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B16.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B17",
+      "slug": "reports-export",
+      "title": "Tám báo cáo và xuất dữ liệu có phân quyền",
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14"
+      ],
+      "issues": [
+        32,
+        19,
+        6
+      ],
+      "requirements": [
+        "FR24",
+        "FR32",
+        "FR33",
+        "NFR01",
+        "NFR05"
+      ],
+      "acceptance": [
+        "T07",
+        "T21",
+        "T26",
+        "T27",
+        "T28"
+      ],
+      "owned_paths": [
+        "apps/server/application/reports.py, exports.py (mới)",
+        "apps/server/api/reports.py, exports.py (mới)",
+        "packages/contracts/reports.py (mới)",
+        "apps/desktop/views/reports.py và presenters/reports.py (mới)"
+      ],
+      "deliverables": [
+        "R01: physical/eligible/reserved/available theo SKU/baseUOM/location/owner, transit riêng. R02: nhập-xuất theo tập ranh giới kho/vị trí, không đếm hai lần move nội bộ.",
+        "R03: sổ theo posted_at,id, business_date là filter riêng. R04: reservation remaining=quantity-consumed-released và nhu cầu mở. R05: dispatch/received/transit/missing có chứng cứ.",
+        "R06: expiry/tuổi theo lần dịch chuyển phù hợp, không giả lập FIFO cost layers. R07: snapshot/rounds/approved/delta/người duyệt kiểm kê. R08: hoạt động và reference price theo effective_on, che giá theo quyền, không gọi là giá vốn kế toán.",
+        "UI filter/sort/paging, API truy vấn ổn định, export jobs CSV/XLSX theo contract và PDF nếu baseline mẫu yêu cầu; snapshot/query criteria được ghi lại.",
+        "Consumer enqueue export job trong DB transaction; thực thi file I/O tách riêng, download kiểm tra lại phiên/quyền hiện tại, owner/kho và quyền giá, kể cả đã tạo file trước thu hồi quyền."
+      ],
+      "verification": [
+        "T21 boundary move nội bộ/liên kho, price permission trước/sau export; cộng dồn đúng Decimal và transit.",
+        "R01–R08 đối chiếu ledger/reservation/count fixture thật; keyset/paging ổn định.",
+        "File CSV/XLSX an toàn với dữ liệu bắt đầu bằng công thức; cancel/retry/job crash không tạo tác động tồn; sizing theo workload Q05."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": "021_b17_reports_export.sql",
+      "branch": "agent/b17-reports-export",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b17-reports-export",
+      "brief": "01_Tai_lieu/PHAN_CONG/B17_reports_export.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B17.md",
+      "initial_status": "WAITING_DEPENDENCIES",
+      "release_migration": "021_b17_reports_export.sql"
+    },
+    {
+      "id": "B18",
+      "slug": "printing-scanner",
+      "title": "In chứng từ, tem và máy quét HID",
+      "dependencies": [
+        "B05",
+        "B15",
+        "B16",
+        "B17"
+      ],
+      "issues": [
+        33,
+        16
+      ],
+      "requirements": [
+        "FR26",
+        "NFR07",
+        "NFR01"
+      ],
+      "acceptance": [
+        "T07",
+        "T22"
+      ],
+      "owned_paths": [
+        "apps/server/application/printing.py và api/printing.py (mới)",
+        "packages/contracts/printing.py (mới)",
+        "apps/desktop/printing/ và scanner/ (mới)",
+        "mẫu in và nhãn mới trong thư mục thiết kế/in"
+      ],
+      "deliverables": [
+        "Đủ 4 mẫu chứng từ và 2 loại tem theo ARCHITECTURE; mapping từ dữ liệu thật, font tiếng Việt, mã vạch/QR theo chuẩn đã chọn, preview và chọn khổ/driver.",
+        "Print job có snapshot/version/quyền, retry/reprint có audit, tuyệt đối không gọi post lại; consumer chỉ ghi durable job, I/O/spooler chạy adapter riêng.",
+        "HID 1D/2D: focus/terminator/debounce, xác thực barcode/serial và lượng nhập; tích hợp receipt/pick/issue/transfer/count ở các form đã ổn định.",
+        "Che giá trên preview/file/spool theo quyền; giữ rõ trạng thái gửi job và máy in xác nhận, không cam kết exactly-once trên thiết bị không hỗ trợ."
+      ],
+      "verification": [
+        "Reprint không thêm stock_move; timeout/spooler unavailable/duplicate event không bị báo giao hàng hay POSTED.",
+        "Render mẫu: tiếng Việt, page breaks, barcode scan đọc lại; kiểm tra hạn truy cập snapshot/file.",
+        "T22 scanner HID và in USB/LAN trên Windows đích, có ảnh/log mẫu/model/driver/khổ tem."
+      ],
+      "external_gates": [
+        "Cần mẫu chứng từ được chọn theo Q08 và model máy in/scanner/driver/khổ tem Q06. Có thể viết adapter/render tests trước; thiếu thiết bị thì ghi NOT_RUN cho hardware UAT."
+      ],
+      "priority": "P1",
+      "development_migration": "026_b18_printing_scanner.sql",
+      "branch": "agent/b18-printing-scanner",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b18-printing-scanner",
+      "brief": "01_Tai_lieu/PHAN_CONG/B18_printing_scanner.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B18.md",
+      "initial_status": "WAITING_DEPENDENCIES",
+      "previous_development_migration": "022_b18_printing_scanner.sql",
+      "migration_assignment_note": "Reassigned 2026-10-05: release 022 belongs to B07. 026 is development-only; coordinator assigns the next release number."
+    },
+    {
+      "id": "B19",
+      "slug": "recovery-all",
+      "title": "Nháp và phục hồi mất LAN cho mọi luồng ghi",
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B18"
+      ],
+      "issues": [
+        18,
+        12,
+        7
+      ],
+      "requirements": [
+        "FR25",
+        "FR28",
+        "NFR02",
+        "NFR03",
+        "NFR06"
+      ],
+      "acceptance": [
+        "T02",
+        "T08",
+        "T11",
+        "T23"
+      ],
+      "owned_paths": [
+        "apps/desktop/local_store/ (chủ sở hữu SQLite revision 003 trong đợt này)",
+        "apps/desktop/api/client.py (recovery integration)",
+        "apps/desktop/views/receipt_recovery.py và màn phục hồi dùng chung",
+        "adapter recovery trong presenter các domain sau khi đã tích hợp"
+      ],
+      "deliverables": [
+        "Lập ma trận mọi write endpoint: durable draft, command an toàn replay cùng key, hoặc phải online/re-auth. Tất cả domain đã có phải được phân loại và có UI tương ứng; không gom IAM secrets vào queue.",
+        "Versioned draft/payload schema, persist-before-send, SENDING→UNKNOWN khi crash, lookup ACK trước explicit same-key retry, chặn hash mismatch.",
+        "Draft/recovery cho receipt/opening/issue/move/transfer/return/count/reversal/import và workflow phù hợp; không post offline, không tự sinh key mới để tránh conflict.",
+        "Partition theo server/device/user/kho, xử lý logout/user change/revoked grants, cleanup giữ pending; migration SQLite v2→v3 không mất nháp và có backup/validation.",
+        "Bảo toàn UNKNOWN qua đóng app, đổi màn và nâng cấp; hướng dẫn giải quyết xung đột version bằng refresh/manual review."
+      ],
+      "verification": [
+        "Kill process ở trước/sau gửi/commit/ACK, restart bằng process khác → tối đa một tác động business và trạng thái đúng.",
+        "Test migration cache có dữ liệu/pending, single-process lock, network flapping và đổi user/server.",
+        "Credential/TOTP/reset payload không xuất hiện trên disk/log; Windows upgrade bảo toàn journal được B23 kiểm chứng thực."
+      ],
+      "external_gates": [],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b19-recovery-all",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b19-recovery-all",
+      "brief": "01_Tai_lieu/PHAN_CONG/B19_recovery_all.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B19.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B20",
+      "slug": "outbox-operations",
+      "title": "Consumer thực tế và vận hành worker",
+      "dependencies": [
+        "B01",
+        "B08",
+        "B17",
+        "B18"
+      ],
+      "issues": [
+        22
+      ],
+      "requirements": [
+        "TR04",
+        "NFR02",
+        "NFR08"
+      ],
+      "acceptance": [
+        "T02",
+        "T24",
+        "T26"
+      ],
+      "owned_paths": [
+        "apps/server/worker.py",
+        "apps/server/application/outbox.py",
+        "apps/server/infrastructure/outbox.py",
+        "apps/server/consumers/registry.py và worker job composition (mới)"
+      ],
+      "deliverables": [
+        "Ghép factories consumer import/export/print đã có vào registry mặc định có version; worker dùng được bằng CLI với cấu hình thật, không no-op consumer giả hoàn thành.",
+        "Giữ hiệu ứng DB + consumer_receipt nguyên tử; handler không file/network/spool/commit. Đối với I/O worker job riêng dùng lease/retry/dedup và ghi nhận kết quả.",
+        "Quan sát lag/attempt/failure/dead-letter/job state, structured logs không secret, health/readiness/shutdown; tác vụ replay lỗi có quyền/audit và giới hạn.",
+        "Chính sách retention/dọn batch tham chiếu record còn dùng và hồ sơ tối thiểu 5 năm; không purge pending hoặc consumer_receipt gây replay duplicate. Runbook retry/drain/version rollout."
+      ],
+      "verification": [
+        "Hai worker, worker bị kill, handler rollback/crash sau effects, poison message, version mismatch và shutdown; không mất hoặc nhân đôi hiệu ứng DB.",
+        "End-to-end một import/export/print job thật từ domain event đến job/result, I/O failure/retry quan sát được.",
+        "Retention test bảo toàn dedup/history và job đang chạy; nêu rõ giới hạn exactly-once của I/O."
+      ],
+      "external_gates": [
+        "Thời hạn lưu từng loại log/outbox/job cần chính sách Q08; dùng cấu hình bảo thủ, không tự xóa hồ sơ nghiệp vụ."
+      ],
+      "priority": "P1",
+      "development_migration": "027_b20_outbox_operations.sql",
+      "branch": "agent/b20-outbox-operations",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b20-outbox-operations",
+      "brief": "01_Tai_lieu/PHAN_CONG/B20_outbox_operations.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B20.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B21",
+      "slug": "lan-deployment",
+      "title": "Triển khai máy chủ và vận hành qua LAN",
+      "dependencies": [
+        "B08",
+        "B20"
+      ],
+      "issues": [
+        34,
+        21
+      ],
+      "requirements": [
+        "TR01",
+        "TR02",
+        "TR03",
+        "GR04",
+        "NFR01",
+        "NFR05",
+        "NFR08"
+      ],
+      "acceptance": [
+        "T07",
+        "T11",
+        "T24",
+        "T26"
+      ],
+      "owned_paths": [
+        "deploy/lan/ (mới)",
+        "scripts vận hành/migration/readiness cho môi trường đích",
+        "tài liệu riêng về TLS/service/firewall/storage"
+      ],
+      "deliverables": [
+        "Chọn và ghi distro/version Ubuntu/Debian x64, PostgreSQL15/16 có kiểm chứng; cấu hình HTTPS LAN, chứng thư tin cậy client, firewall, service account và quyền file tối thiểu.",
+        "Service API/outbox/job executors, thứ tự startup/migrate/readiness, log rotation, health checks, restart/shutdown/drain và nâng cấp có dữ liệu.",
+        "Template cấu hình không secret trong Git; bootstrap user an toàn, client không DB credential, API không migrate tự động.",
+        "Sizing1 kho / 3 phân khu / 15 CCU / 20 GB / 3 năm và dự báo retention ít nhất 5 năm tách backup; inventory server/storage/backup mounts và runbook rollout/rollback ứng dụng tương thích."
+      ],
+      "verification": [
+        "Cài từ artifact sạch trên target Linux, reboot services, LAN client kết nối TLS và từ chối chứng thư sai.",
+        "Service account permissions, DB ngoài mạng client không truy cập, logs không chứa secret, migration thất bại giữ release trước/readiness 503.",
+        "Smoke UI/API qua LAN và tài liệu tái lập với version/config/checksum."
+      ],
+      "external_gates": [
+        "Cần máy/VM Linux đích, mạng LAN/chứng thư và thông số dung lượng; không thực hiện thay đổi máy vận hành thật khi chưa được giao môi trường cụ thể."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b21-lan-deployment",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b21-lan-deployment",
+      "brief": "01_Tai_lieu/PHAN_CONG/B21_lan_deployment.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B21.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B22",
+      "slug": "backup-restore",
+      "title": "Sao lưu, PITR và diễn tập phục hồi",
+      "dependencies": [
+        "B21"
+      ],
+      "issues": [
+        36
+      ],
+      "requirements": [
+        "FR27",
+        "GR04",
+        "NFR04",
+        "NFR08"
+      ],
+      "acceptance": [
+        "T09",
+        "T24"
+      ],
+      "owned_paths": [
+        "deploy/backup/ và scripts/restore drill (mới)",
+        "runbook backup/restore riêng",
+        "tests phục hồi và fixture reconciliation"
+      ],
+      "deliverables": [
+        "Base backup + WAL archive/PITR PostgreSQL, kiểm tra tính toàn vẹn, quyền/secret và lịch/cảnh báo; lưu cấu hình/version để restore đúng release.",
+        "Bao phủ file storage/import/export/template và khóa cấu hình cần thiết nhất quán với DB; không chỉ backup database rồi bỏ file có tham chiếu.",
+        "Diễn tập khôi phục trong môi trường tách biệt, target timestamp, rehydrate services và đối soát ledger/balance/serial/reservation/outbox/job pending.",
+        "Đo RPO < 1 giờ và RTO < 4 giờ có định nghĩa start/end và log; chính sách giữ backup tách hồ sơ nghiệp vụ 5 năm, không đưa password/backup nhạy cảm vào Git."
+      ],
+      "verification": [
+        "Hỏng/mất primary giả lập trên fixture, restore+replay WAL đến mốc chọn, reconciliation và replay job không trùng.",
+        "Thử backup thiếu/corrupt/WAL gap và cảnh báo; retention không phá chain phục hồi.",
+        "Báo số đo thực với cấu hình/dataset, không suy mục tiêu đạt từ script hoặc tiny fixture."
+      ],
+      "external_gates": [
+        "Cần storage backup độc lập và môi trường DR; dữ liệu/tải đại diện phải được chốt để nghiệm thu RPO/RTO."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b22-backup-restore",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b22-backup-restore",
+      "brief": "01_Tai_lieu/PHAN_CONG/B22_backup_restore.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B22.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B23",
+      "slug": "windows-packaging",
+      "title": "Bộ cài Windows và nâng cấp an toàn",
+      "dependencies": [
+        "B08",
+        "B19"
+      ],
+      "issues": [
+        37,
+        12
+      ],
+      "requirements": [
+        "FR28",
+        "TR02",
+        "NFR06",
+        "NFR07",
+        "NFR08"
+      ],
+      "acceptance": [
+        "T08",
+        "T11",
+        "T22",
+        "T23"
+      ],
+      "owned_paths": [
+        "packaging/windows/ và workflow build Windows (mới)",
+        "manifest version/API compatibility và scripts upgrade",
+        "tests smoke cài đặt/nâng cấp trên Windows"
+      ],
+      "deliverables": [
+        "Build artifact client Windows 10/11 x64 từ lock, manifest/checksum/version, tài nguyên Tk/font/cert và API compatibility handshake.",
+        "Cài mới/nâng cấp/khởi động lại, bảo toàn device identity/drafts/pending SQLite ngoài thư mục cài; xử lý cache migration failure và API không tương thích.",
+        "Runbook cập nhật/khôi phục app version tương thích, không downgrade cache phá dữ liệu; không bundle DB credential/dev secrets.",
+        "Kiểm tra login/MFA/scanner/printing/vietnamese scaling trên target; chứng thư ký code nếu được cung cấp, ghi rõ unsigned nếu chưa có."
+      ],
+      "verification": [
+        "Máy Windows sạch cài artifact và chạy API thật; upgrade từ baseline có nháp/SENDING/UNKNOWN không mất hoặc double-post.",
+        "Windows 10 và 11 x64: paths Unicode, quyền user thường, display scale, missing network/cert và restart.",
+        "Verify installed package/resource/version/checksum; Linux cross-build không thay bằng chứng Windows."
+      ],
+      "external_gates": [
+        "Cần Windows 10/11 x64 VM hoặc máy thật và thiết bị liên quan; chứng thư ký code là đầu vào riêng nếu yêu cầu phát hành có ký."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b23-windows-packaging",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b23-windows-packaging",
+      "brief": "01_Tai_lieu/PHAN_CONG/B23_windows_packaging.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B23.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B24",
+      "slug": "concurrency-security",
+      "title": "Kiểm thử cạnh tranh, phân quyền và tải 15 CCU",
+      "dependencies": [
+        "B04",
+        "B07",
+        "B08",
+        "B13",
+        "B14",
+        "B17",
+        "B19",
+        "B20",
+        "B21"
+      ],
+      "issues": [
+        35,
+        6,
+        7,
+        23,
+        20
+      ],
+      "requirements": [
+        "GR01",
+        "GR02",
+        "GR03",
+        "NFR01",
+        "NFR02",
+        "NFR05",
+        "FR32",
+        "FR33"
+      ],
+      "acceptance": [
+        "T02",
+        "T03",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T10",
+        "T11",
+        "T14",
+        "T15",
+        "T16",
+        "T17",
+        "T18",
+        "T19",
+        "T21",
+        "T24",
+        "T25",
+        "T26",
+        "T27",
+        "T28"
+      ],
+      "owned_paths": [
+        "tests/concurrency/, tests/security/, tests/performance/ (mới)",
+        "reconcile scripts/queries và harness tải",
+        "báo cáo riêng đo tải/an toàn"
+      ],
+      "deliverables": [
+        "Race harness multi-process/session PostgreSQL cho mọi posting, approvals, reservation/cancel, freeze/period và reversal; assert DB invariants bằng đối soát độc lập.",
+        "Security matrix role/kho/owner/price/download, revoke giữa tạo job và tải, direct SQL constraint negative tests và secret leakage checks.",
+        "Tải đại diện 15 CCU / 1 kho / 3 phân khu, dataset/thời gian warmup/duration/mix/seed công khai; stress50.000 SKU / 1 triệu moves được ghi riêng không giả là số thực tế.",
+        "Đo throughput/latency/lock/deadlock/retry/reconcile; số đo15 phút là thời gian quy trình phiếu, không phải API SLA; <0.5% sai lệch kho có phương pháp đo riêng.",
+        "Ghi lỗi về owner nhánh, sửa phạm vi harness hoặc fix nhỏ được review; không nới invariant/skip test để xanh."
+      ],
+      "verification": [
+        "Lặp race có barrier đủ tái lập, proof ít nhất 2DB connections và commit/rollback outcomes.",
+        "Đối soát ledger/balance/serial/reservation/transit/owner sau full load; lỗi tồn kho do phần mềm không được chấp nhận bằng ngưỡng0.5%.",
+        "Kết quả gồm commit, OS/PG, cấu hình tài nguyên, dataset, log; baseline so sánh sau fix và danh sách hạn chế."
+      ],
+      "external_gates": [
+        "Cần máy và workload đại diện Q05/Q07; kết quả trên laptop/fixture nhỏ được ghi giới hạn, không tự nâng thành nghiệm thu tải."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b24-concurrency-security",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b24-concurrency-security",
+      "brief": "01_Tai_lieu/PHAN_CONG/B24_concurrency_security.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B24.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B25",
+      "slug": "docs-runbooks",
+      "title": "Tài liệu sử dụng, vận hành và hồ sơ bàn giao",
+      "dependencies": [
+        "B07",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24"
+      ],
+      "issues": [
+        2,
+        11,
+        20,
+        38
+      ],
+      "requirements": [
+        "GR01",
+        "GR02",
+        "GR03",
+        "GR04",
+        "TR01",
+        "TR02",
+        "TR03",
+        "TR04",
+        "NFR08"
+      ],
+      "acceptance": [
+        "T01",
+        "T09",
+        "T22",
+        "T23",
+        "T26",
+        "T27",
+        "T28"
+      ],
+      "owned_paths": [
+        "01_Tai_lieu hướng dẫn người dùng/admin và runbook (sau khi code ổn định)",
+        "03_So_do/ tài liệu hiện hành cần cập nhật",
+        "05_API/ chú thích contract",
+        "07_Kiem_tra hồ sơ mẫu bàn giao riêng, không tự đổi acceptance tổng"
+      ],
+      "deliverables": [
+        "Hướng dẫn vai trò kho/admin theo ứng dụng thật: nhận/tồn đầu/xuất/chuyển/trả/kiểm kê/đảo/import/report/in/offline recovery.",
+        "Runbook LAN/upgrade/consumer/retry/backup/restore, sơ đồ và contract hiện hành, ma trận49requirements→implementation→tests→evidence.",
+        "Đào tạo: dữ liệu demo có owner/bảo hành, bài tập và checklist nghiệp vụ; nhận diện mẫu chứng từ/hardware/retention chưa được xác nhận.",
+        "Chuẩn bị gói bàn giao source/version/config mẫu/migration/template/installer/checksum; ghi giới hạn và known issues, không giả chữ ký/sponsor approval hoặc tự đóng issue.",
+        "Đối chiếu hồ sơ thiết kế lịch sử với runtime, giữ tài liệu gốc và gắn nhãn thay thế; không sửa số liệu thiết kế cho giống kết quả chưa đo."
+      ],
+      "verification": [
+        "Chạy hướng dẫn chính từ môi trường sạch bằng artifact, kiểm tra link/command/config và ảnh minh họa khớp UI thật.",
+        "Cross-check mọi yêu cầu/test có owner/evidence hoặc NOT_RUN rõ; không coi checklist là bằng chứng vận hành.",
+        "Người dùng/IT xác nhận tài liệu và đào tạo ở bước UAT thực, không do agent tự ký."
+      ],
+      "external_gates": [
+        "Thông tin bàn giao/đào tạo, mẫu và quyết định còn mở cần người phụ trách thực tế; user sẽ điều phối thu thập."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b25-docs-runbooks",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b25-docs-runbooks",
+      "brief": "01_Tai_lieu/PHAN_CONG/B25_docs_runbooks.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B25.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    },
+    {
+      "id": "B26",
+      "slug": "uat-release",
+      "title": "Nghiệm thu T01–T28 và chốt bản bàn giao",
+      "dependencies": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24",
+        "B25"
+      ],
+      "issues": [
+        38
+      ],
+      "requirements": [
+        "GR04",
+        "TR02",
+        "NFR01",
+        "NFR02",
+        "NFR03",
+        "NFR04",
+        "NFR05",
+        "NFR06",
+        "NFR07",
+        "NFR08"
+      ],
+      "acceptance": [
+        "T01",
+        "T02",
+        "T03",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T09",
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15",
+        "T16",
+        "T17",
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22",
+        "T23",
+        "T24",
+        "T25",
+        "T26",
+        "T27",
+        "T28"
+      ],
+      "owned_paths": [
+        "07_Kiem_tra/release/ và báo cáo UAT riêng (mới)",
+        "release manifest/checklist, liên kết evidence của các nhánh",
+        "đề xuất cập nhật acceptance/implementation cho điều phối duyệt"
+      ],
+      "deliverables": [
+        "Thực thi T01–T28 đúng scenario/fixture/role/env; mỗi test ghi commit/artifact/version, steps, actual/expected, log/ảnh và reviewer thật.",
+        "Nghiệm thu end-to-end ứng dụng đã tích hợp trên client Windows/server Linux/LAN/hardware, gồm restore/load/recovery và owner/warranty.",
+        "Tổng hợp lỗi chặn, regression sau fix và checklist rollback/delivery; không chỉ dùng301tests nền làm bằng chứng đủ MVP.",
+        "Chuẩn bị release manifest, source và bộ cài đã kiểm chứng để người dùng bàn giao; không push/tag remote/deploy thật/đóng issue thay người dùng.",
+        "Test chưa chạy giữ NOT_RUN/PLANNED với lý do; chỉ đề xuất PASS khi đủ bằng chứng. Mọi defer/CR phải do người có thẩm quyền chấp nhận, không tự bỏ B07."
+      ],
+      "verification": [
+        "Toàn bộ suite regression, wheel/install, contract/schema/artifact/checksum và T01–T28 với target evidence.",
+        "Tất cả dependent branches có commit tích hợp và handoff được review; không còn lỗi chặn hoặc scope bị bỏ im lặng.",
+        "Xác nhận nghiệp vụ/người ký là bằng chứng người thật, agent không tự tạo biên bản đã ký."
+      ],
+      "external_gates": [
+        "Cần người nghiệm thu, Windows/Linux/LAN/thiết bị và số đo DR/load; thiếu đầu vào thì báo chặn phát hành cụ thể."
+      ],
+      "priority": "P1",
+      "development_migration": null,
+      "branch": "agent/b26-uat-release",
+      "worktree": "/home/kien/Đồ án KHMT2_2/worktrees/wms-b26-uat-release",
+      "brief": "01_Tai_lieu/PHAN_CONG/B26_uat_release.md",
+      "handoff": "01_Tai_lieu/PHAN_CONG/BAN_GIAO/B26.md",
+      "initial_status": "WAITING_DEPENDENCIES"
+    }
+  ]
+}

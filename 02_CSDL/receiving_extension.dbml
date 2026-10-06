@@ -1,0 +1,5 @@
+// Additive revision 009; merge these columns into the baseline inventory_transaction.
+Table inventory_transaction {
+  request_hash char(64) [note: 'Canonical receipt.post payload hash; legacy NULL']
+  response jsonb [note: 'Immutable committed execution acknowledgement; legacy NULL']
+}

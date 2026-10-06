@@ -1,0 +1,9 @@
+# Replace HBA only on the dedicated WMS cluster; first match wins.
+local   all      postgres                    peer
+local   wms      wms_owner                   peer map=wms_services
+local   wms      wms_app                     peer map=wms_services
+local   all      all                         reject
+host    all      all     0.0.0.0/0           reject
+host    all      all     ::/0                reject
+host    replication all 0.0.0.0/0           reject
+host    replication all ::/0                reject

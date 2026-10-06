@@ -16,11 +16,445 @@
     }
   ],
   "paths": {
+    "/purchase-orders": {
+      "get": {
+        "operationId": "listReceivablePurchaseOrders",
+        "summary": "UC06 list receivable purchase orders",
+        "description": "Only APPROVED or PARTIAL purchase orders with positive remaining quantity that the caller may read under document.read: assigned warehouse plus own/assigned document for RECEIVER. Return only the minimal fields in ReceivablePurchaseOrder. Remaining is derived from net posted receipts, not drafts. Cursor is tied to a server-maintained as_of snapshot and immutable (created_at,id) order so intervening edits cannot duplicate or skip rows.",
+        "x-permission": "document.read",
+        "x-use-case": "UC06",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/AsOf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receivable purchase orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchaseOrderPage"
+                },
+                "example": {
+                  "items": [
+                    {
+                      "id": "c0000000-0000-4000-8000-000000000001",
+                      "number": "PO-001",
+                      "warehouse_id": "10000000-0000-4000-8000-000000000001",
+                      "created_at": "2026-10-01T09:00:00+07:00",
+                      "status": "APPROVED",
+                      "lines": [
+                        {
+                          "source_line_id": "20000000-0000-4000-8000-000000000001",
+                          "product_id": "30000000-0000-4000-8000-000000000001",
+                          "uom_id": "40000000-0000-4000-8000-000000000001",
+                          "ordered_base": "100.000000",
+                          "remaining_base": "100.000000"
+                        }
+                      ]
+                    }
+                  ],
+                  "as_of": "2026-10-02T09:00:00+07:00",
+                  "next_cursor": null
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/InvalidInput"
+          }
+        }
+      }
+    },
+    "/purchase-orders/{id}": {
+      "get": {
+        "operationId": "getReceivablePurchaseOrder",
+        "summary": "UC06 get purchase order remaining quantities",
+        "description": "Require document.read on this PO, including own/assigned document for RECEIVER and assigned warehouse. Return current net posted remaining per source line; recheck under lock when posting.",
+        "x-permission": "document.read",
+        "x-use-case": "UC06",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ResourceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivablePurchaseOrder"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/receipts": {
+      "get": {
+        "operationId": "listReceipts",
+        "summary": "UC06 list receipts",
+        "description": "Only visible receipts in assigned warehouse scope. Cursor is tied to a server-maintained as_of snapshot and immutable (created_at,id) order so intervening edits cannot duplicate or skip rows.",
+        "x-permission": "document.read",
+        "x-use-case": "UC06",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/AsOf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receipt page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceiptPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/InvalidInput"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createReceiptDraft",
+        "summary": "UC06 create receipt draft",
+        "description": "Server assigns id, number, line ids, factor snapshots and version=1. All source_line_id values must belong to one visible APPROVED or PARTIAL PO with positive remaining quantity for the same warehouse and product. Server derives partner_id from that PO; client cannot override it. No stock or PO remaining changes in DRAFT. Persist Idempotency-Key with payload hash atomically; same key and payload replays the same result.",
+        "x-permission": "receipt.draft",
+        "x-use-case": "UC06",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptDraftInput"
+              },
+              "example": {
+                "warehouse_id": "10000000-0000-4000-8000-000000000001",
+                "business_date": "2026-10-02",
+                "lines": [
+                  {
+                    "source_line_id": "20000000-0000-4000-8000-000000000001",
+                    "product_id": "30000000-0000-4000-8000-000000000001",
+                    "uom_id": "40000000-0000-4000-8000-000000000001",
+                    "quantity": "80.000000"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Draft created or replayed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                },
+                "example": {
+                  "id": "90000000-0000-4000-8000-000000000001",
+                  "number": "RC-001",
+                  "status": "DRAFT",
+                  "warehouse_id": "10000000-0000-4000-8000-000000000001",
+                  "business_date": "2026-10-02",
+                  "created_at": "2026-10-02T08:50:00+07:00",
+                  "version": 1,
+                  "lines": [
+                    {
+                      "id": "60000000-0000-4000-8000-000000000001",
+                      "line_no": 1,
+                      "source_line_id": "20000000-0000-4000-8000-000000000001",
+                      "product_id": "30000000-0000-4000-8000-000000000001",
+                      "uom_id": "40000000-0000-4000-8000-000000000001",
+                      "quantity": "80.000000",
+                      "factor_snapshot": "1.00000000",
+                      "base_quantity": "80.000000",
+                      "posted_base": "0.000000",
+                      "remaining_base": "80.000000"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/InvalidInput"
+          }
+        }
+      }
+    },
+    "/receipts/{id}": {
+      "get": {
+        "operationId": "getReceipt",
+        "summary": "UC06 get receipt",
+        "x-permission": "document.read",
+        "x-use-case": "UC06",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ResourceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateReceiptDraft",
+        "summary": "UC06 update receipt draft",
+        "description": "Only DRAFT/REJECTED in caller scope. If lines is supplied it replaces all lines and server assigns new line ids; client must GET again before post. expected_version protects concurrent edits. No status, balance or ledger mutation. Use revise before editing an APPROVED receipt.",
+        "x-permission": "receipt.draft",
+        "x-use-case": "UC06",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ResourceId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptDraftPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated draft or replayed result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                },
+                "example": {
+                  "id": "90000000-0000-4000-8000-000000000001",
+                  "number": "RC-001",
+                  "status": "DRAFT",
+                  "warehouse_id": "10000000-0000-4000-8000-000000000001",
+                  "business_date": "2026-10-02",
+                  "created_at": "2026-10-02T08:50:00+07:00",
+                  "version": 2,
+                  "lines": [
+                    {
+                      "id": "60000000-0000-4000-8000-000000000001",
+                      "line_no": 1,
+                      "source_line_id": "20000000-0000-4000-8000-000000000001",
+                      "product_id": "30000000-0000-4000-8000-000000000001",
+                      "uom_id": "40000000-0000-4000-8000-000000000001",
+                      "quantity": "80.000000",
+                      "factor_snapshot": "1.00000000",
+                      "base_quantity": "80.000000",
+                      "posted_base": "0.000000",
+                      "remaining_base": "80.000000"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/InvalidInput"
+          }
+        }
+      }
+    },
+    "/receipts/{id}/revise": {
+      "post": {
+        "operationId": "reviseApprovedReceipt",
+        "summary": "UC06 reopen approved receipt for revision",
+        "description": "Only APPROVED and never posted. In one transaction invalidate approval, release related reservations, change status to DRAFT and increment document version. A later submit and approval are required before post. Idempotency-Key replays the stored result for the same payload.",
+        "x-permission": "receipt.draft",
+        "x-use-case": "UC06",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ResourceId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleCommand"
+              },
+              "example": {
+                "expected_version": 3,
+                "reason": "Correct counted quantity"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reopened DRAFT or replayed result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                },
+                "example": {
+                  "id": "90000000-0000-4000-8000-000000000001",
+                  "number": "RC-001",
+                  "status": "DRAFT",
+                  "warehouse_id": "10000000-0000-4000-8000-000000000001",
+                  "business_date": "2026-10-02",
+                  "created_at": "2026-10-02T08:50:00+07:00",
+                  "version": 4,
+                  "lines": [
+                    {
+                      "id": "60000000-0000-4000-8000-000000000001",
+                      "line_no": 1,
+                      "source_line_id": "20000000-0000-4000-8000-000000000001",
+                      "product_id": "30000000-0000-4000-8000-000000000001",
+                      "uom_id": "40000000-0000-4000-8000-000000000001",
+                      "quantity": "80.000000",
+                      "factor_snapshot": "1.00000000",
+                      "base_quantity": "80.000000",
+                      "posted_base": "0.000000",
+                      "remaining_base": "80.000000"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/InvalidInput"
+          }
+        }
+      }
+    },
     "/receipts/{id}/post": {
       "post": {
         "operationId": "postReceipt",
         "summary": "UC06 postReceipt",
-        "description": "Quyền: receipt.post. Kiểm tra scope/state ở server. Quantity không cho phép thay đổi nguồn/đích tùy ý ngoài rule loại phiếu.",
+        "description": "Only APPROVED or PARTIAL receipt in caller scope. In one transaction recheck PO remaining and each receipt line remaining, document version, source line, UOM, lot/serial, destination RECEIVING/QUARANTINE, period and count lock. Cumulative net posted quantity per receipt line must not exceed its base_quantity, including this command. For tracking NONE the server resolves the product stock_item; for LOT/SERIAL it resolves or creates the code under lock and rejects an existing serial position. For a new lot of a product with expiry_required=true, expires_on is mandatory (422 LOT_EXPIRY_REQUIRED); if the lot already exists, supplied dates must match stored metadata (409 LOT_METADATA_CONFLICT). manufactured_on must not be after expires_on. Replay with the same Idempotency-Key and payload returns the stored result. The transaction updates stock and PO progress exactly once.",
+        "x-conditional-validation": [
+          {
+            "when": {
+              "tracking": "LOT",
+              "expiry_required": true,
+              "lot_exists": false
+            },
+            "required_field": "lines[].expires_on",
+            "http_status": 422,
+            "error_code": "LOT_EXPIRY_REQUIRED"
+          },
+          {
+            "when": {
+              "tracking": "LOT",
+              "lot_exists": true,
+              "supplied_metadata_differs": true
+            },
+            "http_status": 409,
+            "error_code": "LOT_METADATA_CONFLICT"
+          }
+        ],
         "x-permission": "receipt.post",
         "x-use-case": "UC06",
         "parameters": [
@@ -48,7 +482,41 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Command"
+                "$ref": "#/components/schemas/ReceiptPostCommand"
+              },
+              "examples": {
+                "existingItem": {
+                  "summary": "Post an existing stock item",
+                  "value": {
+                    "expected_version": 3,
+                    "execution_key": "50000000-0000-4000-8000-000000000001",
+                    "lines": [
+                      {
+                        "document_line_id": "60000000-0000-4000-8000-000000000001",
+                        "stock_item_id": "70000000-0000-4000-8000-000000000001",
+                        "destination_location_id": "80000000-0000-4000-8000-000000000001",
+                        "quantity_base": "80.000000"
+                      }
+                    ]
+                  }
+                },
+                "newExpiringLot": {
+                  "summary": "First receipt of a LOT product requiring an expiry date",
+                  "value": {
+                    "expected_version": 3,
+                    "execution_key": "50000000-0000-4000-8000-000000000002",
+                    "lines": [
+                      {
+                        "document_line_id": "60000000-0000-4000-8000-000000000001",
+                        "lot_code": "LOT-NEW-001",
+                        "manufactured_on": "2026-09-01",
+                        "expires_on": "2027-09-01",
+                        "destination_location_id": "80000000-0000-4000-8000-000000000001",
+                        "quantity_base": "80.000000"
+                      }
+                    ]
+                  }
+                }
               }
             }
           }
@@ -59,7 +527,30 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Result"
+                  "$ref": "#/components/schemas/ReceiptPostResult"
+                },
+                "example": {
+                  "id": "90000000-0000-4000-8000-000000000001",
+                  "version": 4,
+                  "status": "COMPLETED",
+                  "transaction_id": "a0000000-0000-4000-8000-000000000001",
+                  "request_id": "b0000000-0000-4000-8000-000000000001",
+                  "posted_items": [
+                    {
+                      "document_line_id": "60000000-0000-4000-8000-000000000001",
+                      "stock_item_id": "70000000-0000-4000-8000-000000000001",
+                      "quantity_base": "80.000000"
+                    }
+                  ],
+                  "po_remaining": [
+                    {
+                      "source_line_id": "20000000-0000-4000-8000-000000000001",
+                      "product_id": "30000000-0000-4000-8000-000000000001",
+                      "uom_id": "40000000-0000-4000-8000-000000000001",
+                      "ordered_base": "100.000000",
+                      "remaining_base": "20.000000"
+                    }
+                  ]
                 }
               }
             }
@@ -95,21 +586,49 @@
             }
           },
           "409": {
-            "description": "Version/idempotency/state/stock conflict",
+            "description": "Version/idempotency/state/stock or existing lot metadata conflict",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "LOT_METADATA_CONFLICT",
+                  "message": "Lot LOT-NEW-001 already exists with different expiry metadata.",
+                  "request_id": "b0000000-0000-4000-8000-000000000006",
+                  "retryable": false,
+                  "field_errors": [
+                    {
+                      "line_id": "60000000-0000-4000-8000-000000000001",
+                      "field": "lines[0].expires_on",
+                      "code": "LOT_METADATA_CONFLICT",
+                      "message": "Use the stored lot expiry date or correct the lot code."
+                    }
+                  ]
                 }
               }
             }
           },
           "422": {
-            "description": "Dữ liệu không hợp lệ",
+            "description": "Dữ liệu không hợp lệ; lô mới của sản phẩm yêu cầu hạn dùng phải có expires_on",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "LOT_EXPIRY_REQUIRED",
+                  "message": "Expiry date is required for this product's new lot.",
+                  "request_id": "b0000000-0000-4000-8000-000000000002",
+                  "retryable": false,
+                  "field_errors": [
+                    {
+                      "line_id": "60000000-0000-4000-8000-000000000001",
+                      "field": "lines[0].expires_on",
+                      "code": "LOT_EXPIRY_REQUIRED",
+                      "message": "Provide expires_on for this LOT product."
+                    }
+                  ]
                 }
               }
             }
@@ -1019,6 +1538,17 @@
       "post": {
         "operationId": "submitDocument",
         "summary": "UC05,UC08 submitDocument",
+        "x-receiving-example": {
+          "request": {
+            "expected_version": 1
+          },
+          "response": {
+            "id": "90000000-0000-4000-8000-000000000001",
+            "status": "SUBMITTED",
+            "version": 2,
+            "request_id": "b0000000-0000-4000-8000-000000000007"
+          }
+        },
         "description": "Quyền: kind.draft. Kiểm tra scope/state ở server. Quantity không cho phép thay đổi nguồn/đích tùy ý ngoài rule loại phiếu.",
         "x-permission": "kind.draft",
         "x-use-case": "UC05,UC08",
@@ -1241,6 +1771,18 @@
       "post": {
         "operationId": "decideApproval",
         "summary": "UC05,UC18 decideApproval",
+        "x-receiving-example": {
+          "request": {
+            "expected_version": 2,
+            "decision": "APPROVE"
+          },
+          "response": {
+            "id": "f0000000-0000-4000-8000-000000000001",
+            "status": "APPROVED",
+            "version": 3,
+            "request_id": "b0000000-0000-4000-8000-000000000008"
+          }
+        },
         "description": "Quyền: document.approve OR adjustment.approve OR opening.approve by kind. Kiểm tra scope/state ở server. Quantity không cho phép thay đổi nguồn/đích tùy ý ngoài rule loại phiếu.",
         "x-permission": "document.approve OR adjustment.approve OR opening.approve by kind",
         "x-use-case": "UC05,UC18",
@@ -1681,10 +2223,131 @@
         }
       }
     },
+    "/stock-ownership": {
+      "get": {
+        "operationId": "getStockOwnershipBreakdown",
+        "summary": "UC32 proposed ownership-aware stock read",
+        "description": "Historical proposal, superseded for implemented reads by openapi_runtime.json; see 01_Tai_lieu/TRACEABILITY.md. Design-only response for Q02/T27: physical_base = owned_base + sum(consigned_by_owner.quantity_base) for the same stock item and location. Deny by default until BE02/TL04 defines the ownership dimension and BE04 defines the owner-scoped read permission. stock.read alone does not grant visibility of other owners. Do not infer ownership from stock_item, notes or JSONB.",
+        "x-use-case": "UC32",
+        "x-contract-status": "PROVISIONAL_BLOCKED_BY_BE02_TL04_BE04",
+        "parameters": [
+          {
+            "name": "warehouse_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "location_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "stock_item_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ownership-aware balance (proposal, unavailable until model and permission are approved)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnershipBalance"
+                },
+                "example": {
+                  "warehouse_id": "10000000-0000-4000-8000-000000000001",
+                  "location_id": "80000000-0000-4000-8000-000000000001",
+                  "stock_item_id": "70000000-0000-4000-8000-000000000001",
+                  "physical_base": "15.000000",
+                  "owned_base": "10.000000",
+                  "consigned_by_owner": [
+                    {
+                      "owner_partner_id": "d0000000-0000-4000-8000-000000000001",
+                      "quantity_base": "5.000000"
+                    }
+                  ],
+                  "as_of": "2026-10-02T09:00:00+07:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-runtime-contract": "openapi_runtime.json"
+      }
+    },
+    "/serials/{id}/warranty": {
+      "get": {
+        "operationId": "getSerialWarranty",
+        "summary": "UC33 proposed serial receipt and warranty lookup",
+        "description": "Historical proposal, superseded for implemented reads by openapi_runtime.json; see 01_Tai_lieu/TRACEABILITY.md. Design-only read for Q02/T28. Resolve posted receipt, supplier and receipt date for a visible serial. Status is UNKNOWN if the authoritative warranty start, end or evidence is missing; never invent a duration from receipt date. Deny by default until BE02/TL04 defines storage/source and BE04 defines warehouse/serial/price visibility. Repair and RMA are out of scope.",
+        "x-use-case": "UC33",
+        "x-contract-status": "PROVISIONAL_BLOCKED_BY_BE02_TL04_BE04",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ResourceId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Serial trace and warranty status, including UNKNOWN when evidence is absent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SerialWarranty"
+                },
+                "example": {
+                  "serial_id": "e0000000-0000-4000-8000-000000000001",
+                  "receipt_id": "90000000-0000-4000-8000-000000000001",
+                  "supplier_partner_id": "d0000000-0000-4000-8000-000000000001",
+                  "received_on": "2026-10-02",
+                  "warranty_start_on": null,
+                  "warranty_ends_on": null,
+                  "warranty_evidence_ref": null,
+                  "status": "UNKNOWN",
+                  "as_of": "2026-10-02"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-runtime-contract": "openapi_runtime.json"
+      }
+    },
     "/operations/{key}": {
       "get": {
         "operationId": "getOperation",
-        "description": "Chỉ actor tạo lệnh và quyền tài nguyên hiện hành được đọc. NOT_FOUND không cho phép tạo key mới.",
+        "description": "Read the immutable committed-operation projection by the original Idempotency-Key. operation_status=COMMITTED describes the command, while status is the resource state. id/status/version are copied from the committed command result; request_id is the original command's stored request ID, not this GET's trace ID. transaction_id is present for posting. A 200 proves commit; 404 is inconclusive. To recover the exact original HTTP status/body, replay the same method, route, body and Idempotency-Key (also the same execution_key for posting). Recheck current resource permission before returning data. Current GET /receipts/{id} may show later state and is not an exact replay.",
         "parameters": [
           {
             "name": "key",
@@ -1698,20 +2361,79 @@
         ],
         "responses": {
           "200": {
-            "description": "Kết quả đã commit",
+            "description": "Immutable summary of a committed command; original response is obtained by same-key replay",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Result"
+                  "$ref": "#/components/schemas/OperationLookupResult"
+                },
+                "examples": {
+                  "createReceipt": {
+                    "summary": "Draft creation after a lost 201 response",
+                    "value": {
+                      "operation_status": "COMMITTED",
+                      "id": "90000000-0000-4000-8000-000000000001",
+                      "status": "DRAFT",
+                      "version": 1,
+                      "request_id": "b0000000-0000-4000-8000-000000000003"
+                    }
+                  },
+                  "patchReceipt": {
+                    "summary": "Draft edit after a lost 200 response",
+                    "value": {
+                      "operation_status": "COMMITTED",
+                      "id": "90000000-0000-4000-8000-000000000001",
+                      "status": "DRAFT",
+                      "version": 2,
+                      "request_id": "b0000000-0000-4000-8000-000000000004"
+                    }
+                  },
+                  "reviseReceipt": {
+                    "summary": "Approved receipt returned to DRAFT",
+                    "value": {
+                      "operation_status": "COMMITTED",
+                      "id": "90000000-0000-4000-8000-000000000001",
+                      "status": "DRAFT",
+                      "version": 4,
+                      "request_id": "b0000000-0000-4000-8000-000000000005"
+                    }
+                  },
+                  "postReceipt": {
+                    "summary": "Receipt posting after a lost 200 response",
+                    "value": {
+                      "operation_status": "COMMITTED",
+                      "id": "90000000-0000-4000-8000-000000000001",
+                      "status": "COMPLETED",
+                      "version": 4,
+                      "transaction_id": "a0000000-0000-4000-8000-000000000001",
+                      "request_id": "b0000000-0000-4000-8000-000000000001"
+                    }
+                  }
                 }
               }
             }
           },
-          "404": {
-            "description": "Chưa tìm thấy kết quả; không kết luận request trước chưa chạy"
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
-            "description": "Quyền đã thu hồi"
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "No visible committed result; request may still have executed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "OPERATION_NOT_FOUND",
+                  "message": "No committed result is currently visible for this key.",
+                  "request_id": "b0000000-0000-4000-8000-000000000009",
+                  "retryable": true
+                }
+              }
+            }
           }
         }
       }
@@ -1724,7 +2446,796 @@
         "scheme": "bearer"
       }
     },
+    "parameters": {
+      "ResourceId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Unique per actor and command; never reuse with a different payload."
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 100
+        }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Opaque next_cursor from the preceding response; do not construct or alter it."
+      },
+      "AsOf": {
+        "name": "as_of",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": "Optional on first page; use returned as_of for subsequent pages. UTC offset required."
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid authentication",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Visible resource but action denied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Missing resource or outside caller scope",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "STALE_VERSION, IDEMPOTENCY_MISMATCH, INVALID_STATE or SOURCE_QUANTITY_EXCEEDED",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "STALE_VERSION",
+              "message": "Document changed; reload before retrying.",
+              "request_id": "b0000000-0000-4000-8000-000000000001",
+              "retryable": false
+            }
+          }
+        }
+      },
+      "InvalidInput": {
+        "description": "Invalid field, UOM, tracking or quantity",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "INVALID_QUANTITY",
+              "message": "Quantity must be positive and exact in base UOM.",
+              "request_id": "b0000000-0000-4000-8000-000000000001",
+              "retryable": false,
+              "field_errors": [
+                {
+                  "line_id": "60000000-0000-4000-8000-000000000001",
+                  "field": "quantity",
+                  "code": "INVALID_QUANTITY",
+                  "message": "Use a positive decimal string with at most 6 places."
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
     "schemas": {
+      "PositiveQuantity": {
+        "type": "string",
+        "pattern": "^(?=.*[1-9])\\d{1,14}(\\.\\d{1,6})?$",
+        "description": "Positive numeric(20,6) decimal string; never JSON number. Server checks UOM precision and exact base conversion."
+      },
+      "NonnegativeQuantity": {
+        "type": "string",
+        "pattern": "^\\d{1,14}(\\.\\d{1,6})?$",
+        "description": "Nonnegative numeric(20,6) base-UOM decimal string."
+      },
+      "ReceiptLineInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_line_id",
+          "product_id",
+          "uom_id",
+          "quantity"
+        ],
+        "properties": {
+          "source_line_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Line of an APPROVED or PARTIAL PO in the receipt warehouse with positive remaining quantity."
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uom_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          }
+        }
+      },
+      "ReceiptDraftInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "warehouse_id",
+          "business_date",
+          "lines"
+        ],
+        "properties": {
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/ReceiptLineInput"
+            }
+          }
+        }
+      },
+      "ReceiptDraftPatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version"
+        ],
+        "minProperties": 2,
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/ReceiptLineInput"
+            }
+          }
+        }
+      },
+      "ReceiptLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "line_no",
+          "source_line_id",
+          "product_id",
+          "uom_id",
+          "quantity",
+          "factor_snapshot",
+          "base_quantity",
+          "posted_base",
+          "remaining_base"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "line_no": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "source_line_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uom_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          },
+          "factor_snapshot": {
+            "type": "string",
+            "pattern": "^(?=.*[1-9])\\d{1,12}(\\.\\d{1,8})?$"
+          },
+          "base_quantity": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          },
+          "posted_base": {
+            "$ref": "#/components/schemas/NonnegativeQuantity"
+          },
+          "remaining_base": {
+            "$ref": "#/components/schemas/NonnegativeQuantity"
+          }
+        }
+      },
+      "Receipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "number",
+          "status",
+          "warehouse_id",
+          "business_date",
+          "created_at",
+          "version",
+          "lines"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "PARTIAL",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          },
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "partner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "business_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceiptLine"
+            }
+          }
+        }
+      },
+      "ReceiptPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Receipt"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PurchaseOrderLineRemaining": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_line_id",
+          "product_id",
+          "uom_id",
+          "ordered_base",
+          "remaining_base"
+        ],
+        "properties": {
+          "source_line_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uom_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ordered_base": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          },
+          "remaining_base": {
+            "$ref": "#/components/schemas/NonnegativeQuantity"
+          }
+        }
+      },
+      "ReceivablePurchaseOrder": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "number",
+          "warehouse_id",
+          "created_at",
+          "status",
+          "lines"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "string"
+          },
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "PARTIAL"
+            ]
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderLineRemaining"
+            }
+          }
+        }
+      },
+      "PurchaseOrderPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivablePurchaseOrder"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "next_cursor": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "OwnershipBalance": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "warehouse_id",
+          "location_id",
+          "stock_item_id",
+          "physical_base",
+          "owned_base",
+          "consigned_by_owner",
+          "as_of"
+        ],
+        "properties": {
+          "warehouse_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "location_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stock_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "physical_base": {
+            "$ref": "#/components/schemas/NonnegativeQuantity"
+          },
+          "owned_base": {
+            "$ref": "#/components/schemas/NonnegativeQuantity"
+          },
+          "consigned_by_owner": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "owner_partner_id",
+                "quantity_base"
+              ],
+              "properties": {
+                "owner_partner_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "quantity_base": {
+                  "$ref": "#/components/schemas/PositiveQuantity"
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SerialWarranty": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "serial_id",
+          "receipt_id",
+          "supplier_partner_id",
+          "received_on",
+          "warranty_start_on",
+          "warranty_ends_on",
+          "warranty_evidence_ref",
+          "status",
+          "as_of"
+        ],
+        "properties": {
+          "serial_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "receipt_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "supplier_partner_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "received_on": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "warranty_start_on": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "warranty_ends_on": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "warranty_evidence_ref": {
+            "type": "string",
+            "nullable": true,
+            "description": "Evidence identifier or URI; storage mapping pending BE02/TL04."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "VALID",
+              "EXPIRED",
+              "UNKNOWN"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ReceiptExecutionLine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_line_id",
+          "destination_location_id",
+          "quantity_base"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "expires_on"
+              ],
+              "not": {
+                "required": [
+                  "lot_code"
+                ]
+              }
+            },
+            {
+              "required": [
+                "manufactured_on"
+              ],
+              "not": {
+                "required": [
+                  "lot_code"
+                ]
+              }
+            }
+          ]
+        },
+        "oneOf": [
+          {
+            "required": [
+              "stock_item_id"
+            ]
+          },
+          {
+            "required": [
+              "lot_code"
+            ]
+          },
+          {
+            "required": [
+              "serial_code"
+            ]
+          },
+          {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "stock_item_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "lot_code"
+                  ]
+                },
+                {
+                  "required": [
+                    "serial_code"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "properties": {
+          "document_line_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stock_item_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing item identity. Omit for a new lot/serial or tracking NONE."
+          },
+          "lot_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "For a new or existing LOT item; server resolves or creates lot and stock_item under lock. A new lot of a product with expiry_required=true also needs expires_on."
+          },
+          "manufactured_on": {
+            "type": "string",
+            "format": "date",
+            "description": "Optional LOT manufacturing date. If lot exists, supplied value must match stored metadata."
+          },
+          "expires_on": {
+            "type": "string",
+            "format": "date",
+            "description": "Required by server for a new LOT when product.expiry_required=true; optional otherwise. Existing lot metadata is immutable through this command."
+          },
+          "serial_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "description": "For a new or existing SERIAL item; server resolves or creates serial and stock_item under lock."
+          },
+          "destination_location_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Must be RECEIVING or QUARANTINE in the receipt warehouse."
+          },
+          "quantity_base": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          }
+        }
+      },
+      "ReceiptPostCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "execution_key",
+          "lines"
+        ],
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "execution_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/ReceiptExecutionLine"
+            }
+          }
+        }
+      },
+      "ReceiptPostResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "status",
+          "transaction_id",
+          "request_id",
+          "posted_items",
+          "po_remaining"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PARTIAL",
+              "COMPLETED"
+            ]
+          },
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "posted_items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "document_line_id",
+                "stock_item_id",
+                "quantity_base"
+              ],
+              "properties": {
+                "document_line_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "stock_item_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "quantity_base": {
+                  "$ref": "#/components/schemas/PositiveQuantity"
+                }
+              }
+            }
+          },
+          "po_remaining": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderLineRemaining"
+            }
+          }
+        }
+      },
       "Command": {
         "type": "object",
         "additionalProperties": false,
@@ -1903,6 +3414,28 @@
             "format": "uuid"
           }
         }
+      },
+      "OperationLookupResult": {
+        "description": "Immutable projection of a committed command; status is resource state, not operation state.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "required": [
+              "operation_status"
+            ],
+            "properties": {
+              "operation_status": {
+                "type": "string",
+                "enum": [
+                  "COMMITTED"
+                ]
+              }
+            }
+          }
+        ]
       },
       "ImportCommit": {
         "type": "object",

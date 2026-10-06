@@ -1,3 +1,3 @@
-﻿batch_code,business_date,warehouse_code,location_code,sku,lot_code,serial_code,quantity_base
-OPEN-DEMO,2026-09-26,WH-A,A-01,SKU001,LOT001,,100
-OPEN-DEMO,2026-09-26,WH-A,A-01,SKU002,,SN0001,1
+﻿batch_code,business_date,warehouse_code,location_code,sku,lot_code,serial_code,quantity_base,owner_code,consignment_code
+OPEN-DEMO,2026-09-26,WH-A,A-01,SKU001,LOT001,,100,COMPANY,
+OPEN-DEMO,2026-09-26,WH-A,A-01,SKU002,,SN0001,1,COMPANY,

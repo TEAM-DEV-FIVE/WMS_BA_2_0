@@ -1,0 +1,28 @@
+{
+  "repository": "/mnt/wms-backup/catalog",
+  "wal_repository": "/mnt/wms-backup/archive",
+  "repository_id": "REPLACE_WITH_PROVISIONED_UUID",
+  "max_bytes": 536870912000,
+  "release": "REPLACE_WITH_VERIFIED_40_HEX_COMMIT",
+  "release_manifest_sha256": "REPLACE_WITH_VERIFIED_64_HEX_MANIFEST_SHA256",
+  "staging": "/var/lib/wms-backup-staging",
+  "dr_root": "/srv/wms-dr",
+  "pg": {
+    "bindir": "/usr/lib/postgresql/16/bin",
+    "socket": "/var/run/postgresql",
+    "port": 5432,
+    "database": "wms",
+    "user": "postgres",
+    "os_user": "postgres"
+  },
+  "roots": {
+    "import": "/srv/wms/import",
+    "export": "/srv/wms/export",
+    "print": "/srv/wms/print",
+    "config": "/etc/wms",
+    "pg_config": "/etc/postgresql/16/main",
+    "release": "/opt/wms/current/bundle",
+    "backup_config": "/etc/wms-backup",
+    "backup_tools": "/opt/wms/backup"
+  }
+}

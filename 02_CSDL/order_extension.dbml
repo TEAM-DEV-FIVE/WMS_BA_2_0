@@ -1,0 +1,13 @@
+// Add these columns to the existing baseline tables; not standalone replacement tables.
+Table approval_policy_step {
+  alternative_role_id uuid [ref: > role.id]
+}
+Table approval_step {
+  alternative_role_id uuid [ref: > role.id]
+}
+Table approval_request {
+  content_snapshot jsonb
+}
+Table document_line {
+  closed_base_quantity numeric(20,6) [not null, default: 0]
+}

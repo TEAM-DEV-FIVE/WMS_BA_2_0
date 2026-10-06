@@ -1,0 +1,21 @@
+// Add these columns to the existing baseline tables; not standalone replacement tables.
+Table uom {
+  version integer [not null]
+  is_active boolean [not null]
+}
+Table product_category {
+  version integer [not null]
+  is_active boolean [not null]
+}
+Table warehouse {
+  version integer [not null]
+}
+Table location {
+  version integer [not null]
+}
+Table partner {
+  version integer [not null]
+}
+Table barcode {
+  version integer [not null]
+}

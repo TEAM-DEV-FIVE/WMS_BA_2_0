@@ -1,0 +1,44 @@
+// Additive IAM extension. Append to wms.dbml for combined review.
+
+Table auth_token {
+  token_hash char(64) [not null, pk]
+  session_id uuid [not null, ref: > auth_session.id]
+  kind varchar(10) [not null]
+  created_at timestamptz [not null]
+  expires_at timestamptz [not null]
+  used_at timestamptz [null]
+}
+
+Table auth_challenge {
+  token_hash char(64) [not null, pk]
+  user_id uuid [not null, ref: > app_user.id]
+  device_id uuid [not null]
+  auth_version integer [not null]
+  expires_at timestamptz [not null]
+  consumed_at timestamptz [null]
+}
+
+Table auth_throttle {
+  key char(64) [not null, pk]
+  failures integer [not null]
+  window_started_at timestamptz [not null]
+  blocked_until timestamptz [null]
+}
+
+Table grant_request {
+  id uuid [not null, pk]
+  user_id uuid [not null, ref: > app_user.id]
+  role_id uuid [not null, ref: > role.id]
+  scope_kind varchar(20) [not null]
+  warehouse_id uuid [null, ref: > warehouse.id]
+  valid_until timestamptz [null]
+  reason text [not null]
+  requested_by uuid [not null, ref: > app_user.id]
+  requested_at timestamptz [not null]
+  approved_by uuid [null, ref: > app_user.id]
+  grant_id uuid [null, ref: > user_role_grant.id]
+}
+
+// Add to auth_session: mfa_verified_at timestamptz nullable
+// Add to mfa_factor: last_counter bigint not null
+// Add to mfa_factor: enrollment_expires_at timestamptz nullable

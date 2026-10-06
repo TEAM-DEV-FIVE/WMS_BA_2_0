@@ -1,0 +1,10 @@
+[Unit]
+Description=Check WMS backup freshness every five minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+Unit=wms-backup-monitor.service
+
+[Install]
+WantedBy=timers.target

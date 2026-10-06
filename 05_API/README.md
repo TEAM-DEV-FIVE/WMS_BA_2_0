@@ -1,8 +1,19 @@
 # API contract v1
 
+Review B08: [khác biệt runtime/thiết kế, quyền và lỗi](CONTRACT_REVIEW.md);
+[inventory từng operation](contract_inventory.json) tái lập bằng `scripts/export_runtime_contract.py`.
+
+Runtime 0.1.0 có health/readiness, auth/MFA/session, quản trị user/grant, danh sách kho theo quyền và đọc chứng từ có che giá.
+[openapi_runtime.json](openapi_runtime.json) được sinh từ code và kiểm tra bằng test; Swagger ở `/api/v1/docs`.
+Runtime hiện có 65 paths. Danh mục chạy tại `/api/v1/master/*`, gồm owner/hợp đồng; thêm tồn theo owner và bảo hành serial. Xem [danh mục](../01_Tai_lieu/MASTER_DATA.md) và [truy vết](../01_Tai_lieu/TRACEABILITY.md).
+Desktop đã nối SQLite và `GET /operations/{key}` để [phục hồi receipt.post](../01_Tai_lieu/RECEIPT_RECOVERY.md) sau mất phản hồi/đóng process; không thay đổi API runtime.
+PO/SO có create/PUT/read/list, assignment, submit/decide/revise/cancel/close; xem [hướng dẫn](../01_Tai_lieu/ORDERS_APPROVAL.md). Runtime dùng keyset `after`, mặc định 50; không có snapshot `as_of` như thiết kế lõi. Receipt.post và opening.post đã có runtime với kế hoạch trước duyệt; xuất/chuyển/đảo còn thiếu. Xem [RECEIVING.md](../01_Tai_lieu/RECEIVING.md) để biết khác biệt PUT/post/operation. Xem [hướng dẫn IAM](../01_Tai_lieu/IDENTITY.md).
+
+OPENING dùng `/openings` và `/openings/operations/{key}`; xem [hướng dẫn tồn đầu kỳ](../01_Tai_lieu/OPENING.md). Quyền duyệt riêng `opening.approve`, không dùng `document.approve`.
+
 openapi_core.json là hợp đồng các lệnh trọng yếu, có thể import Swagger Editor hoặc Postman hỗ trợ OpenAPI. Đây là thiết kế, không phải server đang chạy và chưa bao gồm schema toàn bộ CRUD. URL example phải thay bằng DNS nội bộ thật.
 
-CRUD cần bổ sung khi triển khai: /auth/login,mfa,refresh,logout; /products,/uoms,/barcodes,/partners,/warehouses,/locations; /documents và lines; /counts và observations; /pick-tasks,/packages; /reports,/exports; /users,/roles,/grants; /client-policy. Collection dùng cursor + limit mặc định 100, max 200; sort ổn định (key,id); GET có as_of. PATCH cần expected_version, field allowlist và permission; không cho PATCH status/balance/ledger. Tạo/sửa document chỉ ở DRAFT/REJECTED; action submit/approve/post/cancel riêng.
+IAM và danh mục đã có runtime riêng. CRUD nghiệp vụ cần bổ sung khi triển khai: /documents và lines; /counts và observations; /pick-tasks,/packages; /reports,/exports; /client-policy. Collection dùng cursor + limit mặc định 100, max 200; sort ổn định (key,id); GET có as_of. PATCH cần expected_version, field allowlist và permission; không cho PATCH status/balance/ledger. Tạo/sửa document chỉ ở DRAFT/REJECTED; action submit/approve/post/cancel riêng.
 
 Kết quả command Result.version là version resource/document hiện hành; import job không có trường này. Trạng thái import không bảo đảm cả file đã xong nếu chia chunk, client đọc job progress. Approval id là approval_request nhưng expected_version so với document gắn request. Count dùng count_session.version. Approve cuối cập nhật document.version và trạng thái trong cùng transaction; snapshot approval giữ version lúc submit. Khi còn SUBMITTED cấm sửa nội dung: muốn sửa phải invalidate request rồi trở về DRAFT. Nhờ vậy thay đổi trạng thái duyệt không bị nhầm với sửa nội dung nghiệp vụ.
 
@@ -11,3 +22,32 @@ Post receipt/issue/return/move có document kind tương ứng. Command.lines do
 Idempotency record được tạo trong transaction cùng hiệu ứng, serialize bằng advisory lock để không có hai request cùng key chạy song song. Payload hash bao gồm route/resource/version/body. Replays vẫn kiểm tra quyền hiện tại trước trả dữ liệu. Error codes: STALE_VERSION, IDEMPOTENCY_MISMATCH, INSUFFICIENT_STOCK, INVALID_STATE, SERIAL_IN_USE, TRACKING_MISMATCH, COUNT_LOCKED, PERIOD_CLOSED, APPROVAL_REQUIRED, SELF_APPROVAL, SOURCE_QUANTITY_EXCEEDED.
 
 404 dùng cho tài nguyên ngoài scope để tránh tiết lộ; 403 khi đã xác định user được thấy tài nguyên nhưng thiếu action. Decimal chuỗi, UUID, ISO8601 có timezone. Không gửi password/token trong log. Client network worker chỉ đưa kết quả qua queue, mainloop dùng after để cập nhật UI.
+
+## Thiết kế đích luồng nhận hàng UC06
+
+Phần dưới mô tả `openapi_core.json`. Runtime PO/SO đã có DTO riêng trong `openapi_runtime.json`; submit/decide xử lý PO/SO/RECEIPT. Các đoạn dưới là thiết kế core lịch sử; không dùng DTO core để gọi runtime receipt. Bằng chứng triển khai ở RECEIVING.md và IMPLEMENTATION_REVIEW.md.
+
+`GET /purchase-orders` và `GET /purchase-orders/{id}` trả PO còn có thể nhận cùng lượng còn lại theo từng dòng. `GET /receipts` và `GET /receipts/{id}` đọc phiếu trong phạm vi kho; `POST /receipts` tạo nháp, `PATCH /receipts/{id}` sửa nháp, `POST /documents/{id}/submit` gửi duyệt, `/approval-requests/{id}/decide` duyệt, `POST /receipts/{id}/revise` đưa phiếu đã duyệt nhưng chưa post về nháp và `POST /receipts/{id}/post` ghi sổ. Các path/DTO receipt ở đây là thiết kế lịch sử; runtime nay dùng PUT, revise qua documents và plan đã duyệt; PO/SO có runtime riêng với phân trang/DTO nêu ở đầu tài liệu.
+
+Danh sách dùng `limit` mặc định 100, tối đa 200. `next_cursor` là chuỗi mờ gắn với snapshot `as_of` do server duy trì và thứ tự bất biến `(created_at,id)`; trang cuối trả `null`. Client dùng lại `as_of` của trang đầu. Chỉ một timestamp không đủ để giữ snapshot khi dữ liệu bị sửa hoặc lượng PO còn lại đổi; backend phải cung cấp cùng tập kết quả trong suốt phiên phân trang. Lượng `quantity`, `base_quantity`, `remaining_base` và `quantity_base` luôn là chuỗi decimal; không gửi JSON number hay làm tròn khi đổi UOM. Server tính `factor_snapshot` và `base_quantity` chính xác, kiểm tra quyền kho, nguồn PO, lô/serial, vị trí nhận và version trong transaction.
+
+Ví dụ tạo nháp và ghi sổ nằm trực tiếp trong `openapi_core.json` ở `POST /receipts` và `POST /receipts/{id}/post`: PO đặt 100 đơn vị, receipt ghi nhận 80 thì `po_remaining` còn `20.000000`. Tạo/sửa nháp chưa trừ PO remaining. `PATCH` chỉ cho phép DRAFT/REJECTED; muốn sửa phiếu APPROVED chưa post phải gọi `revise` để vô hiệu approval, trở về DRAFT rồi duyệt lại. Khi `PATCH` gửi `lines`, toàn bộ dòng cũ được thay và client phải đọc lại ID dòng trước khi post. Không cho sửa status/balance/ledger qua PATCH. Các lệnh ghi dùng `Idempotency-Key`; post còn có `execution_key`, và retry phải giữ nguyên cả key lẫn payload.
+
+Theo T01 hiện tại, lượng đã nhận vào RECEIVING/QUARANTINE đều tính trong PO remaining; lượng tại QUARANTINE chưa phải hàng tốt khả dụng. Google Doc chưa xác nhận rõ hàng hỏng được tính là đã nhận hay trả ngay nhà cung cấp, nên đây là câu hỏi cần chốt với tech lead trước khi hiện thực backend. Tại post, dòng có thể gửi `stock_item_id` đã có, `lot_code`, `serial_code`, hoặc không có mã với tracking NONE; server phân giải/tạo danh tính trong cùng transaction và trả ID ở `posted_items`. DTO nháp hiện chưa lưu lô/serial/vị trí trước lúc duyệt vì `document_line` chưa có các cột đó. Cần quyết định cách lưu snapshot tracking gắn với approval và API tra cứu qua barcode trước khi làm client quét hàng.
+
+`GET /receipts/{id}` trả `posted_base` và `remaining_base` trên từng dòng, tính từ lượng post ròng có xét reversal. Với receipt PARTIAL, client đọc lại trước lệnh post tiếp theo; server kiểm tra tổng post ròng của từng dòng không vượt `base_quantity` và vẫn kiểm tra PO nguồn trong cùng transaction. Receipt DRAFT có `posted_base=0`, `remaining_base=base_quantity`.
+
+Một receipt của UC06 tham chiếu đúng một PO: mọi `source_line_id` thuộc cùng PO đang APPROVED/PARTIAL, và server lấy `partner_id` từ PO. Client không được tự sửa nhà cung cấp trong draft. Đọc danh sách/chi tiết PO vẫn phải qua `document.read`; theo RBAC hiện hành RECEIVER chỉ thấy PO do mình lập hoặc được giao trong kho có quyền. Cần tech lead xác nhận quy trình giao PO cho nhân viên nhận trước khi triển khai màn hình chọn PO; không mở rộng quyền đọc toàn kho từ riêng `receipt.draft`.
+
+Lỗi dùng `Error` gồm `code`, `message`, `request_id`, tùy trường hợp có `retryable` và `field_errors`. `404` che tài nguyên ngoài scope; `409` dùng cho `STALE_VERSION`, `IDEMPOTENCY_MISMATCH`, `INVALID_STATE`, `SOURCE_QUANTITY_EXCEEDED`; `422` dùng cho dữ liệu hoặc tracking/UOM sai. Timeout sau khi gửi post phải tra `GET /operations/{key}` bằng key cũ trước khi thử lại. Các lỗi và response mẫu trong OpenAPI là dữ liệu minh họa, không phải bằng chứng server đã thực thi.
+
+Với SKU LOT, payload post có thể gửi `lot_code`, `manufactured_on` và `expires_on`. Khi lô mới và `product.expiry_required=true`, server bắt buộc `expires_on` (`422 LOT_EXPIRY_REQUIRED`); lô đã tồn tại mà metadata khác bản ghi trả `409 LOT_METADATA_CONFLICT`. OpenAPI kiểm tra định dạng ngày và cấm metadata lô trên dòng SERIAL/NONE, còn điều kiện theo thuộc tính product phải kiểm tra ở server. Không tự sửa lô cũ lúc post.
+
+`GET /operations/{key}` trả projection bất biến `OperationLookupResult` của lệnh đã commit, không trả nguyên `Receipt`. `operation_status=COMMITTED` là trạng thái lệnh; `status` là trạng thái tài nguyên. `id/status/version` lấy từ kết quả gốc; `request_id` lấy từ bản ghi idempotency của request gốc; post có thêm `transaction_id`. GET 200 xác nhận đã commit, 404 không chứng minh chưa chạy. Muốn lấy đúng HTTP status/body cũ (ví dụ create 201), client replay đúng method, route, body và `Idempotency-Key`; post giữ cả `execution_key`. `GET /receipts/{id}` là trạng thái hiện tại, không thay thế replay. Ví dụ create/patch/revise/post và lookup được kiểm tra chéo trong `tests/test_receiving_contract.py`.
+
+UC32/UC33 đã có API runtime cho owner/hợp đồng, đọc tồn theo owner, tra serial và append chứng cứ bảo hành;
+quyền kho/nguồn/assignment được kiểm tra ở server. Đã có receipt.post cho COMPANY; chưa có nhận/xuất/chuyển ký gửi.
+Hai read DTO trong `openapi_core.json` giữ cờ `PROVISIONAL_BLOCKED_BY_BE02_TL04_BE04` của bản đề xuất lịch sử;
+client mới phải dùng [openapi_runtime.json](openapi_runtime.json), có `unclassified_base`, quyền tường minh và
+trường chứng cứ/version. Hai contract không tương đương. Thiếu chứng cứ vẫn trả UNKNOWN, không tự suy thời hạn.
+Xem [coverage](BA_COVERAGE.md) và [hướng dẫn truy vết](../01_Tai_lieu/TRACEABILITY.md).

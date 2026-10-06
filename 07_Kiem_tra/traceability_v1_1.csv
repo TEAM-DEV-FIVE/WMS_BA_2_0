@@ -27,3 +27,8 @@ UC25,Quyền lệnh tương ứng tại server,idempotency_record + local SQLite
 UC26,"print.execute,document.read","export_job,stored_file,audit_event",T22
 UC27,backup.operate,Toàn DB + stored_file,T09
 UC28,config.manage,client_release + local SQLite,T23
+UC29,Không cần phiên; rate limit,"app_user,auth_session,mfa_factor",T11
+UC30,"document.approve,document.reject","approval_request,approval_step,document",T14
+UC31,"import.validate,import.commit + quyền dữ liệu","import_job,import_row,document","T12,T20"
+UC32,PENDING - chốt quyền trước hiện thực,PENDING - migration Q02,T27
+UC33,PENDING - chốt quyền trước hiện thực,PENDING - migration Q02,T28

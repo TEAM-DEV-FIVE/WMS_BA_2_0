@@ -1,0 +1,22 @@
+[Unit]
+Description=WMS PostgreSQL16 verified physical base backup
+Requires=postgresql@16-main.service
+After=postgresql@16-main.service
+RequiresMountsFor=/mnt/wms-backup
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+LimitCORE=0
+ExecStart=/usr/bin/python3 -I /opt/wms/backup/backup_admin.py base
+TimeoutStartSec=2h
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/mnt/wms-backup /var/lib/wms-backup-staging
+StandardOutput=journal
+StandardError=journal

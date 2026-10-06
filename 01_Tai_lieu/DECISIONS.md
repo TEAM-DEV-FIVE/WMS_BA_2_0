@@ -16,7 +16,7 @@ Cập nhật 02/10/2026 theo [baseline TL01](SCOPE_BASELINE.md) và [sổ Q01–
 
 Tkinter/ttk → HTTPS LAN → FastAPI → PostgreSQL trung tâm. Không xuất âm, không nhận vượt nguồn, không ghi sổ offline, không tự duyệt; tối đa hai bước duyệt theo thiết kế hiện có. LOT và SERIAL loại trừ nhau, hạn dùng theo lô, serial số nguyên. Một dòng serial ứng với một stock_item. Chuyển kho dùng transit; kiểm kê khóa vị trí sau khi xử lý giữ chỗ; backdate trong kỳ mở.
 
-Q02 đã làm rõ ngành điện tử/IT/văn phòng, serial theo thiết bị và lot theo đợt linh kiện, có hàng ký gửi và tra cứu bảo hành serial. FR32/FR33 và T27/T28 mô tả phần bổ sung; schema chưa hỗ trợ quyền sở hữu hàng ký gửi và cần CR/migration. Các bất biến [INVARIANTS.md](INVARIANTS.md) tiếp tục áp dụng. Thay đổi tracking/owner hàng/quyền phải có CR và test, triển khai theo yêu cầu mới có truy vết.
+Q02 đã làm rõ ngành điện tử/IT/văn phòng, serial theo thiết bị và lot theo đợt linh kiện, có hàng ký gửi và tra cứu bảo hành serial. FR32/FR33 và T27/T28 mô tả phần bổ sung; migration 006/007 đã bổ sung nền owner/chứng cứ/quyền theo CR; xem [TRACEABILITY.md](TRACEABILITY.md). Posting và policy xuất/chuyển ký gửi vẫn chưa triển khai. Các bất biến [INVARIANTS.md](INVARIANTS.md) tiếp tục áp dụng. Thay đổi tracking/owner hàng/quyền phải có CR và test, triển khai theo yêu cầu mới có truy vết.
 
 ## Theo dõi chi tiết và bằng chứng
 

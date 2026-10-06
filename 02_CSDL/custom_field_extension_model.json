@@ -1,0 +1,185 @@
+{
+  "revision": "022_b07_custom_fields.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "custom_field_schema",
+      "purpose": "One versioned descriptive schema per entity kind.",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "entity_type",
+          "type": "varchar(40)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "custom_field_revision",
+      "purpose": "Immutable published schema revision.",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "schema_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "custom_field_schema.id"
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "custom_field_binding",
+      "purpose": "Pinned typed values, independent of core attributes.",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "product_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "product.id"
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "document.id"
+        },
+        {
+          "name": "revision_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "custom_field_revision.id"
+        },
+        {
+          "name": "values",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "custom_field_change",
+      "purpose": "Append-only values and schema history.",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "custom_field_binding.id"
+        },
+        {
+          "name": "revision_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "custom_field_revision.id"
+        },
+        {
+          "name": "target_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "values",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "changed_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "changed_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "null": false,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "table": "custom_field_definition",
+      "name": "revision_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "custom_field_revision.id"
+    },
+    {
+      "table": "custom_field_definition",
+      "name": "label",
+      "type": "varchar(120)",
+      "null": true,
+      "ref": null
+    },
+    {
+      "table": "custom_field_definition",
+      "name": "visibility",
+      "type": "varchar(20)",
+      "null": false,
+      "ref": null
+    }
+  ]
+}

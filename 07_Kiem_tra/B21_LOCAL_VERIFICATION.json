@@ -1,0 +1,102 @@
+{
+  "task": "B21",
+  "status": "CODE_READY / NEEDS_ENVIRONMENT",
+  "runtime_commit": "3e8075afef8ade0779ce9d796140af486df1208d",
+  "base_commit": "7a967cfea9bb5c3698156d80fc7d63ddc862f1b6",
+  "environment": {
+    "os": "Linux Mint 22.3, Ubuntu noble base",
+    "python": "3.12.3",
+    "postgresql": "16.15",
+    "nginx": "1.24.0-2ubuntu7.18, extracted package; loopback only"
+  },
+  "checks": [
+    {
+      "name": "b21-committed",
+      "commit": "3e8075afef8ade0779ce9d796140af486df1208d",
+      "dirty": false,
+      "utc": "2026-10-06T08:15:02.677603+00:00",
+      "result": 0,
+      "junit": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_paths": [
+        "deploy/lan/tests"
+      ]
+    },
+    {
+      "name": "b21-regression",
+      "commit": "7a967cfea9bb5c3698156d80fc7d63ddc862f1b6",
+      "dirty": true,
+      "utc": "2026-10-06T08:05:15.727476+00:00",
+      "result": 0,
+      "junit": {
+        "tests": 123,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "b21-unit-final",
+      "commit": "7a967cfea9bb5c3698156d80fc7d63ddc862f1b6",
+      "dirty": true,
+      "utc": "2026-10-06T08:10:45.229482+00:00",
+      "result": 0,
+      "junit": {
+        "tests": 550,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "b21-wheel",
+      "commit": "7a967cfea9bb5c3698156d80fc7d63ddc862f1b6",
+      "dirty": true,
+      "utc": "2026-10-06T08:05:32.983698+00:00",
+      "result": 0,
+      "dependency_mode": "reuse locked third-party packages; WMS installed in fresh prefix",
+      "wheel_sha256": "e2e956f5746db842968a441e37012442ae1271de1b906e66042df59ca3722404"
+    },
+    {
+      "name": "b21-delivery-stage",
+      "commit": "3e8075afef8ade0779ce9d796140af486df1208d",
+      "dirty": false,
+      "utc": "2026-10-06T08:15:50.089554+00:00",
+      "result": 0
+    }
+  ],
+  "note": "Counts overlap; do not sum. Clean-commit suite uses real PG/API/Nginx. No target host service/firewall/reboot acceptance.",
+  "not_run": [
+    "Ubuntu Server target install/reboot",
+    "OS peer mapping and systemd credential/sandbox execution",
+    "nftables check: CAP_NET_ADMIN unavailable",
+    "LAN/Windows UI and enterprise CA",
+    "15 CCU and DR/RPO/RTO"
+  ],
+  "evidence_sha256": {
+    ".reports/b21-committed.environment.json": "08a77a86df458b41e13d2db2746bca00d26d67284b05449deae549dd50397208",
+    ".reports/b21-committed.xml": "ff41b9e9a436d4f14c3c5e51851bb7263817d2d33ce6c98999658c025371006f",
+    ".reports/b21-committed.log": "6e0708d892b2e3202b633b6237317ef6199d77c7fd953d75a692de9ece8c3461",
+    ".reports/b21-committed.collection.json": "75721fc9c02a4e2a4b664b21c96e80a8dfc00d248f7c82f1eb6818d6aff23162",
+    ".reports/b21-regression.environment.json": "6dffe8ec96a1c171ba80feb3fc7c8785e3d0a652345de67b164d0b381b3d6001",
+    ".reports/b21-regression.xml": "53701a436d20ed1e8d8be0d07bdc6027885417541ce9f3f38605bb3f1c7dc252",
+    ".reports/b21-regression.log": "8aafbed9d936e89106846102c78725167cdf17624203a79e6868b3e73d975a42",
+    ".reports/b21-regression.collection.json": "cb8931ce661ab722464a37ce2a737dc821175be6b570fe91c7b5170195b4ffdc",
+    ".reports/b21-unit-final.environment.json": "f540ad62846b199859a9aa5cf2443ef4420b1bf73f4f61ff9945da764c3064fe",
+    ".reports/b21-unit-final.xml": "a90b48310bc538e3245be18de86a59e450e0b5f5a7cff179809fa45cb4bd050c",
+    ".reports/b21-unit-final.log": "3f9587089032efb328bb5557b0bf67d360aff1bcb822a2c7d0076450a8236bcc",
+    ".reports/b21-unit-final.collection.json": "934ccb0bd64e98cdab978c083941aebad8826bf0b99ad3238c015ccc258d07ab",
+    ".reports/b21-wheel.environment.json": "05535461c9604b2ec39172a460f8f261edc4aa8bbbddcd01e9de391670f8c390",
+    ".reports/b21-wheel.log": "68d3d3a8308ce40b392accae52670b100457a2dd9dab90d549d3b9660b339d43",
+    ".reports/b21-wheel.install.log": "4a3b5c94dfcf72671ab392d63bdc58f695056a6383a5299016d97f7ac5c076b7",
+    ".reports/b21-delivery-stage.environment.json": "68effdd1a9faa670d94180961988d7ffaf2b5852d933924943433b9652fbbf3d",
+    ".reports/b21-delivery-stage.log": "50c782e3177efef41150a8cea2eaddb13971fce845f87c99da64c5707784de30",
+    ".reports/b21-systemd-verify.log": "5b37ea22d0fa66042ebcd315265b530d76662a650a513b1855db56d8b057e455",
+    ".reports/B21_LAN_bundle.tar.gz": "875e7425c9f378c843675ebe5f7d50c64abec22a6a08532c8f2f71c3ccb35d4a",
+    ".reports/b21-delivery/manifest.json": "0aa3fe71ddb6fbd515bab8b4be6c511d8d3edd3c2239a170989c575ba820ea32"
+  }
+}

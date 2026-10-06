@@ -1,0 +1,208 @@
+{
+  "revision": "021_b17_reports_export.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "report_request_guard",
+      "cols": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "report_snapshot",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "requested_by",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "report_code",
+          "type": "varchar(3)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "criteria",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "required_warehouses",
+          "type": "uuid[]",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "row_count",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "columns",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "sha256",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "report_snapshot_row",
+      "cols": [
+        {
+          "name": "snapshot_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "report_snapshot.id"
+        },
+        {
+          "name": "ordinal",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "export_task",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "job_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "export_job.id"
+        },
+        {
+          "name": "generation",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "attempts",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "available_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "lease_token",
+          "type": "uuid",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": [
+    {
+      "name": "snapshot_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "report_snapshot.id",
+      "table": "export_job"
+    },
+    {
+      "name": "session_id",
+      "type": "uuid",
+      "null": true,
+      "ref": "auth_session.id",
+      "table": "export_job"
+    },
+    {
+      "name": "format",
+      "type": "varchar(4)",
+      "null": true,
+      "ref": null,
+      "table": "export_job"
+    },
+    {
+      "name": "version",
+      "type": "integer",
+      "null": false,
+      "ref": null,
+      "table": "export_job"
+    },
+    {
+      "name": "generation",
+      "type": "integer",
+      "null": false,
+      "ref": null,
+      "table": "export_job"
+    },
+    {
+      "name": "error_code",
+      "type": "varchar(40)",
+      "null": true,
+      "ref": null,
+      "table": "export_job"
+    }
+  ]
+}
