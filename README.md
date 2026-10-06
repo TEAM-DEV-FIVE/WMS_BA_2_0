@@ -1,10 +1,27 @@
 # WMS — Warehouse Management System
 
-| Windows | macOS | Linux |
-| :---: | :---: | :---: |
-| <img src="assets/platforms/windows.svg" width="48" height="48" alt="Biểu tượng Windows"> | <img src="assets/platforms/macos.svg" width="48" height="48" alt="Biểu tượng Apple macOS"> | <img src="assets/platforms/linux.svg" width="48" height="48" alt="Biểu tượng Linux Tux"> |
-| Desktop x64 | Desktop ARM64 | Server, phát triển và kiểm thử |
-| Đích: Windows 10/11 | Build VM: macOS 15 | Server: Ubuntu 24.04 x64 |
+<table align="center">
+  <tr>
+    <td align="center" width="260">
+      <strong>Windows</strong><br><br>
+      <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Setup-0.1.0-97d4c510dab8-x64.exe"><img src="assets/platforms/windows.svg" width="72" height="72" alt="Tải WMS cho Windows"></a><br><br>
+      <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Setup-0.1.0-97d4c510dab8-x64.exe"><strong>Tải Windows (.exe)</strong></a><br>
+      <sub>Desktop x64<br>Đích: Windows 10/11</sub>
+    </td>
+    <td align="center" width="260">
+      <strong>macOS</strong><br><br>
+      <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-macos-arm64-TEST-ONLY.zip"><img src="assets/platforms/macos.svg" width="72" height="72" alt="Tải WMS cho macOS"></a><br><br>
+      <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-macos-arm64-TEST-ONLY.zip"><strong>Tải macOS (.zip)</strong></a><br>
+      <sub>Desktop ARM64<br>Build VM: macOS 15</sub>
+    </td>
+    <td align="center" width="260">
+      <strong>Linux</strong><br><br>
+      <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Server-0.1.0-97d4c510dab8-linux-x64.tar.gz"><img src="assets/platforms/linux.svg" width="72" height="72" alt="Tải WMS cho Linux"></a><br><br>
+      <a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Server-0.1.0-97d4c510dab8-linux-x64.tar.gz"><strong>Tải Linux Server (.tar.gz)</strong></a><br>
+      <sub>Server offline x64<br>Ubuntu 24.04</sub>
+    </td>
+  </tr>
+</table>
 
 Windows đã build/cài thử trên **Server 2022 x64**; macOS đã build/cài thử trên **15 ARM64**.
 Phạm vi kiểm chứng và chữ ký bộ cài được ghi tại [trạng thái phát hành](#trạng-thái-nghiệm-thu-và-phát-hành).
@@ -71,7 +88,9 @@ Lệnh thay đổi dữ liệu kiểm tra quyền, trạng thái và phiên bả
 
 [Hướng dẫn bắt đầu](07_Kiem_tra/release/BAT_DAU_TAI_DAY.md) mô tả gói server offline, Windows x64, macOS ARM64, source archive và cách xác minh checksum. [Biên nhận](07_Kiem_tra/release/DELIVERY.json) lưu commit, kích thước và SHA-256 của từng cấp gói.
 
-Bản nén bàn giao `WMS-InternTechLead-97d4c51.tar.gz` đã được chuyển trong workspace của chủ dự án. Binary không nằm trong lịch sử Git. Các artifact CI có thời hạn lưu trữ; không coi liên kết Actions là kho tải xuống lâu dài.
+Tải bộ cài riêng theo hệ điều hành bằng các biểu tượng phía trên hoặc tại [GitHub Releases](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/tag/v0.1.0-handover.1). Release có tệp `SHA256SUMS.txt` để đối chiếu ba gói tải. Đây là bản bàn giao với chữ ký lab như mô tả bên dưới.
+
+Bản nén đầy đủ `WMS-InternTechLead-97d4c51.tar.gz` được lưu trong workspace của chủ dự án. Binary được phân phối qua Releases, không nằm trong lịch sử Git; artifact CI vẫn có thời hạn lưu trữ.
 
 ### Phát triển từ mã nguồn
 
