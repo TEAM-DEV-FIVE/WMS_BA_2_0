@@ -1,6 +1,6 @@
 # B23 — Build, ký và kiểm thử Windows
 
-**Trạng thái: mã và kịch bản chuẩn bị trên Linux; chưa tạo/chạy bộ cài Windows.** Người dùng xác nhận máy dual boot, Windows chưa chạy; build/ký/kiểm thử target thực hiện sau khi chuyển hệ điều hành. Không lấy Linux smoke hoặc Windows Server CI làm nghiệm thu Windows 10/11.
+**Trạng thái 06/10/2026: đã build/ký thử và cài bộ EXE native thành công trên VM Windows Server 2022.** Commit `d9b547184626`, [workflow bằng chứng](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/37464123861), [báo cáo](../../07_Kiem_tra/NATIVE_VM_2026_10_06.md). Chữ ký dùng chứng thư TEST ONLY tạo trong VM, SHA-256/RFC3161 và verify đạt; không phải chứng thư phát hành công khai. Windows 10/11, upgrade với API thật, DPI và máy in/quét vẫn cần nghiệm thu riêng.
 
 ## Chuẩn bị máy build
 

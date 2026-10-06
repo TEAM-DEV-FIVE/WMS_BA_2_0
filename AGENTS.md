@@ -16,6 +16,9 @@ Mỗi nhánh có brief Bxx riêng, phạm vi file/API/UI, dependency, kiểm th�
 - Trạng thái READY trong catalog là mốc phân công ban đầu. Xem README phân công và sổ tích hợp mới nhất
   trước khi làm. B01–B21 và phần chuẩn bị B23 đã INTEGRATED local; B22/B24 đã đồng bộ và READY. B21/B23 còn chờ kiểm chứng môi trường đích. Các nhánh đã tích hợp không làm lại.
   Worktree chờ phải đồng bộ giữ commit nghiên cứu trước khi triển khai phần phụ thuộc.
+  Bổ sung: build/ký lab native Windows Server 2022 và macOS 15 ARM64 đã đạt trên VM tại `d9b547184626`;
+  xem `07_Kiem_tra/NATIVE_VM_2026_10_06.md`. Không đồng nhất chữ ký test/ad-hoc với phát hành công khai,
+  hoặc Windows Server smoke với nghiệm thu Windows 10/11/thiết bị.
 - Kiểm tra sổ `integration_log.json` trên nhánh điều phối mới nhất, không chỉ bản trong worktree cũ.
 - `feat/application-foundation` là nhánh điều phối, review, tích hợp và kiểm thử tổng.
 - `agent/opening`, `agent/outbox`, `agent/admin-ui` là hồ sơ đợt đã ghép; không tiếp tục giao việc mới
