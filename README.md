@@ -1,5 +1,14 @@
 # WMS — Warehouse Management System
 
+| Windows | macOS | Linux |
+| :---: | :---: | :---: |
+| <img src="assets/platforms/windows.svg" width="48" height="48" alt="Biểu tượng Windows"> | <img src="assets/platforms/macos.svg" width="48" height="48" alt="Biểu tượng Apple macOS"> | <img src="assets/platforms/linux.svg" width="48" height="48" alt="Biểu tượng Linux Tux"> |
+| Desktop x64 | Desktop ARM64 | Server, phát triển và kiểm thử |
+| Đích: Windows 10/11 | Build VM: macOS 15 | Server: Ubuntu 24.04 x64 |
+
+Windows đã build/cài thử trên **Server 2022 x64**; macOS đã build/cài thử trên **15 ARM64**.
+Phạm vi kiểm chứng và chữ ký bộ cài được ghi tại [trạng thái phát hành](#trạng-thái-nghiệm-thu-và-phát-hành).
+
 **Hệ thống quản lý kho desktop qua mạng LAN dành cho hàng điện tử và thiết bị IT.**
 
 WMS kết hợp ứng dụng **Python/Tkinter**, API **FastAPI** và cơ sở dữ liệu **PostgreSQL** để quản lý hàng hóa từ tiếp nhận, lưu kho, soạn hàng đến xuất kho và đối soát. Dự án bao gồm mã nguồn, hồ sơ phân tích nghiệp vụ, kiểm thử tự động, công cụ triển khai và bộ tài liệu bàn giao.
