@@ -8,19 +8,22 @@ from api.client import ApiClient, ApiError, UnknownResult
 from local_store.pending import PendingStore
 from worker import Worker
 from views.home_screen import HomeScreen
+from views.login_screen import LoginScreen, MfaScreen      # UI03
+from views.admin_screen import AdminScreen                 # UI03
 
 
 class App:
     def __init__(self):
         self.root = Tk()
         self.root.title("WMS - Quản lý kho")
-        self.root.geometry("800x540")
+        self.root.geometry("860x680")                       # UI03: rộng hơn để vừa màn quản trị
         self.root.configure(bg="#F0F2F5")
 
         # use_mock=True: dùng server giả. Khi backend thật xong, đổi thành False
         self.api = ApiClient("https://wms.example.internal/api/v1", use_mock=True)
         self.store = PendingStore()
         self.worker = Worker(self.root)
+        self.user = None                                    # UI03: người đang đăng nhập
 
         self.root.grid_rowconfigure(1, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
@@ -35,6 +38,18 @@ class App:
         Label(header, text="Chế độ thử (server giả)", bg="#1F3A5F", fg="#FFD166",
               font=("Segoe UI", 10)).grid(row=0, column=1, padx=20)
 
+        # UI03: tên người đăng nhập và nút Đăng xuất (chỉ hiện sau khi đăng nhập)
+        self.user_label = Label(header, text="", bg="#1F3A5F", fg="white",
+                                font=("Segoe UI", 10))
+        self.user_label.grid(row=0, column=2, padx=(0, 10))
+        self.logout_button = Button(header, text="Đăng xuất", command=self.logout,
+                                    bg="#C62828", fg="white", font=("Segoe UI", 10),
+                                    relief="flat", cursor="hand2",
+                                    activebackground="#C62828", activeforeground="white")
+        self.logout_button.grid(row=0, column=3, padx=(0, 20))
+        self.user_label.grid_remove()                       # ẩn đi
+        self.logout_button.grid_remove()
+
         # Hàng 1: vùng nội dung
         self.content = Frame(self.root, bg="#F0F2F5")
         self.content.grid(row=1, column=0)
@@ -46,7 +61,7 @@ class App:
 
         self.screen = None
         self.store.mark_sending_as_unknown()   # lần chạy trước tắt giữa chừng
-        self.show_screen(HomeScreen)
+        self.show_screen(LoginScreen)          # UI03: mở app là vào màn đăng nhập
 
     def show_screen(self, screen_class):
         if self.screen is not None:
@@ -56,6 +71,35 @@ class App:
 
     def set_status(self, text):
         self.status.config(text=text)
+
+    # ---- UI03: đăng nhập xong / đăng xuất ----
+    def on_login_ok(self, result):
+        self.api.set_token(result["token"])        # token chỉ giữ trong RAM
+        if result["mfa_required"]:
+            self.set_status("Cần xác thực hai bước")
+            self.show_screen(MfaScreen)
+            return
+
+        self.user = result
+        self.api.user_id = result["username"]
+        self.user_label.config(text=result["display_name"] + " (" +
+                               ", ".join(result["roles"]) + ")")
+        self.user_label.grid()                     # hiện lại
+        self.logout_button.grid()
+        self.set_status("Đã đăng nhập")
+        if "SYSADMIN" in result["roles"]:
+            self.show_screen(AdminScreen)
+        else:
+            self.show_screen(HomeScreen)           # tạm: các UI sau sẽ thay bằng trang chủ thật
+
+    def logout(self):
+        self.api.set_token(None)
+        self.api.user_id = "demo-user"
+        self.user = None
+        self.user_label.grid_remove()
+        self.logout_button.grid_remove()
+        self.set_status("Sẵn sàng")
+        self.show_screen(LoginScreen)
 
     # ---- Gửi lệnh mới: tạo key, LƯU trước, rồi mới gửi ----
     def send_command(self, endpoint, payload, on_finish):
