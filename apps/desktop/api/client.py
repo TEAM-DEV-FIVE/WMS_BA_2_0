@@ -28,6 +28,21 @@ class ApiClient:
         self.mock_done = {}           # (chỉ cho mock) key -> kết quả đã "ghi sổ"
         self.mock_lose_response = False
 
+        # UI03 - dữ liệu giả để thử đăng nhập và quản trị (chỉ cho mock)
+        self.login_fails = 0          # đếm số lần đăng nhập sai liên tiếp
+        self.mock_logged_in = None    # người vừa đăng nhập
+        self.mock_users = [
+            {"username": "admin", "password": "admin123",
+             "display_name": "Quản trị kỹ thuật", "roles": ["SYSADMIN"],
+             "mfa": True, "is_active": True},
+            {"username": "nhan01", "password": "123456",
+             "display_name": "Nhân viên nhận", "roles": ["RECEIVER@WH-A"],
+             "mfa": False, "is_active": True},
+            {"username": "soan01", "password": "123456",
+             "display_name": "Nhân viên soạn", "roles": ["PICKER@WH-A"],
+             "mfa": False, "is_active": True},
+        ]
+
     def set_token(self, token):
         self.token = token
 
@@ -73,6 +88,91 @@ class ApiClient:
             raise ApiError("ERROR", "Server trả dữ liệu lạ", r.status_code)
         raise ApiError(body.get("code", "ERROR"),
                        body.get("message", "Lỗi không rõ"), r.status_code)
+
+    # =================================================================
+    # UI03: đăng nhập, MFA, quản trị người dùng.
+    # API thật cho các chức năng này CHƯA có trong OpenAPI
+    # (BA_COVERAGE: UC01, UC02, UC29 = MISSING) nên hiện chỉ chạy bằng
+    # server giả. Khi backend chốt hợp đồng thì thêm nhánh gọi httpx.
+    # =================================================================
+    def _not_ready(self):
+        raise ApiError("NOT_READY",
+                       "API thật chưa có. Hãy để use_mock=True.", 0)
+
+    def login(self, username, password):
+        if not self.use_mock:
+            self._not_ready()
+        time.sleep(1)
+        if self.login_fails >= 5:
+            raise ApiError("RATE_LIMITED",
+                           "Thử quá nhiều lần. Vui lòng chờ vài phút rồi thử lại.",
+                           429)
+        for u in self.mock_users:
+            if (u["username"] == username and u["password"] == password
+                    and u["is_active"]):
+                self.login_fails = 0
+                self.mock_logged_in = u
+                return {"mfa_required": u["mfa"],
+                        "token": "mock-token-" + username,
+                        "username": u["username"],
+                        "display_name": u["display_name"],
+                        "roles": list(u["roles"])}
+        # Sai tên, sai mật khẩu hay bị khóa: LUÔN báo giống nhau
+        self.login_fails = self.login_fails + 1
+        raise ApiError("LOGIN_FAILED",
+                       "Tên đăng nhập hoặc mật khẩu không đúng.", 401)
+
+    def verify_mfa(self, code):
+        if not self.use_mock:
+            self._not_ready()
+        time.sleep(1)
+        if code != "123456":              # mã MFA giả
+            raise ApiError("MFA_FAILED",
+                           "Mã xác thực không đúng hoặc đã hết hạn.", 401)
+        u = self.mock_logged_in
+        return {"mfa_required": False,
+                "token": "mock-token-" + u["username"],
+                "username": u["username"],
+                "display_name": u["display_name"],
+                "roles": list(u["roles"])}
+
+    def list_users(self):
+        if not self.use_mock:
+            self._not_ready()
+        time.sleep(1)
+        result = []
+        for u in self.mock_users:
+            result.append({"username": u["username"],
+                           "display_name": u["display_name"],
+                           "roles": list(u["roles"]),
+                           "is_active": u["is_active"]})
+        return result
+
+    def set_user_active(self, username, active):
+        if not self.use_mock:
+            self._not_ready()
+        time.sleep(1)
+        if username == self.mock_logged_in["username"]:
+            raise ApiError("SELF_LOCK",
+                           "Không được tự khóa tài khoản của chính mình.", 403)
+        for u in self.mock_users:
+            if u["username"] == username:
+                u["is_active"] = active
+        return {"status": "OK", "request_id": str(uuid.uuid4())}
+
+    def add_grant(self, username, role, scope_kind, warehouse_code, reference):
+        if not self.use_mock:
+            self._not_ready()
+        time.sleep(1)
+        if username == self.mock_logged_in["username"]:
+            raise ApiError("SELF_GRANT",
+                           "Không được tự cấp quyền cho chính mình.", 403)
+        where = warehouse_code if warehouse_code != "" else scope_kind
+        for u in self.mock_users:
+            if u["username"] == username:
+                u["roles"].append(role + "@" + where)
+        return {"id": str(uuid.uuid4()), "status": "GRANTED",
+                "request_id": str(uuid.uuid4())}
 
     # ---------- Server giả để thử giao diện ----------
     def _mock_post(self, key):
