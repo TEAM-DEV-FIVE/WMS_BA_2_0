@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from readme_content import OPERATIONS, SYSTEM, introduction
+
 ROOT = Path(__file__).resolve().parents[1]
 DETAILS = {
     'session_view': ('Chọn kho làm việc, xem quyền, quản lý phiên, đổi mật khẩu, thiết lập MFA và đăng xuất. '
@@ -79,17 +81,7 @@ def main():
     api=json.loads((ROOT/'05_API/openapi_runtime.json').read_text())
     ops=sum(m in {'get','post','put','patch','delete','head','options'} for p in api['paths'].values() for m in p)
     counts=schema['counts']
-    text=['<p align="center"><img src="apps/desktop/assets/wms-logo-navy.png" alt="Logo WMS" width="150"></p>',
-          '', '# WMS Quản lý kho', '',
-          'Ứng dụng quản lý kho desktop bằng Python/Tkinter, kết nối FastAPI và PostgreSQL. '
-          'WMS quản lý danh mục, chứng từ, hàng doanh nghiệp/hàng ký gửi, vận hành kho, kiểm kê, báo cáo và phục hồi lệnh.', '',
-          '**Cập nhật theo mã nguồn ngày 13/10/2026.** Ảnh bên dưới được chụp trực tiếp từ ứng dụng trên máy người dùng '
-          'ngày 13/10/2026, không phải mockup. Số liệu hiển thị thuộc bộ dữ liệu đang nạp trên máy; '
-          'việc xuất hiện trong ảnh không xác nhận đó là giao dịch phát sinh tại doanh nghiệp.', '',
-          '[Thuyết minh để viết báo cáo](01_Tai_lieu/HIEN_TRANG_BAO_CAO.md) · '
-          '[Sơ đồ hiện hành PDF](03_So_do/Hien_hanh/WMS_Hien_hanh.pdf) · '
-          '[Sơ đồ draw.io](03_So_do/Hien_hanh/WMS_Hien_hanh.drawio) · '
-          '[Mục lục SVG](03_So_do/Hien_hanh/index.md)', '',
+    text=[introduction().strip(), '', SYSTEM.strip(), '',
           '## Quy mô mã nguồn hiện tại', '',
           '| Thành phần | Số liệu đối chiếu |', '|---|---|',
           f'| Cơ sở dữ liệu PostgreSQL | {counts["tables"]} bảng, {counts["columns"]} cột, {counts["foreign_keys"]} khóa ngoại trong schema `wms` |',
@@ -102,6 +94,15 @@ def main():
           '[Catalog hiện hành](02_CSDL/current/schema.json) lưu cột, ràng buộc và index; '
           '[DBML hợp nhất](02_CSDL/current/wms.dbml) và [từ điển dữ liệu](02_CSDL/current/dictionary.csv) dùng cho báo cáo. '
           'Đây không phải số lượng bản ghi hay phép đo tải của máy chủ đang vận hành.', '',
+          '<a id="chuc-nang"></a>', '',
+          '## Chức năng và ảnh giao diện', '',
+          'Dưới đây là đủ 26 mục chức năng trong menu hiện tại và màn hình đăng nhập. '
+          'Ảnh chụp trực tiếp từ ứng dụng ngày 13/10/2026 trên dữ liệu thực hành; '
+          'chức năng/màn hình được mở theo quyền tài khoản. '
+          '[Nguồn ảnh và SHA-256](assets/readme/screenshots.json) · '
+          '[Thuyết minh báo cáo](01_Tai_lieu/HIEN_TRANG_BAO_CAO.md) · '
+          '[PDF sơ đồ](03_So_do/Hien_hanh/WMS_Hien_hanh.pdf) · '
+          '[draw.io](03_So_do/Hien_hanh/WMS_Hien_hanh.drawio).', '',
           '## Đăng nhập và giao diện chung', '',
           'Đăng nhập tài khoản, MFA, nhớ phiên qua kho bí mật hệ điều hành, đổi mật khẩu và khôi phục tài khoản. '
           'Mã nguồn có luồng email/SMS và Google; khả năng sử dụng phụ thuộc cấu hình máy chủ và dịch vụ ngoài. '
@@ -119,22 +120,26 @@ def main():
             previous=group
         text+=['### '+title,'',desc,'',f'![{title}]({images[key]["file"]})','',f'[Mã nguồn chức năng]({source})','']
         features.append(dict(group=group,key=key,title=title,description=desc,source=source,image=images[key]['file']))
-    text += ['## Các thành phần vận hành phía máy chủ','',
-             'API kiểm quyền hiện tại, phạm vi kho, phân tách nhiệm vụ và phiên bản chứng từ. '
-             'CommandBus quản lý idempotency trong transaction. Worker xử lý outbox, import, export, in, '
-             'dọn tệp export/PDF và gửi thông báo xác thực. Kho tệp riêng chỉ được tải qua API kiểm quyền.', '',
-             '![Kiến trúc triển khai theo mã nguồn](03_So_do/Hien_hanh/svg/ARCHITECTURE.svg)','',
-             'Công cụ vận hành có triển khai LAN/HTTPS, health/readiness, backup/PITR, nâng cấp và rollback. '
-             'Các tính năng này được mô tả trong [runbook vận hành](01_Tai_lieu/OPERATIONS_RUNBOOK.md) '
-             'và [runbook triển khai](01_Tai_lieu/LAN_DEPLOYMENT.md); sơ đồ thể hiện thành phần có trong mã và cấu hình, '
-             'không khẳng định mọi dịch vụ đều đang bật trên máy hiện tại.', '',
+    text += [OPERATIONS.strip(), '', '<a id="chay-tu-ma-nguon"></a>', '',
              '## Chạy từ mã nguồn','',
              'Yêu cầu phát triển: Python 3.12, Tkinter và PostgreSQL 15/16. '
-             'Cài dependency theo `requirements-app-lock.txt`, cấu hình API/cơ sở dữ liệu theo '
-             '[hướng dẫn triển khai](01_Tai_lieu/LAN_DEPLOYMENT.md), rồi chạy:', '',
+             'Cài dependency theo [requirements-app-lock.txt](requirements-app-lock.txt), cấu hình API/cơ sở dữ liệu theo '
+             '[hướng dẫn triển khai](01_Tai_lieu/LAN_DEPLOYMENT.md). PostgreSQL cần có database và tài khoản '
+             'được chuẩn bị trước; Tkinter/Tcl-Tk phải có trên máy chạy desktop.', '',
+             '| Cấu hình | Dùng ở đâu | Ý nghĩa |', '|---|---|---|',
+             '| `WMS_DATABASE_URL` | Server / migration | DSN PostgreSQL dùng driver `postgresql+psycopg`; desktop không cần biến này |',
+             '| `WMS_API_URL` | Desktop | URL API kết thúc bằng `/api/v1`; LAN dùng HTTPS, local development cho phép HTTP loopback |',
+             '| `WMS_CA_FILE` | Desktop | Đường dẫn CA nội bộ khi triển khai TLS với CA riêng |',
+             '| `WMS_MFA_ENCRYPTION_KEY` | Server | Khóa Fernet do quản trị tạo và giữ riêng, cần cho đăng ký/sử dụng MFA |',
+             '| `WMS_LOCAL_DATA_DIR` | Desktop | Thư mục nháp/journal trên đĩa cục bộ; giữ qua các lần nâng cấp |', '',
+             'Xem [.env.example](.env.example) để biết các biến. File này là mẫu; server không tự đọc `.env`, '
+             'cần xuất biến môi trường hoặc cấu hình service. Sau khi cấu hình, chạy ở thư mục gốc repository:', '',
              '```bash\npython -m apps.server.infrastructure.migrations\npython -m apps.server\n# Terminal khác\npython -m apps.desktop\n```','',
              'Migration chỉ chạy khi người quản trị yêu cầu; API không tự nâng schema khi khởi động. '
-             'Không có mật khẩu đăng nhập mặc định trong README. Client kết nối LAN sử dụng HTTPS với CA tin cậy.', '',
+             'Khởi tạo/cấp tài khoản theo [hướng dẫn IAM](01_Tai_lieu/IDENTITY.md); không có mật khẩu mặc định trong README. '
+             'Client kết nối LAN sử dụng HTTPS với CA tin cậy. Các tác vụ import/export/in cần worker tương ứng '
+             'được bật theo runbook.', '',
+             '<a id="kiem-chung"></a>', '',
              '## Kiểm chứng và phạm vi kết luận','',
              'Schema hiện hành đã được dựng và đọc từ PostgreSQL 16 trong database tạm, không sử dụng database vận hành. '
              'OpenAPI được xuất/đối chiếu trực tiếp từ `create_app()`. Ảnh được chụp từ UI thực sau đăng nhập, '
@@ -144,13 +149,7 @@ def main():
              '[Biên bản bàn giao](07_Kiem_tra/release/FINAL_HANDOVER.md) giữ nguyên phạm vi thử nghiệm và các điều kiện chưa nghiệm thu. '
              'Xem [thuyết minh hiện trạng](01_Tai_lieu/HIEN_TRANG_BAO_CAO.md) để dùng đúng bằng chứng trong báo cáo.', '',
              '[Kết quả kiểm tra đợt cập nhật](07_Kiem_tra/current_report/README.md): 17 kiểm thử desktop không cần GUI đạt; schema, API, ảnh và liên kết đã được đối chiếu.', '',
-          '## Bộ cài bàn giao và tài liệu lịch sử','',
-             '[Windows x64](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Setup-0.1.0-97d4c510dab8-x64.exe) · '
-             '[macOS ARM64](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-macos-arm64-TEST-ONLY.zip) · '
-             '[Linux Server](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-handover.1/WMS-Server-0.1.0-97d4c510dab8-linux-x64.tar.gz)','',
-             'Các liên kết trên là bộ bàn giao `97d4c51`, chưa bao gồm mọi chỉnh sửa giao diện mới trong workspace. '
-             'Windows đã thử trên Server 2022 x64, macOS trên 15 ARM64; chữ ký lab/test không phải phát hành công khai. '
-             '[README bàn giao cũ](README_BAN_GIAO_20261006.md) và bộ sơ đồ gốc được giữ để truy vết lịch sử.','',
+             '[Quay lại tải ứng dụng](#tai-ung-dung) · [README bàn giao cũ](README_BAN_GIAO_20261006.md) · [Mục lục](#muc-luc)', '',
              '## Cập nhật tài liệu và ảnh','',
              '```bash\nPYTHONPATH=. python scripts/export_runtime_contract.py\npython scripts/export_report_schema.py\npython scripts/build_current_diagrams.py\nPYTHONPATH=. python scripts/capture_readme_screenshots.py\npython scripts/build_readme_features.py\npython scripts/check_report_current.py\npython scripts/update_artifacts.py\npython scripts/check_artifacts.py\n```','',
              'Công cụ chụp ảnh cần desktop thật và đăng nhập tương tác. Công cụ không tạo dữ liệu minh họa, '

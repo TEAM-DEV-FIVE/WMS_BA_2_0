@@ -103,7 +103,7 @@ def main():
     for filename in docs:
         path = ROOT / filename
         content = path.read_text()
-        links = re.findall(r'\]\(([^)]+)\)', content) + re.findall(r'src="([^"]+)"', content)
+        links = re.findall(r'\]\(([^)]+)\)', content) + re.findall(r'(?:src|href)="([^"]+)"', content)
         for link in links:
             if link.startswith(('https://', 'http://', '#', 'mailto:')):
                 continue
