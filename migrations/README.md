@@ -34,11 +34,11 @@ Worker outbox dùng schema hiện có; tích hợp desktop quản trị không t
 
 `014_b09_consignment.sql` thêm typed consignment_receipt/consignment_receipt_line và mở MOVE nội bộ
 cùng owner/hợp đồng/kho bằng guard forward. Không sửa 001–013, không backfill hay phân loại lại ledger cũ.
-Tổng schema B09: 72 bảng/491 cột/148 FK. Revision 014 là số release đã được điều phối chọn khi tích hợp; revision phát triển trước đó là 015.
+Tổng schema B09: 72 bảng/491 cột/148 FK. Revision 014 là số release tích hợp; revision phát triển trước đó là 015.
 
 Xem [contract và thiết kế legacy](../01_Tai_lieu/CONSIGNMENT.md).
 
-B11 release `015_b11_transfer.sql` thêm kế hoạch chuyển, source link/chứng cứ, biên bản thiếu và liên kết điều chỉnh mất transit (4 bảng/18 cột/11 FK). Tổng runtime 76 bảng/509 cột/159 FK. 001–014 giữ nguyên; revision phát triển trước đó là 017 và chỉ dùng trên DB tạm. Điều phối đã chốt số 015 khi tích hợp; tạo DB tạm mới để kiểm thử, không đổi lịch sử migration của DB đã chạy 017. Xem [Chuyển kho](../01_Tai_lieu/TRANSFERS.md).
+B11 release `015_b11_transfer.sql` thêm kế hoạch chuyển, source link/chứng cứ, biên bản thiếu và liên kết điều chỉnh mất transit (4 bảng/18 cột/11 FK). Tổng runtime 76 bảng/509 cột/159 FK. 001–014 giữ nguyên; revision phát triển trước đó là 017 và chỉ dùng trên DB tạm. Revision tích hợp là 015; tạo DB tạm mới để kiểm thử, không đổi lịch sử migration của DB đã chạy 017. Xem [Chuyển kho](../01_Tai_lieu/TRANSFERS.md).
 
 ## B12 release 016
 
@@ -51,7 +51,7 @@ Kiểm fresh install và upgrade có dữ liệu từ 010 và release 015; xem [
 
 `017_b10_fulfillment.sql` bổ sung lượng giao/tiêu thụ của pick_task, trạng thái/version kiện,
 nguồn task trên package_line và fulfillment_consumption append-only. Tổng: 79 bảng/530 cột/169 FK.
-Người dùng đã cho phép cấp số 017 sau khi release 016 được B12 dùng. Giữ nguyên 001–016;
+Revision 017 tiếp nối release 016 của B12. Giữ nguyên 001–016;
 không backfill nguồn legacy. Kiểm upgrade từ 010 và 016 có dữ liệu. Xem [Soạn/đóng kiện](../01_Tai_lieu/FULFILLMENT.md).
 
 B04 tích hợp bằng revision **018_b04_iam_lifecycle.sql**, thêm bảng mã recovery/reset có hash;

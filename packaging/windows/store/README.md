@@ -1,16 +1,16 @@
 # Microsoft Store — gói MSIX
 
-Chủ dự án chọn hướng miễn phí/dễ triển khai: đăng ký qua
+Quy trình phân phối qua Microsoft Store: đăng ký tại
 [storedeveloper.microsoft.com](https://storedeveloper.microsoft.com/), xác minh tài khoản,
 đặt tên ứng dụng và gửi MSIX để Microsoft ký/phân phối sau xét duyệt.
 Không cần mua chứng thư Code Signing cho gói gửi Store; EXE tự host trên GitHub là luồng khác.
 Xem [Microsoft Store onboarding](https://learn.microsoft.com/en-us/windows/apps/publish/faq/open-developer-account)
 và [ký MSIX qua Store](https://learn.microsoft.com/en-us/windows/msix/package/sign-msix-package-guide).
 
-## Thông tin cần từ chủ tài khoản
+## Package identity
 
 Partner Center → Apps and games → ứng dụng → Product management → Product identity.
-Chủ tài khoản đã cung cấp identity; bản công khai được lưu tại [identity.json](identity.json):
+Identity công khai được lưu tại [identity.json](identity.json):
 
 ```json
 {
@@ -24,7 +24,7 @@ Chủ tài khoản đã cung cấp identity; bản công khai được lưu tạ
 Đây là identity công khai. Không gửi password, token, giấy tờ xác minh hoặc khóa ký.
 Không lấy tên mẫu trong CI làm identity thật. Chưa có Store listing được duyệt hoặc URL tải chính thức.
 
-Chủ tài khoản đã xác nhận tên chính xác **Ứng dụng quản lý tồn kho** trong Partner Center.
+Tên ứng dụng đã đăng ký là **Ứng dụng quản lý tồn kho** trong Partner Center.
 Tên được lưu nguyên văn trong `display_name` của JSON để build gói gửi Store.
 `display_name` khác `name` (Package Identity) và `publisher_display_name` (tên nhà phát hành).
 Script bắt buộc trường này và dùng cho cả Properties/DisplayName lẫn VisualElements/DisplayName;
@@ -45,7 +45,7 @@ Dùng thư mục `build/windows-<uuid>/frozen/WMS` và interpreter trong `venv` 
   -OutputDirectory 'dist\store-submission-2.1.0.0'
 ```
 
-Theo yêu cầu chủ dự án, bản phát hành Store là **V2.1.0**, MSIX version `2.1.0.0`.
+Phiên bản gói dự kiến gửi Store là **V2.1.0**, MSIX version `2.1.0.0`.
 Đây là phiên bản package của Store, runtime/protocol WMS hiện vẫn 0.1.0.
 SDK kiểm manifest/pack/unpack và script kiểm lại hash mọi file ứng dụng sau unpack.
 `store-package.json` ghi identity, commit, hash và trạng thái **chưa được Store ký/duyệt**.
@@ -111,7 +111,7 @@ Chưa thử thực tế thì trạng thái vẫn NOT_RUN; không đổi đườn
 
 ## Nội dung Store cần hoàn thiện
 
-Tên đã xác nhận bởi chủ tài khoản: **Ứng dụng quản lý tồn kho**.
+Tên hiển thị: **Ứng dụng quản lý tồn kho**.
 Mô tả: desktop quản lý kho qua máy chủ WMS trên LAN, theo dõi nhập–xuất–tồn/lô/serial,
 phê duyệt, kiểm kê, báo cáo, in phiếu/tem và phục hồi lệnh khi mất kết nối.
 Ghi rõ cần máy chủ và tài khoản do đơn vị vận hành cấp; không có server công cộng/mật khẩu mặc định.

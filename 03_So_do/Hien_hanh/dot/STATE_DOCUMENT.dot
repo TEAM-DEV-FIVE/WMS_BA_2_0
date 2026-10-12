@@ -1,15 +1,17 @@
 digraph WMS {
-graph [rankdir=TB, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=TB, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="Trạng thái chứng từ và điều kiện chuyển"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"DRAFT" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>DRAFT</B></FONT></TD></TR></TABLE>>];
-"SUBMITTED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>SUBMITTED</B></FONT></TD></TR></TABLE>>];
-"APPROVED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>APPROVED</B></FONT></TD></TR></TABLE>>];
-"REJECTED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>REJECTED</B></FONT></TD></TR></TABLE>>];
-"PARTIAL" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>PARTIAL</B></FONT></TD></TR></TABLE>>];
-"COMPLETED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>COMPLETED</B></FONT></TD></TR></TABLE>>];
-"CANCELLED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>CANCELLED</B></FONT></TD></TR></TABLE>>];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">Trạng thái chứng từ và điều kiện chuyển</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">UML state · Lát cắt trạng thái chung; nhánh thực hiện phụ thuộc loại chứng từ và quyền thao tác.</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"DRAFT" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="DRAFT"];
+"SUBMITTED" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="SUBMITTED"];
+"APPROVED" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="APPROVED"];
+"REJECTED" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="REJECTED"];
+"PARTIAL" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="PARTIAL"];
+"COMPLETED" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="COMPLETED"];
+"CANCELLED" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="CANCELLED"];
+"initial" [shape=circle, width=.2, height=.2, fixedsize=true, style=filled, fillcolor="#17384d", label=""];
+"initial" -> "DRAFT" [label="create"];
 "DRAFT" -> "SUBMITTED" [label="submit; kiểm tra dữ liệu"];
 "REJECTED" -> "DRAFT" [label="Sửa nháp"];
 "REJECTED" -> "SUBMITTED" [label="Gửi lại hợp lệ"];

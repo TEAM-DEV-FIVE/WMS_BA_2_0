@@ -1,10 +1,10 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · transfer_move"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"transfer_move" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>transfer_move</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK move_id : uuid</TD></TR><TR><TD ALIGN="LEFT">dispatch_move_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">disposition : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">evidence_ref : character varying(2000)</TD></TR></TABLE>>];
-"stock_move" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_move</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"transfer_move" -> "stock_move" [label="dispatch_move_id → id"];
-"transfer_move" -> "stock_move" [label="move_id → id"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · transfer_move</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"transfer_move" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>transfer_move</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">FK PK move_id : uuid<BR ALIGN="LEFT"/>FK dispatch_move_id : uuid ?<BR ALIGN="LEFT"/>disposition : character varying(20)<BR ALIGN="LEFT"/>evidence_ref : character varying(2000)</TD></TR></TABLE>>];
+"stock_move" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>stock_move</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"transfer_move" -> "stock_move" [label="dispatch_move_id → id", dir="both", arrowtail="crowodot", arrowhead="teeodot", taillabel="0..*", headlabel="0..1", labeldistance="2", style="dashed"];
+"transfer_move" -> "stock_move" [label="move_id → id", dir="both", arrowtail="teeodot", arrowhead="teetee", taillabel="0..1", headlabel="1", labeldistance="2", style="solid"];
 }

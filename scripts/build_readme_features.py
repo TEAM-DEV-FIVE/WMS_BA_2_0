@@ -89,11 +89,11 @@ def main():
           f'| API | {len(api["paths"])} đường dẫn, {ops} thao tác HTTP trong OpenAPI runtime |',
           f'| Quyền được seed | {counts["roles"]} vai trò, {counts["permissions"]} quyền |',
           f'| Giao diện | {len(sections)} mục trên menu chức năng; thêm màn đăng nhập và các hộp thoại/tabs bên trong |',
-          '| Bản mã | `0.1.0`; mã nguồn làm việc có các thay đổi sau gói bàn giao 06/10/2026 |', '',
+          '| Phiên bản ứng dụng | `0.1.0`; bản cài phát hành được định danh riêng theo commit |', '',
           'Số liệu schema được đọc từ PostgreSQL tạm sau khi chạy toàn bộ migration. '
           '[Catalog hiện hành](02_CSDL/current/schema.json) lưu cột, ràng buộc và index; '
           '[DBML hợp nhất](02_CSDL/current/wms.dbml) và [từ điển dữ liệu](02_CSDL/current/dictionary.csv) dùng cho báo cáo. '
-          'Đây không phải số lượng bản ghi hay phép đo tải của máy chủ đang vận hành.', '',
+          'Số liệu mô tả cấu trúc schema và hợp đồng API.', '',
           '<a id="chuc-nang"></a>', '',
           '## Chức năng và ảnh giao diện', '',
           'Dưới đây là đủ 26 mục chức năng trong menu hiện tại và màn hình đăng nhập. '
@@ -140,20 +140,15 @@ def main():
              'Client kết nối LAN sử dụng HTTPS với CA tin cậy. Các tác vụ import/export/in cần worker tương ứng '
              'được bật theo runbook.', '',
              '<a id="kiem-chung"></a>', '',
-             '## Kiểm chứng và phạm vi kết luận','',
-             'Schema hiện hành đã được dựng và đọc từ PostgreSQL 16 trong database tạm, không sử dụng database vận hành. '
-             'OpenAPI được xuất/đối chiếu trực tiếp từ `create_app()`. Ảnh được chụp từ UI thực sau đăng nhập, '
-             'có [thời điểm và SHA-256](assets/readme/screenshots.json).', '',
-             'Bằng chứng **1.320 test + 10 subtest** của đợt bàn giao thuộc mã `97d4c51`, '
-             'không dùng làm kết quả hồi quy toàn bộ cho mã đang sửa ngày 13/10. '
-             '[Biên bản bàn giao](07_Kiem_tra/release/FINAL_HANDOVER.md) giữ nguyên phạm vi thử nghiệm và các điều kiện chưa nghiệm thu. '
-             'Xem [thuyết minh hiện trạng](01_Tai_lieu/HIEN_TRANG_BAO_CAO.md) để dùng đúng bằng chứng trong báo cáo.', '',
-             '[Kết quả kiểm tra đợt cập nhật](07_Kiem_tra/current_report/README.md): 17 kiểm thử desktop không cần GUI đạt; schema, API, ảnh và liên kết đã được đối chiếu.', '',
-             '[Quay lại tải ứng dụng](#tai-ung-dung) · [README bàn giao cũ](README_BAN_GIAO_20261006.md) · [Mục lục](#muc-luc)', '',
-             '## Cập nhật tài liệu và ảnh','',
-             '```bash\nPYTHONPATH=. python scripts/export_runtime_contract.py\npython scripts/export_report_schema.py\npython scripts/build_current_diagrams.py\nPYTHONPATH=. python scripts/capture_readme_screenshots.py\npython scripts/build_readme_features.py\npython scripts/check_report_current.py\npython scripts/update_artifacts.py\npython scripts/check_artifacts.py\n```','',
-             'Công cụ chụp ảnh cần desktop thật và đăng nhập tương tác. Công cụ không tạo dữ liệu minh họa, '
-             'không cấp quyền và không lập/duyệt/ghi sổ chứng từ. Cần đóng WMS trước khi chạy để giữ khóa ứng dụng.','']
+             '## Tài liệu và kiểm chứng','',
+             '| Tài liệu | Nội dung |', '|---|---|',
+             '| [Sơ đồ hệ thống](03_So_do/README.md) | Use case, BPMN, UML lớp, trạng thái, kiến trúc, quyền và ERD; PDF/SVG/draw.io |',
+             '| [Ký pháp theo giáo trình BA](03_So_do/NOTATION_GUIDE.md) | Đối chiếu chương/trang, quy ước và nguồn dữ liệu từng loại sơ đồ |',
+             '| [Hiện trạng hệ thống](01_Tai_lieu/HIEN_TRANG_BAO_CAO.md) | Chức năng, schema, API và phạm vi bằng chứng |',
+             '| [Kiểm tra tài liệu](07_Kiem_tra/current_report/README.md) | Kết quả kiểm tra sơ đồ, schema, ảnh và liên kết |',
+             '| [Bàn giao 0.1.0](07_Kiem_tra/release/FINAL_HANDOVER.md) | Bằng chứng kiểm thử gắn với commit `97d4c51` và các cổng nghiệm thu |',
+             '| [Bảo trì tài liệu](01_Tai_lieu/DOCUMENTATION.md) | Lệnh xuất schema/API, dựng sơ đồ, chụp ảnh và kiểm định artifact |', '',
+             '[Tải ứng dụng](#tai-ung-dung) · [Mục lục](#muc-luc)', '']
     (ROOT/'README.md').write_text('\n'.join(text))
     (ROOT/'01_Tai_lieu/current_features.json').write_text(json.dumps(features,ensure_ascii=False,indent=2)+'\n')
     print(f'README: logo, {len(sections)} menu features, {len(captures)} verified screenshots')

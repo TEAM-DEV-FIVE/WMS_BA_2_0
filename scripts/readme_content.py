@@ -63,7 +63,7 @@ Ba bộ cài trên thuộc bản bàn giao **0.1.0 tại `97d4c51`**; mã nguồ
 
 <a id="tong-quan"></a>
 
-## Hệ thống giải quyết những công việc gì?
+## Phạm vi hệ thống
 
 Một chứng từ trong WMS không chỉ là danh sách sản phẩm: hệ thống theo dõi người lập, kho, nguồn hàng, định danh lô/serial, phiên bản và các bước phê duyệt trước khi ghi nhận thay đổi tồn. Nhân viên thao tác trên desktop; máy chủ kiểm tra quyền và điều kiện nghiệp vụ rồi lưu kết quả vào cơ sở dữ liệu chung.
 
@@ -112,7 +112,7 @@ SYSTEM = '''<a id="cong-nghe"></a>
 | Đóng gói | PyInstaller; cấu hình Windows/macOS | Tạo gói desktop theo nền tảng; bộ Linux phục vụ triển khai server |
 | Kiểm tra chất lượng | pytest, Ruff, GitHub Actions | Kiểm thử, kiểm tra mã và các workflow CI có trong repository |
 
-Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requirements-app-lock.txt), [mã desktop](apps/desktop), [mã server](apps/server), [đóng gói](packaging) và [triển khai LAN](deploy/lan). Phiên bản cài đặt cụ thể xem lockfile; logo ở đầu trang biểu thị các công nghệ chính, không biểu thị chứng nhận của nhà cung cấp. Biểu tượng công nghệ lấy từ [Devicon v2.17.0](https://github.com/devicons/devicon/tree/v2.17.0) ([trang chính thức](https://devicon.dev/)).
+Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requirements-app-lock.txt), [mã desktop](apps/desktop), [mã server](apps/server), [đóng gói](packaging) và [triển khai LAN](deploy/lan). Phiên bản dependency được cố định trong lockfile. Biểu tượng công nghệ lấy từ [Devicon v2.17.0](https://github.com/devicons/devicon/tree/v2.17.0) ([trang chính thức](https://devicon.dev/)).
 
 <a id="kien-truc"></a>
 
@@ -129,7 +129,7 @@ Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requi
 | SQLite và OS vault | SQLite lưu nháp/nhật ký; vault hệ điều hành giữ thông tin phiên khi người dùng bật nhớ đăng nhập |
 | Worker và kho tệp riêng | Xử lý job, tạo/tải tệp và dọn tệp dẫn xuất theo policy; API kiểm quyền khi tải |
 
-### Một thao tác ghi sổ được xử lý ra sao?
+### Quy trình xử lý thao tác ghi sổ
 
 1. Desktop chuẩn bị nội dung, phiên bản chứng từ và khóa chống trùng (*idempotency key*); nhật ký phục hồi ghi lại yêu cầu trước khi gửi.
 2. Server xác thực, kiểm tra quyền hiện tại và phạm vi tài nguyên. `CommandBus` tuần tự hóa cùng key và so khớp hash nội dung; key đã có kết quả hợp lệ được trả lại theo quyền hiện tại.
@@ -139,7 +139,7 @@ Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requi
 
 Nguồn: [CommandBus](apps/server/application/commands.py), [Unit of Work PostgreSQL](apps/server/infrastructure/database.py), [recovery API](apps/server/api/recovery.py), [journal desktop](apps/desktop/local_store/recovery.py).
 
-### Dữ liệu kho được tổ chức thế nào?
+### Tổ chức dữ liệu kho
 
 | Nhóm dữ liệu | Các đối tượng chính | Ý nghĩa |
 |---|---|---|

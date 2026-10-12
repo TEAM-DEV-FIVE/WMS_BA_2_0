@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+  <title>Use case — Kiểm soát</title>
+  <text font-family="DejaVu Sans" font-size="26" text-anchor="start" x="40" y="45.0" fill="#17384d">Use case — Kiểm soát</text>
+  <text font-family="DejaVu Sans" font-size="14" text-anchor="start" x="40" y="77.0" fill="#17384d">Chương 8 · PDF 5–23 · UML use case</text>
+  <rect stroke-width="1.4" x="330" y="115" width="725" height="435" rx="0" fill="#dceef8" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="17" text-anchor="start" x="355" y="144.0" fill="#17384d">WMS · Kiểm soát</text>
+  <polyline stroke-width="1.5" points="195.0,310.0 455.0,195.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,310.0 455.0,290.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,310.0 455.0,385.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,310.0 455.0,480.0" fill="none" stroke="#17384d" />
+  <ellipse stroke-width="1.4" cx="160.0" cy="279.5" rx="12.0" ry="12.0" fill="#dceef8" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="160.0,291.5 160.0,330.5" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="130.0,307.5 190.0,307.5" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="160.0,330.5 132.0,364.5" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="160.0,330.5 188.0,364.5" fill="none" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="160.0" y="396.5" fill="#17384d">Người dùng có quyền tương</text>
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="160.0" y="416.75" fill="#17384d">ứng</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="195.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="200.0" fill="#17384d">Tra cứu tồn và xuất báo cáo</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="290.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="295.0" fill="#17384d">Kiểm kê và điều chỉnh tồn</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="385.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="390.0" fill="#17384d">Mở, khóa và đối soát kỳ kho</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="480.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="485.0" fill="#17384d">Đảo giao dịch đã ghi sổ</text>
+  <text font-family="DejaVu Sans" font-size="13" text-anchor="start" x="40" y="580.0" fill="#17384d">Actor chỉ tham gia use case khi được cấp quyền; scope kho, thời hạn và tách nhiệm vụ vẫn được kiểm tra.</text>
+  <text font-family="DejaVu Sans" font-size="10" text-anchor="start" x="40" y="606.0" fill="#17384d">Nguồn: apps/desktop/views/admin_workspace.py · apps/desktop/views/reports.py · apps/desktop/views/counting.py · apps/desktop/views/periods.py · apps/desktop/views/reversals.py</text>
+</svg>

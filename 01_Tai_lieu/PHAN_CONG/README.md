@@ -1,7 +1,6 @@
 # Phân công và trạng thái tích hợp — 06/10/2026
 
-**Chấp thuận bàn giao: OWNER_ACCEPTED_BY_DECISION.** Chủ dự án yêu cầu kết thúc backlog
-và đưa bản bàn giao PR #46 lên `main`. [Quyết định](../../07_Kiem_tra/release/OWNER_ACCEPTANCE.md)
+**Chấp thuận bàn giao: OWNER_ACCEPTED_BY_DECISION.** Bản bàn giao PR #46 được chấp thuận tích hợp vào `main`, backlog triển khai được đóng. [Quyết định](../../07_Kiem_tra/release/OWNER_ACCEPTANCE.md)
 được ghi riêng với trạng thái kiểm chứng môi trường bên dưới; không mở lại nhiệm vụ đã tích hợp
 chỉ vì brief lịch sử còn ghi chờ triển khai.
 
@@ -13,7 +12,7 @@ B01–B26 đã tích hợp phần mã, tài liệu và công cụ bàn giao. Run
 B26 **SOFTWARE_HANDOVER_READY / NEEDS_ENVIRONMENT**. Còn G01–G05/G07:
 UAT người dùng kho; Windows10/11/LAN/thiết bịQ06/Q08; DR độc lập; tải đích/soak;
 chứng thư phát hành công khai; đào tạo/cấu hình host/bàn giao bí mật.
-User cho phép bổ sung thiết bị sau, không coi điều đó là nghiệm thu T22.
+Thiết bị thuộc phần bổ sung sau bàn giao; T22 chưa được nghiệm thu.
 
 Gói mới có server offline, wheelhouse, bộ cài Windows/macOS đã rebuild cùng runtime,
 source archive, manifest và bằng chứng kiểm thử. Windows TEST ONLY, macOS ad-hoc.

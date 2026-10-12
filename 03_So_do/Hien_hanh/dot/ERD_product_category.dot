@@ -1,8 +1,8 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · product_category"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"product_category" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>product_category</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">code : character varying(40)</TD></TR><TR><TD ALIGN="LEFT">name : character varying(160)</TD></TR><TR><TD ALIGN="LEFT">parent_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">version : integer</TD></TR><TR><TD ALIGN="LEFT">is_active : boolean</TD></TR></TABLE>>];
-"product_category" -> "product_category" [label="parent_id → id"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · product_category</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"product_category" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>product_category</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">PK id : uuid<BR ALIGN="LEFT"/>code : character varying(40)<BR ALIGN="LEFT"/>name : character varying(160)<BR ALIGN="LEFT"/>FK parent_id : uuid ?<BR ALIGN="LEFT"/>version : integer<BR ALIGN="LEFT"/>is_active : boolean</TD></TR></TABLE>>];
+"product_category" -> "product_category" [label="parent_id → id", dir="both", arrowtail="crowodot", arrowhead="teeodot", taillabel="0..*", headlabel="0..1", labeldistance="2", style="dashed"];
 }

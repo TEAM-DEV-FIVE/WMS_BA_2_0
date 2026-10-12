@@ -1,7 +1,7 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · approval_policy"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"approval_policy" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>approval_policy</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">document_kind : character varying(30)</TD></TR><TR><TD ALIGN="LEFT">revision : integer</TD></TR><TR><TD ALIGN="LEFT">is_active : boolean</TD></TR></TABLE>>];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · approval_policy</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"approval_policy" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>approval_policy</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">PK id : uuid<BR ALIGN="LEFT"/>document_kind : character varying(30)<BR ALIGN="LEFT"/>revision : integer<BR ALIGN="LEFT"/>is_active : boolean</TD></TR></TABLE>>];
 }

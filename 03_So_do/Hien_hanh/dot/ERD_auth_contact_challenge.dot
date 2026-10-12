@@ -1,9 +1,9 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · auth_contact_challenge"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"auth_contact_challenge" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>auth_contact_challenge</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">user_id : uuid</TD></TR><TR><TD ALIGN="LEFT">kind : text</TD></TR><TR><TD ALIGN="LEFT">value : text</TD></TR><TR><TD ALIGN="LEFT">code_hash : character(64)</TD></TR><TR><TD ALIGN="LEFT">auth_version : integer</TD></TR><TR><TD ALIGN="LEFT">expires_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">consumed_at : timestamp with time zone ?</TD></TR></TABLE>>];
-"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"auth_contact_challenge" -> "app_user" [label="user_id → id"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · auth_contact_challenge</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"auth_contact_challenge" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>auth_contact_challenge</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">PK id : uuid<BR ALIGN="LEFT"/>FK user_id : uuid<BR ALIGN="LEFT"/>kind : text<BR ALIGN="LEFT"/>value : text<BR ALIGN="LEFT"/>code_hash : character(64)<BR ALIGN="LEFT"/>auth_version : integer<BR ALIGN="LEFT"/>expires_at : timestamp with time zone<BR ALIGN="LEFT"/>consumed_at : timestamp with time zone ?</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>app_user</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"auth_contact_challenge" -> "app_user" [label="user_id → id", dir="both", arrowtail="crowodot", arrowhead="teetee", taillabel="0..*", headlabel="1", labeldistance="2", style="dashed"];
 }

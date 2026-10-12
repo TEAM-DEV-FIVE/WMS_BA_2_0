@@ -1,26 +1,26 @@
-# Kiểm tra cập nhật báo cáo ngày 13/10/2026
+# Kiểm chứng tài liệu và sơ đồ WMS
 
-Phạm vi: tài liệu hiện trạng, catalog cơ sở dữ liệu, OpenAPI, sơ đồ và ảnh README. Không thay thế nghiệm thu nghiệp vụ T01–T28 hoặc bộ kiểm thử toàn ứng dụng.
+## Bộ sơ đồ theo giáo trình BA — 13/10/2026
 
-| Kiểm tra đã chạy | Kết quả |
+Phạm vi: tài liệu và bản vẽ hiện hành; không sửa mã ứng dụng, migration hoặc trạng thái nghiệm thu T01–T28.
+
+| Kiểm tra | Kết quả |
 |---|---|
-| `export_report_schema.py --check` | Dựng migration 001–026 trong PostgreSQL 16 tạm; snapshot khớp: 108 bảng, 736 cột, 219 FK, 10 vai trò, 58 quyền |
-| `export_runtime_contract.py --check` | Khớp 199 paths; 249 HTTP operations trong OpenAPI |
-| `check_report_current.py` | Đủ 26 mục chức năng, 27 hash ảnh; 130 sơ đồ, đủ FK và quyền seed; PDF và liên kết tài liệu hợp lệ |
-| Ruff trên 5 script báo cáo/chụp ảnh | Đạt |
+| `check_report_current.py` | 26 chức năng, 27 hash ảnh, 136 sơ đồ, 108 bảng và 219 FK; PDF 141 trang và liên kết hợp lệ |
+| `check_diagram_notation.py` | Lực lượng/đầu nối FK, PK định danh, FK ghép; ngăn lớp và kế thừa; actor/boundary cho 26 use case; 6 luồng BPMN có start/end, gateway và lane hợp lệ |
+| Ruff | Đạt trên 6 script dựng/kiểm tra sơ đồ và README |
 | `git diff --check` | Không phát hiện lỗi khoảng trắng |
-| `check_artifacts.py` | Đạt kiểm định định dạng, mô hình bổ sung, ZIP và checksum; 23 API paths trong dòng kiểm định này thuộc core thiết kế, không phải runtime |
 
-Kiểm thử desktop đã chạy:
+Sáu trường hợp lực lượng quan hệ được kiểm tra riêng với kỳ vọng cố định: `user_avatar.user_id`, ba FK kho/transit của `document`, hai FK của `role_permission`. Các trường hợp bao gồm 1–1, 1–n, nullable, UNIQUE có điều kiện `IS NOT NULL` và UNIQUE ghép không bảo đảm từng cột riêng lẻ là duy nhất.
 
-```bash
-python -m pytest tests/foundation/test_desktop_lifecycle.py tests/foundation/test_desktop.py -m "not gui" -q --junitxml=.reports/report-current-unit.xml --disable-warnings
-```
+Tám PDF giáo trình có tổng 358 trang, SHA-256 trùng bộ tài liệu BA đã lưu trước đây. [Manifest](../../03_So_do/reference_sources.json) ghi tên tệp được cung cấp; [bảng ký pháp](../../03_So_do/NOTATION_GUIDE.md) ghi trang PDF áp dụng.
 
-Kết quả: **17 passed, 2 deselected**, một cảnh báo. Hai test GUI nằm ngoài lần chạy này; môi trường công cụ không truy cập được màn hình Tk. [JUnit nguyên bản](desktop_unit.xml) lưu test case và thời gian chạy. Không gọi đây là kiểm thử GUI hay hồi quy toàn bộ.
+PDF/SVG được render để rà bố cục; kiểm tra cấu trúc XML và các đầu nối của draw.io. Việc mở/chỉnh sửa tương tác bằng diagrams.net không nằm trong phạm vi kiểm tra này.
 
-Ảnh được người dùng chụp trên máy có màn hình bằng công cụ trong repository, sau đăng nhập. Đã rà 27 ảnh bằng ảnh tổng hợp; manifest chứa SHA-256 và thời điểm. Không dùng ảnh dựng/synthetic trong thư mục preview.
+## Bằng chứng ứng dụng và dữ liệu
 
-PDF được render để rà toàn bộ 135 trang ở dạng tổng hợp, mở lớn các sơ đồ kiến trúc, lớp server/desktop, phục hồi, quyền và ERD document. Các trang được chỉnh bố cục có render lại. XML draw.io đã kiểm tra, chưa kiểm thử trực tiếp bằng ứng dụng diagrams.net.
+[Kết quả kiểm tra ban đầu ngày 13/10](VERIFICATION_INITIAL_20261013.md) ghi lần dựng schema PostgreSQL 16 tạm, xuất OpenAPI và 17 kiểm thử desktop không cần GUI. [JUnit](desktop_unit.xml) giữ nguyên bằng chứng. Bộ sơ đồ mới kiểm tra lại hash migration và ảnh, đối chiếu cột/FK/quyền seed với catalog, không coi đây là lần chạy lại toàn bộ test ứng dụng.
 
-Lặp lại kiểm tra sau khi sửa nguồn bằng các script nêu trên; kết quả ghi tại đây thuộc đợt cập nhật này. Bằng chứng 1320 tests + 10 subtests của bản `97d4c51` vẫn ở hồ sơ bàn giao cũ.
+Ảnh là màn hình ứng dụng trên dữ liệu thực hành. [Manifest ảnh](../../assets/readme/screenshots.json) lưu thời điểm và hash. Bằng chứng 1.320 tests + 10 subtests của runtime `97d4c51` vẫn thuộc [hồ sơ bàn giao](../release/FINAL_HANDOVER.md).
+
+[Tái tạo tài liệu](../../01_Tai_lieu/DOCUMENTATION.md) · [Hiện trạng hệ thống](../../01_Tai_lieu/HIEN_TRANG_BAO_CAO.md).

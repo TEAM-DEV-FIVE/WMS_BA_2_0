@@ -1,13 +1,25 @@
-# Sơ đồ WMS
+# Sơ đồ hệ thống WMS
 
-**Bộ hiện hành ngày 13/10/2026:** [PDF](Hien_hanh/WMS_Hien_hanh.pdf) · [draw.io chỉnh sửa được](Hien_hanh/WMS_Hien_hanh.drawio) · [mục lục SVG](Hien_hanh/index.md) · [nguồn từng sơ đồ](Hien_hanh/diagram_sources.json).
+[PDF — 141 trang](Hien_hanh/WMS_Hien_hanh.pdf) · [draw.io chỉnh sửa được](Hien_hanh/WMS_Hien_hanh.drawio) · [Mục lục SVG](Hien_hanh/index.md) · [Ký pháp theo giáo trình BA](NOTATION_GUIDE.md)
 
-Bộ mới gồm 130 sơ đồ: 1 kiến trúc, 3 lớp thực tế, 1 trạng thái chứng từ, 1 phục hồi lệnh, 6 luồng phần mềm, 10 vai trò/quyền seed và 108 trang ERD. PDF có thêm 5 trang mục lục. Các lớp lấy từ AST Python; ERD lấy catalog PostgreSQL sau khi chạy đủ migration 001–026 trên cluster tạm, gồm 736 cột và 219 FK.
+Bộ hiện hành gồm **136 sơ đồ và 5 trang mục lục**, đối chiếu mã nguồn, API và catalog PostgreSQL sau migration 001–026.
 
-Mỗi trang ERD có đầy đủ cột bảng chính và FK đi ra. Bảng đích chỉ hiện các cột được tham chiếu; mỗi tên bảng xuất hiện một lần trên trang. Dấu `?` là nullable; mũi tên từ cột FK sang cột được tham chiếu. CHECK/UNIQUE/index đầy đủ nằm trong [schema JSON](../02_CSDL/current/schema.json); sơ đồ không thay thế invariant nghiệp vụ.
+| Loại | Số sơ đồ | Nội dung |
+|---|---:|---|
+| Kiến trúc | 1 | Desktop, API, cơ sở dữ liệu, worker và kết nối |
+| UML use case | 6 | 26 mục chức năng, actor, ranh giới hệ thống và association |
+| UML lớp | 3 | Lớp thực tế, ngăn thuộc tính/phương thức, dependency và kế thừa |
+| Trạng thái / hoạt động | 2 | Vòng đời chứng từ và xử lý/phục hồi lệnh |
+| BPMN | 6 | Nhận, xuất, kiểm kê, chuyển kho, nhập tệp, tải lại/đóng ứng dụng |
+| Vai trò và quyền | 10 | Quyền seed theo từng vai trò |
+| ERD vật lý | 108 | 736 cột, 219 FK; Crow’s Foot và lực lượng quan hệ |
 
-PDF và SVG do Graphviz dựng; draw.io dùng tọa độ nút từ cùng layout nhưng đường nối do diagrams.net định tuyến lại. File draw.io được kiểm tra cấu trúc XML; không khẳng định đã mở trên mọi phiên bản diagrams.net. Có thể tái sinh bằng `scripts/build_current_diagrams.py`.
+Các chương 6 và 8 cung cấp ký pháp chính: pool/lane, event, task, gateway; actor và use case; ngăn lớp; khóa và lực lượng quan hệ. [Bảng đối chiếu giáo trình](NOTATION_GUIDE.md) ghi trang PDF và cách áp dụng. Luồng mô tả hành vi phần mềm đã triển khai; các điều kiện quyền/lỗi chi tiết nằm trong service được dẫn nguồn.
 
-**Các thư mục ngoài `Hien_hanh` là bộ thiết kế lịch sử 91 trang** với 56 bảng / 105 FK. Các class khái niệm, As-Is giả thuyết và To-Be đề xuất trong bộ này không phải mô tả đầy đủ ứng dụng hiện tại. Giữ để truy vết, dùng bộ mới khi viết báo cáo hiện trạng.
+![BPMN nhận hàng](Hien_hanh/svg/FLOW_RECEIPT.svg)
 
-[Hướng dẫn runtime](RUNTIME_GUIDE.md) · [Căn cứ báo cáo](../01_Tai_lieu/HIEN_TRANG_BAO_CAO.md).
+Mỗi ERD trình bày đầy đủ cột bảng chính và FK đi ra; bảng liên quan chỉ hiện cột được tham chiếu. `PK` là khóa chính, `FK` là khóa ngoại, `?` là nullable. CHECK, UNIQUE và index đầy đủ tại [catalog](../02_CSDL/current/schema.json).
+
+Các thư mục ngoài `Hien_hanh` lưu **91 trang thiết kế cơ sở**. Chúng giữ mô hình khái niệm và các đề xuất As-Is/To-Be ban đầu để truy vết, không thay cho bộ sơ đồ hiện hành.
+
+[Cách đọc và phạm vi](RUNTIME_GUIDE.md) · [Nguồn từng sơ đồ](Hien_hanh/diagram_sources.json) · [Tái tạo tài liệu](../01_Tai_lieu/DOCUMENTATION.md).

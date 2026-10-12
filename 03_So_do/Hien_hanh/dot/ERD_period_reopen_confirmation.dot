@@ -1,11 +1,11 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · period_reopen_confirmation"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"period_reopen_confirmation" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>period_reopen_confirmation</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">period_id : uuid</TD></TR><TR><TD ALIGN="LEFT">period_version : integer</TD></TR><TR><TD ALIGN="LEFT">confirmed_by : uuid</TD></TR><TR><TD ALIGN="LEFT">confirmed_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">reason : text</TD></TR></TABLE>>];
-"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"stock_period" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_period</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"period_reopen_confirmation" -> "app_user" [label="confirmed_by → id"];
-"period_reopen_confirmation" -> "stock_period" [label="period_id → id"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · period_reopen_confirmation</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"period_reopen_confirmation" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>period_reopen_confirmation</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">PK id : uuid<BR ALIGN="LEFT"/>FK period_id : uuid<BR ALIGN="LEFT"/>period_version : integer<BR ALIGN="LEFT"/>FK confirmed_by : uuid<BR ALIGN="LEFT"/>confirmed_at : timestamp with time zone<BR ALIGN="LEFT"/>reason : text</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>app_user</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"stock_period" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>stock_period</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"period_reopen_confirmation" -> "app_user" [label="confirmed_by → id", dir="both", arrowtail="crowodot", arrowhead="teetee", taillabel="0..*", headlabel="1", labeldistance="2", style="dashed"];
+"period_reopen_confirmation" -> "stock_period" [label="period_id → id", dir="both", arrowtail="crowodot", arrowhead="teetee", taillabel="0..*", headlabel="1", labeldistance="2", style="dashed"];
 }

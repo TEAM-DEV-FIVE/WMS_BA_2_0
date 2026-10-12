@@ -93,7 +93,7 @@ Lệnh thay đổi dữ liệu kiểm tra quyền, trạng thái và phiên bả
 
 Tải bộ cài riêng theo hệ điều hành bằng các biểu tượng phía trên hoặc tại [GitHub Releases](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/tag/v0.1.0-handover.1). Release có tệp `SHA256SUMS.txt` để đối chiếu ba gói tải. Đây là bản bàn giao với chữ ký lab như mô tả bên dưới.
 
-Bản nén đầy đủ `WMS-InternTechLead-97d4c51.tar.gz` được lưu trong workspace của chủ dự án. Binary được phân phối qua Releases, không nằm trong lịch sử Git; artifact CI vẫn có thời hạn lưu trữ.
+Bản nén bàn giao đầy đủ: `WMS-InternTechLead-97d4c51.tar.gz`; định danh và hash trong biên nhận gói. Binary được phân phối qua Releases, không nằm trong lịch sử Git; artifact CI vẫn có thời hạn lưu trữ.
 
 ### Phát triển từ mã nguồn
 
@@ -112,7 +112,7 @@ Trên Windows PowerShell, tạo môi trường bằng `py -3.12 -m venv .venv`, 
 
 ### Khởi chạy môi trường phát triển
 
-Chuẩn bị database phát triển riêng và cấu hình kết nối của bạn. Ví dụ dưới dùng xác thực PostgreSQL đã được cấu hình trên máy:
+Chuẩn bị database phát triển riêng và cấu hình kết nối. Ví dụ dưới dùng xác thực PostgreSQL đã được cấu hình trên máy:
 
 ```bash
 export WMS_DATABASE_URL='postgresql+psycopg://wms_dev@localhost:5432/wms_dev'
@@ -193,7 +193,7 @@ tests/                 Kiểm thử nghiệp vụ, tích hợp, desktop và hồ
 
 ## Trạng thái nghiệm thu và phát hành
 
-Chủ dự án đã yêu cầu chấp thuận bàn giao và đóng toàn bộ issue của đợt triển khai. Quyết định này được lưu riêng với bằng chứng kiểm thử để phân biệt **chấp thuận quản lý** và **kết quả thực nghiệm**.
+Bản bàn giao có quyết định chấp thuận và đóng backlog triển khai ngày 06/10/2026. Quyết định này được lưu riêng với bằng chứng kiểm thử để phân biệt **chấp thuận quản lý** và **kết quả thực nghiệm**.
 
 Các báo cáo local/CI/VM được giữ nguyên theo commit. Kiểm thử tại kho, thiết bị thật, DR độc lập và tải dữ liệu đích chưa có evidence độc lập trong repository; T01–T28 không được đổi thành PASS bằng suy luận. Windows hiện dùng chứng thư **TEST ONLY**, macOS ký **ad-hoc** và chưa notarization. Chi tiết phạm vi chấp thuận tại [OWNER_ACCEPTANCE.md](07_Kiem_tra/release/OWNER_ACCEPTANCE.md).
 

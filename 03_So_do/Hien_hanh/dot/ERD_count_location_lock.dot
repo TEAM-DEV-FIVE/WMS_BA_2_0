@@ -1,11 +1,11 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · count_location_lock"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"count_location_lock" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>count_location_lock</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">session_id : uuid</TD></TR><TR><TD ALIGN="LEFT">location_id : uuid</TD></TR><TR><TD ALIGN="LEFT">locked_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">released_at : timestamp with time zone ?</TD></TR></TABLE>>];
-"location" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>location</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"count_session" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>count_session</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"count_location_lock" -> "location" [label="location_id → id"];
-"count_location_lock" -> "count_session" [label="session_id → id"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · count_location_lock</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"count_location_lock" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>count_location_lock</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">PK id : uuid<BR ALIGN="LEFT"/>FK session_id : uuid<BR ALIGN="LEFT"/>FK location_id : uuid<BR ALIGN="LEFT"/>locked_at : timestamp with time zone<BR ALIGN="LEFT"/>released_at : timestamp with time zone ?</TD></TR></TABLE>>];
+"location" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>location</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"count_session" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>count_session</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"count_location_lock" -> "location" [label="location_id → id", dir="both", arrowtail="crowodot", arrowhead="teetee", taillabel="0..*", headlabel="1", labeldistance="2", style="dashed"];
+"count_location_lock" -> "count_session" [label="session_id → id", dir="both", arrowtail="crowodot", arrowhead="teetee", taillabel="0..*", headlabel="1", labeldistance="2", style="dashed"];
 }

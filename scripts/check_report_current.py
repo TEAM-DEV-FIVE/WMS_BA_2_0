@@ -99,7 +99,9 @@ def main():
 
     docs = ['README.md', '01_Tai_lieu/HIEN_TRANG_BAO_CAO.md', '01_Tai_lieu/ARCHITECTURE.md',
             '01_Tai_lieu/BA/03_SRS.md', '02_CSDL/README.md', '03_So_do/README.md',
-            '03_So_do/RUNTIME_GUIDE.md', '03_So_do/Hien_hanh/index.md', '05_API/README.md']
+            '03_So_do/RUNTIME_GUIDE.md', '03_So_do/NOTATION_GUIDE.md', '01_Tai_lieu/DOCUMENTATION.md',
+            '03_So_do/Hien_hanh/index.md', '05_API/README.md', '05_API/README_BASELINE.md',
+            '07_Kiem_tra/release/README.md']
     for filename in docs:
         path = ROOT / filename
         content = path.read_text()

@@ -42,7 +42,7 @@ Ba bộ cài trên thuộc bản bàn giao **0.1.0 tại `97d4c51`**; mã nguồ
 
 <a id="tong-quan"></a>
 
-## Hệ thống giải quyết những công việc gì?
+## Phạm vi hệ thống
 
 Một chứng từ trong WMS không chỉ là danh sách sản phẩm: hệ thống theo dõi người lập, kho, nguồn hàng, định danh lô/serial, phiên bản và các bước phê duyệt trước khi ghi nhận thay đổi tồn. Nhân viên thao tác trên desktop; máy chủ kiểm tra quyền và điều kiện nghiệp vụ rồi lưu kết quả vào cơ sở dữ liệu chung.
 
@@ -89,7 +89,7 @@ Các luồng mô tả chức năng đã có trong mã nguồn. Điều kiện qu
 | Đóng gói | PyInstaller; cấu hình Windows/macOS | Tạo gói desktop theo nền tảng; bộ Linux phục vụ triển khai server |
 | Kiểm tra chất lượng | pytest, Ruff, GitHub Actions | Kiểm thử, kiểm tra mã và các workflow CI có trong repository |
 
-Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requirements-app-lock.txt), [mã desktop](apps/desktop), [mã server](apps/server), [đóng gói](packaging) và [triển khai LAN](deploy/lan). Phiên bản cài đặt cụ thể xem lockfile; logo ở đầu trang biểu thị các công nghệ chính, không biểu thị chứng nhận của nhà cung cấp. Biểu tượng công nghệ lấy từ [Devicon v2.17.0](https://github.com/devicons/devicon/tree/v2.17.0) ([trang chính thức](https://devicon.dev/)).
+Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requirements-app-lock.txt), [mã desktop](apps/desktop), [mã server](apps/server), [đóng gói](packaging) và [triển khai LAN](deploy/lan). Phiên bản dependency được cố định trong lockfile. Biểu tượng công nghệ lấy từ [Devicon v2.17.0](https://github.com/devicons/devicon/tree/v2.17.0) ([trang chính thức](https://devicon.dev/)).
 
 <a id="kien-truc"></a>
 
@@ -106,7 +106,7 @@ Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requi
 | SQLite và OS vault | SQLite lưu nháp/nhật ký; vault hệ điều hành giữ thông tin phiên khi người dùng bật nhớ đăng nhập |
 | Worker và kho tệp riêng | Xử lý job, tạo/tải tệp và dọn tệp dẫn xuất theo policy; API kiểm quyền khi tải |
 
-### Một thao tác ghi sổ được xử lý ra sao?
+### Quy trình xử lý thao tác ghi sổ
 
 1. Desktop chuẩn bị nội dung, phiên bản chứng từ và khóa chống trùng (*idempotency key*); nhật ký phục hồi ghi lại yêu cầu trước khi gửi.
 2. Server xác thực, kiểm tra quyền hiện tại và phạm vi tài nguyên. `CommandBus` tuần tự hóa cùng key và so khớp hash nội dung; key đã có kết quả hợp lệ được trả lại theo quyền hiện tại.
@@ -116,7 +116,7 @@ Danh sách dựa trên [pyproject.toml](pyproject.toml), [dependency lock](requi
 
 Nguồn: [CommandBus](apps/server/application/commands.py), [Unit of Work PostgreSQL](apps/server/infrastructure/database.py), [recovery API](apps/server/api/recovery.py), [journal desktop](apps/desktop/local_store/recovery.py).
 
-### Dữ liệu kho được tổ chức thế nào?
+### Tổ chức dữ liệu kho
 
 | Nhóm dữ liệu | Các đối tượng chính | Ý nghĩa |
 |---|---|---|
@@ -144,9 +144,9 @@ Desktop gọi API và không mang thông tin kết nối PostgreSQL. Nháp/journ
 | API | 199 đường dẫn, 249 thao tác HTTP trong OpenAPI runtime |
 | Quyền được seed | 10 vai trò, 58 quyền |
 | Giao diện | 26 mục trên menu chức năng; thêm màn đăng nhập và các hộp thoại/tabs bên trong |
-| Bản mã | `0.1.0`; mã nguồn làm việc có các thay đổi sau gói bàn giao 06/10/2026 |
+| Phiên bản ứng dụng | `0.1.0`; bản cài phát hành được định danh riêng theo commit |
 
-Số liệu schema được đọc từ PostgreSQL tạm sau khi chạy toàn bộ migration. [Catalog hiện hành](02_CSDL/current/schema.json) lưu cột, ràng buộc và index; [DBML hợp nhất](02_CSDL/current/wms.dbml) và [từ điển dữ liệu](02_CSDL/current/dictionary.csv) dùng cho báo cáo. Đây không phải số lượng bản ghi hay phép đo tải của máy chủ đang vận hành.
+Số liệu schema được đọc từ PostgreSQL tạm sau khi chạy toàn bộ migration. [Catalog hiện hành](02_CSDL/current/schema.json) lưu cột, ràng buộc và index; [DBML hợp nhất](02_CSDL/current/wms.dbml) và [từ điển dữ liệu](02_CSDL/current/dictionary.csv) dùng cho báo cáo. Số liệu mô tả cấu trúc schema và hợp đồng API.
 
 <a id="chuc-nang"></a>
 
@@ -448,27 +448,15 @@ Migration chỉ chạy khi người quản trị yêu cầu; API không tự nâ
 
 <a id="kiem-chung"></a>
 
-## Kiểm chứng và phạm vi kết luận
+## Tài liệu và kiểm chứng
 
-Schema hiện hành đã được dựng và đọc từ PostgreSQL 16 trong database tạm, không sử dụng database vận hành. OpenAPI được xuất/đối chiếu trực tiếp từ `create_app()`. Ảnh được chụp từ UI thực sau đăng nhập, có [thời điểm và SHA-256](assets/readme/screenshots.json).
+| Tài liệu | Nội dung |
+|---|---|
+| [Sơ đồ hệ thống](03_So_do/README.md) | Use case, BPMN, UML lớp, trạng thái, kiến trúc, quyền và ERD; PDF/SVG/draw.io |
+| [Ký pháp theo giáo trình BA](03_So_do/NOTATION_GUIDE.md) | Đối chiếu chương/trang, quy ước và nguồn dữ liệu từng loại sơ đồ |
+| [Hiện trạng hệ thống](01_Tai_lieu/HIEN_TRANG_BAO_CAO.md) | Chức năng, schema, API và phạm vi bằng chứng |
+| [Kiểm tra tài liệu](07_Kiem_tra/current_report/README.md) | Kết quả kiểm tra sơ đồ, schema, ảnh và liên kết |
+| [Bàn giao 0.1.0](07_Kiem_tra/release/FINAL_HANDOVER.md) | Bằng chứng kiểm thử gắn với commit `97d4c51` và các cổng nghiệm thu |
+| [Bảo trì tài liệu](01_Tai_lieu/DOCUMENTATION.md) | Lệnh xuất schema/API, dựng sơ đồ, chụp ảnh và kiểm định artifact |
 
-Bằng chứng **1.320 test + 10 subtest** của đợt bàn giao thuộc mã `97d4c51`, không dùng làm kết quả hồi quy toàn bộ cho mã đang sửa ngày 13/10. [Biên bản bàn giao](07_Kiem_tra/release/FINAL_HANDOVER.md) giữ nguyên phạm vi thử nghiệm và các điều kiện chưa nghiệm thu. Xem [thuyết minh hiện trạng](01_Tai_lieu/HIEN_TRANG_BAO_CAO.md) để dùng đúng bằng chứng trong báo cáo.
-
-[Kết quả kiểm tra đợt cập nhật](07_Kiem_tra/current_report/README.md): 17 kiểm thử desktop không cần GUI đạt; schema, API, ảnh và liên kết đã được đối chiếu.
-
-[Quay lại tải ứng dụng](#tai-ung-dung) · [README bàn giao cũ](README_BAN_GIAO_20261006.md) · [Mục lục](#muc-luc)
-
-## Cập nhật tài liệu và ảnh
-
-```bash
-PYTHONPATH=. python scripts/export_runtime_contract.py
-python scripts/export_report_schema.py
-python scripts/build_current_diagrams.py
-PYTHONPATH=. python scripts/capture_readme_screenshots.py
-python scripts/build_readme_features.py
-python scripts/check_report_current.py
-python scripts/update_artifacts.py
-python scripts/check_artifacts.py
-```
-
-Công cụ chụp ảnh cần desktop thật và đăng nhập tương tác. Công cụ không tạo dữ liệu minh họa, không cấp quyền và không lập/duyệt/ghi sổ chứng từ. Cần đóng WMS trước khi chạy để giữ khóa ứng dụng.
+[Tải ứng dụng](#tai-ung-dung) · [Mục lục](#muc-luc)

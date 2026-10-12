@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="925" viewBox="0 0 1100 925">
+  <title>Use case — Vận hành kho</title>
+  <text font-family="DejaVu Sans" font-size="26" text-anchor="start" x="40" y="45.0" fill="#17384d">Use case — Vận hành kho</text>
+  <text font-family="DejaVu Sans" font-size="14" text-anchor="start" x="40" y="77.0" fill="#17384d">Chương 8 · PDF 5–23 · UML use case</text>
+  <rect stroke-width="1.4" x="330" y="115" width="725" height="720" rx="0" fill="#dceef8" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="17" text-anchor="start" x="355" y="144.0" fill="#17384d">WMS · Vận hành kho</text>
+  <polyline stroke-width="1.5" points="195.0,452.5 455.0,195.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,452.5 455.0,290.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,452.5 455.0,385.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,452.5 455.0,480.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,452.5 455.0,575.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,452.5 455.0,670.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="195.0,452.5 455.0,765.0" fill="none" stroke="#17384d" />
+  <ellipse stroke-width="1.4" cx="160.0" cy="422.0" rx="12.0" ry="12.0" fill="#dceef8" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="160.0,434.0 160.0,473.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="130.0,450.0 190.0,450.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="160.0,473.0 132.0,507.0" fill="none" stroke="#17384d" />
+  <polyline stroke-width="1.5" points="160.0,473.0 188.0,507.0" fill="none" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="160.0" y="539.0" fill="#17384d">Người dùng có quyền tương</text>
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="160.0" y="559.25" fill="#17384d">ứng</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="195.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="200.0" fill="#17384d">Giữ hàng và ghi sổ xuất kho</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="290.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="295.0" fill="#17384d">Soạn hàng và đóng kiện</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="385.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="390.0" fill="#17384d">Quyết định chất lượng hàng</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="480.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="485.0" fill="#17384d">Cất và di chuyển hàng trong kho</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="575.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="580.0" fill="#17384d">Chuyển hàng giữa hai kho</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="670.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="675.0" fill="#17384d">Tiếp nhận hàng khách trả</text>
+  <ellipse stroke-width="1.5" cx="650.0" cy="765.0" rx="195.0" ry="33.0" fill="#b7dff2" stroke="#17384d" />
+  <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="650.0" y="770.0" fill="#17384d">Trả hàng nhà cung cấp</text>
+  <text font-family="DejaVu Sans" font-size="13" text-anchor="start" x="40" y="865.0" fill="#17384d">Actor chỉ tham gia use case khi được cấp quyền; scope kho, thời hạn và tách nhiệm vụ vẫn được kiểm tra.</text>
+  <text font-family="DejaVu Sans" font-size="10" text-anchor="start" x="40" y="891.0" fill="#17384d">Nguồn: apps/desktop/views/admin_workspace.py · apps/desktop/views/issues.py · apps/desktop/views/fulfillment.py · apps/desktop/views/quality.py · apps/desktop/views/moves.py ·</text>
+  <text font-family="DejaVu Sans" font-size="10" text-anchor="start" x="40" y="904.5" fill="#17384d">apps/desktop/views/transfers.py · apps/desktop/views/returns.py · apps/server/application/returns.py</text>
+</svg>

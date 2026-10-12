@@ -1,6 +1,6 @@
-# Hiện trạng WMS để viết báo cáo
+# Hiện trạng hệ thống WMS
 
-Đối chiếu mã nguồn tại nhánh `feat/application-foundation` ngày **13/10/2026**. Đây là hiện trạng của thư mục làm việc, có thay đổi sau bản bàn giao `97d4c51`; không đồng nhất với các gói cài đặt đã phát hành trước đó.
+Đối chiếu mã nguồn tại nhánh `main` ngày **13/10/2026**. Bản mã có thay đổi sau bản bàn giao `97d4c51`; không đồng nhất với các gói cài đặt đã phát hành trước đó.
 
 ## Căn cứ có thể kiểm tra lại
 
@@ -12,11 +12,11 @@
 | Migration | 001–026 được thực thi trên cluster PostgreSQL tạm để lấy catalog | [Công cụ xuất schema](../scripts/export_report_schema.py), [SQL](../migrations/README.md) |
 | API | 199 đường dẫn, 249 thao tác HTTP, version 0.1.0 | [OpenAPI sinh từ ứng dụng](../05_API/openapi_runtime.json) |
 | Quyền mặc định | 10 vai trò, 58 quyền trong seed sau migration | [Quyền hiện hành](../04_Phan_quyen/current_permissions.json) |
-| Sơ đồ | 130 sơ đồ: 12 kiến trúc/lớp/luồng, 10 vai trò và 108 ERD | [Mục lục sơ đồ](../03_So_do/Hien_hanh/index.md) |
+| Sơ đồ | 136 sơ đồ: 12 kiến trúc/lớp/luồng, 6 use case, 10 vai trò và 108 ERD | [Mục lục sơ đồ](../03_So_do/Hien_hanh/index.md) |
 
 Số bảng trên không tính bảng lịch sử migration ngoài schema `wms`. Quyền seed không phải danh sách quyền thực tế đang cấp cho từng tài khoản. Việc dựng catalog xác minh DDL trên cơ sở dữ liệu tạm; không xác nhận trạng thái migration của mọi máy triển khai.
 
-## Mô tả hệ thống có thể dùng trong báo cáo
+## Mô tả hệ thống
 
 WMS là ứng dụng quản lý kho gồm desktop Python/Tkinter, máy chủ FastAPI và PostgreSQL. Desktop cung cấp các màn hình theo quyền; máy chủ xử lý xác thực, kiểm tra phạm vi kho, trạng thái chứng từ, phiên bản và lệnh nghiệp vụ. PostgreSQL lưu dữ liệu nghiệp vụ chính thức. SQLite phía desktop lưu nháp và nhật ký phục hồi lệnh, không thay thế cơ sở dữ liệu tồn kho.
 
@@ -34,9 +34,9 @@ Khi mất phản hồi, client giữ trạng thái chưa rõ kết quả. Cơ ch
 
 Các luồng nhận/xuất/kiểm kê/chuyển/nhập tệp trong bộ sơ đồ mới mô tả đường xử lý chính của phần mềm. Nhánh lỗi, quyền, version, loại hàng và điều kiện giao dịch phải đọc kèm service. Chúng không phải biên bản khảo sát quy trình thực tế của một doanh nghiệp.
 
-## Sơ đồ mới và tài liệu cũ
+## Sơ đồ hiện hành và thiết kế cơ sở
 
-Dùng [PDF hiện hành](../03_So_do/Hien_hanh/WMS_Hien_hanh.pdf) để đọc/in và [draw.io hiện hành](../03_So_do/Hien_hanh/WMS_Hien_hanh.drawio) để chỉnh sửa. PDF có 5 trang mục lục và 130 trang sơ đồ. ERD được sinh từ catalog PostgreSQL sau migration; mỗi bảng có trang đầy đủ cột, PK, nullable và các FK đi ra. CHECK, UNIQUE và index đầy đủ nằm trong catalog JSON; sơ đồ không biểu diễn mọi invariant nghiệp vụ.
+Dùng [PDF hiện hành](../03_So_do/Hien_hanh/WMS_Hien_hanh.pdf) để đọc/in và [draw.io hiện hành](../03_So_do/Hien_hanh/WMS_Hien_hanh.drawio) để chỉnh sửa. PDF có 5 trang mục lục và 136 trang sơ đồ. [Ký pháp](../03_So_do/NOTATION_GUIDE.md) đối chiếu tám chương giáo trình BA; use case, BPMN, lớp và ERD dùng đúng ký hiệu của từng loại. ERD được sinh từ catalog PostgreSQL sau migration; mỗi bảng có trang đầy đủ cột, PK, nullable và các FK đi ra. CHECK, UNIQUE và index đầy đủ nằm trong catalog JSON; sơ đồ không biểu diễn mọi invariant nghiệp vụ.
 
 | Tài liệu trước đây | Cách dùng khi viết báo cáo hiện tại |
 |---|---|

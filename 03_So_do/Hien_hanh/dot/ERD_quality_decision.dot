@@ -1,13 +1,13 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · quality_decision"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"quality_decision" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>quality_decision</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">receipt_move_id : uuid</TD></TR><TR><TD ALIGN="LEFT">quantity : numeric(20,6)</TD></TR><TR><TD ALIGN="LEFT">result : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">reason : text</TD></TR><TR><TD ALIGN="LEFT">decided_by : uuid</TD></TR><TR><TD ALIGN="LEFT">decided_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">followup_document_id : uuid ?</TD></TR></TABLE>>];
-"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"document" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>document</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"stock_move" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_move</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
-"quality_decision" -> "app_user" [label="decided_by → id"];
-"quality_decision" -> "document" [label="followup_document_id → id"];
-"quality_decision" -> "stock_move" [label="receipt_move_id → id"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · quality_decision</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"quality_decision" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>quality_decision</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">PK id : uuid<BR ALIGN="LEFT"/>FK receipt_move_id : uuid<BR ALIGN="LEFT"/>quantity : numeric(20,6)<BR ALIGN="LEFT"/>result : character varying(20)<BR ALIGN="LEFT"/>reason : text<BR ALIGN="LEFT"/>FK decided_by : uuid<BR ALIGN="LEFT"/>decided_at : timestamp with time zone<BR ALIGN="LEFT"/>FK followup_document_id : uuid ?</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>app_user</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"document" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>document</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"stock_move" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>stock_move</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
+"quality_decision" -> "app_user" [label="decided_by → id", dir="both", arrowtail="crowodot", arrowhead="teetee", taillabel="0..*", headlabel="1", labeldistance="2", style="dashed"];
+"quality_decision" -> "document" [label="followup_document_id → id", dir="both", arrowtail="crowodot", arrowhead="teeodot", taillabel="0..*", headlabel="0..1", labeldistance="2", style="dashed"];
+"quality_decision" -> "stock_move" [label="receipt_move_id → id", dir="both", arrowtail="crowodot", arrowhead="teetee", taillabel="0..*", headlabel="1", labeldistance="2", style="dashed"];
 }

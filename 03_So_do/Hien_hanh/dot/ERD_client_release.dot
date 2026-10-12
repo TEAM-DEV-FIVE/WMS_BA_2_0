@@ -1,7 +1,7 @@
 digraph WMS {
-graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
-edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
-label="ERD hiện hành · client_release"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
-"client_release" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>client_release</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">version : character varying(40)</TD></TR><TR><TD ALIGN="LEFT">os : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">architecture : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">api_major : integer</TD></TR><TR><TD ALIGN="LEFT">sha256 : character(64)</TD></TR><TR><TD ALIGN="LEFT">download_uri : text</TD></TR><TR><TD ALIGN="LEFT">is_minimum : boolean</TD></TR></TABLE>>];
+edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · client_release</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+"client_release" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>client_release</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">PK id : uuid<BR ALIGN="LEFT"/>version : character varying(40)<BR ALIGN="LEFT"/>os : character varying(20)<BR ALIGN="LEFT"/>architecture : character varying(20)<BR ALIGN="LEFT"/>api_major : integer<BR ALIGN="LEFT"/>sha256 : character(64)<BR ALIGN="LEFT"/>download_uri : text<BR ALIGN="LEFT"/>is_minimum : boolean</TD></TR></TABLE>>];
 }
