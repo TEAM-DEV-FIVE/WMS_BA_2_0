@@ -39,6 +39,32 @@ class SerialLookupPresenter:
             return rows, permissions
         self.submit("search", run)
 
+    def browse(self, warehouse_id, after=None):
+        if self.closed or self.uncertain:
+            return
+        def run():
+            permissions = self.api.permissions(warehouse_id)
+            params = {"warehouse_id": str(warehouse_id), "limit": 200}
+            if after:
+                params["after"] = after
+            rows, seen, cursors = [], set(), set()
+            while not self.closed:
+                page = self.api.get("moves/stock?" + urlencode(params))
+                for stock in page["items"]:
+                    if stock.get("serial_code") and (stock["sku"], stock["serial_code"]) not in seen:
+                        seen.add((stock["sku"], stock["serial_code"]))
+                        query = urlencode({"warehouse_id": str(warehouse_id), "sku": stock["sku"], "code": stock["serial_code"]})
+                        rows.extend(SerialWarranty.model_validate(row) for row in self.api.get("serials/lookup?" + query))
+                cursor = page["next_after"]
+                if rows or not cursor:
+                    return rows, permissions, cursor
+                if cursor in cursors:
+                    raise ValueError("Repeated stock cursor")
+                cursors.add(cursor)
+                params["after"] = cursor
+            return [], permissions, None
+        self.submit("browse", run)
+
     def save(self, serial_id, warehouse_id, body):
         if self.uncertain:
             return
@@ -69,7 +95,7 @@ class SerialLookupPresenter:
             self.pending = None
             if generation != self.api.session_generation:
                 self.view.lookup_clear()
-                self.view.lookup_error("Phiên đã thay đổi. Đăng nhập hoặc tải lại phiên trước khi tiếp tục.",
+                self.view.lookup_error("Phiên đã thay đổi; Đăng nhập hoặc tải lại phiên trước khi tiếp tục",
                                        uncertain=bool(self.uncertain))
                 continue
             try:
@@ -80,16 +106,18 @@ class SerialLookupPresenter:
                     self.uncertain = None
                 if action == "search" or error.code in {"FORBIDDEN", "UNAUTHENTICATED", "REFRESH_REPLAY"}:
                     self.view.lookup_clear()
-                detail = " · ".join(f"{field.field}: {field.message}" for field in error.field_errors)
-                self.view.lookup_error(str(error) + (" · " + detail if detail else ""), uncertain=uncertain)
+                detail = "  ".join(f"{field.field}: {field.message}" for field in error.field_errors)
+                self.view.lookup_error(str(error) + ("  " + detail if detail else ""), uncertain=uncertain)
             except Exception:
                 if action == "search":
                     self.view.lookup_clear()
-                self.view.lookup_error("Không đọc được dữ liệu serial.", uncertain=action == "save")
+                self.view.lookup_error("Không đọc được dữ liệu serial", uncertain=action == "save")
             else:
                 if action == "save":
                     self.uncertain = None
                     self.view.lookup_saved(rows)
+                elif action == "browse":
+                    self.view.lookup_browse(*rows)
                 else:
                     self.view.lookup_result(*rows)
 

@@ -78,6 +78,7 @@ class ReversalSource(Contract):
 class ReversalSourcePage(Contract):
     items: list[ReversalSource]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class ReversalPreview(Contract):

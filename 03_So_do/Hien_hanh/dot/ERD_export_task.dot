@@ -1,0 +1,9 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · export_task"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"export_task" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>export_task</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">job_id : uuid</TD></TR><TR><TD ALIGN="LEFT">generation : integer</TD></TR><TR><TD ALIGN="LEFT">status : character varying(10)</TD></TR><TR><TD ALIGN="LEFT">attempts : integer</TD></TR><TR><TD ALIGN="LEFT">available_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">lease_token : uuid ?</TD></TR><TR><TD ALIGN="LEFT">lease_until : timestamp with time zone ?</TD></TR></TABLE>>];
+"export_job" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>export_job</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"export_task" -> "export_job" [label="job_id → id"];
+}

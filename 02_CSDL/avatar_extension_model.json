@@ -1,0 +1,36 @@
+{
+  "revision": "026_user_avatar.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "user_avatar",
+      "cols": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "image_base64",
+          "type": "text",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

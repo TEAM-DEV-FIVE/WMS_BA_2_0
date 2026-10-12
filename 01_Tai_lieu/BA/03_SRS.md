@@ -1,37 +1,29 @@
-# SRS - Yêu cầu hệ thống WMS
-## 1. Phạm vi và nguồn
-Áp dụng mô hình yêu cầu Ch7 PDF 6-21 và Ch8 PDF 5-33. Ranh giới WMS gồm desktop, API, dịch vụ nền và dữ liệu do ứng dụng quản lý. Con người và hệ thống ngoài là actor; DB và API bên trong ranh giới không vẽ như actor. Vai trò ngoài đời và grant quyền ứng dụng là hai khái niệm khác nhau.
+# SRS và đối chiếu hiện thực WMS
 
-requirements.json là danh mục có mã ổn định: 4 GR, 4 TR, 33 FR, 8 NFR; FR32–FR33 là phạm vi bổ sung từ Q02 ngày 02/10/2026, chưa có schema/API hiện thực. Mỗi yêu cầu có nguồn, owner, priority, trạng thái, tiêu chí nghiệm thu, UC và phiên bản. Chủ nghiệp vụ hiện được định danh theo vai trò vì chưa có danh tính người phụ trách. Các mục tiêu hiệu năng/đo lợi ích là PROPOSED, chưa benchmark hay được ký.
+Cập nhật 13/10/2026 theo mã nguồn. [SRS cơ sở](03_SRS_BASELINE.md) giữ nội dung thiết kế ban đầu. Tài liệu này sửa các mô tả đã lỗi thời; không tự nâng trạng thái yêu cầu hoặc nghiệm thu lên Verified.
 
-## 2. Ưu tiên và trạng thái
-MoSCoW: Must - thiếu thì không hoàn thành mục tiêu cơ sở; Should - quan trọng nhưng có phương án tạm được chủ nghiệp vụ chấp nhận; Could - cải thiện tùy nguồn lực; Won't this release - ngoài đợt. Danh mục cơ sở đang ghi Must theo hồ sơ đã xây; workshop phải kiểm tra có thực sự cần trong đợt pilot. Không coi tất cả chức năng tương lai là Must. Danh mục ngoài phạm vi trong BRD là Won't ở đợt cơ sở.
+## Phạm vi phần mềm hiện có
 
-Trạng thái quản lý: Draft -> Reviewed -> Validated -> Baselined -> Implemented -> Verified; Rejected/Deferred lưu lý do. Reviewed chỉ kiểm tra chất lượng đặc tả; Validated cần chủ nghiệp vụ xác nhận đúng nhu cầu. Hiện mọi yêu cầu ở Draft; việc kiểm tra file/mô hình không thay thế xác nhận stakeholder hoặc kiểm thử ứng dụng.
+WMS gồm desktop Tkinter, API FastAPI, dịch vụ nền và PostgreSQL. Hệ thống có các nhóm danh mục, PO/SO/phê duyệt, nhập kho, vận hành kho, kiểm soát, import/export/in, tài khoản và phục hồi. [README](../../README.md) liệt kê đủ 26 mục menu kèm ảnh chạy thật; [current_features.json](../current_features.json) gắn từng mục với mã nguồn.
 
-## 3. Mô hình chức năng
-use_cases.json và USE_CASES.md chứa tên, actor, mô tả, ưu tiên, trạng thái, trigger, tiền/hậu điều kiện, luồng chính đánh số, nhánh và ngoại lệ, rule, NFR và kiểm thử. UC29 xác thực MFA mở rộng UC01 tại điểm sau kiểm tra mật khẩu nếu policy yêu cầu. UC22 include UC31 vì kiểm tra file là bắt buộc trước commit. UC30 duyệt là tác vụ độc lập có thời điểm/actor khác; không dùng include để diễn tả chờ duyệt bất đồng bộ. Đăng nhập hợp lệ thường là tiền điều kiện của nghiệp vụ, không vẽ include đăng nhập vào mọi UC.
+FR32/UC32 về ký gửi và FR33/UC33 về serial/bảo hành đã có schema, API và giao diện trong mã hiện tại. Module nhận ký gửi, chủ hàng/hợp đồng và tra bảo hành không còn là đề xuất chưa triển khai. Phạm vi thao tác trên hàng ký gửi vẫn do guard nghiệp vụ quyết định; có màn hình không có nghĩa mọi nghiệp vụ xuất/chuyển đều mở cho mọi chủ hàng. Nguồn: [consignments.py](../../apps/server/application/consignments.py), [traceability](../TRACEABILITY.md).
 
-Các use case cấp cao có nhiều vai trò giữ mã cũ để truy vết; bước thực hiện ghi rõ vai trò. Một role tham gia UC không đồng nghĩa có mọi quyền trong UC đó; quyền cụ thể tra ma trận và điều kiện server. Nhánh thay thế mô tả điều kiện và kết quả hoặc điểm quay lại; ngoại lệ timeout dùng UNKNOWN, không giả định chưa commit.
+## Dữ liệu và giao diện
 
-## 4. Dữ liệu và giao diện
-ERD khái niệm sử dụng thuật ngữ nghiệp vụ, tên quan hệ là động từ và cardinality. ERD vật lý dùng tên bảng/cột thật, PK/FK, nullable và cardinality; tên bảng xuất hiện một lần trong mỗi trang. Các view là lát cắt mô hình, có mục lục toàn bộ; tập FK 105 quan hệ được đối chiếu schema. Bảng đích chỉ hiện cột liên quan và chỉ dẫn sang trang đầy đủ, không tạo thực thể alias lặp.
+Migration 001–026 dựng schema `wms` gồm 108 bảng, 736 cột, 219 FK. [Catalog hiện hành](../../02_CSDL/current/schema.json) lưu cột, nullability, PK/FK/CHECK/UNIQUE và index; [ERD mới](../../03_So_do/Hien_hanh/index.md) phản ánh cùng snapshot. 56 bảng / 105 FK là mốc thiết kế cơ sở.
 
-DBML/SQL/từ điển dữ liệu kế thừa cơ sở 1.1, không đổi dữ liệu chỉ để khớp hình. Partial index, composite unique và rule liên bảng tra SQL/INVARIANTS; crow's foot không thể hiện mọi invariant. Class có conceptual/domain và implementation views; visibility '-'/'+' và ngăn thuộc tính/phương thức là quy ước mô hình, không tuyên bố Python cưỡng chế private.
+[OpenAPI runtime](../../05_API/openapi_runtime.json) có 199 paths, 249 HTTP operations sinh từ ứng dụng FastAPI. `openapi_core.json` là thiết kế lịch sử; DTO/cursor/route của nó không thay thế runtime contract. Server và các module xuất/chuyển/đảo giao dịch đã có mã, vì vậy các ghi chú cũ “chưa có server” hoặc “chưa có runtime” không mô tả hiện trạng.
 
-API OpenAPI lõi nằm 05_API; chưa bao phủ đủ mọi UC và chưa có server chạy. Ma trận truy vết ghi API của UC nào còn thiếu để bổ sung khi triển khai. Không được đánh dấu FR Verified chỉ vì tồn tại một path API.
+Giao diện gồm phân quyền theo tài khoản/kho, bảng có phân trang, danh sách/chi tiết, nhóm thao tác phụ, ảnh đại diện, chế độ sáng/tối và tải lại có xác nhận. Ảnh trong README là ảnh ứng dụng; dữ liệu thực hành trong ảnh không phải bằng chứng giao dịch doanh nghiệp.
 
-## 5. Bảo mật, mở rộng và nghiệm thu
-Áp dụng BR01-BR12; kiểm soát phải ở server và cùng transaction khi liên quan tồn. RACI không thay RBAC. Một người có vai trò quản lý ở kho A và nhận hàng ở kho B không được mang quyền duyệt sang B. Các mục tiêu kỹ thuật NFR01-NFR08 có cách đo; không ghi 'nhanh', 'an toàn', 'dễ mở rộng' mà không có tiêu chí.
+## Yêu cầu và truy vết
 
-Mở rộng theo chuỗi: nhu cầu mới -> GR/FR/NFR -> UC/BPMN -> policy -> class/API -> migration -> dữ liệu mẫu -> acceptance. Loại phiếu mới cần validator/state machine/posting strategy/report mapping; không ghi số dư trực tiếp. Thêm trường mô tả theo định nghĩa có kiểu; trường lõi dùng schema rõ. Multi-company/3PL cần thiết kế isolation riêng và chưa nằm trong bản này.
+Các mã GR/TR/FR/NFR và UC trong `requirements.json`, `use_cases.json`, `USE_CASES.md` giữ vai trò định danh và truy vết. Không tự tái sử dụng mã cũ, không coi có route hoặc ảnh là đủ để chuyển yêu cầu sang Verified. Mục tiêu hiệu năng, chi phí và vận hành trong hồ sơ cơ sở cần bằng chứng đo/biên bản riêng trước khi đưa vào phần kết quả thực nghiệm.
 
-## 6. Quản lý thay đổi và xác nhận
-Mỗi CR ghi lý do, người yêu cầu, ngày, yêu cầu bị ảnh hưởng, tác động quy trình/quyền/dữ liệu/API/test/chi phí/lịch, quyết định và người duyệt. Chỉ baseline sau workshop và ký; không tái sử dụng mã đã bỏ. Mẫu change_requests.json có dòng trống, không tạo quyết định duyệt giả. Checklist thẩm định: rõ nghĩa, đơn nhất ở mức acceptance, nguồn có thật, không mâu thuẫn, khả thi, đo được, truy vết hai chiều và đủ nhánh lỗi.
+RBAC seed hiện có 10 vai trò, 58 quyền. Vai trò nghiệp vụ không đồng nghĩa có toàn bộ quyền tại mọi kho; quyền hiện tại, SOD, version, trạng thái và dữ liệu nguồn được server kiểm tra. [Quyền sau migration](../../04_Phan_quyen/current_permissions.json), [CommandBus](../../apps/server/application/commands.py).
 
-## 7. Các điều kiện còn phải xác minh
-Q01–Q08 đã được tech lead trả lời trong bảng quyết định; trạng thái nguồn và follow-up được lưu trong open_questions.json. [Baseline TL01](../SCOPE_BASELINE.md) là căn cứ triển khai hiện hành. As-Is được vẽ như giả thuyết để phỏng vấn, To-Be là đề xuất. Schema, quyền và policy là thiết kế; acceptance_tests.csv là đặc tả test chứ chưa phải kết quả chạy PostgreSQL hoặc app. Bộ kiểm tra BA chỉ xác nhận tính nhất quán của hồ sơ và ký pháp đã dựng.
+## Kiểm chứng và giới hạn
 
-## 8. Bổ sung Q02 trong TL01
+Sơ đồ mới mô tả hiện thực phần mềm; As-Is/To-Be cũ là hồ sơ khảo sát/đề xuất, không chứng minh khảo sát thực địa. T01–T28 và các cổng nghiệm thu giữ nguyên trạng thái đã ghi nhận. Kết quả 1320 tests + 10 subtests thuộc bản `97d4c51`, không tự đại diện cho mã hiện tại.
 
-FR32/UC32 quản lý hàng ký gửi theo chủ sở hữu, FR33/UC33 tra cứu bảo hành theo serial. T27/T28 là đặc tả chưa chạy. Baseline 56 bảng/53 quyền chưa bao phủ hai UC này. Migration 006/007 và API/desktop mới có bằng chứng thành phần tại [TRACEABILITY.md](../TRACEABILITY.md); luồng posting/policy ký gửi và nghiệm thu T27/T28 còn thiếu, tham chiếu CR-TL01-Q02-20261002.
+Căn cứ, cách tái lập và giới hạn dùng trong báo cáo ở [hiện trạng báo cáo](../HIEN_TRANG_BAO_CAO.md). [Mốc bàn giao](../../07_Kiem_tra/release/FINAL_HANDOVER.md) được giữ nguyên để không làm sai lịch sử kiểm thử.

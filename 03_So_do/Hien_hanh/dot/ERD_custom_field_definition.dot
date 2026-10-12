@@ -1,0 +1,9 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · custom_field_definition"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"custom_field_definition" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>custom_field_definition</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">entity_type : character varying(40)</TD></TR><TR><TD ALIGN="LEFT">code : character varying(60)</TD></TR><TR><TD ALIGN="LEFT">value_type : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">required : boolean</TD></TR><TR><TD ALIGN="LEFT">validation : jsonb</TD></TR><TR><TD ALIGN="LEFT">is_active : boolean</TD></TR><TR><TD ALIGN="LEFT">revision_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">label : character varying(120) ?</TD></TR><TR><TD ALIGN="LEFT">visibility : character varying(20)</TD></TR></TABLE>>];
+"custom_field_revision" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>custom_field_revision</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"custom_field_definition" -> "custom_field_revision" [label="revision_id → id"];
+}

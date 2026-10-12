@@ -1,0 +1,210 @@
+[
+  {
+    "group": "Không gian làm việc",
+    "key": "session_view",
+    "title": "Kho làm việc",
+    "description": "Chọn kho làm việc, xem quyền, quản lý phiên, đổi mật khẩu, thiết lập MFA và đăng xuất. Menu tài khoản hiển thị tên/ảnh đại diện, mở chỉnh sửa hồ sơ và đổi ảnh.",
+    "source": "apps/desktop/views/session.py",
+    "image": "assets/readme/session_view.png"
+  },
+  {
+    "group": "Dữ liệu",
+    "key": "master_container",
+    "title": "Danh mục sản phẩm",
+    "description": "Quản lý sản phẩm, đơn vị tính, nhóm hàng, kho, vị trí và đối tác; tìm kiếm và phân trang. Các tab riêng quản lý quy đổi đơn vị, barcode, giá tham chiếu, chủ hàng, hợp đồng ký gửi và tồn theo chủ sở hữu. Có hồ sơ ảnh và mô tả sản phẩm.",
+    "source": "apps/desktop/views/master_data.py",
+    "image": "assets/readme/master_container.png"
+  },
+  {
+    "group": "Dữ liệu",
+    "key": "serial_view",
+    "title": "Serial & bảo hành",
+    "description": "Duyệt hoặc tra chính xác serial, xem lịch sử truy vết và chứng cứ bảo hành theo quyền hiện tại. Thông tin nguồn, ngày nhập và mốc bảo hành được lấy từ dữ liệu đã lưu.",
+    "source": "apps/desktop/views/serial_lookup.py",
+    "image": "assets/readme/serial_view.png"
+  },
+  {
+    "group": "Dữ liệu",
+    "key": "custom_fields_view",
+    "title": "Trường mở rộng",
+    "description": "Định nghĩa bộ trường có kiểu, xuất bản phiên bản và nhập giá trị bổ sung cho đối tượng. Xem lịch sử giá trị; chuyển phiên bản khi lưu theo kiểm tra của máy chủ.",
+    "source": "apps/desktop/views/custom_fields.py",
+    "image": "assets/readme/custom_fields_view.png"
+  },
+  {
+    "group": "Nhập hàng",
+    "key": "order_view",
+    "title": "Đơn mua / đơn bán",
+    "description": "Lập và sửa đơn mua PO/đơn bán SO; thêm dòng hàng, giao người xử lý, gửi duyệt, sửa lại hoặc hủy theo trạng thái. Danh sách, chi tiết và lịch sử được tách để theo dõi từng chứng từ.",
+    "source": "apps/desktop/views/orders.py",
+    "image": "assets/readme/order_view.png"
+  },
+  {
+    "group": "Nhập hàng",
+    "key": "approval_view",
+    "title": "Hộp thư phê duyệt",
+    "description": "Xem phiếu chờ phê duyệt theo loại và kho, đọc nội dung/snapshot, duyệt hoặc từ chối kèm lý do. Máy chủ kiểm tra quyền, phiên bản và phân tách nhiệm vụ; không cho tự duyệt trái quy định.",
+    "source": "apps/desktop/views/approvals.py",
+    "image": "assets/readme/approval_view.png"
+  },
+  {
+    "group": "Nhập hàng",
+    "key": "receipt_view",
+    "title": "Nhận hàng",
+    "description": "Lập phiếu nhận từ PO, chọn vị trí nhận và định danh hàng; duyệt rồi ghi sổ theo lượng thực nhận. Hỗ trợ nhận từng phần, tra kết quả ghi sổ và nhập mã bằng máy quét HID.",
+    "source": "apps/desktop/views/receipts.py",
+    "image": "assets/readme/receipt_view.png"
+  },
+  {
+    "group": "Nhập hàng",
+    "key": "opening_view",
+    "title": "Tồn đầu kỳ",
+    "description": "Lập tồn đầu kỳ theo kho, sản phẩm, vị trí, lô/serial và chủ sở hữu. Có biên bản nguồn, gửi duyệt và ghi sổ; điều kiện khởi tạo được kiểm tra ở máy chủ.",
+    "source": "apps/desktop/views/openings.py",
+    "image": "assets/readme/opening_view.png"
+  },
+  {
+    "group": "Nhập hàng",
+    "key": "consignment_view",
+    "title": "Nhận ký gửi",
+    "description": "Tiếp nhận hàng ký gửi gắn với chủ hàng và hợp đồng; lập dòng, gửi duyệt và ghi sổ nhận. Hàng ký gửi giữ định danh sở hữu riêng trong tồn kho.",
+    "source": "apps/server/application/consignments.py",
+    "image": "assets/readme/consignment_view.png"
+  },
+  {
+    "group": "Vận hành kho",
+    "key": "issue_view",
+    "title": "Giữ hàng & xuất kho",
+    "description": "Lập phiếu xuất từ SO, đề xuất nguồn giữ hàng theo khả dụng/FEFO, giữ hoặc giải phóng lượng giữ. Xuất một phần hoặc toàn bộ theo chứng từ được duyệt, có kiểm tra phiên bản và truy vết kết quả.",
+    "source": "apps/desktop/views/issues.py",
+    "image": "assets/readme/issue_view.png"
+  },
+  {
+    "group": "Vận hành kho",
+    "key": "fulfillment_view",
+    "title": "Soạn & đóng kiện",
+    "description": "Phân công và xử lý tác vụ soạn hàng, quét mã, ghi lượng thực soạn, đóng kiện và quản lý nội dung kiện. Kiểm tra nguồn giữ hàng, quyền người thao tác và trạng thái phiếu xuất.",
+    "source": "apps/desktop/views/fulfillment.py",
+    "image": "assets/readme/fulfillment_view.png"
+  },
+  {
+    "group": "Vận hành kho",
+    "key": "quality_view",
+    "title": "Kiểm định chất lượng",
+    "description": "Xem hàng cần kiểm định, ghi quyết định chất lượng và lượng được chấp nhận hoặc cách ly. Quyết định chất lượng làm căn cứ cho thao tác cất và di chuyển tiếp theo.",
+    "source": "apps/desktop/views/quality.py",
+    "image": "assets/readme/quality_view.png"
+  },
+  {
+    "group": "Vận hành kho",
+    "key": "move_view",
+    "title": "Cất & di chuyển hàng",
+    "description": "Chọn nguồn tồn và vị trí đích để cất hoặc di chuyển hàng trong kho. Liên kết quyết định kiểm định khi cần; có lập nháp, phê duyệt và ghi sổ.",
+    "source": "apps/desktop/views/moves.py",
+    "image": "assets/readme/move_view.png"
+  },
+  {
+    "group": "Vận hành kho",
+    "key": "transfer_view",
+    "title": "Chuyển kho",
+    "description": "Lập chuyển kho, theo dõi lượng đã gửi, đã nhận và còn đang vận chuyển. Có lịch sử giao nhận, xử lý thiếu/hỏng và chứng cứ chênh lệch; kiểm tra phạm vi quyền tại các kho liên quan.",
+    "source": "apps/desktop/views/transfers.py",
+    "image": "assets/readme/transfer_view.png"
+  },
+  {
+    "group": "Vận hành kho",
+    "key": "customer_return_view",
+    "title": "Khách trả hàng",
+    "description": "Lập phiếu khách trả hàng tham chiếu chứng từ xuất; kiểm tra hàng và lượng có thể trả, phê duyệt rồi ghi nhận về vị trí được phép.",
+    "source": "apps/desktop/views/returns.py",
+    "image": "assets/readme/customer_return_view.png"
+  },
+  {
+    "group": "Vận hành kho",
+    "key": "supplier_return_view",
+    "title": "Trả nhà cung cấp",
+    "description": "Lập phiếu trả nhà cung cấp có tham chiếu nguồn nhận; chọn nguồn tồn, kiểm tra số lượng, gửi duyệt và ghi sổ trả.",
+    "source": "apps/server/application/returns.py",
+    "image": "assets/readme/supplier_return_view.png"
+  },
+  {
+    "group": "Kiểm soát",
+    "key": "report_view",
+    "title": "Tồn kho & báo cáo",
+    "description": "Tra cứu R01 tồn theo vị trí; R02 nhập/xuất qua ranh giới; R03 thẻ kho; R04 giữ hàng/nhu cầu mở; R05 chuyển kho/transit; R06 hạn dùng/tồn lâu; R07 kiểm kê; R08 hoạt động/giá tham chiếu. Lọc, phân trang, xuất CSV/XLSX, theo dõi job và lịch sử export. Giá tham chiếu cần quyền giá, không phải giá vốn kế toán.",
+    "source": "apps/desktop/views/reports.py",
+    "image": "assets/readme/report_view.png"
+  },
+  {
+    "group": "Kiểm soát",
+    "key": "count_view",
+    "title": "Kiểm kê & điều chỉnh",
+    "description": "Tạo phiên kiểm kê, chọn và đóng băng phạm vi, chụp snapshot tồn, ghi các lần đếm hoặc xác nhận vị trí trống. Nộp, xét duyệt chênh lệch và ghi điều chỉnh theo quy trình.",
+    "source": "apps/desktop/views/counting.py",
+    "image": "assets/readme/count_view.png"
+  },
+  {
+    "group": "Kiểm soát",
+    "key": "period_view",
+    "title": "Kỳ kho",
+    "description": "Xem và mở kỳ kho, khóa kỳ/đối soát, xác nhận và thực hiện mở lại kỳ theo vai trò và MFA. Thông tin kỳ và quy định hiển thị khi cần; có tra ACK cho thao tác ghi.",
+    "source": "apps/desktop/views/periods.py",
+    "image": "assets/readme/period_view.png"
+  },
+  {
+    "group": "Kiểm soát",
+    "key": "reversal_view",
+    "title": "Đảo giao dịch",
+    "description": "Lập phiếu đảo có tham chiếu giao dịch gốc, lý do, phê duyệt và ghi bút toán bù. Không sửa trực tiếp giao dịch tồn đã ghi sổ.",
+    "source": "apps/desktop/views/reversals.py",
+    "image": "assets/readme/reversal_view.png"
+  },
+  {
+    "group": "Công cụ & hệ thống",
+    "key": "import_view",
+    "title": "Nhập dữ liệu từ tệp",
+    "description": "Tải mẫu CSV/XLSX, chọn và upload tệp, tạo job/dry run, xem lỗi từng dòng, xác nhận commit và xem lịch sử nhập. Tồn đầu kỳ/đơn hàng nhập từ tệp tạo chứng từ để tiếp tục nghiệp vụ. Kiểm tra lại, hủy và khôi phục yêu cầu nằm trong menu Thao tác khác.",
+    "source": "apps/desktop/views/imports.py",
+    "image": "assets/readme/import_view.png"
+  },
+  {
+    "group": "Công cụ & hệ thống",
+    "key": "print_view",
+    "title": "In chứng từ & tem",
+    "description": "Chọn chứng từ hoặc hàng, mẫu và khổ giấy; tạo PDF tiếng Việt, xem trước khi mở thao tác in, lưu PDF hoặc gửi máy in. Có phiếu nhận, xuất, chuyển, kiểm kê và tem sản phẩm/vị trí; theo dõi trạng thái, in lại và kiểm tra yêu cầu.",
+    "source": "apps/desktop/printing/view.py",
+    "image": "assets/readme/print_view.png"
+  },
+  {
+    "group": "Công cụ & hệ thống",
+    "key": "admin_view",
+    "title": "Tài khoản & phân quyền",
+    "description": "Quản lý tài khoản, trạng thái hoạt động, vai trò và quyền theo kho/thời hạn; xử lý yêu cầu cấp quyền, thu hồi phiên và các thao tác bảo mật theo quyền hiện tại.",
+    "source": "apps/desktop/views/admin.py",
+    "image": "assets/readme/admin_view.png"
+  },
+  {
+    "group": "Công cụ & hệ thống",
+    "key": "recovery_view",
+    "title": "Nháp & phục hồi lệnh",
+    "description": "Xem nhật ký nháp và lệnh theo thiết bị/tài khoản/máy chủ; tra ACK, xem nội dung, sửa hoặc bỏ nháp chưa gửi. Gửi lại dùng đúng key và nội dung. Danh sách và chi tiết nằm ở hai tab riêng.",
+    "source": "apps/desktop/views/recovery.py",
+    "image": "assets/readme/recovery_view.png"
+  },
+  {
+    "group": "Công cụ & hệ thống",
+    "key": "receipt_recovery_view",
+    "title": "Phục hồi nhận hàng",
+    "description": "Tra các lần ghi sổ nhận hàng bị gián đoạn, kiểm tra kết quả máy chủ và tiếp tục với đúng yêu cầu cũ. Không tự ghi nhận thành công khi chưa có xác nhận.",
+    "source": "apps/desktop/views/receipt_recovery.py",
+    "image": "assets/readme/receipt_recovery_view.png"
+  },
+  {
+    "group": "Công cụ & hệ thống",
+    "key": "connection_view",
+    "title": "Kết nối máy chủ",
+    "description": "Kiểm tra kết nối API và trạng thái sẵn sàng của máy chủ/cơ sở dữ liệu. Hiển thị địa chỉ API được cấu hình và kết quả kiểm tra.",
+    "source": "apps/desktop/views/shell.py",
+    "image": "assets/readme/connection_view.png"
+  }
+]

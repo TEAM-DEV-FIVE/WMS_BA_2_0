@@ -1,8 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 
+from apps.desktop.catalog_display import display_sku
 from apps.desktop.presenters.master_data import REFERENCES, MasterDataPresenter
 from apps.desktop.views.catalog_lookup import CatalogLookup, reference_label
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.document_review import ScrollPanel
+from apps.desktop.views.pagination import PaginationBar
+from apps.desktop.views.product_profile import ProductProfile
+from apps.desktop.views.ui_help import StatusButton
 
 ENTITIES = {
     "Đơn vị tính": ("uoms", "master.read", "master.write"),
@@ -49,45 +55,67 @@ class MasterDataView(ttk.Frame):
         self.suspended = {}
         self.entity = tk.StringVar(value=next(iter(self.entities)))
         self.query = tk.StringVar()
-        self.status = tk.StringVar(value="Đăng nhập, sau đó chọn danh mục và bấm Tìm / tải lại.")
+        self.status = tk.StringVar(value="Đăng nhập, sau đó chọn danh mục và bấm Tìm / tải lại")
         self.reason = tk.StringVar()
         self.variables, self.inputs, self.references = {}, {}, {}
         self.rows, self.current, self.next_after = {}, None, None
         self.busy = False
         self.lookup = None
+        self.profile = None
         self.reference_buttons = {}
+        self.loaded_resource = None
+        self.form_baseline = {}
 
         toolbar = ttk.Frame(self)
         toolbar.pack(fill="x")
         self.selector = ttk.Combobox(toolbar, textvariable=self.entity, values=[], state="readonly", width=18)
         self.selector.pack(side="left", padx=(0, 8))
         self.selector.bind("<<ComboboxSelected>>", self.switch)
+        ttk.Label(toolbar, text="Từ khóa").pack(side="left", padx=(0, 6))
         self.search = ttk.Entry(toolbar, textvariable=self.query, width=25)
-        self.search.pack(side="left", padx=(0, 8))
+        self.search.pack(side="left", fill="x", expand=True, padx=(0, 8))
         self.search.bind("<Return>", lambda event: self.load())
-        self.load_button = ttk.Button(toolbar, text="Tìm / tải lại", command=self.load)
+        self.load_button = ttk.Button(toolbar, text="Tìm kiếm", command=self.load, style="Primary.TButton")
         self.load_button.pack(side="left")
-        self.next_button = ttk.Button(toolbar, text="Trang sau", command=lambda: self.load(next_page=True))
-        self.next_button.pack(side="left", padx=8)
-        ttk.Label(self, textvariable=self.status, wraplength=800).pack(fill="x", pady=10)
-        body = ttk.Frame(self)
+        actions_bar = ttk.Frame(self)
+        actions_bar.pack(fill="x", pady=(8, 0))
+        self.create_button = ttk.Button(actions_bar, text="Thêm mới", command=self.create_record, style="Primary.TButton")
+        self.create_button.pack(side="right", padx=(8, 0))
+        self.profile_button = ttk.Button(actions_bar, text="Ảnh & mô tả", command=self.open_profile)
+        self.profile_button.pack(side="left")
+        self.details_button = ttk.Button(actions_bar, text="Ẩn chi tiết", command=self.toggle_details)
+        self.details_button.pack(side="right")
+        StatusButton(self, self.status).pack(anchor="e", pady=3)
+        body = self.body = ttk.Frame(self)
         body.pack(fill="both", expand=True)
-        body.columnconfigure(0, weight=1, minsize=180)
-        body.columnconfigure(1, weight=1, minsize=260)
+        body.columnconfigure(0, weight=3, minsize=180)
+        body.columnconfigure(1, weight=2, minsize=260)
         body.rowconfigure(0, weight=1)
-        listing = ttk.Frame(body)
+        listing = self.listing = ttk.LabelFrame(body, text="Danh sách", padding=8)
         listing.grid(row=0, column=0, sticky="nsew", padx=(0, 14))
-        self.table = ttk.Treeview(listing, columns=("code", "name", "state"), show="headings", height=12)
+        self.table = DataTable(listing, columns=("code", "name", "state"), show="headings", height=12)
         for field, label, width in [("code", "Mã", 110), ("name", "Tên", 180), ("state", "Trạng thái", 95)]:
             self.table.heading(field, text=label)
             self.table.column(field, width=width, minwidth=50)
-        self.table.pack(side="left", fill="both", expand=True)
+        listing.columnconfigure(0, weight=1)
+        listing.rowconfigure(0, weight=1)
+        self.table.grid(row=0, column=0, sticky="nsew")
         scrollbar = ttk.Scrollbar(listing, command=self.table.yview)
-        scrollbar.pack(side="right", fill="y")
-        self.table.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        horizontal = ttk.Scrollbar(listing, orient="horizontal", command=self.table.xview)
+        horizontal.grid(row=1, column=0, sticky="ew")
+        self.table.configure(yscrollcommand=scrollbar.set, xscrollcommand=horizontal.set)
+        self.pagination = PaginationBar(listing, self.load_page)
+        self.pagination.grid(row=2, column=0, columnspan=2, sticky="ew")
+        self.next_button = self.pagination.next_button
         self.table.bind("<<TreeviewSelect>>", self.select)
-        right = ttk.Frame(body)
-        right.grid(row=0, column=1, sticky="nsew")
+        self.table.bind("<Double-1>", lambda event: self.show_details(True))
+        self.table.bind("<Return>", lambda event: self.show_details(True))
+        details = self.details = ttk.LabelFrame(body, text="Thông tin chi tiết", padding=8)
+        details.grid(row=0, column=1, sticky="nsew")
+        self.detail_scroll = ScrollPanel(details)
+        self.detail_scroll.pack(fill="both", expand=True)
+        right = self.detail_scroll.inner
         self.form = ttk.Frame(right)
         self.form.pack(fill="x")
         self.form.columnconfigure(1, weight=1)
@@ -98,13 +126,60 @@ class MasterDataView(ttk.Frame):
         actions.pack(fill="x", pady=10)
         self.new_button = ttk.Button(actions, text="Tạo mới", command=self.new)
         self.new_button.pack(side="left")
-        self.save_button = ttk.Button(actions, text="Lưu", command=self.save)
+        self.save_button = ttk.Button(actions, text="Lưu", command=self.save, style="Primary.TButton")
         self.save_button.pack(side="left", padx=8)
         self.retry_button = ttk.Button(right, text="Gửi lại cùng yêu cầu", command=self.presenter.retry)
         self.retry_button.pack(anchor="w")
         self.bind("<Control-s>", lambda event: self.save() if not self.busy else None)
         self.rebuild()
+        self.detail_scroll.bind_scrolling()
         self.enable()
+
+    def show_details(self, visible):
+        if visible:
+            self.details.grid()
+            self.body.columnconfigure(1, weight=2, minsize=260)
+            self.listing.grid_configure(columnspan=1, padx=(0, 14))
+        else:
+            self.details.grid_remove()
+            self.body.columnconfigure(1, weight=0, minsize=0)
+            self.listing.grid_configure(columnspan=2, padx=0)
+        self.details_button.configure(text="Ẩn chi tiết" if visible else "Thông tin / chỉnh sửa")
+
+    def toggle_details(self):
+        self.show_details(not bool(self.details.winfo_manager()))
+
+    def create_record(self):
+        if self.busy or self.presenter.uncertain or self.entities[self.entity.get()][2] not in self.permissions:
+            return
+        self.show_details(True)
+        self.new()
+
+    def open_products(self):
+        """Enter the product route through the existing asynchronous, authorized API."""
+        if "master.read" not in self.permissions:
+            self.status.set("Tài khoản chưa có quyền xem sản phẩm; Liên hệ quản trị viên")
+            return
+        if self.busy or self.presenter.uncertain:
+            return
+        if self.resource() != "products":
+            if self.reason.get() or self.form_baseline != {key: value.get() for key, value in self.variables.items()}:
+                self.status.set("Danh mục hiện tại có nội dung chưa lưu; Hoàn tất trước khi chuyển sang Sản phẩm")
+                return
+            self.presenter.reset()
+            self.entity.set("Sản phẩm")
+            self.query.set("")
+            self.rebuild()
+        if self.loaded_resource != "products":
+            self.show_details(False)
+            self.load()
+
+    def open_profile(self):
+        if self.resource() != "products" or not self.current or self.busy:
+            return
+        if self.profile:
+            self.profile.close()
+        self.profile = ProductProfile(self, self.presenter.api, self.current)
 
     def resource(self):
         return self.entities[self.entity.get()][0]
@@ -123,7 +198,7 @@ class MasterDataView(ttk.Frame):
         if choices and self.entity.get() not in choices:
             self.entity.set(choices[0])
             self.rebuild()
-        self.status.set("Chọn danh mục và bấm Tìm / tải lại." if choices else "Chưa có quyền xem danh mục.")
+        self.status.set("Chọn danh mục và bấm Tìm / tải lại" if choices else "Chưa có quyền xem danh mục")
         pending = self.suspended.pop(self.actor_id, None)
         if pending:
             entity, record_id, payload, _ = pending
@@ -131,7 +206,7 @@ class MasterDataView(ttk.Frame):
             self.rebuild()
             self.presenter.uncertain = pending
             self.display({**payload, "id": record_id, "version": payload.get("expected_version", 1)})
-            self.status.set("Yêu cầu trước chưa rõ kết quả. Gửi lại cùng yêu cầu để xác nhận.")
+            self.status.set("Yêu cầu trước chưa rõ kết quả; Gửi lại cùng yêu cầu để xác nhận")
         self.enable()
 
     def switch(self, event=None):
@@ -166,6 +241,7 @@ class MasterDataView(ttk.Frame):
             if field == "warehouse_id" and self.resource() == "locations":
                 widget.bind("<<ComboboxSelected>>", lambda event: self.warehouse_changed())
         self.new()
+        self.detail_scroll.bind_scrolling()
 
     def new(self):
         if self.presenter.uncertain:
@@ -180,14 +256,23 @@ class MasterDataView(ttk.Frame):
         self.enable()
         if self.inputs:
             next(iter(self.inputs.values())).focus_set()
+        self.form_baseline = {key: value.get() for key, value in self.variables.items()}
 
     def load(self, next_page=False):
+        self.load_page(self.next_after if next_page else None)
+
+    def load_page(self, after=None):
         if self.busy or self.presenter.uncertain:
             return
         filters = {}
         if self.resource() == "locations" and self.reference_value("warehouse_id"):
             filters["warehouse_id"] = self.reference_value("warehouse_id")
-        self.presenter.load(self.resource(), self.query.get(), self.next_after if next_page else None, filters=filters)
+        scope = (self.resource(), self.query.get(), tuple(sorted(filters.items())))
+        if scope != getattr(self, "pagination_scope", None):
+            after = None
+        self.pagination_scope = scope
+        self.pagination.begin(after)
+        self.presenter.load(self.resource(), self.query.get(), after, filters=filters)
 
     def reference_value(self, field):
         return self.references.get(field, {}).get(self.variables[field].get())
@@ -205,7 +290,7 @@ class MasterDataView(ttk.Frame):
         if field == "parent_id" and self.resource() == "locations":
             warehouse = self.reference_value("warehouse_id")
             if not warehouse:
-                self.status.set("Chọn kho trước khi tìm Zone / Rack cha.")
+                self.status.set("Chọn kho trước khi tìm Zone / Rack cha")
                 return
             filters["warehouse_id"] = warehouse
         self.lookup = CatalogLookup(self, "master/" + REFERENCES[self.resource()][field],
@@ -238,6 +323,8 @@ class MasterDataView(ttk.Frame):
         self.reason.set("")
         for field, variable in self.variables.items():
             value = record.get(field)
+            if field == "sku":
+                value = display_sku(value)
             if field in self.choices:
                 value = next((label for label, code in self.choices[field].items() if code == value), value)
             elif isinstance(value, bool):
@@ -250,6 +337,7 @@ class MasterDataView(ttk.Frame):
                     self.inputs[field].configure(values=list(self.references[field]))
                 value = label
             variable.set("" if value is None else str(value))
+        self.form_baseline = {key: value.get() for key, value in self.variables.items()}
         self.enable()
 
     def save(self):
@@ -259,6 +347,8 @@ class MasterDataView(ttk.Frame):
         try:
             for field, variable in self.variables.items():
                 value = variable.get()
+                if field == "sku" and self.current:
+                    value = self.current["sku"]
                 if field in self.choices:
                     value = self.choices[field][value]
                 elif field.startswith("is_") or field == "expiry_required":
@@ -275,7 +365,7 @@ class MasterDataView(ttk.Frame):
             if self.current:
                 body["expected_version"] = self.current["version"]
         except (ValueError, KeyError):
-            self.catalog_error("Kiểm tra số chữ số thập phân và các lựa chọn trong form.", uncertain=False)
+            self.catalog_error("Kiểm tra số chữ số thập phân và các lựa chọn trong form", uncertain=False)
             return
         self.presenter.save(self.resource(), self.current["id"] if self.current else None, body)
 
@@ -293,19 +383,30 @@ class MasterDataView(ttk.Frame):
         free = not self.busy and not uncertain
         for widget in [self.selector, self.search, self.load_button]:
             widget.state(["!disabled"] if free and readable else ["disabled"])
-        self.next_button.state(["!disabled"] if free and readable and self.next_after else ["disabled"])
-        for widget in [self.new_button, self.save_button, self.reason_entry, *self.inputs.values(), *self.reference_buttons.values()]:
+        self.pagination.set_enabled(free and readable)
+        for widget in [self.create_button, self.new_button, self.save_button, self.reason_entry, *self.inputs.values(), *self.reference_buttons.values()]:
             widget.state(["!disabled"] if free and writable else ["disabled"])
         for field in ("code", "sku"):
             if field in self.inputs and self.current:
                 self.inputs[field].state(["disabled"])
         self.retry_button.state(["!disabled"] if uncertain and not self.busy else ["disabled"])
+        self.profile_button.state(["!disabled"] if free and readable and self.current and self.resource() == "products" else ["disabled"])
 
     def catalog_loaded(self, result, refs):
         self.busy = False
+        self.pagination.loaded(result)
+        self.loaded_resource = self.resource()
         self.rows = {record["id"]: record for record in result["items"]}
         self.next_after = result["next_after"]
         self.table.delete(*self.table.get_children())
+        product_columns = [("code", "Mã sản phẩm", 180), ("name", "Tên sản phẩm", 330),
+                           ("unit", "Đơn vị", 100), ("category", "Nhóm hàng", 160),
+                           ("tracking", "Theo dõi", 110), ("state", "Trạng thái", 110)]
+        columns = product_columns if self.resource() == "products" else [("code", "Mã", 130), ("name", "Tên", 240), ("state", "Trạng thái", 110)]
+        self.table.configure(columns=[field for field, _, _ in columns])
+        for field, label, width in columns:
+            self.table.heading(field, text=label, anchor="w")
+            self.table.column(field, width=width, minwidth=90, anchor="w")
         self.table.configure(show="tree headings" if self.resource() == "locations" else "headings")
         self.table.column("#0", width=85, minwidth=40)
         for warehouse in result.get("warehouses", {}).values():
@@ -321,15 +422,20 @@ class MasterDataView(ttk.Frame):
                     insert(nodes[parent])
                 else:
                     parent = "wh:" + record["warehouse_id"]
+            values = [display_sku(record.get("sku", record.get("code"))), record.get("name", record.get("source_ref", ""))]
+            if self.resource() == "products":
+                for field in ("base_uom_id", "category_id"):
+                    values.append(next((row["name"] for row in refs.get(field, {}).get("items", []) if row["id"] == record.get(field)), ""))
+                values.append({"NONE": "Thông thường", "LOT": "Theo lô", "SERIAL": "Theo serial"}.get(record.get("tracking"), ""))
+            values.append("Đang dùng" if record.get("is_active", True) else "Ngừng dùng")
             self.table.insert(parent, "end", iid=record["id"], text=record.get("kind", ""),
-                              values=(record.get("sku", record.get("code")), record.get("name", record.get("source_ref", "")),
-                                      "Đang dùng" if record.get("is_active", True) else "Ngừng dùng"), open=True)
+                              values=values, tags=("stripe" if len(self.table.get_children()) % 2 else "plain",), open=True)
         for record in nodes.values():
             insert(record)
         previous_references = self.references
         self.references = {}
         for field, data in refs.items():
-            mapping = {"— Không chọn —": None}
+            mapping = {"  Không chọn  ": None}
             mapping.update({reference_label(row): row["id"] for row in data["items"]})
             selected = self.variables[field].get()
             if selected in previous_references.get(field, {}):
@@ -339,22 +445,29 @@ class MasterDataView(ttk.Frame):
         if self.current:
             self.display(self.rows.get(self.current["id"], self.current))
         truncated = any(data["next_after"] for data in refs.values())
-        self.status.set(f"Đã tải {len(self.rows)} bản ghi." + (" Bấm Tìm… bên cạnh ô tham chiếu để tìm hoặc chuyển trang." if truncated else ""))
+        self.status.set(f"Đã tải {len(self.rows)} bản ghi" + (" Bấm Tìm… bên cạnh ô tham chiếu để tìm hoặc chuyển trang" if truncated else ""))
+        if not self.rows:
+            self.status.set("Đã tải 0 bản ghi; Không có kết quả phù hợp; thử thay đổi từ khóa hoặc chọn danh mục khác")
         self.enable()
 
     def catalog_saved(self, record):
         self.busy = False
         self.display(record)
-        self.status.set(f"Đã lưu {record.get('sku', record.get('code'))}, phiên bản {record['version']}. Bấm Tìm / tải lại để cập nhật danh sách.")
+        self.status.set(f"Đã lưu {display_sku(record.get('sku', record.get('code')))}, phiên bản {record['version']}; Bấm Tìm / tải lại để cập nhật danh sách")
 
     def catalog_error(self, message, *, uncertain):
         self.busy = False
-        self.status.set(message + (" Chưa xác định đã lưu hay chưa; gửi lại cùng yêu cầu để xác nhận." if uncertain else ""))
+        self.status.set(message + (" Chưa xác định đã lưu hay chưa; gửi lại cùng yêu cầu để xác nhận" if uncertain else ""))
         self.enable()
         if self.lookup:
             self.lookup.error(message)
 
     def catalog_clear(self):
+        self.pagination.reset()
+        self.loaded_resource = None
+        if self.profile:
+            self.profile.close()
+            self.profile = None
         self.busy = False
         self.rows, self.current, self.next_after = {}, None, None
         self.references = {}
@@ -365,6 +478,9 @@ class MasterDataView(ttk.Frame):
         self.new()
 
     def release_variables(self):
+        if self.profile:
+            self.profile.close()
+            self.profile = None
         if self.lookup:
             self.lookup.cancel()
         self.variables.clear()

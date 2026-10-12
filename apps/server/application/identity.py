@@ -19,6 +19,7 @@ from packages.contracts.identity import (
     RecoveryCodes,
     SessionTokens,
 )
+from packages.media.avatar import validate_avatar
 
 
 def row(connection, sql, **params):
@@ -96,29 +97,38 @@ class IdentityService:
         result = None
         with self.engine.begin() as connection:
             key = self.throttle(connection, "LOGIN", username, now)
-            user = row(connection, "SELECT * FROM wms.app_user WHERE username=:name FOR UPDATE", name=username)
+            if "@" in username:
+                user = row(connection, """SELECT u.* FROM wms.app_user u JOIN wms.auth_contact c ON c.user_id=u.id
+                    WHERE c.kind='email' AND c.value=:name FOR UPDATE OF u""", name=username.strip().lower())
+            else:
+                user = row(connection, "SELECT * FROM wms.app_user WHERE username=:name FOR UPDATE", name=username)
             verified = verify_password(user["password_hash"] if user else None, password)
             if not user or not user["is_active"] or not verified:
                 self.failed_attempt(connection, key, now)
                 audit(connection, user["id"] if user else None, "auth.login.failed", None, request_id, now)
             else:
                 self.clear_attempts(connection, key)
-                factor = row(connection, """SELECT id FROM wms.mfa_factor WHERE user_id=:user
-                    AND kind='TOTP' AND verified_at IS NOT NULL AND revoked_at IS NULL""", user=user["id"])
-                if factor:
-                    self.cipher()  # Refuse, rather than bypass MFA, if encryption key is missing.
-                    challenge = new_token()
-                    connection.execute(text("""INSERT INTO wms.auth_challenge
-                        (token_hash,user_id,device_id,auth_version,expires_at) VALUES (:hash,:user,:device,:version,:expiry)
-                    """), {"hash": token_hash(challenge), "user": user["id"], "device": device_id,
-                           "version": user["auth_version"], "expiry": now+timedelta(minutes=5)})
-                    result = MfaChallenge(challenge_token=challenge)
-                else:
-                    result = self.new_session(connection, user, device_id, now)
-                    audit(connection, user["id"], "auth.login.succeeded", user["id"], request_id, now)
+                result = self.login_verified(connection, user, device_id, request_id, now)
         if result is None:
             raise DomainError("UNAUTHENTICATED", "Thông tin đăng nhập không hợp lệ.")
         return result
+
+    def login_verified(self, connection, user, device_id, request_id, now):
+        factor = row(connection, """SELECT id FROM wms.mfa_factor WHERE user_id=:user
+            AND kind='TOTP' AND verified_at IS NOT NULL AND revoked_at IS NULL""", user=user["id"])
+        if factor:
+            self.cipher()  # Refuse, rather than bypass MFA, if encryption key is missing.
+            challenge = new_token()
+            connection.execute(text("""INSERT INTO wms.auth_challenge
+                (token_hash,user_id,device_id,auth_version,expires_at) VALUES (:hash,:user,:device,:version,:expiry)
+            """), {"hash": token_hash(challenge), "user": user["id"], "device": device_id,
+                   "version": user["auth_version"], "expiry": now+timedelta(minutes=5)})
+            result = MfaChallenge(challenge_token=challenge)
+        else:
+            result = self.new_session(connection, user, device_id, now)
+            audit(connection, user["id"], "auth.login.succeeded", user["id"], request_id, now)
+        return result
+
 
     def verify_totp(self, connection, factor, code, now):
         try:
@@ -338,6 +348,47 @@ class IdentityService:
                                {"id": user_id, "now": now})
             connection.execute(text("UPDATE wms.auth_recovery_code SET revoked_at=COALESCE(revoked_at,:now) WHERE user_id=:id"),
                                {"id": user_id, "now": now})
+
+    def avatar(self, connection, user_id):
+        value = row(connection, "SELECT image_base64,version FROM wms.user_avatar WHERE user_id=:id", id=user_id)
+        return {"avatar_base64": value["image_base64"] if value else None,
+                "avatar_version": value["version"] if value else 0}
+
+    def update_profile(self, token, payload, request_id):
+        with self.engine.begin() as connection:
+            now = self.clock()
+            actor, user = self.lock_actor(connection, token, now)
+            if actor.mfa_verified_at is None:
+                raise DomainError("MFA_REQUIRED", "Hoàn tất MFA trước khi sửa hồ sơ")
+            avatar = self.avatar(connection, actor.user_id)
+            image_changed = False
+            if "avatar_base64" in payload.model_fields_set:
+                if payload.expected_avatar_version is None:
+                    raise DomainError("VALIDATION_ERROR", "Thiếu phiên bản ảnh đại diện")
+                try:
+                    encoded = validate_avatar(payload.avatar_base64) if payload.avatar_base64 is not None else None
+                except ValueError as exc:
+                    raise DomainError("INVALID_AVATAR", str(exc), field="avatar_base64") from None
+                image_changed = encoded != avatar["avatar_base64"]
+                if image_changed and payload.expected_avatar_version != avatar["avatar_version"]:
+                    raise DomainError("STALE_VERSION", "Ảnh đã thay đổi ở phiên khác; tải lại tài khoản trước khi lưu")
+            name_changed = user["display_name"] != payload.display_name
+            if name_changed and user["display_name"] != payload.expected_display_name:
+                raise DomainError("STALE_VERSION", "Hồ sơ đã thay đổi; tải lại tài khoản trước khi lưu")
+            if name_changed:
+                connection.execute(text("UPDATE wms.app_user SET display_name=:name WHERE id=:id"),
+                                   {"name": payload.display_name, "id": actor.user_id})
+            if image_changed:
+                connection.execute(text("""INSERT INTO wms.user_avatar(user_id,image_base64,version,updated_at)
+                    VALUES (:id,:image,1,:now) ON CONFLICT(user_id) DO UPDATE
+                    SET image_base64=excluded.image_base64, version=wms.user_avatar.version+1, updated_at=excluded.updated_at"""),
+                                   {"id": actor.user_id, "image": encoded, "now": now})
+                avatar = self.avatar(connection, actor.user_id)
+            if name_changed or image_changed:
+                audit(connection, actor.user_id, "iam.profile.updated", actor.user_id, request_id, now)
+            return {"id": actor.user_id, "username": actor.username, "display_name": payload.display_name,
+                    "is_active": True, "mfa_verified": True, **avatar,
+                    "global_permissions": Authorization(connection, actor, now).global_permissions()}
 
     def change_password(self, token, password, code, new_password, request_id):
         now, success = self.clock(), False

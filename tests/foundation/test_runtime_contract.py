@@ -32,8 +32,9 @@ def test_contract_inventory_is_current_without_dropping_planned_apis():
     assert saved == review_contract(RUNTIME, design)
     assert len(saved["design_operations"]) == len(operations(design))
     assert any(row["status"] == "PLANNED" for row in saved["design_operations"])
-    public = {("GET", "/api/v1/health"), ("GET", "/api/v1/ready"),
-              *(("POST", "/api/v1/auth/" + name) for name in ("login", "mfa", "refresh", "password/reset", "mfa/recover"))}
+    public = {("GET", "/api/v1/health"), ("GET", "/api/v1/ready"), ("GET", "/api/v1/auth/options"),
+              *(("POST", "/api/v1/auth/" + name) for name in
+                ("login", "mfa", "refresh", "password/reset", "mfa/recover", "forgot", "self-reset", "google/start", "google/complete"))}
     for key, operation in operations(RUNTIME).items():
         assert bool(operation.get("security")) == (key not in public), key
         if key not in public:

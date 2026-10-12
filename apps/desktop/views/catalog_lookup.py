@@ -3,11 +3,15 @@
 import tkinter as tk
 from tkinter import ttk
 
+from apps.desktop.catalog_display import display_sku
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.pagination import PaginationBar
+
 
 def reference_label(row):
-    code = row.get("sku", row.get("code", row.get("uom_id", row["id"])))
-    name = row.get("name", f"× {row['factor']} · revision {row['revision']}" if "factor" in row else "")
-    return f"{code} · {name} [{row['id']}]"
+    code = display_sku(row.get("sku", row.get("code", row.get("uom_id", row["id"]))))
+    name = row.get("name", f"× {row['factor']}  revision {row['revision']}" if "factor" in row else "")
+    return f"{code}  {name} [{row['id']}]"
 
 
 class CatalogLookup(tk.Toplevel):
@@ -16,7 +20,7 @@ class CatalogLookup(tk.Toplevel):
         self.host, self.path, self.on_select = host, path, on_select
         self.filters, self.searchable = filters or {}, searchable
         self.query = tk.StringVar()
-        self.status = tk.StringVar(value="Nhập mã/tên rồi tìm; danh sách có thể chuyển trang.")
+        self.status = tk.StringVar(value="Nhập mã/tên rồi tìm; danh sách có thể chuyển trang")
         self.rows, self.next_after = {}, None
         self.title("Chọn dữ liệu tham chiếu")
         self.geometry("720x420")
@@ -31,12 +35,10 @@ class CatalogLookup(tk.Toplevel):
             self.entry.state(["disabled"])
         self.find = ttk.Button(bar, text="Tìm / đầu", command=self.load)
         self.find.pack(side="left", padx=8)
-        self.next = ttk.Button(bar, text="Trang sau", command=lambda: self.load(True))
-        self.next.pack(side="left")
         listing = ttk.Frame(self, padding=(10, 0))
         listing.pack(fill="both", expand=True)
-        self.table = ttk.Treeview(listing, columns=("label",), show="headings", selectmode="browse")
-        self.table.heading("label", text="Mã · tên / quy cách · định danh")
+        self.table = DataTable(listing, columns=("label",), show="headings", selectmode="browse")
+        self.table.heading("label", text="Mã  tên / quy cách  định danh")
         self.table.column("label", width=650)
         self.table.pack(side="left", fill="both", expand=True)
         scroll = ttk.Scrollbar(listing, command=self.table.yview)
@@ -44,6 +46,9 @@ class CatalogLookup(tk.Toplevel):
         self.table.configure(yscrollcommand=scroll.set)
         self.table.bind("<Return>", self.choose)
         self.table.bind("<Double-1>", self.choose)
+        self.pagination = PaginationBar(self, self.load_page)
+        self.pagination.pack(fill="x", padx=10)
+        self.next = self.pagination.next_button
         ttk.Label(self, textvariable=self.status, wraplength=670).pack(fill="x", padx=10, pady=8)
         actions = ttk.Frame(self, padding=10)
         actions.pack(fill="x")
@@ -55,21 +60,32 @@ class CatalogLookup(tk.Toplevel):
         self.entry.focus_set()
 
     def load(self, next_page=False):
-        self.host.presenter.reference(self.path, self.query.get(), self.next_after if next_page else None,
+        self.load_page(self.next_after if next_page else None)
+
+    def load_page(self, after=None):
+        if self.host.busy:
+            return
+        if self.query.get() != getattr(self, "page_query", None):
+            after = None
+        self.page_query = self.query.get()
+        self.pagination.begin(after)
+        self.host.presenter.reference(self.path, self.query.get(), after,
                                       filters=self.filters, searchable=self.searchable)
 
     def busy(self):
+        self.pagination.set_enabled(False)
         for widget in (self.find, self.next, self.pick, self.entry):
             widget.state(["disabled"])
         self.status.set("Đang tải…")
 
     def loaded(self, result):
+        self.pagination.loaded(result)
         self.rows = {row["id"]: row for row in result["items"]}
         self.next_after = result["next_after"]
         self.table.delete(*self.table.get_children())
         for row in self.rows.values():
             self.table.insert("", "end", iid=row["id"], values=(reference_label(row),))
-        self.ready(f"{len(self.rows)} mục trên trang này.")
+        self.ready(f"{len(self.rows)} mục trên trang này")
 
     def error(self, message):
         self.rows, self.next_after = {}, None
@@ -80,7 +96,7 @@ class CatalogLookup(tk.Toplevel):
         self.status.set(message)
         self.find.state(["!disabled"])
         self.pick.state(["!disabled"] if self.rows else ["disabled"])
-        self.next.state(["!disabled"] if self.next_after else ["disabled"])
+        self.pagination.set_enabled(True)
         if self.searchable:
             self.entry.state(["!disabled"])
 

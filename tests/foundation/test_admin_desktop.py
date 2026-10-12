@@ -375,6 +375,7 @@ def test_admin_900_by_690_navigation_layout_timeout_secret_and_cleanup(caplog, t
     import tkinter as tk
 
     root = tk.Tk()
+    root.geometry("900x690")
     shell = DesktopShell(root, DesktopSettings(local_data_dir=tmp_path))
     view = shell.admin_view
     user = CurrentUser(id=uuid4(), username="admin", display_name="Administrator", is_active=True,
@@ -383,6 +384,8 @@ def test_admin_900_by_690_navigation_layout_timeout_secret_and_cleanup(caplog, t
     started, release = threading.Event(), threading.Event()
 
     def respond(request):
+        if request.url.path.endswith("auth/options"):
+            return httpx.Response(200, json={"google": False, "email": False, "sms": False})
         if request.url.path.endswith("auth/me"):
             return httpx.Response(200, json=user.model_dump(mode="json"))
         if request.method == "POST":
@@ -396,12 +399,13 @@ def test_admin_900_by_690_navigation_layout_timeout_secret_and_cleanup(caplog, t
     api.client.close()
     api.client = httpx.Client(base_url="http://localhost/api/v1/", transport=httpx.MockTransport(respond))
     api._tokens = SessionTokens(access_token="fixture-token", refresh_token="fixture-refresh", expires_in=900)
-    view.session_changed(user)
+    shell.session_changed(user, [])
     closed = False
     try:
         root.update()
         assert root.winfo_width() == 900 and root.winfo_height() == 690
-        assert len(shell.navigation.cget("values")) == 26
+        assert len(shell.navigation.cget("values")) == 27
+        assert "Tổng quan" in shell.navigation.cget("values")
         assert {"Kiểm kê / điều chỉnh", "Kỳ kho", "Đảo giao dịch"} <= set(shell.navigation.cget("values"))
         assert "Import tệp / tồn đầu kỳ" in shell.navigation.cget("values")
         assert "Báo cáo / xuất dữ liệu" in shell.navigation.cget("values")

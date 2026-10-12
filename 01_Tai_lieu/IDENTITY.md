@@ -178,3 +178,13 @@ suy rằng thao tác chưa chạy chỉ vì một lần đọc chưa thấy dữ
 Kiểm thử bổ sung: `tests/foundation/test_iam_lifecycle.py` và
 `tests/foundation/test_iam_lifecycle_desktop.py`. Bằng chứng T07/T11 vẫn là thành phần;
 Windows UAT chưa chạy. Báo cáo và lệnh tái lập ở [bàn giao B04](PHAN_CONG/BAN_GIAO/B04.md).
+
+
+## Hồ sơ cá nhân
+
+`PATCH /api/v1/auth/profile` nhận `display_name` (1 đến 200 ký tự, không chỉ khoảng trắng,
+không xuống dòng) và `expected_display_name`. Chỉ cho phép tài khoản hiện hành đã xác thực MFA;
+không nhận user ID, quyền, trạng thái hoặc thông tin liên hệ. Cùng thứ tự khóa user/session như
+thao tác bảo mật, so sánh tên hiện có để ngăn ghi đè cập nhật từ phiên khác. Đặt lại cùng tên là
+no-op, audit `iam.profile.updated` chỉ được ghi khi tên thực sự đổi. Trả CurrentUser, giữ phiên
+và MFA hiện tại. Đây là thao tác ONLINE; khi mất kết nối đọc lại hồ sơ trước khi quyết định gửi lại.

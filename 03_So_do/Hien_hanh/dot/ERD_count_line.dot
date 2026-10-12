@@ -1,0 +1,13 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · count_line"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"count_line" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>count_line</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">session_id : uuid</TD></TR><TR><TD ALIGN="LEFT">stock_item_id : uuid</TD></TR><TR><TD ALIGN="LEFT">location_id : uuid</TD></TR><TR><TD ALIGN="LEFT">snapshot_quantity : numeric(20,6)</TD></TR><TR><TD ALIGN="LEFT">approved_quantity : numeric(20,6) ?</TD></TR></TABLE>>];
+"location" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>location</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"count_session" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>count_session</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"stock_item" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_item</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"count_line" -> "location" [label="location_id → id"];
+"count_line" -> "count_session" [label="session_id → id"];
+"count_line" -> "stock_item" [label="stock_item_id → id"];
+}

@@ -22,10 +22,14 @@ from packages.contracts.recovery import acknowledgement, canonical, request_dige
 
 
 class IdentityClient(ApiClient):
-    """Tokens live in RAM only; a single lock serializes refresh rotation."""
+    """Access tokens stay in RAM; optional refresh persistence uses the OS vault."""
 
-    def __init__(self, settings, *, transport=None):
+    def __init__(self, settings, *, transport=None, session_store=None):
         super().__init__(settings, transport=transport)
+        self.session_store = session_store
+        self.remember_session = False
+        self.persist_allowed = False
+        self.persistence_notice = ""
         self.settings = settings
         self.device_id = None
         self._tokens: SessionTokens | None = None
@@ -36,6 +40,38 @@ class IdentityClient(ApiClient):
         self.recovery_user = None
         self.draft_only = False
         self.resource_warehouses = {}
+
+    def enable_persistence(self):
+        from apps.desktop.local_store.session_vault import SessionVault
+        self.device_id = str(device_identity(self.settings.local_data_dir))
+        self.session_store = SessionVault(self.settings, self.device_id)
+
+    def persist_session(self):
+        if self.session_store is None or not self.remember_session or not self.persist_allowed or not self._tokens:
+            return
+        try:
+            self.session_store.save(self._tokens.refresh_token)
+            self.persistence_notice = ""
+        except Exception:
+            self.persistence_notice = "Không lưu được phiên trong kho bảo mật; lần mở sau cần đăng nhập lại"
+
+    def restore_session(self):
+        with self._lock:
+            if self.session_store is None:
+                return False
+            try:
+                token = self.session_store.take()
+            except Exception:
+                self.persistence_notice = "Không mở được kho bảo mật; hãy đăng nhập để tiếp tục"
+                return False
+            if not token:
+                return False
+            self.device_id = str(device_identity(self.settings.local_data_dir))
+            self.remember_session = True
+            self.persist_allowed = True
+            self._tokens = SessionTokens(access_token="", refresh_token=token, expires_in=0)
+            self.refresh()
+            return True
 
     def _request(self, method, path, *, body=None, authenticated=False, extra_headers=None,
                  content=None, binary=False, recovery_hash=None):
@@ -80,9 +116,10 @@ class IdentityClient(ApiClient):
             return self._request(method, path, content=content, authenticated=True,
                                  extra_headers=headers, binary=binary)
 
-    def login(self, username, password):
+    def login(self, username, password, remember=False):
         with self._lock:
             self.clear()
+            self.remember_session = remember
             if self.device_id is None:
                 try:
                     self.device_id = str(device_identity(self.settings.local_data_dir))
@@ -108,13 +145,55 @@ class IdentityClient(ApiClient):
         with self._lock:
             if not self._tokens:
                 raise ApiError("UNAUTHENTICATED", "Hãy đăng nhập lại.")
+            if self.session_store is not None and self.remember_session:
+                try:
+                    self.session_store.forget()
+                except Exception:
+                    self.clear()
+                    raise ApiError("SESSION_STORAGE_ERROR", "Không cập nhật được kho bảo mật; hãy đăng nhập lại") from None
             try:
                 data = self._request("POST", "auth/refresh", body={"refresh_token": self._tokens.refresh_token, "device_id": self.device_id})
                 self._tokens = SessionTokens.model_validate(data)
+                self.persist_session()
             except (ApiError, ValueError):
                 # A lost refresh response leaves token state uncertain; never retry the old refresh automatically.
                 self.clear()
                 raise
+
+    def auth_options(self):
+        with self._lock:
+            return self._request("GET", "auth/options")
+
+    def auth_action(self, action, body):
+        paths = {"forgot": "auth/forgot", "contact_start": "auth/contacts/start",
+                 "contact_confirm": "auth/contacts/confirm", "self_reset": "auth/self-reset"}
+        with self._lock:
+            try:
+                result = self._request("POST", paths[action], body=body,
+                                       authenticated=action in {"contact_start", "contact_confirm"})
+                if action == "self_reset":
+                    self.clear()
+                    return "SIGNED_OUT"
+                return result
+            finally:
+                body.clear()
+
+    def google(self, *, link=False, credentials=None, cancelled=lambda: False, remember=False):
+        from apps.desktop.api.google_login import browser_flow
+        with self._lock:
+            if not link:
+                self.clear()
+                self.remember_session = remember
+                if self.device_id is None:
+                    self.device_id = str(device_identity(self.settings.local_data_dir))
+            result = browser_flow(self, link=link, credentials=credentials, cancelled=cancelled)
+            if link:
+                return result
+            if result.get("status") == "MFA_REQUIRED":
+                self._challenge = MfaChallenge.model_validate(result).challenge_token
+                return "MFA_REQUIRED"
+            self._tokens = SessionTokens.model_validate(result)
+            return "AUTHENTICATED"
 
     def get(self, path):
         with self._lock:
@@ -138,6 +217,17 @@ class IdentityClient(ApiClient):
             user = CurrentUser.model_validate(self.get("auth/me"))
             self.recovery_user = str(user.id)
             return user
+
+    def update_profile(self, body):
+        with self._lock:
+            raw = self.get("auth/me")  # Refresh an expired access token before the write
+            current = CurrentUser.model_validate(raw)
+            self.recovery_user = str(current.id)
+            # Check the wire fields, before model defaults hide an older server schema.
+            if "avatar_base64" in body and not {"avatar_base64", "avatar_version"} <= raw.keys():
+                raise ApiError("SERVER_UPDATE_REQUIRED",
+                    "Máy chủ chưa được cập nhật tính năng ảnh đại diện; cần cập nhật WMS trước khi lưu ảnh")
+            return CurrentUser.model_validate(self._request("PATCH", "auth/profile", body=body, authenticated=True))
 
     def enable_recovery(self):
         from apps.desktop.local_store.recovery import RecoveryJournal
@@ -267,7 +357,9 @@ class IdentityClient(ApiClient):
             return action()
 
     def warehouses(self):
-        return [WarehouseSummary.model_validate(value) for value in self.get("warehouses")]
+        values = [WarehouseSummary.model_validate(value) for value in self.get("warehouses")]
+        preferred = self.settings.preferred_warehouse
+        return sorted(values, key=lambda warehouse: warehouse.code != preferred) if preferred else values
 
     def permissions(self, warehouse_id):
         return self.get(f"warehouses/{warehouse_id}/permissions")
@@ -314,7 +406,13 @@ class IdentityClient(ApiClient):
             finally:
                 self.clear()
 
-    def clear(self):
+    def clear(self, *, forget=True):
+        if forget and self.session_store is not None:
+            try:
+                self.session_store.forget()
+            except Exception:
+                self.persistence_notice = "Không xóa được phiên trong kho bảo mật; kiểm tra kho khóa của hệ điều hành"
+        self.persist_allowed = False
         self.session_generation += 1
         self._tokens = None
         self._challenge = None
@@ -325,7 +423,7 @@ class IdentityClient(ApiClient):
             self.recovery.release()
 
     def close(self):
-        self.clear()
+        self.clear(forget=False)
         if self.recovery is not None:
             self.recovery.close()
             self.recovery = None

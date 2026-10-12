@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import Field, SecretStr, StringConstraints, field_validator
+from pydantic import Field, SecretStr, StringConstraints, field_validator, model_validator
 
 from packages.contracts import Contract
 
@@ -11,7 +11,8 @@ Username = Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True
 
 
 class LoginInput(Contract):
-    username: Username
+    username: Annotated[str, StringConstraints(strip_whitespace=True, to_lower=True, min_length=3,
+        max_length=254, pattern=r"^[a-zA-Z0-9][a-zA-Z0-9.@_+\-]*$")]
     password: SecretStr = Field(min_length=1, max_length=128)
     device_id: UUID
 
@@ -66,12 +67,28 @@ class UserSummary(Contract):
 class CurrentUser(UserSummary):
     mfa_verified: bool
     global_permissions: list[str]
+    avatar_base64: str | None = Field(default=None, max_length=350000, repr=False)
+    avatar_version: int = 0
 
 
 class UserCreate(Contract):
     username: Username
     display_name: str = Field(min_length=1, max_length=200)
     password: SecretStr = Field(min_length=12, max_length=128)
+
+
+class ProfileUpdate(Contract):
+    display_name: str = Field(min_length=1, max_length=200, pattern=r"^\S(?:[^\r\n\t]*\S)?$")
+    expected_display_name: str = Field(min_length=1, max_length=200)
+    avatar_base64: str | None = Field(default=None, max_length=350000, repr=False)
+    expected_avatar_version: int | None = Field(default=None, ge=0)
+
+
+    @model_validator(mode="after")
+    def avatar_has_version(self):
+        if "avatar_base64" in self.model_fields_set and self.expected_avatar_version is None:
+            raise ValueError("Ảnh đại diện cần phiên bản hiện tại")
+        return self
 
 
 class UserActivation(Contract):

@@ -1,0 +1,19 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · stock_move"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"stock_move" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_move</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">transaction_id : uuid</TD></TR><TR><TD ALIGN="LEFT">line_id : uuid</TD></TR><TR><TD ALIGN="LEFT">stock_item_id : uuid</TD></TR><TR><TD ALIGN="LEFT">source_location_id : uuid</TD></TR><TR><TD ALIGN="LEFT">destination_location_id : uuid</TD></TR><TR><TD ALIGN="LEFT">quantity_base : numeric(20,6)</TD></TR><TR><TD ALIGN="LEFT">base_uom_id : uuid</TD></TR><TR><TD ALIGN="LEFT">reverses_move_id : uuid ?</TD></TR></TABLE>>];
+"uom" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>uom</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"location" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>location</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"document_line" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>document_line</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"stock_item" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_item</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"inventory_transaction" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>inventory_transaction</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"stock_move" -> "uom" [label="base_uom_id → id"];
+"stock_move" -> "location" [label="destination_location_id → id"];
+"stock_move" -> "document_line" [label="line_id → id"];
+"stock_move" -> "stock_move" [label="reverses_move_id → id"];
+"stock_move" -> "location" [label="source_location_id → id"];
+"stock_move" -> "stock_item" [label="stock_item_id → id"];
+"stock_move" -> "inventory_transaction" [label="transaction_id → id"];
+}

@@ -1,0 +1,12 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · transfer_adjustment"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"transfer_adjustment" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>transfer_adjustment</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK document_id : uuid</TD></TR><TR><TD ALIGN="LEFT">source_transfer_id : uuid</TD></TR><TR><TD ALIGN="LEFT">discrepancy_id : uuid</TD></TR></TABLE>>];
+"transfer_discrepancy" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>transfer_discrepancy</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"document" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>document</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"transfer_adjustment" -> "transfer_discrepancy" [label="discrepancy_id → id"];
+"transfer_adjustment" -> "document" [label="document_id → id"];
+"transfer_adjustment" -> "document" [label="source_transfer_id → id"];
+}

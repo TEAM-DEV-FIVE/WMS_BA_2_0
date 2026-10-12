@@ -1,0 +1,59 @@
+Table auth_contact {
+  user_id uuid [not null, ref: > app_user.id]
+  kind text [not null]
+  value text [not null]
+  verified_at timestamptz [not null]
+}
+
+Table auth_contact_challenge {
+  id uuid [not null]
+  user_id uuid [not null, ref: > app_user.id]
+  kind text [not null]
+  value text [not null]
+  code_hash char(64) [not null]
+  auth_version integer [not null]
+  expires_at timestamptz [not null]
+  consumed_at timestamptz
+}
+
+Table auth_self_reset {
+  token_hash char(64) [not null]
+  user_id uuid [not null, ref: > app_user.id]
+  kind text [not null]
+  contact_value text [not null]
+  auth_version integer [not null]
+  expires_at timestamptz [not null]
+  consumed_at timestamptz
+}
+
+Table auth_delivery {
+  id uuid [not null]
+  user_id uuid [not null, ref: > app_user.id]
+  auth_version integer [not null]
+  ciphertext text
+  expires_at timestamptz [not null]
+  attempts integer [not null]
+  lease_until timestamptz
+  lease_token uuid
+  completed_at timestamptz
+  last_error text
+}
+
+Table auth_google_identity {
+  subject text [not null]
+  user_id uuid [not null, ref: > app_user.id]
+  linked_at timestamptz [not null]
+}
+
+Table auth_google_flow {
+  state_hash char(64) [not null]
+  nonce_hash char(64) [not null]
+  verifier_ciphertext text
+  redirect_uri text [not null]
+  device_id uuid [not null]
+  user_id uuid [ref: > app_user.id]
+  session_id uuid [ref: > auth_session.id]
+  auth_version integer
+  expires_at timestamptz [not null]
+  consumed_at timestamptz
+}

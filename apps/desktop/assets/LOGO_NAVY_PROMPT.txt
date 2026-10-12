@@ -1,0 +1,5 @@
+Tool: built-in image_gen (2026-10-08)
+Input: wms-logo-transparent.png
+Output: wms-logo-navy.png; transparent_background=true
+
+Use case: precise-object-edit. Edit target: attached WMS husky and warehouse logo. Produce a faithful dark navy blue (#15365b) version for a white app header. Preserve the exact husky silhouette, warehouse, packages and the exact WMS lettering and arrangement. Clean solid edges, remove speckling. Fully transparent background and transparent negative spaces. No rectangle, no border, no shadow, no new text. Centered square asset.

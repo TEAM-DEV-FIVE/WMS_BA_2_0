@@ -73,6 +73,10 @@ def desktop(receiving, tmp_path, monkeypatch):  # noqa: F811
                 shell.notebook.select(view)
                 view.presenter.read(view.path, doc["id"])
                 self.done(view)
+                # The approval inbox already shows its decision panel inline.
+                # Only document editors have separate list/detail pages.
+                if hasattr(view, "document_pages"):
+                    view.document_pages.show_detail()
                 assert view.doc, view.variables["status"].get()
 
         yield Harness()

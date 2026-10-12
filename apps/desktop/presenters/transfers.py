@@ -100,7 +100,7 @@ def run_transfer_request(api, generation, cancelled, method, path, body, key, wa
         return (
             None,
             [],
-            ("INVALID_RESPONSE", "Không xác minh được phản hồi; giữ nguyên yêu cầu để đối chiếu."),
+            ("INVALID_RESPONSE", "Không xác minh được phản hồi; giữ nguyên yêu cầu để đối chiếu"),
             api.session_generation,
         )
 
@@ -127,6 +127,9 @@ class TransferPresenter(MovePresenter):
         return True
 
     def load(self, resource="transfers", after=None, warehouse_id=None):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None and resource == getattr(self.view, "pagination_resource", None):
+            pagination.begin(after)
         params = {"warehouse_id": warehouse_id or self.warehouse_id, "limit": 50}
         if after:
             params["after"] = after

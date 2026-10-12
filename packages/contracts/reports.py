@@ -54,6 +54,7 @@ class ReportPage(Contract):
     snapshot: ReportSnapshot
     items: list[dict]
     next_after: int | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class ExportCreate(Contract):

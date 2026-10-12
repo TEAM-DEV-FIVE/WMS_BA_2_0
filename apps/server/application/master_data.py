@@ -66,8 +66,12 @@ def active_reference(connection, table, value, field):
 
 
 def page(connection, sql, params, limit):
-    records = [dict(row) for row in connection.execute(text(sql), {**params, "limit": limit + 1}).mappings()]
-    return {"items": records[:limit], "next_after": str(records[limit-1]["id"]) if len(records) > limit else None}
+    from apps.server.application.pagination import counted_rows
+
+    rows, total = counted_rows(connection, text(sql), {**params, "limit": limit + 1})
+    records = [dict(row) for row in rows]
+    return {"items": records[:limit], "next_after": str(records[limit-1]["id"]) if len(records) > limit else None,
+            "total": total}
 
 
 class MasterDataService:

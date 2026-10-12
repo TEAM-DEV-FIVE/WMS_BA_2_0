@@ -4,8 +4,12 @@ import tkinter as tk
 from tkinter import ttk
 from urllib.parse import urlencode
 
+from apps.desktop.catalog_display import display_sku
 from apps.desktop.presenters.master_data import MasterDataPresenter
 from apps.desktop.views.catalog_lookup import CatalogLookup, reference_label
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import StatusButton
 
 
 class ProductDetailsView(ttk.Frame):
@@ -22,7 +26,7 @@ class ProductDetailsView(ttk.Frame):
         self.rows, self.next_after = {}, None
         self.mode = tk.StringVar(value=self.modes[0])
         self.query, self.status, self.product_text, self.warehouse = (tk.StringVar() for _ in range(4))
-        self.status.set("Chọn sản phẩm để xem quy đổi UOM hoặc giá; barcode tìm theo mã.")
+        self.status.set("Chọn sản phẩm để xem quy đổi UOM hoặc giá; barcode tìm theo mã")
         bar = ttk.Frame(self)
         bar.pack(fill="x")
         self.selector = ttk.Combobox(bar, textvariable=self.mode, values=self.modes, state="readonly", width=18)
@@ -44,8 +48,8 @@ class ProductDetailsView(ttk.Frame):
         self.warehouse_selector = ttk.Combobox(context, textvariable=self.warehouse, state="readonly", width=44)
         self.warehouse_selector.grid(row=1, column=1, sticky="w", padx=10)
         self.warehouse_selector.bind("<<ComboboxSelected>>", self.scope_changed)
-        ttk.Label(self, textvariable=self.status, wraplength=820).pack(fill="x", pady=6)
-        self.table = ttk.Treeview(self, columns=("code", "detail", "state"), show="headings", height=6)
+        StatusButton(self, self.status).pack(anchor="e", pady=3)
+        self.table = DataTable(self, columns=("code", "detail", "state"), show="headings", height=6)
         for column, label, width in (("code", "Đơn vị / barcode / ngày hiệu lực", 240),
                                      ("detail", "Quy cách / giá quản trị", 330), ("state", "Revision / trạng thái", 180)):
             self.table.heading(column, text=label)
@@ -64,11 +68,15 @@ class ProductDetailsView(ttk.Frame):
         self.retry_button = ttk.Button(actions, text="Gửi lại cùng yêu cầu", command=self.presenter.retry)
         self.retry_button.pack(side="left")
         self.rebuild()
+        install_pagination(self, self.load_page)
+        self.enable()
 
     def resource(self):
         return self.resources[self.modes.index(self.mode.get())]
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         if self.lookup:
             self.lookup.cancel()
         if self.actor_id and self.presenter.uncertain:
@@ -77,7 +85,7 @@ class ProductDetailsView(ttk.Frame):
         self.actor_id = user.id if user else None
         self.permissions = set(user.global_permissions if user else [])
         self.warehouses = list(warehouses or [])
-        self.warehouse_selector.configure(values=[f"{row.code} · {row.name}" for row in self.warehouses])
+        self.warehouse_selector.configure(values=[f"{row.code}  {row.name}" for row in self.warehouses])
         self.warehouse.set("")
         if self.warehouses:
             self.warehouse_selector.current(0)
@@ -90,10 +98,12 @@ class ProductDetailsView(ttk.Frame):
             for field, variable in self.variables.items():
                 value = body.get(field, "")
                 variable.set("Có" if value is True else "Không" if value is False else str(value))
-            self.status.set("Yêu cầu trước chưa rõ kết quả. Gửi lại nguyên yêu cầu để xác nhận.")
+            self.status.set("Yêu cầu trước chưa rõ kết quả; Gửi lại nguyên yêu cầu để xác nhận")
         self.enable()
 
     def switch(self, event=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset()
         self.rebuild()
 
@@ -146,7 +156,7 @@ class ProductDetailsView(ttk.Frame):
 
     def set_product(self, row):
         self.product = row
-        self.product_text.set(f"{row['sku']} · {row['name']} · version {row['version']}")
+        self.product_text.set(f"{display_sku(row['sku'])}  {row['name']}  version {row['version']}")
         self.clear_rows()
         self.new()
 
@@ -157,7 +167,7 @@ class ProductDetailsView(ttk.Frame):
             self.open_picker("master/product-uoms", self.set_conversion,
                              filters={"product_id": self.product["id"], "active": "true"}, searchable=False)
         else:
-            self.status.set("Chọn sản phẩm trước khi chọn quy cách cho barcode.")
+            self.status.set("Chọn sản phẩm trước khi chọn quy cách cho barcode")
 
     def set_uom(self, row):
         self.uom = row
@@ -168,21 +178,30 @@ class ProductDetailsView(ttk.Frame):
         self.variables["product_uom_id"].set(reference_label(row))
 
     def scope_changed(self, event=None):
+        self.pagination.reset()
         self.presenter.sequence += 1
         self.busy = False
         self.clear_rows()
         self.enable()
 
     def load(self, next_page=False):
+        self.load_page(self.next_after if next_page else None)
+
+    def load_page(self, after=None):
         if self.busy or self.presenter.uncertain:
             return
         resource = self.resource()
         if resource != "barcodes" and not self.product:
-            self.status.set("Chọn sản phẩm trước khi tải dữ liệu.")
+            self.status.set("Chọn sản phẩm trước khi tải dữ liệu")
             return
+        scope = (resource, self.query.get(), self.product["id"] if self.product else None, self.warehouse.get())
+        if scope != getattr(self, "pagination_scope", None):
+            after = None
+        self.pagination_scope = scope
         params = {"limit": 50}
-        if next_page and self.next_after:
-            params["after"] = self.next_after
+        self.pagination.begin(after)
+        if after:
+            params["after"] = after
         if resource == "barcodes":
             params["q"] = self.query.get()
             path = "master/barcodes"
@@ -193,7 +212,7 @@ class ProductDetailsView(ttk.Frame):
             if resource == "prices":
                 index = self.warehouse_selector.current()
                 if index < 0:
-                    self.status.set("Chọn kho có quyền đọc giá.")
+                    self.status.set("Chọn kho có quyền đọc giá")
                     return
                 path = "master/products/" + product + "/prices"
                 params = {key: value for key, value in params.items() if key != "product_id"}
@@ -226,11 +245,11 @@ class ProductDetailsView(ttk.Frame):
         body = {field: variable.get().strip() for field, variable in self.variables.items()}
         record_id = None
         if resource != "barcodes" and not self.product:
-            self.status.set("Chọn sản phẩm trước khi lưu.")
+            self.status.set("Chọn sản phẩm trước khi lưu")
             return
         if resource == "product-uoms":
             if not self.uom:
-                self.status.set("Chọn đơn vị quy đổi.")
+                self.status.set("Chọn đơn vị quy đổi")
                 return
             body.update(product_id=self.product["id"], uom_id=self.uom["id"], expected_product_version=self.product["version"])
         elif resource == "barcodes":
@@ -241,7 +260,7 @@ class ProductDetailsView(ttk.Frame):
             elif self.conversion:
                 body["product_uom_id"] = self.conversion["id"]
             else:
-                self.status.set("Chọn quy cách sản phẩm cho barcode.")
+                self.status.set("Chọn quy cách sản phẩm cho barcode")
                 return
         else:
             body["product_id"] = self.product["id"]
@@ -261,16 +280,17 @@ class ProductDetailsView(ttk.Frame):
         self.enable()
 
     def catalog_loaded(self, result, refs):
+        self.pagination.loaded(result)
         self.busy = False
         self.clear_rows()
         self.rows = {row["id"]: row for row in result["items"]}
         self.next_after = result["next_after"]
         if "product" in result:
             self.product = result["product"]
-            self.product_text.set(f"{self.product['sku']} · {self.product['name']} · version {self.product['version']}")
+            self.product_text.set(f"{display_sku(self.product['sku'])}  {self.product['name']}  version {self.product['version']}")
         for row in self.rows.values():
             if self.resource() == "product-uoms":
-                values = (row["uom_id"], "× " + row["factor"], f"r{row['revision']} · " + ("Đang dùng" if row["is_active"] else "Ngừng dùng"))
+                values = (row["uom_id"], "× " + row["factor"], f"r{row['revision']}" + ("Đang dùng" if row["is_active"] else "Ngừng dùng"))
             elif self.resource() == "prices":
                 values = (row["effective_on"], row["amount"] + " " + row["currency"], row["source"])
             else:
@@ -279,7 +299,7 @@ class ProductDetailsView(ttk.Frame):
         if self.current and self.resource() == "barcodes" and self.current["id"] in self.rows:
             self.table.selection_set(self.current["id"])
             self.select()
-        self.status.set(f"Đã tải {len(self.rows)} bản ghi." + (" Barcode tìm trên toàn danh mục." if self.resource() == "barcodes" else ""))
+        self.status.set(f"Đã tải {len(self.rows)} bản ghi" + (" Barcode tìm trên toàn danh mục" if self.resource() == "barcodes" else ""))
         self.enable()
 
     def catalog_saved(self, result):
@@ -290,13 +310,13 @@ class ProductDetailsView(ttk.Frame):
         elif self.resource() == "product-uoms":
             # The API increments the product version once; reload is needed before another revision.
             self.product = None
-            self.product_text.set("Chọn lại sản phẩm để lấy version hiện tại.")
-        self.status.set("Đã lưu. Tải lại để đọc dữ liệu với quyền hiện hành.")
+            self.product_text.set("Chọn lại sản phẩm để lấy version hiện tại")
+        self.status.set("Đã lưu; Tải lại để đọc dữ liệu với quyền hiện hành")
         self.enable()
 
     def catalog_error(self, message, *, uncertain):
         self.busy = False
-        self.status.set(message + (" Chưa rõ kết quả; gửi lại cùng yêu cầu." if uncertain else ""))
+        self.status.set(message + (" Chưa rõ kết quả; gửi lại cùng yêu cầu" if uncertain else ""))
         if self.lookup:
             self.lookup.error(message)
         self.enable()
@@ -311,7 +331,7 @@ class ProductDetailsView(ttk.Frame):
         self.product = self.uom = self.conversion = self.current = None
         self.product_text.set("")
         self.query.set("")
-        self.status.set("Chọn sản phẩm để xem quy đổi / giá; barcode tìm theo mã.")
+        self.status.set("Chọn sản phẩm để xem quy đổi / giá; barcode tìm theo mã")
         for variable in self.variables.values():
             variable.set("")
 
@@ -330,6 +350,8 @@ class ProductDetailsView(ttk.Frame):
             for field in ("code", "product_uom_id", "product_uom_id_button"):
                 self.inputs[field].state(["disabled"])
         self.retry_button.state(["!disabled"] if self.presenter.uncertain and not self.busy else ["disabled"])
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]))
 
     def release_variables(self):
         if self.lookup:

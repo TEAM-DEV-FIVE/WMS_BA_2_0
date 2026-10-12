@@ -4,7 +4,10 @@ from tkinter import ttk
 from uuid import uuid4
 
 from apps.desktop.presenters.issues import IssuePresenter
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
 from apps.desktop.views.orders import STATUS, OrderView
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import StatusButton
 from packages.contracts.issues import IssueInput, IssuePost, IssueUpdate, ReleaseInput, ReserveInput
 
 
@@ -30,7 +33,8 @@ class IssueView(ttk.Frame):
         self.next_button.pack(side="left")
         self.new_button = ttk.Button(top, text="Tạo từ SO", command=self.new)
         self.new_button.pack(side="right")
-        ttk.Label(self, textvariable=self.variables["status"], wraplength=820).pack(fill="x", pady=3)
+        self.status_button = StatusButton(self, self.variables["status"])
+        self.status_button.pack(anchor="e", pady=3)
         self.table = self.tree(self, ["number", "status", "partner"], ["Phiếu xuất", "Trạng thái", "Khách hàng"], [240, 180, 360], 3)
         self.table.bind("<<TreeviewSelect>>", self.select)
         ttk.Label(self, textvariable=self.variables["heading"]).pack(fill="x", pady=3)
@@ -43,10 +47,15 @@ class IssueView(ttk.Frame):
         ttk.Label(header, text="Ngày xuất").pack(side="left")
         self.day = ttk.Entry(header, textvariable=self.variables["day"], width=12)
         self.day.pack(side="left", padx=4)
-        self.line_table = self.tree(self, ["sku", "qty", "posted", "remaining"],
+        self.tabs = ttk.Notebook(self)
+        self.tabs.pack(fill="both", expand=True, pady=6)
+        lines_page, reservations_page = [ttk.Frame(self.tabs) for _ in range(2)]
+        self.tabs.add(lines_page, text="Dòng hàng")
+        self.tabs.add(reservations_page, text="Giữ hàng")
+        self.line_table = self.tree(lines_page, ["sku", "qty", "posted", "remaining"],
                                     ["SKU / ĐVT / Chủ sở hữu", "Kế hoạch", "Đã xuất", "Còn xuất"], [390, 120, 120, 120], 3)
         self.line_table.bind("<<TreeviewSelect>>", self.line_selected)
-        edit = ttk.Frame(self)
+        edit = ttk.Frame(lines_page)
         edit.pack(fill="x", pady=3)
         self.source_line = self.combo(edit, "source_line", 42)
         self.source_line.pack(side="left")
@@ -57,10 +66,10 @@ class IssueView(ttk.Frame):
         self.add_button.pack(side="left", padx=4)
         self.remove_button = ttk.Button(edit, text="Bỏ dòng", command=self.remove_line)
         self.remove_button.pack(side="left")
-        self.reservation_table = self.tree(self, ["stock", "location", "held", "expiry"],
-            ["Giữ chỗ / đề xuất · SKU / lô / serial", "Vị trí", "Còn giữ / đề xuất", "Hạn giữ chỗ"], [310, 140, 130, 190], 3)
+        self.reservation_table = self.tree(reservations_page, ["stock", "location", "held", "expiry"],
+            ["Giữ chỗ / đề xuất  SKU / lô / serial", "Vị trí", "Còn giữ / đề xuất", "Hạn giữ chỗ"], [310, 140, 130, 190], 3)
         self.reservation_table.bind("<<TreeviewSelect>>", self.reservation_selected)
-        expiry = ttk.Frame(self)
+        expiry = ttk.Frame(reservations_page)
         expiry.pack(fill="x", pady=3)
         ttk.Label(expiry, text="Hạn giữ (ISO có múi giờ, bỏ trống = không hạn)").pack(side="left")
         self.expiry = ttk.Entry(expiry, textvariable=self.variables["expiry"], width=29)
@@ -90,33 +99,41 @@ class IssueView(ttk.Frame):
         self.retry_button = ttk.Button(recovery, text="Gửi lại đúng lệnh", command=self.presenter.retry)
         self.retry_button.pack(side="left", padx=4)
         ttk.Label(self, textvariable=self.variables["pending"], wraplength=820).pack(fill="x")
-        self.variables["status"].set("Đăng nhập để giữ hàng và xuất từ SO đã duyệt.")
+        self.document_pages = DocumentPages(self.table)
+        self.variables["status"].set("Đăng nhập để giữ hàng và xuất từ SO đã duyệt")
         self.enable()
 
         from apps.desktop.scanner.widget import ScanBar
         self.scan_bar = ScanBar(self, self, "ISSUE")
         self.scan_bar.pack(fill="x", pady=3, before=self.winfo_children()[0])
+        install_pagination(self, self.load, limit=25, resource=None)
+        self.enable()
 
     def warehouse_id(self):
         index = self.selector.current()
         return str(self.warehouses[index].id) if index >= 0 else None
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(user.id if user else None)
         self.warehouses = list(warehouses or [])
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         self.variables["warehouse"].set("")
         if self.warehouses:
             self.selector.current(0)
-        self.variables["status"].set("Tải phiếu xuất theo kho." if user else "Đăng nhập để xuất hàng.")
+        self.variables["status"].set("Tải phiếu xuất theo kho" if user else "Đăng nhập để xuất hàng")
         self.enable()
 
     def scope_changed(self, event=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(self.presenter.user_id)
-        self.variables["status"].set("Tải lại phiếu theo kho vừa chọn.")
+        self.variables["status"].set("Tải lại phiếu theo kho vừa chọn")
         self.enable()
 
     def orders_clear(self):
+        reset_document_page(self)
         self.doc = self.source_doc = self.proposal = self.next_after = None
         self.lines, self.sources, self.permissions = [], [], []
         self.busy = False
@@ -159,9 +176,11 @@ class IssueView(ttk.Frame):
             widget.state(["!disabled"] if active and self.presenter.uncertain else ["disabled"])
         pending = self.presenter.uncertain
         self.variables["pending"].set(
-            f"{pending['state']} · Key {pending['key']} · Giữ cửa sổ; tra ACK hoặc gửi lại đúng lệnh."
-            if pending else "Giữ hàng không giảm tồn vật lý. Chỉ ACK máy chủ xác nhận đã xuất; hàng ký gửi chưa được hỗ trợ."
+            f"{pending['state']}  Key {pending['key']}  Giữ cửa sổ; tra ACK hoặc gửi lại đúng lệnh"
+            if pending else "Giữ hàng không giảm tồn vật lý; Chỉ ACK máy chủ xác nhận đã xuất; hàng ký gửi chưa được hỗ trợ"
         )
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def load(self, after=None):
         if self.warehouse_id():
@@ -174,11 +193,12 @@ class IssueView(ttk.Frame):
 
     def orders_loaded(self, page, sources, permissions, truncated):
         self.orders_clear()
+        self.pagination.loaded(page)
         self.sources, self.permissions, self.next_after = sources, permissions, page["next_after"]
-        self.source.configure(values=[f"{s['number']} · {s['partner_name']}" for s in sources])
+        self.source.configure(values=[f"{s['number']}  {s['partner_name']}" for s in sources])
         for doc in page["items"]:
             self.table.insert("", "end", iid=doc["id"], values=(doc["number"], STATUS[doc["status"]], doc["partner_name"]))
-        self.variables["status"].set("Đã tải phiếu xuất. " + ("Danh sách SO giới hạn 100 phiếu mỗi trạng thái." if truncated else "Chọn SO đã duyệt để tạo phiếu."))
+        self.variables["status"].set("Đã tải phiếu xuất " + ("Danh sách SO giới hạn 100 phiếu mỗi trạng thái" if truncated else "Chọn SO đã duyệt để tạo phiếu"))
         self.enable()
 
     def new(self):
@@ -187,12 +207,13 @@ class IssueView(ttk.Frame):
         self.doc = self.source_doc = self.proposal = None
         self.lines = []
         self.variables["source"].set("")
-        self.variables["heading"].set("Phiếu xuất mới · Hàng doanh nghiệp")
+        self.variables["heading"].set("Phiếu xuất mới  Hàng doanh nghiệp")
         self.variables["day"].set(date.today().isoformat())
         self.variables["reason"].set("")
         self.source_line.configure(values=[])
         self.render()
         self.enable()
+        show_document(self)
 
     def select(self, event=None):
         selection = self.table.selection()
@@ -207,11 +228,11 @@ class IssueView(ttk.Frame):
     def source_loaded(self, source):
         self.busy = False
         self.source_doc = source
-        self.source_line.configure(values=[f"{line['line_no']}. {line['sku']} · còn {line['remaining_base']} {line['base_uom_code']}"
+        self.source_line.configure(values=[f"{line['line_no']}  {line['sku']}  còn {line['remaining_base']} {line['base_uom_code']}"
                                            for line in source["lines"]])
         if source["lines"]:
             self.source_line.current(0)
-        self.variables["status"].set("Đã đọc SO nguồn. Chọn dòng và số lượng cơ sở.")
+        self.variables["status"].set("Đã đọc SO nguồn; Chọn dòng và số lượng cơ sở")
         self.enable()
 
     def add_line(self):
@@ -230,7 +251,7 @@ class IssueView(ttk.Frame):
                 self.lines[existing] = row
             self.render()
         except Exception:
-            self.orders_error("Nhập số lượng dương dạng thập phân, không dùng dấu phẩy.")
+            self.orders_error("Nhập số lượng dương dạng thập phân, không dùng dấu phẩy")
 
     def remove_line(self):
         selection = self.line_table.selection()
@@ -263,9 +284,9 @@ class IssueView(ttk.Frame):
         rows = self.proposal["lines"] if self.proposal else (self.doc["reservations"] if self.doc else [])
         for index, row in enumerate(rows):
             self.reservation_table.insert("", "end", iid=f"proposal-{index}" if self.proposal else row["id"], values=(
-                f"{'Đề xuất · ' if self.proposal else ''}{row['sku']} / {row['lot_code'] or row['serial_code'] or '—'}",
+                f"{"Đề xuất  " if self.proposal else ''}  {row['sku']} / {row['lot_code'] or row['serial_code'] or ""}",
                 row["location_code"], row["quantity_base"] if self.proposal else row["remaining_base"],
-                (str(row.get("expires_on") or "") if self.proposal else ("HẾT HẠN · " if row["expired"] else "") + str(row["expires_at"] or "—")),
+                (str(row.get("expires_on") or "") if self.proposal else ("HẾT HẠN  " if row["expired"] else "") + str(row["expires_at"] or "")),
             ))
 
     def orders_read(self, doc):
@@ -275,8 +296,8 @@ class IssueView(ttk.Frame):
                        "quantity_base": line["base_quantity"]} for line in doc["lines"]]
         self.variables["source"].set(doc["source_order_id"])
         self.variables["day"].set(doc["business_date"])
-        self.variables["heading"].set(f"{doc['number']} · {STATUS[doc['status']]} · phiên bản {doc['version']}")
-        self.variables["status"].set("Đã tải phiếu và chi tiết giữ chỗ. Chọn dòng phiếu để đề xuất, hoặc dòng giữ để xuất.")
+        self.variables["heading"].set(f"{doc['number']}  {STATUS[doc['status']]}  phiên bản {doc['version']}")
+        self.variables["status"].set("Đã tải phiếu và chi tiết giữ chỗ; Chọn dòng phiếu để đề xuất, hoặc dòng giữ để xuất")
         self.render()
         self.enable()
         if "edit" in doc["allowed_actions"]:
@@ -286,12 +307,12 @@ class IssueView(ttk.Frame):
         self.busy = False
         self.proposal = proposal
         self.render()
-        self.variables["status"].set("Kiểm tra nguồn/lô/serial và lượng đề xuất, rồi bấm Giữ theo đề xuất để xác nhận.")
+        self.variables["status"].set("Kiểm tra nguồn/lô/serial và lượng đề xuất, rồi bấm Giữ theo đề xuất để xác nhận")
         self.enable()
 
     def orders_saved(self, result):
         self.busy = False
-        self.variables["status"].set("Máy chủ đã xác nhận thao tác.")
+        self.variables["status"].set("Máy chủ đã xác nhận thao tác")
         self.presenter.read(result["id"])
 
     def orders_error(self, message):
@@ -308,7 +329,7 @@ class IssueView(ttk.Frame):
             reason = self.variables["reason"].get().strip()
             if action == "save":
                 if not self.source_doc:
-                    raise ValueError("Chọn SO nguồn.")
+                    raise ValueError("Chọn SO nguồn")
                 body = dict(source_order_id=self.source_doc["id"], business_date=self.variables["day"].get(), reason=reason,
                             lines=[{k: line[k] for k in ("source_line_id", "quantity_base")} for line in self.lines])
                 if self.doc:
@@ -346,7 +367,7 @@ class IssueView(ttk.Frame):
                 path = f"documents/{self.doc['id']}/{action}"
             self.presenter.command("POST", path, body)
         except Exception:
-            self.orders_error("Kiểm tra dòng được chọn, số lượng, ngày và lý do; hạn giữ cần kèm múi giờ.")
+            self.orders_error("Kiểm tra dòng được chọn, số lượng, ngày và lý do; hạn giữ cần kèm múi giờ")
 
     def release_variables(self):
         self.variables.clear()

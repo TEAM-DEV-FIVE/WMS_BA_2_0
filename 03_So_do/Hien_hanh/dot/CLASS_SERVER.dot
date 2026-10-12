@@ -1,0 +1,17 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="Các lớp xử lý lệnh trên máy chủ"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"OrderService" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>OrderService</B></FONT></TD></TR><TR><TD ALIGN="LEFT">apps/server/application/orders.py</TD></TR><TR><TD ALIGN="LEFT">document()</TD></TR><TR><TD ALIGN="LEFT">may_edit()</TD></TR><TR><TD ALIGN="LEFT">listing()</TD></TR><TR><TD ALIGN="LEFT">lines()</TD></TR><TR><TD ALIGN="LEFT">snapshot()</TD></TR><TR><TD ALIGN="LEFT">approval()</TD></TR><TR><TD ALIGN="LEFT">approver()</TD></TR></TABLE>>];
+"ReceiptService" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>ReceiptService</B></FONT></TD></TR><TR><TD ALIGN="LEFT">apps/server/application/receipts.py</TD></TR><TR><TD ALIGN="LEFT">source()</TD></TR><TR><TD ALIGN="LEFT">approved()</TD></TR><TR><TD ALIGN="LEFT">validate_saved()</TD></TR><TR><TD ALIGN="LEFT">may_post()</TD></TR><TR><TD ALIGN="LEFT">locations()</TD></TR><TR><TD ALIGN="LEFT">read()</TD></TR><TR><TD ALIGN="LEFT">validate_tracking()</TD></TR></TABLE>>];
+"CommandBus" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>CommandBus</B></FONT></TD></TR><TR><TD ALIGN="LEFT">apps/server/application/commands.py</TD></TR><TR><TD ALIGN="LEFT">execute()</TD></TR></TABLE>>];
+"PostgresUnitOfWork" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>PostgresUnitOfWork</B></FONT></TD></TR><TR><TD ALIGN="LEFT">apps/server/infrastructure/database.py</TD></TR><TR><TD ALIGN="LEFT">commit()</TD></TR><TR><TD ALIGN="LEFT">rollback()</TD></TR></TABLE>>];
+"PostgresCommandRepository" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>PostgresCommandRepository</B></FONT></TD></TR><TR><TD ALIGN="LEFT">apps/server/infrastructure/database.py</TD></TR><TR><TD ALIGN="LEFT">lock()</TD></TR><TR><TD ALIGN="LEFT">get()</TD></TR><TR><TD ALIGN="LEFT">save()</TD></TR></TABLE>>];
+"UnitOfWork" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>UnitOfWork</B></FONT></TD></TR><TR><TD ALIGN="LEFT">apps/server/application/ports.py</TD></TR><TR><TD ALIGN="LEFT">commands</TD></TR><TR><TD ALIGN="LEFT">commit()</TD></TR><TR><TD ALIGN="LEFT">rollback()</TD></TR></TABLE>>];
+"ReceiptService" -> "OrderService" [label="Dùng orders / identity / bus"];
+"OrderService" -> "CommandBus" [label="execute()"];
+"CommandBus" -> "UnitOfWork" [label="Giao diện transaction"];
+"PostgresUnitOfWork" -> "UnitOfWork" [label="Hiện thực giao thức"];
+"PostgresUnitOfWork" -> "PostgresCommandRepository" [label="commands"];
+}

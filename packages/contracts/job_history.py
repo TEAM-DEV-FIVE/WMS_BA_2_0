@@ -3,6 +3,8 @@
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import Field
+
 from packages.contracts import Contract
 
 
@@ -18,3 +20,4 @@ class JobHistoryItem(Contract):
 class JobHistoryPage(Contract):
     items: list[JobHistoryItem]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)

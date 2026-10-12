@@ -66,6 +66,9 @@ def read_rows(resource, data):
 @dataclass
 class AdminResult:
     data: object = field(default=None, repr=False)
+    total: int | None = None
+    next_after: str | None = None
+    paginated: bool = False
     user: object = None
     code: str = ""
     message: str = ""
@@ -101,7 +104,20 @@ class AdminApi:
                 if resource != "roles":
                     path += "?" + urlencode({"limit": PAGE_SIZE, **({"after": after} if after else {}),
                                             **({"q": query} if resource.startswith("lookup-") else {})})
-                result.data = read_rows(resource, self.identity.get(path))
+                query_string = urlencode({"limit": PAGE_SIZE, **({"after": after} if after else {}),
+                                          **({"q": query} if resource.startswith("lookup-") else {})})
+                try:
+                    page = self.identity.get("iam/page/" + resource + "?" + query_string)
+                except ApiError as error:
+                    if error.code != "NOT_FOUND":
+                        raise
+                    page = self.identity.get(path)
+                if isinstance(page, dict):
+                    result.total = page["total"]
+                    result.next_after = page["next_after"]
+                    result.paginated = True
+                    page = page["items"]
+                result.data = read_rows(resource, page)
                 return
             method, path = {
                 "create_user": ("POST", "users"),

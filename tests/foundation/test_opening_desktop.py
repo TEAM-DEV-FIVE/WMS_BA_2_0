@@ -56,7 +56,7 @@ def opening_ui(opening):  # noqa: F811
             session = shell.session_view
             if session.presenter.api._tokens:
                 session.logout()
-                wait(lambda: session.status.get() == "Đã đăng xuất.")
+                wait(lambda: session.status.get() == "Đã đăng xuất")
             session.username.set(name)
             session.password.set("Test-only-password-2026!")
             session.login()
@@ -288,7 +288,7 @@ def test_opening_gui_lost_create_response_lookup_and_retry_same_batch(opening_ui
         assert c.execute(text("SELECT count(*) FROM wms.opening_document")).scalar_one() == 1
     f.shell.session_view.logout()
     assert not view.doc and not view.lines and not view.permissions
-    f.wait(lambda: f.shell.session_view.status.get() == "Đã đăng xuất.")
+    f.wait(lambda: f.shell.session_view.status.get() == "Đã đăng xuất")
 
 
 def test_opening_gui_lot_and_uncommitted_post_lookup_then_exact_retry(opening_ui, monkeypatch):
@@ -336,3 +336,31 @@ def test_opening_gui_lot_and_uncommitted_post_lookup_then_exact_retry(opening_ui
     assert len(requests) == 3 and requests[0] == requests[1] == requests[2]
     assert modes == ["send-v1", "lookup-v1", "send-v1"]
     assert view.variables["status"].get().startswith("POSTED") and inventory(f) == (1, 1, 10, 0)
+
+
+def test_opening_auto_load_reads_existing_document_and_preserves_draft(opening_ui):
+    f, view = opening_ui, opening_ui.view
+    f.fill_ui()
+    action(f, "save")
+    doc_id = view.doc["id"]
+    view.presenter.reset(view.presenter.user_id, view.warehouse_id())
+    assert not view.table.get_children() and not view.lines
+    view.open_workspace()
+    f.idle()
+    assert view.list_loaded and view.doc["id"] == doc_id
+    assert len(view.line_table.get_children()) == 1
+    view.variables["reference"].set("Nội dung chưa lưu")
+    view.mark_dirty()
+    before = view.presenter.sequence
+    view.open_workspace()
+    assert view.presenter.sequence == before
+    assert view.variables["reference"].get() == "Nội dung chưa lưu"
+    view.variables["filter"].set("COMPLETED")
+    view.scope_changed()
+    f.idle()
+    assert view.list_loaded and not view.lines and view.doc is None
+    assert "Không có phiếu" in view.variables["status"].get()
+    view.variables["filter"].set("")
+    view.scope_changed()
+    f.idle()
+    assert view.doc["id"] == doc_id and len(view.lines) == 1

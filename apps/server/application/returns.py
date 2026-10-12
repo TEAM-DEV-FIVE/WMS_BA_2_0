@@ -3,6 +3,7 @@
 Lock ancestors, source, return, warehouse/period, locations, products/identities,
 balances/reservations. Source locks serialize net quantities across return drafts.
 """
+
 from collections import defaultdict
 from decimal import Decimal
 from uuid import UUID, uuid4
@@ -18,6 +19,7 @@ from apps.server.application.move_safety import (
     movable_quantity,
 )
 from apps.server.application.orders import amount, encode
+from apps.server.application.pagination import counted_rows
 from apps.server.application.receipts import EXTERNAL
 from apps.server.application.stock_identity import resolve_stock_identity
 from apps.server.domain.errors import DomainError, require_version
@@ -78,12 +80,11 @@ class ReturnService:
     def sources(self, auth, kind, warehouse_id, after=None, limit=50):
         auth.require("document.read", warehouse_id, hidden=True)
         broad = any(g["role_code"] not in {"RECEIVER", "PICKER"} for g in auth.grants("document.read", warehouse_id))
-        rows = auth.connection.execute(text(SOURCE_SQL + """ AND d.kind=:kind AND d.warehouse_id=:warehouse
+        rows, total = counted_rows(auth.connection, text(SOURCE_SQL + """ AND d.kind=:kind AND d.warehouse_id=:warehouse
             AND (CAST(:after AS uuid) IS NULL OR m.id>:after)
             AND (:broad OR d.created_by=:actor OR EXISTS(SELECT 1 FROM wms.document_assignment a
-              WHERE a.document_id=d.id AND a.user_id=:actor)) ORDER BY m.id LIMIT :limit"""),
-            {"kind": SOURCE_KINDS[kind], "warehouse": warehouse_id, "after": after,
-             "actor": auth.principal.user_id, "broad": broad, "limit": limit + 1}).mappings().all()
+              WHERE a.document_id=d.id AND a.user_id=:actor)) ORDER BY m.id LIMIT :limit"""), {"kind": SOURCE_KINDS[kind], "warehouse": warehouse_id, "after": after,
+             "actor": auth.principal.user_id, "broad": broad, "limit": limit + 1})
         items = []
         for row in rows[:limit]:
             allowed = row["owner_id"] == COMPANY_OWNER and row["consignment_id"] is None
@@ -91,7 +92,7 @@ class ReturnService:
             items.append(ReturnSource(**fields, posted_base=amount(row["posted"]), returned_base=amount(row["returned"]),
                 remaining_base=amount(row["posted"] - row["returned"]), returnable=allowed,
                 blocked_reason=None if allowed else "Chưa có policy trả hàng ký gửi/chưa phân loại."))
-        return {"items": items, "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
+        return {"total": total, "items": items, "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
 
     @staticmethod
     def saved_lines(c, doc):

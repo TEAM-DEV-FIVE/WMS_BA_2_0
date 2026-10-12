@@ -1,0 +1,26 @@
+digraph WMS {
+graph [rankdir=TB, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="Trạng thái chứng từ và điều kiện chuyển"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"DRAFT" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>DRAFT</B></FONT></TD></TR></TABLE>>];
+"SUBMITTED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>SUBMITTED</B></FONT></TD></TR></TABLE>>];
+"APPROVED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>APPROVED</B></FONT></TD></TR></TABLE>>];
+"REJECTED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>REJECTED</B></FONT></TD></TR></TABLE>>];
+"PARTIAL" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>PARTIAL</B></FONT></TD></TR></TABLE>>];
+"COMPLETED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>COMPLETED</B></FONT></TD></TR></TABLE>>];
+"CANCELLED" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>CANCELLED</B></FONT></TD></TR></TABLE>>];
+"DRAFT" -> "SUBMITTED" [label="submit; kiểm tra dữ liệu"];
+"REJECTED" -> "DRAFT" [label="Sửa nháp"];
+"REJECTED" -> "SUBMITTED" [label="Gửi lại hợp lệ"];
+"SUBMITTED" -> "APPROVED" [label="Đủ các bước duyệt"];
+"SUBMITTED" -> "REJECTED" [label="Từ chối"];
+"APPROVED" -> "DRAFT" [label="revise; hủy hiệu lực duyệt"];
+"APPROVED" -> "PARTIAL" [label="Thực hiện một phần theo loại phiếu"];
+"APPROVED" -> "COMPLETED" [label="Thực hiện đủ"];
+"PARTIAL" -> "COMPLETED" [label="Thực hiện đủ / đóng phần còn lại hợp lệ"];
+"DRAFT" -> "CANCELLED" [label="cancel trước thực hiện"];
+"SUBMITTED" -> "CANCELLED" [label="cancel trước thực hiện"];
+"REJECTED" -> "CANCELLED" [label="cancel trước thực hiện"];
+"APPROVED" -> "CANCELLED" [label="cancel trước thực hiện"];
+}

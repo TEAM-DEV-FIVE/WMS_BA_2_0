@@ -1,0 +1,737 @@
+table,column,data_type,nullable,default,primary_key,references
+app_user,id,uuid,NO,,YES,
+app_user,username,character varying(100),NO,,NO,
+app_user,display_name,character varying(200),NO,,NO,
+app_user,password_hash,text,NO,,NO,
+app_user,is_active,boolean,NO,,NO,
+app_user,auth_version,integer,NO,,NO,
+app_user,created_at,timestamp with time zone,NO,,NO,
+approval_policy,id,uuid,NO,,YES,
+approval_policy,document_kind,character varying(30),NO,,NO,
+approval_policy,revision,integer,NO,,NO,
+approval_policy,is_active,boolean,NO,,NO,
+approval_policy_step,id,uuid,NO,,YES,
+approval_policy_step,policy_id,uuid,NO,,NO,approval_policy.id
+approval_policy_step,step_no,integer,NO,,NO,
+approval_policy_step,role_id,uuid,NO,,NO,role.id
+approval_policy_step,alternative_role_id,uuid,YES,,NO,role.id
+approval_request,id,uuid,NO,,YES,
+approval_request,document_id,uuid,NO,,NO,document.id
+approval_request,document_version,integer,NO,,NO,
+approval_request,policy_id,uuid,NO,,NO,approval_policy.id
+approval_request,requested_by,uuid,NO,,NO,app_user.id
+approval_request,status,character varying(20),NO,,NO,
+approval_request,created_at,timestamp with time zone,NO,,NO,
+approval_request,content_snapshot,jsonb,YES,,NO,
+approval_step,id,uuid,NO,,YES,
+approval_step,request_id,uuid,NO,,NO,approval_request.id
+approval_step,step_no,integer,NO,,NO,
+approval_step,required_role_id,uuid,NO,,NO,role.id
+approval_step,status,character varying(20),NO,,NO,
+approval_step,decided_by,uuid,YES,,NO,app_user.id
+approval_step,decided_at,timestamp with time zone,YES,,NO,
+approval_step,comment,text,YES,,NO,
+approval_step,alternative_role_id,uuid,YES,,NO,role.id
+audit_event,id,uuid,NO,,YES,
+audit_event,actor_id,uuid,YES,,NO,app_user.id
+audit_event,warehouse_id,uuid,YES,,NO,warehouse.id
+audit_event,action,character varying(100),NO,,NO,
+audit_event,entity_type,character varying(80),NO,,NO,
+audit_event,entity_id,uuid,YES,,NO,
+audit_event,request_id,uuid,NO,,NO,
+audit_event,occurred_at,timestamp with time zone,NO,,NO,
+audit_event,before_data,jsonb,YES,,NO,
+audit_event,after_data,jsonb,YES,,NO,
+audit_event,reason,text,YES,,NO,
+auth_challenge,token_hash,character(64),NO,,YES,
+auth_challenge,user_id,uuid,NO,,NO,app_user.id
+auth_challenge,device_id,uuid,NO,,NO,
+auth_challenge,auth_version,integer,NO,,NO,
+auth_challenge,expires_at,timestamp with time zone,NO,,NO,
+auth_challenge,consumed_at,timestamp with time zone,YES,,NO,
+auth_contact,user_id,uuid,NO,,YES,app_user.id
+auth_contact,kind,text,NO,,YES,
+auth_contact,value,text,NO,,NO,
+auth_contact,verified_at,timestamp with time zone,NO,,NO,
+auth_contact_challenge,id,uuid,NO,,YES,
+auth_contact_challenge,user_id,uuid,NO,,NO,app_user.id
+auth_contact_challenge,kind,text,NO,,NO,
+auth_contact_challenge,value,text,NO,,NO,
+auth_contact_challenge,code_hash,character(64),NO,,NO,
+auth_contact_challenge,auth_version,integer,NO,,NO,
+auth_contact_challenge,expires_at,timestamp with time zone,NO,,NO,
+auth_contact_challenge,consumed_at,timestamp with time zone,YES,,NO,
+auth_delivery,id,uuid,NO,,YES,
+auth_delivery,user_id,uuid,NO,,NO,app_user.id
+auth_delivery,auth_version,integer,NO,,NO,
+auth_delivery,ciphertext,text,YES,,NO,
+auth_delivery,expires_at,timestamp with time zone,NO,,NO,
+auth_delivery,attempts,integer,NO,0,NO,
+auth_delivery,lease_until,timestamp with time zone,YES,,NO,
+auth_delivery,lease_token,uuid,YES,,NO,
+auth_delivery,completed_at,timestamp with time zone,YES,,NO,
+auth_delivery,last_error,text,YES,,NO,
+auth_google_flow,state_hash,character(64),NO,,YES,
+auth_google_flow,nonce_hash,character(64),NO,,NO,
+auth_google_flow,verifier_ciphertext,text,YES,,NO,
+auth_google_flow,redirect_uri,text,NO,,NO,
+auth_google_flow,device_id,uuid,NO,,NO,
+auth_google_flow,user_id,uuid,YES,,NO,app_user.id
+auth_google_flow,session_id,uuid,YES,,NO,auth_session.id
+auth_google_flow,auth_version,integer,YES,,NO,
+auth_google_flow,expires_at,timestamp with time zone,NO,,NO,
+auth_google_flow,consumed_at,timestamp with time zone,YES,,NO,
+auth_google_identity,subject,text,NO,,YES,
+auth_google_identity,user_id,uuid,NO,,NO,app_user.id
+auth_google_identity,linked_at,timestamp with time zone,NO,,NO,
+auth_password_reset,token_hash,character(64),NO,,YES,
+auth_password_reset,user_id,uuid,NO,,NO,app_user.id
+auth_password_reset,issued_by,uuid,NO,,NO,app_user.id
+auth_password_reset,auth_version,integer,NO,,NO,
+auth_password_reset,created_at,timestamp with time zone,NO,,NO,
+auth_password_reset,expires_at,timestamp with time zone,NO,,NO,
+auth_password_reset,consumed_at,timestamp with time zone,YES,,NO,
+auth_recovery_code,code_hash,character(64),NO,,YES,
+auth_recovery_code,user_id,uuid,NO,,NO,app_user.id
+auth_recovery_code,created_at,timestamp with time zone,NO,,NO,
+auth_recovery_code,consumed_at,timestamp with time zone,YES,,NO,
+auth_recovery_code,revoked_at,timestamp with time zone,YES,,NO,
+auth_self_reset,token_hash,character(64),NO,,YES,
+auth_self_reset,user_id,uuid,NO,,NO,app_user.id
+auth_self_reset,kind,text,NO,,NO,
+auth_self_reset,contact_value,text,NO,,NO,
+auth_self_reset,auth_version,integer,NO,,NO,
+auth_self_reset,expires_at,timestamp with time zone,NO,,NO,
+auth_self_reset,consumed_at,timestamp with time zone,YES,,NO,
+auth_session,id,uuid,NO,,YES,
+auth_session,user_id,uuid,NO,,NO,app_user.id
+auth_session,refresh_hash,text,NO,,NO,
+auth_session,device_id,uuid,NO,,NO,
+auth_session,auth_version,integer,NO,,NO,
+auth_session,expires_at,timestamp with time zone,NO,,NO,
+auth_session,revoked_at,timestamp with time zone,YES,,NO,
+auth_session,mfa_verified_at,timestamp with time zone,YES,,NO,
+auth_throttle,key,character(64),NO,,YES,
+auth_throttle,failures,integer,NO,,NO,
+auth_throttle,window_started_at,timestamp with time zone,NO,,NO,
+auth_throttle,blocked_until,timestamp with time zone,YES,,NO,
+auth_token,token_hash,character(64),NO,,YES,
+auth_token,session_id,uuid,NO,,NO,auth_session.id
+auth_token,kind,character varying(10),NO,,NO,
+auth_token,created_at,timestamp with time zone,NO,,NO,
+auth_token,expires_at,timestamp with time zone,NO,,NO,
+auth_token,used_at,timestamp with time zone,YES,,NO,
+barcode,id,uuid,NO,,YES,
+barcode,code,character varying(160),NO,,NO,
+barcode,product_uom_id,uuid,NO,,NO,product_uom.id
+barcode,is_active,boolean,NO,,NO,
+barcode,version,integer,NO,1,NO,
+client_release,id,uuid,NO,,YES,
+client_release,version,character varying(40),NO,,NO,
+client_release,os,character varying(20),NO,,NO,
+client_release,architecture,character varying(20),NO,,NO,
+client_release,api_major,integer,NO,,NO,
+client_release,sha256,character(64),NO,,NO,
+client_release,download_uri,text,NO,,NO,
+client_release,is_minimum,boolean,NO,,NO,
+consignment_agreement,id,uuid,NO,,YES,
+consignment_agreement,code,character varying(80),NO,,NO,
+consignment_agreement,owner_id,uuid,NO,,NO,stock_owner.id
+consignment_agreement,warehouse_id,uuid,NO,,NO,warehouse.id
+consignment_agreement,valid_from,date,NO,,NO,
+consignment_agreement,valid_until,date,NO,,NO,
+consignment_agreement,source_ref,text,NO,,NO,
+consignment_agreement,is_active,boolean,NO,true,NO,
+consignment_agreement,version,integer,NO,1,NO,
+consignment_receipt,document_id,uuid,NO,,YES,document.id
+consignment_receipt,warehouse_id,uuid,NO,,NO,warehouse.id
+consignment_receipt,batch_key,uuid,NO,,NO,
+consignment_receipt,delivery_reference,character varying(2000),NO,,NO,
+consignment_receipt_line,document_line_id,uuid,NO,,YES,document_line.id
+consignment_receipt_line,destination_location_id,uuid,NO,,NO,location.id
+consignment_receipt_line,lot_code,character varying(100),YES,,NO,
+consignment_receipt_line,serial_code,character varying(160),YES,,NO,
+consignment_receipt_line,manufactured_on,date,YES,,NO,
+consignment_receipt_line,expires_on,date,YES,,NO,
+consumer_receipt,id,uuid,NO,,YES,
+consumer_receipt,event_id,uuid,NO,,NO,outbox_event.id
+consumer_receipt,consumer,character varying(100),NO,,NO,
+consumer_receipt,processed_at,timestamp with time zone,NO,,NO,
+count_assignment,id,uuid,NO,,YES,
+count_assignment,session_id,uuid,NO,,NO,count_session.id
+count_assignment,location_id,uuid,NO,,NO,location.id
+count_assignment,user_id,uuid,NO,,NO,app_user.id
+count_assignment,assigned_by,uuid,NO,,NO,app_user.id
+count_decision,id,uuid,NO,,YES,
+count_decision,submission_id,uuid,NO,,NO,count_submission.id
+count_decision,step_no,integer,NO,,NO,
+count_decision,decision,text,NO,,NO,
+count_decision,decided_by,uuid,NO,,NO,app_user.id
+count_decision,decided_at,timestamp with time zone,NO,,NO,
+count_decision,reason,text,NO,,NO,
+count_empty_confirmation,id,uuid,NO,,YES,
+count_empty_confirmation,session_id,uuid,NO,,NO,count_session.id
+count_empty_confirmation,location_id,uuid,NO,,NO,location.id
+count_empty_confirmation,counted_by,uuid,NO,,NO,app_user.id
+count_empty_confirmation,counted_at,timestamp with time zone,NO,,NO,
+count_empty_confirmation,reason,text,NO,,NO,
+count_execution,session_id,uuid,NO,,YES,count_session.id
+count_execution,execution_key,uuid,NO,,NO,
+count_execution,request_hash,character(64),NO,,NO,
+count_execution,response,jsonb,NO,,NO,
+count_line,id,uuid,NO,,YES,
+count_line,session_id,uuid,NO,,NO,count_session.id
+count_line,stock_item_id,uuid,NO,,NO,stock_item.id
+count_line,location_id,uuid,NO,,NO,location.id
+count_line,snapshot_quantity,"numeric(20,6)",NO,,NO,
+count_line,approved_quantity,"numeric(20,6)",YES,,NO,
+count_location_lock,id,uuid,NO,,YES,
+count_location_lock,session_id,uuid,NO,,NO,count_session.id
+count_location_lock,location_id,uuid,NO,,NO,location.id
+count_location_lock,locked_at,timestamp with time zone,NO,,NO,
+count_location_lock,released_at,timestamp with time zone,YES,,NO,
+count_observation,id,uuid,NO,,YES,
+count_observation,count_line_id,uuid,NO,,NO,count_line.id
+count_observation,round_no,integer,NO,,NO,
+count_observation,quantity,"numeric(20,6)",NO,,NO,
+count_observation,counted_by,uuid,NO,,NO,app_user.id
+count_observation,counted_at,timestamp with time zone,NO,,NO,
+count_observation,scan_event_key,uuid,YES,,NO,
+count_observation,reason,text,NO,'Legacy observation'::text,NO,
+count_scope,session_id,uuid,NO,,YES,count_session.id
+count_scope,location_id,uuid,NO,,YES,location.id
+count_session,id,uuid,NO,,YES,
+count_session,warehouse_id,uuid,NO,,NO,warehouse.id
+count_session,number,character varying(80),NO,,NO,
+count_session,status,character varying(20),NO,,NO,
+count_session,created_by,uuid,NO,,NO,app_user.id
+count_session,frozen_at,timestamp with time zone,YES,,NO,
+count_session,adjustment_document_id,uuid,YES,,NO,document.id
+count_session,version,integer,NO,,NO,
+count_session,business_date,date,NO,CURRENT_DATE,NO,
+count_session,reason,text,NO,'Legacy count'::text,NO,
+count_submission,id,uuid,NO,,YES,
+count_submission,session_id,uuid,NO,,NO,count_session.id
+count_submission,session_version,integer,NO,,NO,
+count_submission,policy_revision,integer,NO,,NO,
+count_submission,requested_by,uuid,NO,,NO,app_user.id
+count_submission,created_at,timestamp with time zone,NO,,NO,
+count_submission,content_snapshot,jsonb,NO,,NO,
+custom_field_binding,id,uuid,NO,,YES,
+custom_field_binding,product_id,uuid,YES,,NO,product.id
+custom_field_binding,document_id,uuid,YES,,NO,document.id
+custom_field_binding,revision_id,uuid,NO,,NO,custom_field_revision.id
+custom_field_binding,values,jsonb,NO,,NO,
+custom_field_change,id,uuid,NO,,YES,
+custom_field_change,binding_id,uuid,NO,,NO,custom_field_binding.id
+custom_field_change,revision_id,uuid,NO,,NO,custom_field_revision.id
+custom_field_change,target_version,integer,NO,,NO,
+custom_field_change,values,jsonb,NO,,NO,
+custom_field_change,changed_by,uuid,NO,,NO,app_user.id
+custom_field_change,changed_at,timestamp with time zone,NO,,NO,
+custom_field_change,reason,text,NO,,NO,
+custom_field_definition,id,uuid,NO,,YES,
+custom_field_definition,entity_type,character varying(40),NO,,NO,
+custom_field_definition,code,character varying(60),NO,,NO,
+custom_field_definition,value_type,character varying(20),NO,,NO,
+custom_field_definition,required,boolean,NO,,NO,
+custom_field_definition,validation,jsonb,NO,,NO,
+custom_field_definition,is_active,boolean,NO,,NO,
+custom_field_definition,revision_id,uuid,YES,,NO,custom_field_revision.id
+custom_field_definition,label,character varying(120),YES,,NO,
+custom_field_definition,visibility,character varying(20),NO,'BUSINESS'::character varying,NO,
+custom_field_revision,id,uuid,NO,,YES,
+custom_field_revision,schema_id,uuid,NO,,NO,custom_field_schema.id
+custom_field_revision,version,integer,NO,,NO,
+custom_field_revision,created_by,uuid,NO,,NO,app_user.id
+custom_field_revision,created_at,timestamp with time zone,NO,,NO,
+custom_field_revision,reason,text,NO,,NO,
+custom_field_schema,id,uuid,NO,,YES,
+custom_field_schema,entity_type,character varying(40),NO,,NO,
+custom_field_schema,version,integer,NO,,NO,
+document,id,uuid,NO,,YES,
+document,number,character varying(80),NO,,NO,
+document,kind,character varying(30),NO,,NO,
+document,status,character varying(20),NO,,NO,
+document,warehouse_id,uuid,NO,,NO,warehouse.id
+document,destination_warehouse_id,uuid,YES,,NO,warehouse.id
+document,transit_location_id,uuid,YES,,NO,location.id
+document,partner_id,uuid,YES,,NO,partner.id
+document,business_date,date,NO,,NO,
+document,created_by,uuid,NO,,NO,app_user.id
+document,created_at,timestamp with time zone,NO,,NO,
+document,version,integer,NO,,NO,
+document,reason,text,YES,,NO,
+document,attributes,jsonb,NO,,NO,
+document_assignment,id,uuid,NO,,YES,
+document_assignment,document_id,uuid,NO,,NO,document.id
+document_assignment,user_id,uuid,NO,,NO,app_user.id
+document_assignment,assigned_by,uuid,NO,,NO,app_user.id
+document_attachment,id,uuid,NO,,YES,
+document_attachment,document_id,uuid,NO,,NO,document.id
+document_attachment,file_id,uuid,NO,,NO,stored_file.id
+document_line,id,uuid,NO,,YES,
+document_line,document_id,uuid,NO,,NO,document.id
+document_line,line_no,integer,NO,,NO,
+document_line,product_id,uuid,NO,,NO,product.id
+document_line,uom_id,uuid,NO,,NO,uom.id
+document_line,quantity,"numeric(20,6)",NO,,NO,
+document_line,factor_snapshot,"numeric(20,8)",NO,,NO,
+document_line,base_quantity,"numeric(20,6)",NO,,NO,
+document_line,source_line_id,uuid,YES,,NO,document_line.id
+document_line,reference_unit_price,"numeric(20,4)",YES,,NO,
+document_line,owner_id,uuid,NO,,NO,stock_owner.id
+document_line,consignment_id,uuid,YES,,NO,consignment_agreement.id
+document_line,closed_base_quantity,"numeric(20,6)",NO,0,NO,
+document_link,id,uuid,NO,,YES,
+document_link,document_id,uuid,NO,,NO,document.id
+document_link,related_document_id,uuid,NO,,NO,document.id
+document_link,relation,character varying(30),NO,,NO,
+export_job,id,uuid,NO,,YES,
+export_job,requested_by,uuid,NO,,NO,app_user.id
+export_job,report_code,character varying(40),NO,,NO,
+export_job,filters,jsonb,NO,,NO,
+export_job,status,character varying(20),NO,,NO,
+export_job,file_id,uuid,YES,,NO,stored_file.id
+export_job,created_at,timestamp with time zone,NO,,NO,
+export_job,expires_at,timestamp with time zone,NO,,NO,
+export_job,snapshot_id,uuid,YES,,NO,report_snapshot.id
+export_job,session_id,uuid,YES,,NO,auth_session.id
+export_job,format,character varying(4),YES,,NO,
+export_job,version,integer,NO,1,NO,
+export_job,generation,integer,NO,1,NO,
+export_job,error_code,character varying(40),YES,,NO,
+export_task,id,uuid,NO,,YES,
+export_task,job_id,uuid,NO,,NO,export_job.id
+export_task,generation,integer,NO,,NO,
+export_task,status,character varying(10),NO,'READY'::character varying,NO,
+export_task,attempts,integer,NO,0,NO,
+export_task,available_at,timestamp with time zone,NO,clock_timestamp(),NO,
+export_task,lease_token,uuid,YES,,NO,
+export_task,lease_until,timestamp with time zone,YES,,NO,
+fulfillment_consumption,id,uuid,NO,,YES,
+fulfillment_consumption,package_line_id,uuid,NO,,NO,package_line.id
+fulfillment_consumption,reservation_consumption_id,uuid,NO,,NO,reservation_consumption.id
+fulfillment_consumption,quantity,"numeric(20,6)",NO,,NO,
+grant_request,id,uuid,NO,,YES,
+grant_request,user_id,uuid,NO,,NO,app_user.id
+grant_request,role_id,uuid,NO,,NO,role.id
+grant_request,scope_kind,character varying(20),NO,,NO,
+grant_request,warehouse_id,uuid,YES,,NO,warehouse.id
+grant_request,valid_until,timestamp with time zone,YES,,NO,
+grant_request,reason,text,NO,,NO,
+grant_request,requested_by,uuid,NO,,NO,app_user.id
+grant_request,requested_at,timestamp with time zone,NO,,NO,
+grant_request,approved_by,uuid,YES,,NO,app_user.id
+grant_request,grant_id,uuid,YES,,NO,user_role_grant.id
+idempotency_record,id,uuid,NO,,YES,
+idempotency_record,actor_id,uuid,NO,,NO,app_user.id
+idempotency_record,key,uuid,NO,,NO,
+idempotency_record,command,character varying(100),NO,,NO,
+idempotency_record,request_hash,character(64),NO,,NO,
+idempotency_record,response,jsonb,NO,,NO,
+idempotency_record,http_status,integer,NO,,NO,
+idempotency_record,completed_at,timestamp with time zone,NO,,NO,
+idempotency_record,expires_at,timestamp with time zone,NO,,NO,
+import_document_source,warehouse_id,uuid,NO,,YES,warehouse.id
+import_document_source,kind,character varying(20),NO,,YES,
+import_document_source,source_key,character varying(240),NO,,YES,
+import_document_source,document_id,uuid,NO,,NO,document.id
+import_document_source,job_id,uuid,NO,,NO,import_job.id
+import_file,file_id,uuid,NO,,YES,stored_file.id
+import_file,actor_id,uuid,NO,,NO,app_user.id
+import_file,warehouse_id,uuid,YES,,NO,warehouse.id
+import_file,kind,character varying(60),NO,,NO,
+import_file,upload_key,uuid,NO,,NO,
+import_file,request_hash,character(64),NO,,NO,
+import_file,ready,boolean,NO,false,NO,
+import_job,id,uuid,NO,,YES,
+import_job,kind,character varying(60),NO,,NO,
+import_job,file_id,uuid,NO,,NO,stored_file.id
+import_job,requested_by,uuid,NO,,NO,app_user.id
+import_job,status,character varying(20),NO,,NO,
+import_job,file_hash,character(64),NO,,NO,
+import_job,mapping_version,character varying(30),NO,,NO,
+import_job,operation_key,uuid,NO,,NO,
+import_job,created_at,timestamp with time zone,NO,,NO,
+import_job,warehouse_id,uuid,YES,,NO,warehouse.id
+import_job,version,integer,NO,1,NO,
+import_job,generation,integer,NO,1,NO,
+import_job,auth_version,integer,YES,,NO,
+import_job,options,jsonb,NO,'{}'::jsonb,NO,
+import_job,commit_token,uuid,YES,,NO,
+import_job,token_expires_at,timestamp with time zone,YES,,NO,
+import_job,stage_hash,character(64),YES,,NO,
+import_job,data_snapshot,jsonb,NO,'[]'::jsonb,NO,
+import_job,total_rows,integer,NO,0,NO,
+import_job,processed_rows,integer,NO,0,NO,
+import_job,errors,jsonb,NO,'[]'::jsonb,NO,
+import_job,result,jsonb,YES,,NO,
+import_row,id,uuid,NO,,YES,
+import_row,job_id,uuid,NO,,NO,import_job.id
+import_row,row_no,integer,NO,,NO,
+import_row,payload,jsonb,NO,,NO,
+import_row,errors,jsonb,NO,,NO,
+import_row,target_id,uuid,YES,,NO,
+import_row,status,character varying(20),NO,,NO,
+import_task,id,uuid,NO,,YES,
+import_task,job_id,uuid,NO,,NO,import_job.id
+import_task,generation,integer,NO,,NO,
+import_task,state,character varying(20),NO,,NO,
+import_task,lease_token,uuid,YES,,NO,
+import_task,lease_until,timestamp with time zone,YES,,NO,
+import_task,attempts,integer,NO,0,NO,
+import_task,available_at,timestamp with time zone,NO,,NO,
+import_task,last_error,character varying(60),YES,,NO,
+inventory_transaction,id,uuid,NO,,YES,
+inventory_transaction,document_id,uuid,NO,,NO,document.id
+inventory_transaction,execution_key,uuid,NO,,NO,
+inventory_transaction,operation,character varying(30),NO,,NO,
+inventory_transaction,business_date,date,NO,,NO,
+inventory_transaction,posted_at,timestamp with time zone,NO,,NO,
+inventory_transaction,posted_by,uuid,NO,,NO,app_user.id
+inventory_transaction,reverses_transaction_id,uuid,YES,,NO,inventory_transaction.id
+inventory_transaction,request_hash,character(64),YES,,NO,
+inventory_transaction,response,jsonb,YES,,NO,
+issue_document,document_id,uuid,NO,,YES,document.id
+issue_document,source_order_id,uuid,NO,,NO,document.id
+location,id,uuid,NO,,YES,
+location,warehouse_id,uuid,YES,,NO,warehouse.id
+location,parent_id,uuid,YES,,NO,location.id
+location,code,character varying(80),NO,,NO,
+location,name,character varying(160),NO,,NO,
+location,kind,character varying(20),NO,,NO,
+location,is_active,boolean,NO,,NO,
+location,version,integer,NO,1,NO,
+lot,id,uuid,NO,,YES,
+lot,product_id,uuid,NO,,NO,product.id
+lot,code,character varying(100),NO,,NO,
+lot,manufactured_on,date,YES,,NO,
+lot,expires_on,date,YES,,NO,
+lot,version,integer,NO,,NO,
+mfa_factor,id,uuid,NO,,YES,
+mfa_factor,user_id,uuid,NO,,NO,app_user.id
+mfa_factor,kind,character varying(30),NO,,NO,
+mfa_factor,credential_ciphertext,text,NO,,NO,
+mfa_factor,verified_at,timestamp with time zone,YES,,NO,
+mfa_factor,revoked_at,timestamp with time zone,YES,,NO,
+mfa_factor,last_counter,bigint,NO,'-1'::integer,NO,
+mfa_factor,enrollment_expires_at,timestamp with time zone,YES,,NO,
+move_line,document_line_id,uuid,NO,,YES,document_line.id
+move_line,stock_item_id,uuid,NO,,NO,stock_item.id
+move_line,source_location_id,uuid,NO,,NO,location.id
+move_line,destination_location_id,uuid,NO,,NO,location.id
+move_line,quality_decision_id,uuid,YES,,NO,quality_decision.id
+opening_document,document_id,uuid,NO,,YES,document.id
+opening_document,warehouse_id,uuid,NO,,NO,warehouse.id
+opening_document,batch_key,uuid,NO,,NO,
+opening_document,signed_count_reference,character varying(2000),NO,,NO,
+opening_line,document_line_id,uuid,NO,,YES,document_line.id
+opening_line,destination_location_id,uuid,NO,,NO,location.id
+opening_line,lot_code,character varying(100),YES,,NO,
+opening_line,serial_code,character varying(160),YES,,NO,
+opening_line,manufactured_on,date,YES,,NO,
+opening_line,expires_on,date,YES,,NO,
+organization,id,uuid,NO,,YES,
+organization,code,character varying(40),NO,,NO,
+organization,name,character varying(200),NO,,NO,
+organization,timezone,character varying(80),NO,,NO,
+organization,currency,character(3),NO,,NO,
+outbox_event,id,uuid,NO,,YES,
+outbox_event,event_type,character varying(100),NO,,NO,
+outbox_event,aggregate_id,uuid,NO,,NO,
+outbox_event,payload,jsonb,NO,,NO,
+outbox_event,occurred_at,timestamp with time zone,NO,,NO,
+outbox_event,available_at,timestamp with time zone,NO,,NO,
+outbox_event,attempts,integer,NO,,NO,
+outbox_event,processed_at,timestamp with time zone,YES,,NO,
+outbox_event,last_error,text,YES,,NO,
+outbox_event,version,integer,NO,1,NO,
+outbox_event,replay_count,integer,NO,0,NO,
+outbox_event,replayed_at,timestamp with time zone,YES,,NO,
+package,id,uuid,NO,,YES,
+package,document_id,uuid,NO,,NO,document.id
+package,code,character varying(100),NO,,NO,
+package,status,character varying(20),YES,,NO,
+package,version,integer,NO,1,NO,
+package,reason,text,YES,,NO,
+package,created_by,uuid,YES,,NO,app_user.id
+package,created_at,timestamp with time zone,YES,,NO,
+package_line,id,uuid,NO,,YES,
+package_line,package_id,uuid,NO,,NO,package.id
+package_line,document_line_id,uuid,NO,,NO,document_line.id
+package_line,stock_item_id,uuid,NO,,NO,stock_item.id
+package_line,quantity,"numeric(20,6)",NO,,NO,
+package_line,pick_task_id,uuid,YES,,NO,pick_task.id
+package_line,consumed_quantity,"numeric(20,6)",NO,0,NO,
+partner,id,uuid,NO,,YES,
+partner,code,character varying(60),NO,,NO,
+partner,name,character varying(240),NO,,NO,
+partner,is_customer,boolean,NO,,NO,
+partner,is_supplier,boolean,NO,,NO,
+partner,tax_code,character varying(40),YES,,NO,
+partner,address,text,YES,,NO,
+partner,is_active,boolean,NO,,NO,
+partner,version,integer,NO,1,NO,
+period_reopen_confirmation,id,uuid,NO,,YES,
+period_reopen_confirmation,period_id,uuid,NO,,NO,stock_period.id
+period_reopen_confirmation,period_version,integer,NO,,NO,
+period_reopen_confirmation,confirmed_by,uuid,NO,,NO,app_user.id
+period_reopen_confirmation,confirmed_at,timestamp with time zone,NO,,NO,
+period_reopen_confirmation,reason,text,NO,,NO,
+permission,id,uuid,NO,,YES,
+permission,code,character varying(100),NO,,NO,
+permission,scope_kind,character varying(20),NO,,NO,
+permission,description,text,NO,,NO,
+pick_task,id,uuid,NO,,YES,
+pick_task,reservation_id,uuid,NO,,NO,reservation.id
+pick_task,assigned_to,uuid,NO,,NO,app_user.id
+pick_task,picked_quantity,"numeric(20,6)",NO,,NO,
+pick_task,status,character varying(20),NO,,NO,
+pick_task,version,integer,NO,,NO,
+pick_task,target_quantity,"numeric(20,6)",YES,,NO,
+pick_task,consumed_quantity,"numeric(20,6)",NO,0,NO,
+pick_task,reason,text,YES,,NO,
+pick_task,created_by,uuid,YES,,NO,app_user.id
+pick_task,created_at,timestamp with time zone,YES,,NO,
+print_attempt,id,uuid,NO,,YES,
+print_attempt,job_id,uuid,NO,,NO,print_job.id
+print_attempt,generation,integer,NO,,NO,
+print_attempt,actor_id,uuid,NO,,NO,app_user.id
+print_attempt,session_id,uuid,NO,,NO,auth_session.id
+print_attempt,printer,character varying(200),NO,,NO,
+print_attempt,driver,character varying(20),NO,,NO,
+print_attempt,copies,integer,NO,,NO,
+print_attempt,status,character varying(10),NO,'UNKNOWN'::character varying,NO,
+print_attempt,spool_id,character varying(200),YES,,NO,
+print_attempt,error_code,character varying(40),YES,,NO,
+print_attempt,created_at,timestamp with time zone,NO,,NO,
+print_attempt,finished_at,timestamp with time zone,YES,,NO,
+print_job,id,uuid,NO,,YES,
+print_job,requested_by,uuid,NO,,NO,app_user.id
+print_job,session_id,uuid,NO,,NO,auth_session.id
+print_job,warehouse_id,uuid,NO,,NO,warehouse.id
+print_job,source_id,uuid,NO,,NO,
+print_job,source_version,integer,NO,,NO,
+print_job,template,character varying(20),NO,,NO,
+print_job,template_version,integer,NO,1,NO,
+print_job,paper,character varying(10),NO,,NO,
+print_job,include_price,boolean,NO,,NO,
+print_job,criteria,jsonb,NO,,NO,
+print_job,snapshot,jsonb,NO,,NO,
+print_job,snapshot_hash,character(64),NO,,NO,
+print_job,status,character varying(12),NO,'QUEUED'::character varying,NO,
+print_job,version,integer,NO,1,NO,
+print_job,generation,integer,NO,1,NO,
+print_job,file_id,uuid,YES,,NO,stored_file.id
+print_job,created_at,timestamp with time zone,NO,,NO,
+print_job,expires_at,timestamp with time zone,NO,,NO,
+print_job,error_code,character varying(40),YES,,NO,
+print_task,id,uuid,NO,,YES,
+print_task,job_id,uuid,NO,,NO,print_job.id
+print_task,generation,integer,NO,,NO,
+print_task,status,character varying(10),NO,'READY'::character varying,NO,
+print_task,attempts,integer,NO,0,NO,
+print_task,available_at,timestamp with time zone,NO,clock_timestamp(),NO,
+print_task,lease_token,uuid,YES,,NO,
+print_task,lease_until,timestamp with time zone,YES,,NO,
+product,id,uuid,NO,,YES,
+product,sku,character varying(80),NO,,NO,
+product,name,character varying(240),NO,,NO,
+product,category_id,uuid,YES,,NO,product_category.id
+product,base_uom_id,uuid,NO,,NO,uom.id
+product,tracking,character varying(10),NO,,NO,
+product,expiry_required,boolean,NO,,NO,
+product,is_active,boolean,NO,,NO,
+product,version,integer,NO,,NO,
+product,attributes,jsonb,NO,,NO,
+product_category,id,uuid,NO,,YES,
+product_category,code,character varying(40),NO,,NO,
+product_category,name,character varying(160),NO,,NO,
+product_category,parent_id,uuid,YES,,NO,product_category.id
+product_category,version,integer,NO,1,NO,
+product_category,is_active,boolean,NO,true,NO,
+product_image,id,uuid,NO,,YES,
+product_image,product_id,uuid,NO,,NO,product.id
+product_image,file_id,uuid,NO,,NO,stored_file.id
+product_image,sort_order,integer,NO,,NO,
+product_uom,id,uuid,NO,,YES,
+product_uom,product_id,uuid,NO,,NO,product.id
+product_uom,uom_id,uuid,NO,,NO,uom.id
+product_uom,factor,"numeric(20,8)",NO,,NO,
+product_uom,revision,integer,NO,,NO,
+product_uom,is_active,boolean,NO,,NO,
+quality_decision,id,uuid,NO,,YES,
+quality_decision,receipt_move_id,uuid,NO,,NO,stock_move.id
+quality_decision,quantity,"numeric(20,6)",NO,,NO,
+quality_decision,result,character varying(20),NO,,NO,
+quality_decision,reason,text,NO,,NO,
+quality_decision,decided_by,uuid,NO,,NO,app_user.id
+quality_decision,decided_at,timestamp with time zone,NO,,NO,
+quality_decision,followup_document_id,uuid,YES,,NO,document.id
+reference_price,id,uuid,NO,,YES,
+reference_price,product_id,uuid,NO,,NO,product.id
+reference_price,effective_on,date,NO,,NO,
+reference_price,amount,"numeric(20,4)",NO,,NO,
+reference_price,currency,character(3),NO,,NO,
+reference_price,source,text,NO,,NO,
+reference_price,created_by,uuid,NO,,NO,app_user.id
+report_request_guard,user_id,uuid,NO,,YES,app_user.id
+report_request_guard,version,bigint,NO,1,NO,
+report_snapshot,id,uuid,NO,,YES,
+report_snapshot,requested_by,uuid,NO,,NO,app_user.id
+report_snapshot,report_code,character varying(3),NO,,NO,
+report_snapshot,criteria,jsonb,NO,,NO,
+report_snapshot,required_warehouses,uuid[],NO,,NO,
+report_snapshot,created_at,timestamp with time zone,NO,,NO,
+report_snapshot,expires_at,timestamp with time zone,NO,,NO,
+report_snapshot,row_count,integer,NO,,NO,
+report_snapshot,columns,jsonb,NO,,NO,
+report_snapshot,sha256,character(64),NO,,NO,
+report_snapshot_row,snapshot_id,uuid,NO,,YES,report_snapshot.id
+report_snapshot_row,ordinal,integer,NO,,YES,
+report_snapshot_row,payload,jsonb,NO,,NO,
+reservation,id,uuid,NO,,YES,
+reservation,line_id,uuid,NO,,NO,document_line.id
+reservation,stock_item_id,uuid,NO,,NO,stock_item.id
+reservation,location_id,uuid,NO,,NO,location.id
+reservation,quantity,"numeric(20,6)",NO,,NO,
+reservation,consumed,"numeric(20,6)",NO,,NO,
+reservation,released,"numeric(20,6)",NO,,NO,
+reservation,expires_at,timestamp with time zone,YES,,NO,
+reservation,created_by,uuid,NO,,NO,app_user.id
+reservation_consumption,id,uuid,NO,,YES,
+reservation_consumption,reservation_id,uuid,NO,,NO,reservation.id
+reservation_consumption,move_id,uuid,NO,,NO,stock_move.id
+reservation_consumption,quantity,"numeric(20,6)",NO,,NO,
+return_document,document_id,uuid,NO,,YES,document.id
+return_document,source_document_id,uuid,NO,,NO,document.id
+return_line,document_line_id,uuid,NO,,YES,document_line.id
+return_line,source_move_id,uuid,NO,,NO,stock_move.id
+return_line,location_id,uuid,NO,,NO,location.id
+reversal_document,document_id,uuid,NO,,YES,document.id
+reversal_document,source_transaction_id,uuid,NO,,NO,inventory_transaction.id
+reversal_document,source_version,integer,NO,,NO,
+reversal_document,reversal_reason,text,NO,,NO,
+reversal_line,document_line_id,uuid,NO,,YES,document_line.id
+reversal_line,source_move_id,uuid,NO,,NO,stock_move.id
+role,id,uuid,NO,,YES,
+role,code,character varying(60),NO,,NO,
+role,name,character varying(160),NO,,NO,
+role,is_active,boolean,NO,,NO,
+role_permission,id,uuid,NO,,YES,
+role_permission,role_id,uuid,NO,,NO,role.id
+role_permission,permission_id,uuid,NO,,NO,permission.id
+serial,id,uuid,NO,,YES,
+serial,product_id,uuid,NO,,NO,product.id
+serial,code,character varying(160),NO,,NO,
+serial,warranty_version,integer,NO,0,NO,
+serial_position,id,uuid,NO,,YES,
+serial_position,serial_id,uuid,NO,,NO,serial.id
+serial_position,location_id,uuid,NO,,NO,location.id
+serial_position,last_move_id,uuid,NO,,NO,stock_move.id
+serial_warranty_record,id,uuid,NO,,YES,
+serial_warranty_record,serial_id,uuid,NO,,NO,serial.id
+serial_warranty_record,receipt_move_id,uuid,NO,,NO,stock_move.id
+serial_warranty_record,revision,integer,NO,,NO,
+serial_warranty_record,starts_on,date,YES,,NO,
+serial_warranty_record,ends_on,date,YES,,NO,
+serial_warranty_record,evidence_ref,text,YES,,NO,
+serial_warranty_record,recorded_by,uuid,NO,,NO,app_user.id
+serial_warranty_record,recorded_at,timestamp with time zone,NO,,NO,
+serial_warranty_record,reason,text,NO,,NO,
+stock_balance,id,uuid,NO,,YES,
+stock_balance,stock_item_id,uuid,NO,,NO,stock_item.id
+stock_balance,location_id,uuid,NO,,NO,location.id
+stock_balance,on_hand,"numeric(20,6)",NO,,NO,
+stock_balance,reserved,"numeric(20,6)",NO,,NO,
+stock_balance,version,bigint,NO,,NO,
+stock_item,id,uuid,NO,,YES,
+stock_item,product_id,uuid,NO,,NO,product.id
+stock_item,lot_id,uuid,YES,,NO,lot.id
+stock_item,serial_id,uuid,YES,,NO,serial.id
+stock_item,owner_id,uuid,NO,,NO,stock_owner.id
+stock_item,consignment_id,uuid,YES,,NO,consignment_agreement.id
+stock_move,id,uuid,NO,,YES,
+stock_move,transaction_id,uuid,NO,,NO,inventory_transaction.id
+stock_move,line_id,uuid,NO,,NO,document_line.id
+stock_move,stock_item_id,uuid,NO,,NO,stock_item.id
+stock_move,source_location_id,uuid,NO,,NO,location.id
+stock_move,destination_location_id,uuid,NO,,NO,location.id
+stock_move,quantity_base,"numeric(20,6)",NO,,NO,
+stock_move,base_uom_id,uuid,NO,,NO,uom.id
+stock_move,reverses_move_id,uuid,YES,,NO,stock_move.id
+stock_owner,id,uuid,NO,,YES,
+stock_owner,code,character varying(80),NO,,NO,
+stock_owner,name,character varying(240),NO,,NO,
+stock_owner,kind,character varying(20),NO,,NO,
+stock_owner,partner_id,uuid,YES,,NO,partner.id
+stock_owner,is_active,boolean,NO,true,NO,
+stock_owner,version,integer,NO,1,NO,
+stock_period,id,uuid,NO,,YES,
+stock_period,warehouse_id,uuid,NO,,NO,warehouse.id
+stock_period,starts_on,date,NO,,NO,
+stock_period,ends_on,date,NO,,NO,
+stock_period,status,character varying(10),NO,,NO,
+stock_period,closed_by,uuid,YES,,NO,app_user.id
+stock_period,closed_at,timestamp with time zone,YES,,NO,
+stock_period,version,integer,NO,1,NO,
+stored_file,id,uuid,NO,,YES,
+stored_file,storage_key,text,NO,,NO,
+stored_file,original_name,character varying(240),NO,,NO,
+stored_file,mime_type,character varying(100),NO,,NO,
+stored_file,sha256,character(64),NO,,NO,
+stored_file,size_bytes,bigint,NO,,NO,
+stored_file,uploaded_by,uuid,NO,,NO,app_user.id
+stored_file,created_at,timestamp with time zone,NO,,NO,
+transfer_adjustment,document_id,uuid,NO,,YES,document.id
+transfer_adjustment,source_transfer_id,uuid,NO,,NO,document.id
+transfer_adjustment,discrepancy_id,uuid,NO,,NO,transfer_discrepancy.id
+transfer_discrepancy,id,uuid,NO,,YES,
+transfer_discrepancy,transfer_document_id,uuid,NO,,NO,document.id
+transfer_discrepancy,dispatch_move_id,uuid,NO,,NO,stock_move.id
+transfer_discrepancy,kind,character varying(20),NO,,NO,
+transfer_discrepancy,quantity,"numeric(20,6)",NO,,NO,
+transfer_discrepancy,evidence_ref,character varying(2000),NO,,NO,
+transfer_discrepancy,recorded_by,uuid,NO,,NO,app_user.id
+transfer_discrepancy,recorded_at,timestamp with time zone,NO,,NO,
+transfer_line,document_line_id,uuid,NO,,YES,document_line.id
+transfer_line,stock_item_id,uuid,NO,,NO,stock_item.id
+transfer_line,source_location_id,uuid,NO,,NO,location.id
+transfer_move,move_id,uuid,NO,,YES,stock_move.id
+transfer_move,dispatch_move_id,uuid,YES,,NO,stock_move.id
+transfer_move,disposition,character varying(20),NO,,NO,
+transfer_move,evidence_ref,character varying(2000),NO,,NO,
+uom,id,uuid,NO,,YES,
+uom,code,character varying(30),NO,,NO,
+uom,name,character varying(80),NO,,NO,
+uom,decimal_places,integer,NO,,NO,
+uom,version,integer,NO,1,NO,
+uom,is_active,boolean,NO,true,NO,
+user_avatar,user_id,uuid,NO,,YES,app_user.id
+user_avatar,image_base64,text,YES,,NO,
+user_avatar,version,integer,NO,,NO,
+user_avatar,updated_at,timestamp with time zone,NO,,NO,
+user_role_grant,id,uuid,NO,,YES,
+user_role_grant,user_id,uuid,NO,,NO,app_user.id
+user_role_grant,role_id,uuid,NO,,NO,role.id
+user_role_grant,scope_kind,character varying(20),NO,,NO,
+user_role_grant,warehouse_id,uuid,YES,,NO,warehouse.id
+user_role_grant,valid_from,timestamp with time zone,NO,,NO,
+user_role_grant,valid_until,timestamp with time zone,YES,,NO,
+user_role_grant,granted_by,uuid,NO,,NO,app_user.id
+user_role_grant,revoked_at,timestamp with time zone,YES,,NO,
+warehouse,id,uuid,NO,,YES,
+warehouse,code,character varying(40),NO,,NO,
+warehouse,name,character varying(160),NO,,NO,
+warehouse,address,text,YES,,NO,
+warehouse,is_active,boolean,NO,,NO,
+warehouse,version,integer,NO,1,NO,
+worker_status,id,uuid,NO,,YES,
+worker_status,kind,character varying(20),NO,,NO,
+worker_status,registry_hash,character(64),NO,,NO,
+worker_status,state,character varying(10),NO,,NO,
+worker_status,started_at,timestamp with time zone,NO,clock_timestamp(),NO,
+worker_status,heartbeat_at,timestamp with time zone,NO,clock_timestamp(),NO,
+worker_status,result_code,character varying(40),YES,,NO,
+worker_status,completed_cycles,bigint,NO,0,NO,

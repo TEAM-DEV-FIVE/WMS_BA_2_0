@@ -123,6 +123,7 @@ class TransferHistory(Contract):
 class TransferHistoryPage(Contract):
     items: list[TransferHistory]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class TransferView(OrderSummary):
@@ -149,8 +150,10 @@ class TransferAssignee(Contract):
 class TransferAssigneePage(Contract):
     items: list[TransferAssignee]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class TransferEvidencePage(Contract):
     items: list[TransferEvidence]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)

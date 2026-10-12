@@ -132,3 +132,4 @@ class OrderView(OrderSummary):
 class OrderPage(Contract):
     items: list[OrderSummary]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)

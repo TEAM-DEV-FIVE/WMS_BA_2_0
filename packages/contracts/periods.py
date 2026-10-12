@@ -2,7 +2,7 @@ from datetime import date
 from typing import Literal
 from uuid import UUID
 
-from pydantic import model_validator
+from pydantic import Field, model_validator
 
 from packages.contracts import Contract
 from packages.contracts.master_data import Reason
@@ -40,6 +40,7 @@ class PeriodView(Contract):
 class PeriodPage(Contract):
     items: list[PeriodView]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class PeriodResult(Contract):

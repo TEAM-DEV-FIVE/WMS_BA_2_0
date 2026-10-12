@@ -1,0 +1,16 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · document"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"document" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>document</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">number : character varying(80)</TD></TR><TR><TD ALIGN="LEFT">kind : character varying(30)</TD></TR><TR><TD ALIGN="LEFT">status : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">warehouse_id : uuid</TD></TR><TR><TD ALIGN="LEFT">destination_warehouse_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">transit_location_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">partner_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">business_date : date</TD></TR><TR><TD ALIGN="LEFT">created_by : uuid</TD></TR><TR><TD ALIGN="LEFT">created_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">version : integer</TD></TR><TR><TD ALIGN="LEFT">reason : text ?</TD></TR><TR><TD ALIGN="LEFT">attributes : jsonb</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"warehouse" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>warehouse</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"partner" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>partner</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"location" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>location</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"document" -> "app_user" [label="created_by → id"];
+"document" -> "warehouse" [label="destination_warehouse_id → id"];
+"document" -> "partner" [label="partner_id → id"];
+"document" -> "location" [label="transit_location_id → id"];
+"document" -> "warehouse" [label="warehouse_id → id"];
+}

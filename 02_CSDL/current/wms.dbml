@@ -1,0 +1,1293 @@
+// Generated from PostgreSQL catalog. Full checks and indexes: schema.json.
+
+Table wms.app_user {
+  id uuid [not null, pk]
+  username "character varying(100)" [not null]
+  display_name "character varying(200)" [not null]
+  password_hash text [not null]
+  is_active boolean [not null]
+  auth_version integer [not null]
+  created_at "timestamp with time zone" [not null]
+}
+
+Table wms.approval_policy {
+  id uuid [not null, pk]
+  document_kind "character varying(30)" [not null]
+  revision integer [not null]
+  is_active boolean [not null]
+}
+
+Table wms.approval_policy_step {
+  id uuid [not null, pk]
+  policy_id uuid [not null]
+  step_no integer [not null]
+  role_id uuid [not null]
+  alternative_role_id uuid
+}
+
+Table wms.approval_request {
+  id uuid [not null, pk]
+  document_id uuid [not null]
+  document_version integer [not null]
+  policy_id uuid [not null]
+  requested_by uuid [not null]
+  status "character varying(20)" [not null]
+  created_at "timestamp with time zone" [not null]
+  content_snapshot jsonb
+}
+
+Table wms.approval_step {
+  id uuid [not null, pk]
+  request_id uuid [not null]
+  step_no integer [not null]
+  required_role_id uuid [not null]
+  status "character varying(20)" [not null]
+  decided_by uuid
+  decided_at "timestamp with time zone"
+  comment text
+  alternative_role_id uuid
+}
+
+Table wms.audit_event {
+  id uuid [not null, pk]
+  actor_id uuid
+  warehouse_id uuid
+  action "character varying(100)" [not null]
+  entity_type "character varying(80)" [not null]
+  entity_id uuid
+  request_id uuid [not null]
+  occurred_at "timestamp with time zone" [not null]
+  before_data jsonb
+  after_data jsonb
+  reason text
+}
+
+Table wms.auth_challenge {
+  token_hash character(64) [not null, pk]
+  user_id uuid [not null]
+  device_id uuid [not null]
+  auth_version integer [not null]
+  expires_at "timestamp with time zone" [not null]
+  consumed_at "timestamp with time zone"
+}
+
+Table wms.auth_contact {
+  user_id uuid [not null]
+  kind text [not null]
+  value text [not null]
+  verified_at "timestamp with time zone" [not null]
+  indexes {
+    (user_id, kind) [pk]
+  }
+}
+
+Table wms.auth_contact_challenge {
+  id uuid [not null, pk]
+  user_id uuid [not null]
+  kind text [not null]
+  value text [not null]
+  code_hash character(64) [not null]
+  auth_version integer [not null]
+  expires_at "timestamp with time zone" [not null]
+  consumed_at "timestamp with time zone"
+}
+
+Table wms.auth_delivery {
+  id uuid [not null, pk]
+  user_id uuid [not null]
+  auth_version integer [not null]
+  ciphertext text
+  expires_at "timestamp with time zone" [not null]
+  attempts integer [not null]
+  lease_until "timestamp with time zone"
+  lease_token uuid
+  completed_at "timestamp with time zone"
+  last_error text
+}
+
+Table wms.auth_google_flow {
+  state_hash character(64) [not null, pk]
+  nonce_hash character(64) [not null]
+  verifier_ciphertext text
+  redirect_uri text [not null]
+  device_id uuid [not null]
+  user_id uuid
+  session_id uuid
+  auth_version integer
+  expires_at "timestamp with time zone" [not null]
+  consumed_at "timestamp with time zone"
+}
+
+Table wms.auth_google_identity {
+  subject text [not null, pk]
+  user_id uuid [not null]
+  linked_at "timestamp with time zone" [not null]
+}
+
+Table wms.auth_password_reset {
+  token_hash character(64) [not null, pk]
+  user_id uuid [not null]
+  issued_by uuid [not null]
+  auth_version integer [not null]
+  created_at "timestamp with time zone" [not null]
+  expires_at "timestamp with time zone" [not null]
+  consumed_at "timestamp with time zone"
+}
+
+Table wms.auth_recovery_code {
+  code_hash character(64) [not null, pk]
+  user_id uuid [not null]
+  created_at "timestamp with time zone" [not null]
+  consumed_at "timestamp with time zone"
+  revoked_at "timestamp with time zone"
+}
+
+Table wms.auth_self_reset {
+  token_hash character(64) [not null, pk]
+  user_id uuid [not null]
+  kind text [not null]
+  contact_value text [not null]
+  auth_version integer [not null]
+  expires_at "timestamp with time zone" [not null]
+  consumed_at "timestamp with time zone"
+}
+
+Table wms.auth_session {
+  id uuid [not null, pk]
+  user_id uuid [not null]
+  refresh_hash text [not null]
+  device_id uuid [not null]
+  auth_version integer [not null]
+  expires_at "timestamp with time zone" [not null]
+  revoked_at "timestamp with time zone"
+  mfa_verified_at "timestamp with time zone"
+}
+
+Table wms.auth_throttle {
+  key character(64) [not null, pk]
+  failures integer [not null]
+  window_started_at "timestamp with time zone" [not null]
+  blocked_until "timestamp with time zone"
+}
+
+Table wms.auth_token {
+  token_hash character(64) [not null, pk]
+  session_id uuid [not null]
+  kind "character varying(10)" [not null]
+  created_at "timestamp with time zone" [not null]
+  expires_at "timestamp with time zone" [not null]
+  used_at "timestamp with time zone"
+}
+
+Table wms.barcode {
+  id uuid [not null, pk]
+  code "character varying(160)" [not null]
+  product_uom_id uuid [not null]
+  is_active boolean [not null]
+  version integer [not null]
+}
+
+Table wms.client_release {
+  id uuid [not null, pk]
+  version "character varying(40)" [not null]
+  os "character varying(20)" [not null]
+  architecture "character varying(20)" [not null]
+  api_major integer [not null]
+  sha256 character(64) [not null]
+  download_uri text [not null]
+  is_minimum boolean [not null]
+}
+
+Table wms.consignment_agreement {
+  id uuid [not null, pk]
+  code "character varying(80)" [not null]
+  owner_id uuid [not null]
+  warehouse_id uuid [not null]
+  valid_from date [not null]
+  valid_until date [not null]
+  source_ref text [not null]
+  is_active boolean [not null]
+  version integer [not null]
+}
+
+Table wms.consignment_receipt {
+  document_id uuid [not null, pk]
+  warehouse_id uuid [not null]
+  batch_key uuid [not null]
+  delivery_reference "character varying(2000)" [not null]
+}
+
+Table wms.consignment_receipt_line {
+  document_line_id uuid [not null, pk]
+  destination_location_id uuid [not null]
+  lot_code "character varying(100)"
+  serial_code "character varying(160)"
+  manufactured_on date
+  expires_on date
+}
+
+Table wms.consumer_receipt {
+  id uuid [not null, pk]
+  event_id uuid [not null]
+  consumer "character varying(100)" [not null]
+  processed_at "timestamp with time zone" [not null]
+}
+
+Table wms.count_assignment {
+  id uuid [not null, pk]
+  session_id uuid [not null]
+  location_id uuid [not null]
+  user_id uuid [not null]
+  assigned_by uuid [not null]
+}
+
+Table wms.count_decision {
+  id uuid [not null, pk]
+  submission_id uuid [not null]
+  step_no integer [not null]
+  decision text [not null]
+  decided_by uuid [not null]
+  decided_at "timestamp with time zone" [not null]
+  reason text [not null]
+}
+
+Table wms.count_empty_confirmation {
+  id uuid [not null, pk]
+  session_id uuid [not null]
+  location_id uuid [not null]
+  counted_by uuid [not null]
+  counted_at "timestamp with time zone" [not null]
+  reason text [not null]
+}
+
+Table wms.count_execution {
+  session_id uuid [not null, pk]
+  execution_key uuid [not null]
+  request_hash character(64) [not null]
+  response jsonb [not null]
+}
+
+Table wms.count_line {
+  id uuid [not null, pk]
+  session_id uuid [not null]
+  stock_item_id uuid [not null]
+  location_id uuid [not null]
+  snapshot_quantity numeric(20,6) [not null]
+  approved_quantity numeric(20,6)
+}
+
+Table wms.count_location_lock {
+  id uuid [not null, pk]
+  session_id uuid [not null]
+  location_id uuid [not null]
+  locked_at "timestamp with time zone" [not null]
+  released_at "timestamp with time zone"
+}
+
+Table wms.count_observation {
+  id uuid [not null, pk]
+  count_line_id uuid [not null]
+  round_no integer [not null]
+  quantity numeric(20,6) [not null]
+  counted_by uuid [not null]
+  counted_at "timestamp with time zone" [not null]
+  scan_event_key uuid
+  reason text [not null]
+}
+
+Table wms.count_scope {
+  session_id uuid [not null]
+  location_id uuid [not null]
+  indexes {
+    (session_id, location_id) [pk]
+  }
+}
+
+Table wms.count_session {
+  id uuid [not null, pk]
+  warehouse_id uuid [not null]
+  number "character varying(80)" [not null]
+  status "character varying(20)" [not null]
+  created_by uuid [not null]
+  frozen_at "timestamp with time zone"
+  adjustment_document_id uuid
+  version integer [not null]
+  business_date date [not null]
+  reason text [not null]
+}
+
+Table wms.count_submission {
+  id uuid [not null, pk]
+  session_id uuid [not null]
+  session_version integer [not null]
+  policy_revision integer [not null]
+  requested_by uuid [not null]
+  created_at "timestamp with time zone" [not null]
+  content_snapshot jsonb [not null]
+}
+
+Table wms.custom_field_binding {
+  id uuid [not null, pk]
+  product_id uuid
+  document_id uuid
+  revision_id uuid [not null]
+  values jsonb [not null]
+}
+
+Table wms.custom_field_change {
+  id uuid [not null, pk]
+  binding_id uuid [not null]
+  revision_id uuid [not null]
+  target_version integer [not null]
+  values jsonb [not null]
+  changed_by uuid [not null]
+  changed_at "timestamp with time zone" [not null]
+  reason text [not null]
+}
+
+Table wms.custom_field_definition {
+  id uuid [not null, pk]
+  entity_type "character varying(40)" [not null]
+  code "character varying(60)" [not null]
+  value_type "character varying(20)" [not null]
+  required boolean [not null]
+  validation jsonb [not null]
+  is_active boolean [not null]
+  revision_id uuid
+  label "character varying(120)"
+  visibility "character varying(20)" [not null]
+}
+
+Table wms.custom_field_revision {
+  id uuid [not null, pk]
+  schema_id uuid [not null]
+  version integer [not null]
+  created_by uuid [not null]
+  created_at "timestamp with time zone" [not null]
+  reason text [not null]
+}
+
+Table wms.custom_field_schema {
+  id uuid [not null, pk]
+  entity_type "character varying(40)" [not null]
+  version integer [not null]
+}
+
+Table wms.document {
+  id uuid [not null, pk]
+  number "character varying(80)" [not null]
+  kind "character varying(30)" [not null]
+  status "character varying(20)" [not null]
+  warehouse_id uuid [not null]
+  destination_warehouse_id uuid
+  transit_location_id uuid
+  partner_id uuid
+  business_date date [not null]
+  created_by uuid [not null]
+  created_at "timestamp with time zone" [not null]
+  version integer [not null]
+  reason text
+  attributes jsonb [not null]
+}
+
+Table wms.document_assignment {
+  id uuid [not null, pk]
+  document_id uuid [not null]
+  user_id uuid [not null]
+  assigned_by uuid [not null]
+}
+
+Table wms.document_attachment {
+  id uuid [not null, pk]
+  document_id uuid [not null]
+  file_id uuid [not null]
+}
+
+Table wms.document_line {
+  id uuid [not null, pk]
+  document_id uuid [not null]
+  line_no integer [not null]
+  product_id uuid [not null]
+  uom_id uuid [not null]
+  quantity numeric(20,6) [not null]
+  factor_snapshot numeric(20,8) [not null]
+  base_quantity numeric(20,6) [not null]
+  source_line_id uuid
+  reference_unit_price numeric(20,4)
+  owner_id uuid [not null]
+  consignment_id uuid
+  closed_base_quantity numeric(20,6) [not null]
+}
+
+Table wms.document_link {
+  id uuid [not null, pk]
+  document_id uuid [not null]
+  related_document_id uuid [not null]
+  relation "character varying(30)" [not null]
+}
+
+Table wms.export_job {
+  id uuid [not null, pk]
+  requested_by uuid [not null]
+  report_code "character varying(40)" [not null]
+  filters jsonb [not null]
+  status "character varying(20)" [not null]
+  file_id uuid
+  created_at "timestamp with time zone" [not null]
+  expires_at "timestamp with time zone" [not null]
+  snapshot_id uuid
+  session_id uuid
+  format "character varying(4)"
+  version integer [not null]
+  generation integer [not null]
+  error_code "character varying(40)"
+}
+
+Table wms.export_task {
+  id uuid [not null, pk]
+  job_id uuid [not null]
+  generation integer [not null]
+  status "character varying(10)" [not null]
+  attempts integer [not null]
+  available_at "timestamp with time zone" [not null]
+  lease_token uuid
+  lease_until "timestamp with time zone"
+}
+
+Table wms.fulfillment_consumption {
+  id uuid [not null, pk]
+  package_line_id uuid [not null]
+  reservation_consumption_id uuid [not null]
+  quantity numeric(20,6) [not null]
+}
+
+Table wms.grant_request {
+  id uuid [not null, pk]
+  user_id uuid [not null]
+  role_id uuid [not null]
+  scope_kind "character varying(20)" [not null]
+  warehouse_id uuid
+  valid_until "timestamp with time zone"
+  reason text [not null]
+  requested_by uuid [not null]
+  requested_at "timestamp with time zone" [not null]
+  approved_by uuid
+  grant_id uuid
+}
+
+Table wms.idempotency_record {
+  id uuid [not null, pk]
+  actor_id uuid [not null]
+  key uuid [not null]
+  command "character varying(100)" [not null]
+  request_hash character(64) [not null]
+  response jsonb [not null]
+  http_status integer [not null]
+  completed_at "timestamp with time zone" [not null]
+  expires_at "timestamp with time zone" [not null]
+}
+
+Table wms.import_document_source {
+  warehouse_id uuid [not null]
+  kind "character varying(20)" [not null]
+  source_key "character varying(240)" [not null]
+  document_id uuid [not null]
+  job_id uuid [not null]
+  indexes {
+    (warehouse_id, kind, source_key) [pk]
+  }
+}
+
+Table wms.import_file {
+  file_id uuid [not null, pk]
+  actor_id uuid [not null]
+  warehouse_id uuid
+  kind "character varying(60)" [not null]
+  upload_key uuid [not null]
+  request_hash character(64) [not null]
+  ready boolean [not null]
+}
+
+Table wms.import_job {
+  id uuid [not null, pk]
+  kind "character varying(60)" [not null]
+  file_id uuid [not null]
+  requested_by uuid [not null]
+  status "character varying(20)" [not null]
+  file_hash character(64) [not null]
+  mapping_version "character varying(30)" [not null]
+  operation_key uuid [not null]
+  created_at "timestamp with time zone" [not null]
+  warehouse_id uuid
+  version integer [not null]
+  generation integer [not null]
+  auth_version integer
+  options jsonb [not null]
+  commit_token uuid
+  token_expires_at "timestamp with time zone"
+  stage_hash character(64)
+  data_snapshot jsonb [not null]
+  total_rows integer [not null]
+  processed_rows integer [not null]
+  errors jsonb [not null]
+  result jsonb
+}
+
+Table wms.import_row {
+  id uuid [not null, pk]
+  job_id uuid [not null]
+  row_no integer [not null]
+  payload jsonb [not null]
+  errors jsonb [not null]
+  target_id uuid
+  status "character varying(20)" [not null]
+}
+
+Table wms.import_task {
+  id uuid [not null, pk]
+  job_id uuid [not null]
+  generation integer [not null]
+  state "character varying(20)" [not null]
+  lease_token uuid
+  lease_until "timestamp with time zone"
+  attempts integer [not null]
+  available_at "timestamp with time zone" [not null]
+  last_error "character varying(60)"
+}
+
+Table wms.inventory_transaction {
+  id uuid [not null, pk]
+  document_id uuid [not null]
+  execution_key uuid [not null]
+  operation "character varying(30)" [not null]
+  business_date date [not null]
+  posted_at "timestamp with time zone" [not null]
+  posted_by uuid [not null]
+  reverses_transaction_id uuid
+  request_hash character(64)
+  response jsonb
+}
+
+Table wms.issue_document {
+  document_id uuid [not null, pk]
+  source_order_id uuid [not null]
+}
+
+Table wms.location {
+  id uuid [not null, pk]
+  warehouse_id uuid
+  parent_id uuid
+  code "character varying(80)" [not null]
+  name "character varying(160)" [not null]
+  kind "character varying(20)" [not null]
+  is_active boolean [not null]
+  version integer [not null]
+}
+
+Table wms.lot {
+  id uuid [not null, pk]
+  product_id uuid [not null]
+  code "character varying(100)" [not null]
+  manufactured_on date
+  expires_on date
+  version integer [not null]
+}
+
+Table wms.mfa_factor {
+  id uuid [not null, pk]
+  user_id uuid [not null]
+  kind "character varying(30)" [not null]
+  credential_ciphertext text [not null]
+  verified_at "timestamp with time zone"
+  revoked_at "timestamp with time zone"
+  last_counter bigint [not null]
+  enrollment_expires_at "timestamp with time zone"
+}
+
+Table wms.move_line {
+  document_line_id uuid [not null, pk]
+  stock_item_id uuid [not null]
+  source_location_id uuid [not null]
+  destination_location_id uuid [not null]
+  quality_decision_id uuid
+}
+
+Table wms.opening_document {
+  document_id uuid [not null, pk]
+  warehouse_id uuid [not null]
+  batch_key uuid [not null]
+  signed_count_reference "character varying(2000)" [not null]
+}
+
+Table wms.opening_line {
+  document_line_id uuid [not null, pk]
+  destination_location_id uuid [not null]
+  lot_code "character varying(100)"
+  serial_code "character varying(160)"
+  manufactured_on date
+  expires_on date
+}
+
+Table wms.organization {
+  id uuid [not null, pk]
+  code "character varying(40)" [not null]
+  name "character varying(200)" [not null]
+  timezone "character varying(80)" [not null]
+  currency character(3) [not null]
+}
+
+Table wms.outbox_event {
+  id uuid [not null, pk]
+  event_type "character varying(100)" [not null]
+  aggregate_id uuid [not null]
+  payload jsonb [not null]
+  occurred_at "timestamp with time zone" [not null]
+  available_at "timestamp with time zone" [not null]
+  attempts integer [not null]
+  processed_at "timestamp with time zone"
+  last_error text
+  version integer [not null]
+  replay_count integer [not null]
+  replayed_at "timestamp with time zone"
+}
+
+Table wms.package {
+  id uuid [not null, pk]
+  document_id uuid [not null]
+  code "character varying(100)" [not null]
+  status "character varying(20)"
+  version integer [not null]
+  reason text
+  created_by uuid
+  created_at "timestamp with time zone"
+}
+
+Table wms.package_line {
+  id uuid [not null, pk]
+  package_id uuid [not null]
+  document_line_id uuid [not null]
+  stock_item_id uuid [not null]
+  quantity numeric(20,6) [not null]
+  pick_task_id uuid
+  consumed_quantity numeric(20,6) [not null]
+}
+
+Table wms.partner {
+  id uuid [not null, pk]
+  code "character varying(60)" [not null]
+  name "character varying(240)" [not null]
+  is_customer boolean [not null]
+  is_supplier boolean [not null]
+  tax_code "character varying(40)"
+  address text
+  is_active boolean [not null]
+  version integer [not null]
+}
+
+Table wms.period_reopen_confirmation {
+  id uuid [not null, pk]
+  period_id uuid [not null]
+  period_version integer [not null]
+  confirmed_by uuid [not null]
+  confirmed_at "timestamp with time zone" [not null]
+  reason text [not null]
+}
+
+Table wms.permission {
+  id uuid [not null, pk]
+  code "character varying(100)" [not null]
+  scope_kind "character varying(20)" [not null]
+  description text [not null]
+}
+
+Table wms.pick_task {
+  id uuid [not null, pk]
+  reservation_id uuid [not null]
+  assigned_to uuid [not null]
+  picked_quantity numeric(20,6) [not null]
+  status "character varying(20)" [not null]
+  version integer [not null]
+  target_quantity numeric(20,6)
+  consumed_quantity numeric(20,6) [not null]
+  reason text
+  created_by uuid
+  created_at "timestamp with time zone"
+}
+
+Table wms.print_attempt {
+  id uuid [not null, pk]
+  job_id uuid [not null]
+  generation integer [not null]
+  actor_id uuid [not null]
+  session_id uuid [not null]
+  printer "character varying(200)" [not null]
+  driver "character varying(20)" [not null]
+  copies integer [not null]
+  status "character varying(10)" [not null]
+  spool_id "character varying(200)"
+  error_code "character varying(40)"
+  created_at "timestamp with time zone" [not null]
+  finished_at "timestamp with time zone"
+}
+
+Table wms.print_job {
+  id uuid [not null, pk]
+  requested_by uuid [not null]
+  session_id uuid [not null]
+  warehouse_id uuid [not null]
+  source_id uuid [not null]
+  source_version integer [not null]
+  template "character varying(20)" [not null]
+  template_version integer [not null]
+  paper "character varying(10)" [not null]
+  include_price boolean [not null]
+  criteria jsonb [not null]
+  snapshot jsonb [not null]
+  snapshot_hash character(64) [not null]
+  status "character varying(12)" [not null]
+  version integer [not null]
+  generation integer [not null]
+  file_id uuid
+  created_at "timestamp with time zone" [not null]
+  expires_at "timestamp with time zone" [not null]
+  error_code "character varying(40)"
+}
+
+Table wms.print_task {
+  id uuid [not null, pk]
+  job_id uuid [not null]
+  generation integer [not null]
+  status "character varying(10)" [not null]
+  attempts integer [not null]
+  available_at "timestamp with time zone" [not null]
+  lease_token uuid
+  lease_until "timestamp with time zone"
+}
+
+Table wms.product {
+  id uuid [not null, pk]
+  sku "character varying(80)" [not null]
+  name "character varying(240)" [not null]
+  category_id uuid
+  base_uom_id uuid [not null]
+  tracking "character varying(10)" [not null]
+  expiry_required boolean [not null]
+  is_active boolean [not null]
+  version integer [not null]
+  attributes jsonb [not null]
+}
+
+Table wms.product_category {
+  id uuid [not null, pk]
+  code "character varying(40)" [not null]
+  name "character varying(160)" [not null]
+  parent_id uuid
+  version integer [not null]
+  is_active boolean [not null]
+}
+
+Table wms.product_image {
+  id uuid [not null, pk]
+  product_id uuid [not null]
+  file_id uuid [not null]
+  sort_order integer [not null]
+}
+
+Table wms.product_uom {
+  id uuid [not null, pk]
+  product_id uuid [not null]
+  uom_id uuid [not null]
+  factor numeric(20,8) [not null]
+  revision integer [not null]
+  is_active boolean [not null]
+}
+
+Table wms.quality_decision {
+  id uuid [not null, pk]
+  receipt_move_id uuid [not null]
+  quantity numeric(20,6) [not null]
+  result "character varying(20)" [not null]
+  reason text [not null]
+  decided_by uuid [not null]
+  decided_at "timestamp with time zone" [not null]
+  followup_document_id uuid
+}
+
+Table wms.reference_price {
+  id uuid [not null, pk]
+  product_id uuid [not null]
+  effective_on date [not null]
+  amount numeric(20,4) [not null]
+  currency character(3) [not null]
+  source text [not null]
+  created_by uuid [not null]
+}
+
+Table wms.report_request_guard {
+  user_id uuid [not null, pk]
+  version bigint [not null]
+}
+
+Table wms.report_snapshot {
+  id uuid [not null, pk]
+  requested_by uuid [not null]
+  report_code "character varying(3)" [not null]
+  criteria jsonb [not null]
+  required_warehouses uuid[] [not null]
+  created_at "timestamp with time zone" [not null]
+  expires_at "timestamp with time zone" [not null]
+  row_count integer [not null]
+  columns jsonb [not null]
+  sha256 character(64) [not null]
+}
+
+Table wms.report_snapshot_row {
+  snapshot_id uuid [not null]
+  ordinal integer [not null]
+  payload jsonb [not null]
+  indexes {
+    (snapshot_id, ordinal) [pk]
+  }
+}
+
+Table wms.reservation {
+  id uuid [not null, pk]
+  line_id uuid [not null]
+  stock_item_id uuid [not null]
+  location_id uuid [not null]
+  quantity numeric(20,6) [not null]
+  consumed numeric(20,6) [not null]
+  released numeric(20,6) [not null]
+  expires_at "timestamp with time zone"
+  created_by uuid [not null]
+}
+
+Table wms.reservation_consumption {
+  id uuid [not null, pk]
+  reservation_id uuid [not null]
+  move_id uuid [not null]
+  quantity numeric(20,6) [not null]
+}
+
+Table wms.return_document {
+  document_id uuid [not null, pk]
+  source_document_id uuid [not null]
+}
+
+Table wms.return_line {
+  document_line_id uuid [not null, pk]
+  source_move_id uuid [not null]
+  location_id uuid [not null]
+}
+
+Table wms.reversal_document {
+  document_id uuid [not null, pk]
+  source_transaction_id uuid [not null]
+  source_version integer [not null]
+  reversal_reason text [not null]
+}
+
+Table wms.reversal_line {
+  document_line_id uuid [not null, pk]
+  source_move_id uuid [not null]
+}
+
+Table wms.role {
+  id uuid [not null, pk]
+  code "character varying(60)" [not null]
+  name "character varying(160)" [not null]
+  is_active boolean [not null]
+}
+
+Table wms.role_permission {
+  id uuid [not null, pk]
+  role_id uuid [not null]
+  permission_id uuid [not null]
+}
+
+Table wms.serial {
+  id uuid [not null, pk]
+  product_id uuid [not null]
+  code "character varying(160)" [not null]
+  warranty_version integer [not null]
+}
+
+Table wms.serial_position {
+  id uuid [not null, pk]
+  serial_id uuid [not null]
+  location_id uuid [not null]
+  last_move_id uuid [not null]
+}
+
+Table wms.serial_warranty_record {
+  id uuid [not null, pk]
+  serial_id uuid [not null]
+  receipt_move_id uuid [not null]
+  revision integer [not null]
+  starts_on date
+  ends_on date
+  evidence_ref text
+  recorded_by uuid [not null]
+  recorded_at "timestamp with time zone" [not null]
+  reason text [not null]
+}
+
+Table wms.stock_balance {
+  id uuid [not null, pk]
+  stock_item_id uuid [not null]
+  location_id uuid [not null]
+  on_hand numeric(20,6) [not null]
+  reserved numeric(20,6) [not null]
+  version bigint [not null]
+}
+
+Table wms.stock_item {
+  id uuid [not null, pk]
+  product_id uuid [not null]
+  lot_id uuid
+  serial_id uuid
+  owner_id uuid [not null]
+  consignment_id uuid
+}
+
+Table wms.stock_move {
+  id uuid [not null, pk]
+  transaction_id uuid [not null]
+  line_id uuid [not null]
+  stock_item_id uuid [not null]
+  source_location_id uuid [not null]
+  destination_location_id uuid [not null]
+  quantity_base numeric(20,6) [not null]
+  base_uom_id uuid [not null]
+  reverses_move_id uuid
+}
+
+Table wms.stock_owner {
+  id uuid [not null, pk]
+  code "character varying(80)" [not null]
+  name "character varying(240)" [not null]
+  kind "character varying(20)" [not null]
+  partner_id uuid
+  is_active boolean [not null]
+  version integer [not null]
+}
+
+Table wms.stock_period {
+  id uuid [not null, pk]
+  warehouse_id uuid [not null]
+  starts_on date [not null]
+  ends_on date [not null]
+  status "character varying(10)" [not null]
+  closed_by uuid
+  closed_at "timestamp with time zone"
+  version integer [not null]
+}
+
+Table wms.stored_file {
+  id uuid [not null, pk]
+  storage_key text [not null]
+  original_name "character varying(240)" [not null]
+  mime_type "character varying(100)" [not null]
+  sha256 character(64) [not null]
+  size_bytes bigint [not null]
+  uploaded_by uuid [not null]
+  created_at "timestamp with time zone" [not null]
+}
+
+Table wms.transfer_adjustment {
+  document_id uuid [not null, pk]
+  source_transfer_id uuid [not null]
+  discrepancy_id uuid [not null]
+}
+
+Table wms.transfer_discrepancy {
+  id uuid [not null, pk]
+  transfer_document_id uuid [not null]
+  dispatch_move_id uuid [not null]
+  kind "character varying(20)" [not null]
+  quantity numeric(20,6) [not null]
+  evidence_ref "character varying(2000)" [not null]
+  recorded_by uuid [not null]
+  recorded_at "timestamp with time zone" [not null]
+}
+
+Table wms.transfer_line {
+  document_line_id uuid [not null, pk]
+  stock_item_id uuid [not null]
+  source_location_id uuid [not null]
+}
+
+Table wms.transfer_move {
+  move_id uuid [not null, pk]
+  dispatch_move_id uuid
+  disposition "character varying(20)" [not null]
+  evidence_ref "character varying(2000)" [not null]
+}
+
+Table wms.uom {
+  id uuid [not null, pk]
+  code "character varying(30)" [not null]
+  name "character varying(80)" [not null]
+  decimal_places integer [not null]
+  version integer [not null]
+  is_active boolean [not null]
+}
+
+Table wms.user_avatar {
+  user_id uuid [not null, pk]
+  image_base64 text
+  version integer [not null]
+  updated_at "timestamp with time zone" [not null]
+}
+
+Table wms.user_role_grant {
+  id uuid [not null, pk]
+  user_id uuid [not null]
+  role_id uuid [not null]
+  scope_kind "character varying(20)" [not null]
+  warehouse_id uuid
+  valid_from "timestamp with time zone" [not null]
+  valid_until "timestamp with time zone"
+  granted_by uuid [not null]
+  revoked_at "timestamp with time zone"
+}
+
+Table wms.warehouse {
+  id uuid [not null, pk]
+  code "character varying(40)" [not null]
+  name "character varying(160)" [not null]
+  address text
+  is_active boolean [not null]
+  version integer [not null]
+}
+
+Table wms.worker_status {
+  id uuid [not null, pk]
+  kind "character varying(20)" [not null]
+  registry_hash character(64) [not null]
+  state "character varying(10)" [not null]
+  started_at "timestamp with time zone" [not null]
+  heartbeat_at "timestamp with time zone" [not null]
+  result_code "character varying(40)"
+  completed_cycles bigint [not null]
+}
+
+Ref: wms.approval_policy_step.alternative_role_id > wms.role.id
+Ref: wms.approval_policy_step.policy_id > wms.approval_policy.id
+Ref: wms.approval_policy_step.role_id > wms.role.id
+Ref: wms.approval_request.document_id > wms.document.id
+Ref: wms.approval_request.policy_id > wms.approval_policy.id
+Ref: wms.approval_request.requested_by > wms.app_user.id
+Ref: wms.approval_step.alternative_role_id > wms.role.id
+Ref: wms.approval_step.decided_by > wms.app_user.id
+Ref: wms.approval_step.request_id > wms.approval_request.id
+Ref: wms.approval_step.required_role_id > wms.role.id
+Ref: wms.audit_event.actor_id > wms.app_user.id
+Ref: wms.audit_event.warehouse_id > wms.warehouse.id
+Ref: wms.auth_challenge.user_id > wms.app_user.id
+Ref: wms.auth_contact.user_id > wms.app_user.id
+Ref: wms.auth_contact_challenge.user_id > wms.app_user.id
+Ref: wms.auth_delivery.user_id > wms.app_user.id
+Ref: wms.auth_google_flow.session_id > wms.auth_session.id
+Ref: wms.auth_google_flow.user_id > wms.app_user.id
+Ref: wms.auth_google_identity.user_id > wms.app_user.id
+Ref: wms.auth_password_reset.issued_by > wms.app_user.id
+Ref: wms.auth_password_reset.user_id > wms.app_user.id
+Ref: wms.auth_recovery_code.user_id > wms.app_user.id
+Ref: wms.auth_self_reset.user_id > wms.app_user.id
+Ref: wms.auth_session.user_id > wms.app_user.id
+Ref: wms.auth_token.session_id > wms.auth_session.id
+Ref: wms.barcode.product_uom_id > wms.product_uom.id
+Ref: wms.consignment_agreement.owner_id > wms.stock_owner.id
+Ref: wms.consignment_agreement.warehouse_id > wms.warehouse.id
+Ref: wms.consignment_receipt.document_id > wms.document.id
+Ref: wms.consignment_receipt.warehouse_id > wms.warehouse.id
+Ref: wms.consignment_receipt_line.destination_location_id > wms.location.id
+Ref: wms.consignment_receipt_line.document_line_id > wms.document_line.id
+Ref: wms.consumer_receipt.event_id > wms.outbox_event.id
+Ref: wms.count_assignment.assigned_by > wms.app_user.id
+Ref: wms.count_assignment.location_id > wms.location.id
+Ref: wms.count_assignment.session_id > wms.count_session.id
+Ref: wms.count_assignment.user_id > wms.app_user.id
+Ref: wms.count_decision.decided_by > wms.app_user.id
+Ref: wms.count_decision.submission_id > wms.count_submission.id
+Ref: wms.count_empty_confirmation.counted_by > wms.app_user.id
+Ref: wms.count_empty_confirmation.location_id > wms.location.id
+Ref: wms.count_empty_confirmation.session_id > wms.count_session.id
+Ref: wms.count_execution.session_id > wms.count_session.id
+Ref: wms.count_line.location_id > wms.location.id
+Ref: wms.count_line.session_id > wms.count_session.id
+Ref: wms.count_line.stock_item_id > wms.stock_item.id
+Ref: wms.count_location_lock.location_id > wms.location.id
+Ref: wms.count_location_lock.session_id > wms.count_session.id
+Ref: wms.count_observation.count_line_id > wms.count_line.id
+Ref: wms.count_observation.counted_by > wms.app_user.id
+Ref: wms.count_scope.location_id > wms.location.id
+Ref: wms.count_scope.session_id > wms.count_session.id
+Ref: wms.count_session.adjustment_document_id > wms.document.id
+Ref: wms.count_session.created_by > wms.app_user.id
+Ref: wms.count_session.warehouse_id > wms.warehouse.id
+Ref: wms.count_submission.requested_by > wms.app_user.id
+Ref: wms.count_submission.session_id > wms.count_session.id
+Ref: wms.custom_field_binding.document_id > wms.document.id
+Ref: wms.custom_field_binding.product_id > wms.product.id
+Ref: wms.custom_field_binding.revision_id > wms.custom_field_revision.id
+Ref: wms.custom_field_change.binding_id > wms.custom_field_binding.id
+Ref: wms.custom_field_change.changed_by > wms.app_user.id
+Ref: wms.custom_field_change.revision_id > wms.custom_field_revision.id
+Ref: wms.custom_field_definition.revision_id > wms.custom_field_revision.id
+Ref: wms.custom_field_revision.created_by > wms.app_user.id
+Ref: wms.custom_field_revision.schema_id > wms.custom_field_schema.id
+Ref: wms.document.created_by > wms.app_user.id
+Ref: wms.document.destination_warehouse_id > wms.warehouse.id
+Ref: wms.document.partner_id > wms.partner.id
+Ref: wms.document.transit_location_id > wms.location.id
+Ref: wms.document.warehouse_id > wms.warehouse.id
+Ref: wms.document_assignment.assigned_by > wms.app_user.id
+Ref: wms.document_assignment.document_id > wms.document.id
+Ref: wms.document_assignment.user_id > wms.app_user.id
+Ref: wms.document_attachment.document_id > wms.document.id
+Ref: wms.document_attachment.file_id > wms.stored_file.id
+Ref: wms.document_line.consignment_id > wms.consignment_agreement.id
+Ref: wms.document_line.document_id > wms.document.id
+Ref: wms.document_line.owner_id > wms.stock_owner.id
+Ref: wms.document_line.product_id > wms.product.id
+Ref: wms.document_line.source_line_id > wms.document_line.id
+Ref: wms.document_line.uom_id > wms.uom.id
+Ref: wms.document_link.document_id > wms.document.id
+Ref: wms.document_link.related_document_id > wms.document.id
+Ref: wms.export_job.file_id > wms.stored_file.id
+Ref: wms.export_job.requested_by > wms.app_user.id
+Ref: wms.export_job.session_id > wms.auth_session.id
+Ref: wms.export_job.snapshot_id > wms.report_snapshot.id
+Ref: wms.export_task.job_id > wms.export_job.id
+Ref: wms.fulfillment_consumption.package_line_id > wms.package_line.id
+Ref: wms.fulfillment_consumption.reservation_consumption_id > wms.reservation_consumption.id
+Ref: wms.grant_request.approved_by > wms.app_user.id
+Ref: wms.grant_request.grant_id > wms.user_role_grant.id
+Ref: wms.grant_request.requested_by > wms.app_user.id
+Ref: wms.grant_request.role_id > wms.role.id
+Ref: wms.grant_request.user_id > wms.app_user.id
+Ref: wms.grant_request.warehouse_id > wms.warehouse.id
+Ref: wms.idempotency_record.actor_id > wms.app_user.id
+Ref: wms.import_document_source.document_id > wms.document.id
+Ref: wms.import_document_source.job_id > wms.import_job.id
+Ref: wms.import_document_source.warehouse_id > wms.warehouse.id
+Ref: wms.import_file.actor_id > wms.app_user.id
+Ref: wms.import_file.file_id > wms.stored_file.id
+Ref: wms.import_file.warehouse_id > wms.warehouse.id
+Ref: wms.import_job.file_id > wms.stored_file.id
+Ref: wms.import_job.requested_by > wms.app_user.id
+Ref: wms.import_job.warehouse_id > wms.warehouse.id
+Ref: wms.import_row.job_id > wms.import_job.id
+Ref: wms.import_task.job_id > wms.import_job.id
+Ref: wms.inventory_transaction.document_id > wms.document.id
+Ref: wms.inventory_transaction.posted_by > wms.app_user.id
+Ref: wms.inventory_transaction.reverses_transaction_id > wms.inventory_transaction.id
+Ref: wms.issue_document.document_id > wms.document.id
+Ref: wms.issue_document.source_order_id > wms.document.id
+Ref: wms.location.parent_id > wms.location.id
+Ref: wms.location.warehouse_id > wms.warehouse.id
+Ref: wms.lot.product_id > wms.product.id
+Ref: wms.mfa_factor.user_id > wms.app_user.id
+Ref: wms.move_line.destination_location_id > wms.location.id
+Ref: wms.move_line.document_line_id > wms.document_line.id
+Ref: wms.move_line.quality_decision_id > wms.quality_decision.id
+Ref: wms.move_line.source_location_id > wms.location.id
+Ref: wms.move_line.stock_item_id > wms.stock_item.id
+Ref: wms.opening_document.document_id > wms.document.id
+Ref: wms.opening_document.warehouse_id > wms.warehouse.id
+Ref: wms.opening_line.destination_location_id > wms.location.id
+Ref: wms.opening_line.document_line_id > wms.document_line.id
+Ref: wms.package.created_by > wms.app_user.id
+Ref: wms.package.document_id > wms.document.id
+Ref: wms.package_line.document_line_id > wms.document_line.id
+Ref: wms.package_line.package_id > wms.package.id
+Ref: wms.package_line.pick_task_id > wms.pick_task.id
+Ref: wms.package_line.stock_item_id > wms.stock_item.id
+Ref: wms.period_reopen_confirmation.confirmed_by > wms.app_user.id
+Ref: wms.period_reopen_confirmation.period_id > wms.stock_period.id
+Ref: wms.pick_task.assigned_to > wms.app_user.id
+Ref: wms.pick_task.created_by > wms.app_user.id
+Ref: wms.pick_task.reservation_id > wms.reservation.id
+Ref: wms.print_attempt.actor_id > wms.app_user.id
+Ref: wms.print_attempt.job_id > wms.print_job.id
+Ref: wms.print_attempt.session_id > wms.auth_session.id
+Ref: wms.print_job.file_id > wms.stored_file.id
+Ref: wms.print_job.requested_by > wms.app_user.id
+Ref: wms.print_job.session_id > wms.auth_session.id
+Ref: wms.print_job.warehouse_id > wms.warehouse.id
+Ref: wms.print_task.job_id > wms.print_job.id
+Ref: wms.product.base_uom_id > wms.uom.id
+Ref: wms.product.category_id > wms.product_category.id
+Ref: wms.product_category.parent_id > wms.product_category.id
+Ref: wms.product_image.file_id > wms.stored_file.id
+Ref: wms.product_image.product_id > wms.product.id
+Ref: wms.product_uom.product_id > wms.product.id
+Ref: wms.product_uom.uom_id > wms.uom.id
+Ref: wms.quality_decision.decided_by > wms.app_user.id
+Ref: wms.quality_decision.followup_document_id > wms.document.id
+Ref: wms.quality_decision.receipt_move_id > wms.stock_move.id
+Ref: wms.reference_price.created_by > wms.app_user.id
+Ref: wms.reference_price.product_id > wms.product.id
+Ref: wms.report_request_guard.user_id > wms.app_user.id
+Ref: wms.report_snapshot.requested_by > wms.app_user.id
+Ref: wms.report_snapshot_row.snapshot_id > wms.report_snapshot.id
+Ref: wms.reservation.created_by > wms.app_user.id
+Ref: wms.reservation.line_id > wms.document_line.id
+Ref: wms.reservation.location_id > wms.location.id
+Ref: wms.reservation.stock_item_id > wms.stock_item.id
+Ref: wms.reservation_consumption.move_id > wms.stock_move.id
+Ref: wms.reservation_consumption.reservation_id > wms.reservation.id
+Ref: wms.return_document.document_id > wms.document.id
+Ref: wms.return_document.source_document_id > wms.document.id
+Ref: wms.return_line.document_line_id > wms.document_line.id
+Ref: wms.return_line.location_id > wms.location.id
+Ref: wms.return_line.source_move_id > wms.stock_move.id
+Ref: wms.reversal_document.document_id > wms.document.id
+Ref: wms.reversal_document.source_transaction_id > wms.inventory_transaction.id
+Ref: wms.reversal_line.document_line_id > wms.document_line.id
+Ref: wms.reversal_line.source_move_id > wms.stock_move.id
+Ref: wms.role_permission.permission_id > wms.permission.id
+Ref: wms.role_permission.role_id > wms.role.id
+Ref: wms.serial.product_id > wms.product.id
+Ref: wms.serial_position.last_move_id > wms.stock_move.id
+Ref: wms.serial_position.location_id > wms.location.id
+Ref: wms.serial_position.serial_id > wms.serial.id
+Ref: wms.serial_warranty_record.receipt_move_id > wms.stock_move.id
+Ref: wms.serial_warranty_record.recorded_by > wms.app_user.id
+Ref: wms.serial_warranty_record.serial_id > wms.serial.id
+Ref: wms.stock_balance.location_id > wms.location.id
+Ref: wms.stock_balance.stock_item_id > wms.stock_item.id
+Ref: wms.stock_item.consignment_id > wms.consignment_agreement.id
+Ref: wms.stock_item.lot_id > wms.lot.id
+Ref: wms.stock_item.owner_id > wms.stock_owner.id
+Ref: wms.stock_item.product_id > wms.product.id
+Ref: wms.stock_item.serial_id > wms.serial.id
+Ref: wms.stock_move.base_uom_id > wms.uom.id
+Ref: wms.stock_move.destination_location_id > wms.location.id
+Ref: wms.stock_move.line_id > wms.document_line.id
+Ref: wms.stock_move.reverses_move_id > wms.stock_move.id
+Ref: wms.stock_move.source_location_id > wms.location.id
+Ref: wms.stock_move.stock_item_id > wms.stock_item.id
+Ref: wms.stock_move.transaction_id > wms.inventory_transaction.id
+Ref: wms.stock_owner.partner_id > wms.partner.id
+Ref: wms.stock_period.closed_by > wms.app_user.id
+Ref: wms.stock_period.warehouse_id > wms.warehouse.id
+Ref: wms.stored_file.uploaded_by > wms.app_user.id
+Ref: wms.transfer_adjustment.discrepancy_id > wms.transfer_discrepancy.id
+Ref: wms.transfer_adjustment.document_id > wms.document.id
+Ref: wms.transfer_adjustment.source_transfer_id > wms.document.id
+Ref: wms.transfer_discrepancy.dispatch_move_id > wms.stock_move.id
+Ref: wms.transfer_discrepancy.recorded_by > wms.app_user.id
+Ref: wms.transfer_discrepancy.transfer_document_id > wms.document.id
+Ref: wms.transfer_line.document_line_id > wms.document_line.id
+Ref: wms.transfer_line.source_location_id > wms.location.id
+Ref: wms.transfer_line.stock_item_id > wms.stock_item.id
+Ref: wms.transfer_move.dispatch_move_id > wms.stock_move.id
+Ref: wms.transfer_move.move_id > wms.stock_move.id
+Ref: wms.user_avatar.user_id > wms.app_user.id
+Ref: wms.user_role_grant.granted_by > wms.app_user.id
+Ref: wms.user_role_grant.role_id > wms.role.id
+Ref: wms.user_role_grant.user_id > wms.app_user.id
+Ref: wms.user_role_grant.warehouse_id > wms.warehouse.id

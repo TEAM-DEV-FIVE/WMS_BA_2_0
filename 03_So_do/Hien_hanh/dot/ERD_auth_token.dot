@@ -1,0 +1,9 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · auth_token"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"auth_token" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>auth_token</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK token_hash : character(64)</TD></TR><TR><TD ALIGN="LEFT">session_id : uuid</TD></TR><TR><TD ALIGN="LEFT">kind : character varying(10)</TD></TR><TR><TD ALIGN="LEFT">created_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">expires_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">used_at : timestamp with time zone ?</TD></TR></TABLE>>];
+"auth_session" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>auth_session</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"auth_token" -> "auth_session" [label="session_id → id"];
+}

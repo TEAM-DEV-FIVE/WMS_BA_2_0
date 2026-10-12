@@ -15,6 +15,7 @@ from sqlalchemy import text
 from apps.server.application.commands import CommandResult, payload_hash
 from apps.server.application.master_data import active_reference, invalid, one
 from apps.server.application.orders import encode
+from apps.server.application.pagination import counted_rows
 from apps.server.application.stock_identity import resolve_stock_identity, validate_ownership
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.openings import OpeningLineInput, OpeningPlan, OpeningPostResult, OpeningView
@@ -43,9 +44,7 @@ class OpeningService:
         auth.require("document.read", warehouse_id, hidden=True)
         auth.require(self.permission_prefix + ".draft", warehouse_id)
         search = q.replace("!", "!!").replace("%", "!%").replace("_", "!_")
-        rows = list(
-            auth.connection.execute(
-                text("""SELECT coalesce(a.id,o.id) AS id,
+        rows, total = counted_rows(auth.connection, text("""SELECT coalesce(a.id,o.id) AS id,
             o.id AS owner_id,o.code AS owner_code,o.name AS owner_name,
             a.id AS consignment_id,a.code AS consignment_code FROM wms.stock_owner o
             LEFT JOIN wms.consignment_agreement a ON a.owner_id=o.id
@@ -54,17 +53,14 @@ class OpeningService:
             (o.kind='CONSIGNOR' AND a.is_active AND p.is_active AND a.warehouse_id=:wh))
             AND (CAST(:after AS uuid) IS NULL OR coalesce(a.id,o.id)>:after)
             AND (o.code ILIKE :q ESCAPE '!' OR o.name ILIKE :q ESCAPE '!' OR a.code ILIKE :q ESCAPE '!')
-            ORDER BY coalesce(a.id,o.id) LIMIT :limit"""),
-                {
+            ORDER BY coalesce(a.id,o.id) LIMIT :limit"""), {
                     "wh": warehouse_id,
                     "after": after,
                     "q": f"%{search}%",
                     "consigned": self.consignor_only,
                     "limit": limit + 1,
-                },
-            ).mappings()
-        )
-        return {"items": rows[:limit], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
+                })
+        return {"total": total, "items": rows[:limit], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
 
     def __init__(self, orders):
         self.orders, self.identity, self.bus = orders, orders.identity, orders.bus

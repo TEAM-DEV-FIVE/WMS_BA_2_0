@@ -3,7 +3,11 @@ from tkinter import ttk
 from uuid import uuid4
 
 from apps.desktop.presenters.returns import ReturnPresenter
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
+from apps.desktop.views.document_review import ScrollPanel
 from apps.desktop.views.moves import WorkflowView
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import HelpButton
 from packages.contracts.returns import ReturnInput, ReturnPost, ReturnUpdate
 
 
@@ -20,10 +24,15 @@ class ReturnView(WorkflowView):
         self.next_button.pack(side="left", padx=5)
         self.new_button = ttk.Button(self.top, text="Phiếu mới", command=self.new)
         self.new_button.pack(side="left")
-        self.table = self.tree(self, ["number", "state", "version"], ["Phiếu trả", "Trạng thái", "Phiên bản"], [350, 220, 100])
+        footer = ttk.Frame(self)
+        footer.pack(side="bottom", fill="x")
+        self.detail_scroll = ScrollPanel(self)
+        self.detail_scroll.pack(fill="both", expand=True)
+        body = self.detail_scroll.inner
+        self.table = self.tree(body, ["number", "state", "version"], ["Phiếu trả", "Trạng thái", "Phiên bản"], [350, 220, 100])
         self.table.bind("<<TreeviewSelect>>", self.select)
-        ttk.Label(self, textvariable=self.variables["detail"], wraplength=800).pack(fill="x")
-        refs = ttk.Frame(self)
+        ttk.Label(body, textvariable=self.variables["detail"], wraplength=800).pack(fill="x")
+        refs = ttk.Frame(body)
         refs.pack(fill="x", pady=4)
         self.ref_buttons = {}
         for resource, label in [("returns/sources", "Nguồn đã ghi sổ"), ("returns/locations", "Vị trí kho")]:
@@ -32,7 +41,7 @@ class ReturnView(WorkflowView):
                     command=lambda r=resource, n=more: self.presenter.load(r, self.cursors[r] if n else None))
                 button.pack(side="left", padx=(0, 5))
                 self.ref_buttons[resource, more] = button
-        edit = ttk.Frame(self)
+        edit = ttk.Frame(body)
         edit.pack(fill="x")
         ttk.Label(edit, text="Dòng nguồn").grid(row=0, column=0, sticky="w")
         self.source_selector = self.combo(edit, "source", 72)
@@ -48,7 +57,7 @@ class ReturnView(WorkflowView):
         self.day_entry = ttk.Entry(edit, textvariable=self.variable("day", date.today().isoformat()), width=16)
         self.day_entry.grid(row=2, column=1, sticky="w", pady=3)
         edit.columnconfigure(1, weight=1)
-        bar = ttk.Frame(self)
+        bar = ttk.Frame(body)
         bar.pack(fill="x", pady=3)
         self.add_button = ttk.Button(bar, text="Thêm dòng", command=self.add_line)
         self.add_button.pack(side="left")
@@ -56,12 +65,12 @@ class ReturnView(WorkflowView):
         self.remove_button.pack(side="left", padx=5)
         self.warranty_button = ttk.Button(bar, text="Nguồn bảo hành serial", command=self.warranty)
         self.warranty_button.pack(side="left")
-        self.line_table = self.tree(self, ["source", "stock", "location", "quantity"],
-            ["Phiếu nguồn", "SKU / owner / lô-serial", "Vị trí", "SL cơ sở"], [160, 310, 120, 90])
-        note = "Khách trả vào cách ly, cần kiểm định trước khi cất hàng." if kind == "CUSTOMER_RETURN" else "Ghi sổ kiểm tra lại tồn chưa giữ chỗ; hàng cách ly cần policy cho phép."
-        ttk.Label(self, text=note, wraplength=800).pack(fill="x")
-        self.reason_form()
-        bar = ttk.Frame(self)
+        self.line_table = self.tree(body, ["source", "stock", "location", "quantity"],
+            ["Phiếu nguồn", "SKU / owner / lô / serial", "Vị trí", "SL cơ sở"], [160, 310, 120, 90])
+        note = "Khách trả vào cách ly, cần kiểm định trước khi cất hàng" if kind == "CUSTOMER_RETURN" else "Ghi sổ kiểm tra lại tồn chưa giữ chỗ; hàng cách ly cần policy cho phép"
+        HelpButton(bar, note).pack(side="right")
+        self.reason_form(parent=footer)
+        bar = ttk.Frame(footer)
         bar.pack(fill="x")
         self.buttons = {}
         for action, label in [("save", "Lưu nháp"), ("submit", "Gửi duyệt"), ("approve", "Duyệt"),
@@ -69,8 +78,13 @@ class ReturnView(WorkflowView):
             button = ttk.Button(bar, text=label, command=lambda a=action: self.action(a))
             button.pack(side="left", padx=(0, 4))
             self.buttons[action] = button
-        self.retry_form(operation=True)
+        self.retry_form(operation=True, parent=footer)
+        self.document_pages = DocumentPages(self.table, footer=footer)
+        self.align_document_toolbar()
+        self.detail_scroll.bind_scrolling()
         self.session_changed()
+        install_pagination(self, lambda after: self.presenter.load(after=after), limit=50, resource='returns')
+        self.enable()
 
     def enable(self):
         free = bool(self.presenter.user_id and self.warehouse_id()) and not self.busy
@@ -90,8 +104,11 @@ class ReturnView(WorkflowView):
             self.set_enabled(widget, editable if action == "save" else writable and self.doc and action in self.doc["allowed_actions"])
         self.set_enabled(self.retry_button, free and self.presenter.uncertain)
         self.set_enabled(self.operation_button, free and self.presenter.uncertain and self.presenter.uncertain[1].endswith("/post"))
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def workflow_clear(self):
+        reset_document_page(self)
         self.doc, self.source_document_id = None, None
         self.lines, self.sources, self.locations, self.permissions = [], [], [], []
         self.busy = False
@@ -110,9 +127,10 @@ class ReturnView(WorkflowView):
         self.doc, self.source_document_id, self.lines = None, None, []
         self.variable("day").set(date.today().isoformat())
         self.variables["reason"].set("")
-        self.variables["detail"].set("Chọn các lần ghi sổ thuộc cùng một phiếu nguồn.")
+        self.variables["detail"].set("Chọn các lần ghi sổ thuộc cùng một phiếu nguồn")
         self.render_lines()
         self.enable()
+        show_document(self)
 
     def select(self, event=None):
         selected = self.table.selection()
@@ -123,25 +141,25 @@ class ReturnView(WorkflowView):
         index = self.source_selector.current()
         if index >= 0:
             row = self.sources[index]
-            self.variables["detail"].set(f"{row['document_number']} · {row['sku']} · owner {row['owner_code']} · "
-                f"đã ghi {row['posted_base']} · đã trả {row['returned_base']} · còn {row['remaining_base']} {row['base_uom_code']}" +
-                (f" · {row['blocked_reason']}" if row["blocked_reason"] else ""))
+            self.variables["detail"].set(f"{row['document_number']}  {row['sku']}  owner {row['owner_code']}"
+                f"đã ghi {row['posted_base']}  đã trả {row['returned_base']}  còn {row['remaining_base']} {row['base_uom_code']}" +
+                (f"{row['blocked_reason']}" if row["blocked_reason"] else ""))
 
     def add_line(self):
         si, li = self.source_selector.current(), self.location_selector.current()
         if si < 0 or li < 0:
-            self.workflow_error("Chọn dòng đã ghi sổ và vị trí trong kho.")
+            self.workflow_error("Chọn dòng đã ghi sổ và vị trí trong kho")
             return
         source, location = self.sources[si], self.locations[li]
         if not source["returnable"]:
             self.workflow_error(source["blocked_reason"])
             return
         if self.source_document_id and self.source_document_id != source["document_id"]:
-            self.workflow_error("Các dòng phải thuộc cùng một phiếu nguồn; tạo phiếu mới để trả nguồn khác.")
+            self.workflow_error("Các dòng phải thuộc cùng một phiếu nguồn; tạo phiếu mới để trả nguồn khác")
             return
         self.source_document_id = source["document_id"]
         self.lines.append(dict(source_move_id=source["id"], location_id=location["id"], quantity_base=self.variables["quantity"].get(),
-            source_label=source["document_number"], label=f"{source['sku']} / {source['owner_code']} / {source['lot_code'] or source['serial_code'] or '—'}",
+            source_label=source["document_number"], label=f"{source['sku']} / {source['owner_code']} / {source['lot_code'] or source['serial_code'] or ""}",
             location_code=location["code"], serial_id=source["serial_id"]))
         self.render_lines()
 
@@ -165,27 +183,29 @@ class ReturnView(WorkflowView):
         if serial:
             self.presenter.warranty(serial)
         else:
-            self.workflow_error("Chọn dòng serial để tra nguồn nhập và chứng cứ bảo hành.")
+            self.workflow_error("Chọn dòng serial để tra nguồn nhập và chứng cứ bảo hành")
 
     def workflow_loaded(self, action, result, permissions):
+        if action == 'returns':
+            self.pagination.loaded(result)
         self.busy, self.permissions = False, permissions
         if action == "read":
             if result["kind"] != self.kind:
-                self.workflow_error("Phiếu thuộc loại trả khác; mở tab tương ứng.")
+                self.workflow_error("Phiếu thuộc loại trả khác; mở tab tương ứng")
                 return
             self.doc, self.source_document_id = result, result["source_document_id"]
             plans = {p["document_line_id"]: p for p in result["plan"]}
             self.lines = [{**plans[r["id"]], "source_label": result["source_document_number"],
-                "label": f"{r['sku']} / {r['owner_code']} / {plans[r['id']]['lot_code'] or plans[r['id']]['serial_code'] or '—'}"} for r in result["lines"]]
+                "label": f"{r['sku']} / {r['owner_code']} / {plans[r['id']]['lot_code'] or plans[r['id']]['serial_code'] or ""}"} for r in result["lines"]]
             self.variables["day"].set(result["business_date"])
             self.variables["reason"].set("")
-            self.variables["detail"].set(f"{result['number']} · {result['status']} · v{result['version']} · " +
+            self.variables["detail"].set(f"{result['number']}  {result['status']}  v{result['version']}" +
                 "; ".join(f"Duyệt v{a['document_version']}: {a['status']}" for a in result["approvals"]))
             self.render_lines()
         elif action == "warranty":
-            self.variables["detail"].set(f"Serial {result['serial_code']} · nhập {result['receipt_number'] or 'Chưa xác định'} · "
-                f"NCC {result['supplier_name'] or 'Chưa xác định'} · ngày nhập {result['received_on'] or '—'} · "
-                f"bảo hành {result['status']} · chứng cứ {result['warranty_evidence_ref'] or 'Chưa xác định'}")
+            self.variables["detail"].set(f"Serial {result['serial_code']}  nhập {result['receipt_number'] or 'Chưa xác định'}"
+                f"NCC {result['supplier_name'] or 'Chưa xác định'}  ngày nhập {result['received_on'] or ""}"
+                f"bảo hành {result['status']}  chứng cứ {result['warranty_evidence_ref'] or 'Chưa xác định'}")
         else:
             self.cursors[action] = result["next_after"]
             if action == "returns":
@@ -195,12 +215,12 @@ class ReturnView(WorkflowView):
             elif action == "returns/sources":
                 self.sources = result["items"]
                 self.variables["source"].set("")
-                self.source_selector.configure(values=[f"{r['document_number']} · {r['sku']} · {r['owner_code']} · {r['lot_code'] or r['serial_code'] or '—'} · còn {r['remaining_base']}" for r in self.sources])
+                self.source_selector.configure(values=[f"{r['document_number']}  {r['sku']}  {r['owner_code']}  {r['lot_code'] or r['serial_code'] or ""}  còn {r['remaining_base']}" for r in self.sources])
             elif action == "returns/locations":
                 self.locations = [r for r in result["items"] if self.kind == "SUPPLIER_RETURN" or r["kind"] == "QUARANTINE"]
                 self.variables["location"].set("")
-                self.location_selector.configure(values=[f"{r['code']} · {r['kind']} · {r['name']}" for r in self.locations])
-        self.variables["status"].set("Đã tải dữ liệu." + (" Còn trang sau." if result.get("next_after") else ""))
+                self.location_selector.configure(values=[f"{r['code']}  {r['kind']}  {r['name']}" for r in self.locations])
+        self.variables["status"].set("Đã tải dữ liệu" + (" Còn trang sau" if result.get("next_after") else ""))
         self.enable()
 
     def workflow_saved(self, result):
@@ -231,4 +251,4 @@ class ReturnView(WorkflowView):
                     body["decision"] = action.upper()
                 self.presenter.command("POST", path, body)
         except (ValueError, TypeError, StopIteration):
-            self.workflow_error("Kiểm tra nguồn, lượng cơ sở, ngày YYYY-MM-DD, lý do và quyền duyệt.")
+            self.workflow_error("Kiểm tra nguồn, lượng cơ sở, ngày YYYY-MM-DD, lý do và quyền duyệt")

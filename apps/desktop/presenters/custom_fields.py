@@ -45,7 +45,7 @@ def run_request(api, generation, cancelled, method, path, body, key, warehouse):
     except ApiError as exc:
         return None, [], (exc.code, str(exc)), api.session_generation
     except Exception:
-        return None, [], ("INVALID_RESPONSE", "Chưa xác minh được phản hồi; giữ đúng yêu cầu để gửi lại."), api.session_generation
+        return None, [], ("INVALID_RESPONSE", "Chưa xác minh được phản hồi; giữ đúng yêu cầu để gửi lại"), api.session_generation
 
 
 class CustomFieldPresenter(MovePresenter):
@@ -69,7 +69,7 @@ class CustomFieldPresenter(MovePresenter):
 
     def targets(self, kind, after=None):
         if kind not in PATHS or (kind != "PRODUCT" and self.warehouse_id == "global"):
-            self.view.workflow_error("Chọn kho để tải chứng từ. Điều chỉnh transit mở từ mã chứng từ nguồn.")
+            self.view.workflow_error("Chọn kho để tải chứng từ; Điều chỉnh transit mở từ mã chứng từ nguồn")
             return False
         query = {"limit": 50}
         if kind != "PRODUCT":

@@ -7,6 +7,7 @@ from apps.server.application.authorization import Authorization, Principal
 from apps.server.application.commands import CommandResult
 from apps.server.application.counting import effects, require_state
 from apps.server.application.master_data import one
+from apps.server.application.pagination import counted_rows
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.periods import PeriodResult
 
@@ -47,9 +48,8 @@ class PeriodService:
 
     def listing(self, auth, warehouse_id, after=None, limit=50):
         self.visible(auth, warehouse_id)
-        rows = auth.connection.execute(text("SELECT * FROM wms.stock_period WHERE warehouse_id=:warehouse AND (CAST(:after AS uuid) IS NULL OR id>:after) ORDER BY id LIMIT :limit"),
-                                       dict(warehouse=warehouse_id, after=after, limit=limit + 1)).mappings().all()
-        return {"items": [self.view(auth, r) for r in rows[:limit]], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
+        rows, total = counted_rows(auth.connection, text("SELECT * FROM wms.stock_period WHERE warehouse_id=:warehouse AND (CAST(:after AS uuid) IS NULL OR id>:after) ORDER BY id LIMIT :limit"), dict(warehouse=warehouse_id, after=after, limit=limit + 1))
+        return {"total": total, "items": [self.view(auth, r) for r in rows[:limit]], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
 
     @staticmethod
     def reconcile(c, warehouse):

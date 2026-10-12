@@ -1,0 +1,19 @@
+digraph WMS {
+graph [rankdir=TB, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="Tải lại giao diện và đóng ứng dụng"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"n0" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Bấm Tải lại hoặc đóng cửa sổ</B></FONT></TD></TR></TABLE>>];
+"n1" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Xác nhận và nhắc phần chưa lưu</B></FONT></TD></TR></TABLE>>];
+"n2" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Ngừng nhận việc mới</B></FONT></TD></TR></TABLE>>];
+"n3" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Chờ executor và đóng journal</B></FONT></TD></TR></TABLE>>];
+"n4" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Giải phóng Tk và API client</B></FONT></TD></TR></TABLE>>];
+"n5" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Nhả khóa ứng dụng</B></FONT></TD></TR></TABLE>>];
+"n6" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Khởi động lại nếu đã chọn Tải lại</B></FONT></TD></TR></TABLE>>];
+"n0" -> "n1" [label=""];
+"n1" -> "n2" [label=""];
+"n2" -> "n3" [label=""];
+"n3" -> "n4" [label=""];
+"n4" -> "n5" [label=""];
+"n5" -> "n6" [label=""];
+}

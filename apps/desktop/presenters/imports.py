@@ -135,7 +135,7 @@ class ImportPresenter:
             body = ImportCreate(file_id=self.file["id"], reason=reason,
                                 signed_count_reference=reference or None).model_dump(mode="json")
             if self.kind == "11_opening" and not reference:
-                raise ValueError("Tồn đầu kỳ cần biên bản kiểm đếm đã ký.")
+                raise ValueError("Tồn đầu kỳ cần biên bản kiểm đếm đã ký")
             self.command("create", "imports", body, file_id=self.file["id"])
 
     def action(self, action, reason):
@@ -173,14 +173,14 @@ class ImportPresenter:
             file = self.imports.metadata(job["file_id"])
             if (file["id"] != job["file_id"] or file["sha256"] != job["file_hash"]
                     or file["warehouse_id"] != warehouse or file["kind"] != kind):
-                raise ApiError("INVALID_RESPONSE", "Metadata tệp không khớp job.")
+                raise ApiError("INVALID_RESPONSE", "Metadata tệp không khớp job")
             cursor = after
             if previous and (previous["id"], previous["version"], previous["generation"]) != (job["id"], job["version"], job["generation"]):
                 cursor = 0
             page = self.imports.rows(job_id, cursor)
             current = self.imports.read(job_id, kind, warehouse)
             if (current["version"], current["generation"]) != (job["version"], job["generation"]):
-                raise ApiError("STALE_DATA", "Job vừa đổi; đọc lại trang dữ liệu.")
+                raise ApiError("STALE_DATA", "Job vừa đổi; đọc lại trang dữ liệu")
             return job, file, page, cursor
 
         self.submit("read", run)
@@ -201,7 +201,7 @@ class ImportPresenter:
                         and job["version"] == body["expected_version"] + 1):
                     ack = checked_ack(command, job["result"])
                     if ack["id"] != command.job_id or ack["status"] != "COMMITTED" or ack["version"] != job["version"]:
-                        raise ApiError("INVALID_RESPONSE", "ACK lưu không khớp job.")
+                        raise ApiError("INVALID_RESPONSE", "ACK lưu không khớp job")
                     return ack
             elif command.file_id:
                 self.imports.metadata(command.file_id)
@@ -245,7 +245,7 @@ class ImportPresenter:
             self.pending = None
             if generation != self.api.session_generation:
                 self.view.import_clear()
-                self.view.import_error("Phiên đã đổi; đăng nhập và tra lại yêu cầu.")
+                self.view.import_error("Phiên đã đổi; đăng nhập và tra lại yêu cầu")
                 continue
             try:
                 result = future.result()
@@ -264,7 +264,7 @@ class ImportPresenter:
                     self.job = self.file = None
                     self.view.import_clear_data()
                 self.next_poll = time.monotonic() + 5
-                self.view.import_error("Không đọc được kết quả; tra trạng thái trước khi gửi lại.")
+                self.view.import_error("Không đọc được kết quả; tra trạng thái trước khi gửi lại")
             else:
                 if action == "load":
                     self.view.import_loaded(*result)

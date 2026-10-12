@@ -6,7 +6,13 @@ from uuid import UUID, uuid4
 
 from pydantic import ValidationError
 
+from apps.desktop.catalog_display import display_sku
 from apps.desktop.presenters.openings import OpeningPresenter, validate_lines
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
+from apps.desktop.views.document_review import ScrollPanel
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import StatusButton
 from packages.contracts.consignments import ConsignmentReceiptInput, ConsignmentReceiptUpdate
 from packages.contracts.openings import OpeningInput, OpeningPost, OpeningUpdate
 from packages.contracts.orders import DecisionInput, OrderAction
@@ -80,15 +86,11 @@ class OpeningView(ttk.Frame):
         self.busy = self.catalog_ready = self.dirty = False
         self.edit_index = None
         # The form stays usable on the shell's minimum size and at large fonts.
-        canvas = self.canvas = tk.Canvas(self, highlightthickness=0)
-        scroll = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
-        scroll.pack(side="right", fill="y")
-        canvas.pack(side="left", fill="both", expand=True)
-        canvas.configure(yscrollcommand=scroll.set)
-        content = self.content = ttk.Frame(canvas, padding=10)
-        window = canvas.create_window((0, 0), window=content, anchor="nw")
-        canvas.bind("<Configure>", lambda event: canvas.itemconfigure(window, width=event.width))
-        content.bind("<Configure>", lambda event: canvas.configure(scrollregion=canvas.bbox("all")))
+        self.scroll_panel = ScrollPanel(self)
+        self.scroll_panel.pack(fill="both", expand=True)
+        self.canvas = self.scroll_panel.canvas
+        content = self.content = self.scroll_panel.inner
+        content.configure(padding=10)
         top = self.row()
         self.selector = self.combo(top, "warehouse", 30)
         self.filter = self.combo(top, "filter", 13, [""] + list(STATUS))
@@ -166,17 +168,21 @@ class OpeningView(ttk.Frame):
         ttk.Label(
             content,
             text=(
-                "Ký gửi theo hợp đồng · Nhận đủ phiếu vào khu nhận/cách ly.\n"
+                "Ký gửi theo hợp đồng  Nhận đủ phiếu vào khu nhận/cách ly\n"
                 if consignment
-                else "Chọn chủ/hợp đồng từng dòng · Tồn đầu kỳ ghi đủ một lần/kho chưa có lịch sử.\n"
+                else "Chọn chủ/hợp đồng từng dòng  Tồn đầu kỳ ghi đủ một lần/kho chưa có lịch sử\n"
             )
-            + "DRAFT: nháp trên màn hình · SYNCED: máy chủ đã lưu · UNKNOWN: chưa rõ kết quả · "
-            "POSTED: đã nhận ACK ghi sổ.\nYêu cầu chưa rõ kết quả chỉ được giữ trong lần mở ứng dụng này.",
+            + "DRAFT: nháp trên màn hình  SYNCED: máy chủ đã lưu  UNKNOWN: chưa rõ kết quả  "
+            "POSTED: đã nhận ACK ghi sổ;\nYêu cầu chưa rõ kết quả chỉ được giữ trong lần mở ứng dụng này",
             wraplength=740,
             justify="left",
         ).pack(fill="x", pady=4)
+        self.document_pages = DocumentPages(self.table)
         self.opening_clear()
-        self.variables["status"].set("Đăng nhập, chọn kho rồi tải phiếu tồn đầu kỳ.")
+        self.variables["status"].set("Đăng nhập, chọn kho rồi tải phiếu tồn đầu kỳ")
+        self.enable()
+        install_pagination(self, self.load, limit=50, resource=None)
+        self.scroll_panel.bind_scrolling()
         self.enable()
 
     def row(self):
@@ -185,6 +191,9 @@ class OpeningView(ttk.Frame):
         return row
 
     def label(self, name):
+        if name == "status":
+            StatusButton(self.content, self.variables[name]).pack(anchor="e", pady=3)
+            return
         ttk.Label(self.content, textvariable=self.variables[name], wraplength=740, justify="left").pack(
             fill="x", pady=3
         )
@@ -213,7 +222,7 @@ class OpeningView(ttk.Frame):
         container = ttk.Frame(self.content)
         container.pack(fill="x", pady=3)
         container.columnconfigure(0, weight=1)
-        tree = ttk.Treeview(container, columns=columns, show="headings", height=height, selectmode="browse")
+        tree = DataTable(container, columns=columns, show="headings", height=height, selectmode="browse")
         for column, label in zip(columns, labels):
             tree.heading(column, text=label)
             tree.column(column, width=105, minwidth=65)
@@ -230,23 +239,35 @@ class OpeningView(ttk.Frame):
         return str(self.warehouses[index].id) if index >= 0 else None
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.warehouses = list(warehouses or [])
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         self.variables["warehouse"].set("")
         if self.warehouses:
             self.selector.current(0)
         self.presenter.reset(user.id if user else None, self.warehouse_id())
         self.variables["status"].set(
-            "Chọn kho rồi tải phiếu." if user else "Đăng nhập để thao tác tồn đầu kỳ."
+            "Chọn kho rồi tải phiếu" if user else "Đăng nhập để thao tác tồn đầu kỳ"
         )
         self.enable()
 
+    def open_workspace(self):
+        if (all(self.presenter.scope) and not self.busy and not self.presenter.uncertain
+                and not self.list_loaded and not self.dirty and not self.doc):
+            self.load(select_first=True)
+
     def scope_changed(self, event=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(self.presenter.user_id, self.warehouse_id())
-        self.variables["status"].set("Tải lại danh sách theo kho và bộ lọc vừa chọn.")
+        self.variables["status"].set("Tải lại danh sách theo kho và bộ lọc vừa chọn")
         self.enable()
+        self.open_workspace()
 
     def opening_clear(self):
+        reset_document_page(self)
+        self.list_loaded = self.select_first = False
         self.doc = self.ack = None
         self.lines, self.permissions = [], []
         self.products, self.locations, self.units = {}, {}, {}
@@ -320,12 +341,15 @@ class OpeningView(ttk.Frame):
         if uncertain:
             self.variables["operation"].set(uncertain.key)
             self.variables["ack"].set(
-                "UNKNOWN · "
-                + (f"Execution: {uncertain.body['execution_key']} · " if uncertain.post else "")
-                + "Giữ nguyên batch, HTTP key và nội dung. Tra trạng thái trước khi gửi lại."
+                "UNKNOWN  "
+                + (f"Execution: {uncertain.body['execution_key']}" if uncertain.post else "")
+                + "Giữ nguyên batch, HTTP key và nội dung; Tra trạng thái trước khi gửi lại"
             )
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
-    def load(self, after=None):
+    def load(self, after=None, *, select_first=False):
+        self.select_first = select_first
         self.presenter.load(self.variables["filter"].get(), after)
 
     def opening_busy(self):
@@ -334,7 +358,10 @@ class OpeningView(ttk.Frame):
         self.enable()
 
     def opening_loaded(self, page, refs, permissions):
+        select_first = self.select_first
         self.opening_clear()
+        self.pagination.loaded(page)
+        self.list_loaded = True
         self.permissions = permissions
         self.catalog_ready = all(key in refs for key in ("products", "locations", "owners"))
         self.next_after = page["next_after"]
@@ -353,10 +380,17 @@ class OpeningView(ttk.Frame):
                 ),
             )
         self.variables["status"].set(
-            "Đã tải phiếu. Chọn phiếu hoặc Tạo mới."
-            + (" Cần quyền đọc danh mục để lập/sửa." if not self.catalog_ready else "")
+            "Đã tải phiếu; Chọn phiếu hoặc Tạo mới"
+            + (" Cần quyền đọc danh mục để lập/sửa" if not self.catalog_ready else "")
         )
         self.enable()
+        if not page["items"]:
+            self.variables["status"].set("Không có phiếu phù hợp với kho và bộ lọc đã chọn")
+        elif select_first and not self.presenter.uncertain:
+            first = page["items"][0]["id"]
+            self.table.selection_set(first)
+            self.table.focus(first)
+            self.presenter.read(first)
 
     def set_catalog(self, resource, page):
         rows = page["items"]
@@ -371,14 +405,14 @@ class OpeningView(ttk.Frame):
         self.cursors[resource] = page.get("next_after")
         if resource == "owners":
             self.owner.configure(
-                values=[f"{r['owner_code']} · {r['consignment_code'] or 'Doanh nghiệp'}" for r in rows]
+                values=[f"{r['owner_code']}  {r['consignment_code'] or 'Doanh nghiệp'}" for r in rows]
             )
             self.variables["owner"].set("")
             return
         cache = self.products if resource == "products" else self.locations
         cache.update({r["id"]: r for r in rows})
         name = "product" if resource == "products" else "location"
-        getattr(self, name).configure(values=[f"{r.get('sku', r.get('code'))} · {r['name']}" for r in rows])
+        getattr(self, name).configure(values=[f"{r.get('sku', r.get('code'))}  {r['name']}" for r in rows])
         self.variables[name].set("")
         if name == "product":
             self.variables["unit"].set("")
@@ -396,7 +430,7 @@ class OpeningView(ttk.Frame):
         self.busy = False
         self.set_catalog(resource, page)
         self.variables["status"].set(
-            "Đã tải danh mục." + (" Còn trang sau." if page.get("next_after") else " Hết danh sách.")
+            "Đã tải danh mục" + (" Còn trang sau" if page.get("next_after") else " Hết danh sách")
         )
         self.enable()
 
@@ -415,9 +449,9 @@ class OpeningView(ttk.Frame):
         self.products[product["id"]] = product
         self.units[unit["id"]] = unit
         self.variables["unit"].set(
-            f"{unit['code']} · {product['tracking']} · {unit['decimal_places']} chữ số lẻ"
+            f"{unit['code']}  {product['tracking']}  {unit['decimal_places']} chữ số lẻ"
         )
-        self.variables["status"].set("Nhập lượng theo đơn vị cơ sở; giữ nguyên mã lô/serial, kể cả số 0 đầu.")
+        self.variables["status"].set("Nhập lượng theo đơn vị cơ sở; giữ nguyên mã lô/serial, kể cả số 0 đầu")
         self.enable()
 
     def new(self):
@@ -453,12 +487,13 @@ class OpeningView(ttk.Frame):
         self.variables["heading"].set("Phiếu nhận ký gửi mới" if self.consignment else "Phiếu tồn đầu kỳ mới")
         self.mark_dirty()
         self.render_lines()
+        show_document(self)
 
     def mark_dirty(self):
         if not self.editable:
             return
         self.dirty = True
-        self.variables["status"].set("DRAFT · Nội dung trên màn hình chưa lưu máy chủ.")
+        self.variables["status"].set("DRAFT  Nội dung trên màn hình chưa lưu máy chủ")
         self.enable()
 
     def select(self, event=None):
@@ -477,13 +512,13 @@ class OpeningView(ttk.Frame):
         self.variables["reference"].set(doc[self.reference_field])
         self.variables["reason"].set("")
         self.variables["heading"].set(
-            f"{doc['number']} · {STATUS.get(doc['status'], doc['status'])} · v{doc['version']} · {doc['creator_name']}"
+            f"{doc['number']}  {STATUS.get(doc['status'], doc['status'])}  v{doc['version']}  {doc['creator_name']}"
         )
         self.variables["history"].set(
             "\n".join(
-                f"Duyệt v{r['document_version']} · {r['status']} · "
+                f"Duyệt v{r['document_version']}  {r['status']}"
                 + "; ".join(
-                    f"Bước {s['step_no']} ({'/'.join(s['roles'])}): {s['decider_name'] or 'Chưa duyệt'} · {s['comment'] or s['status']}"
+                    f"Bước {s['step_no']} ({'/'.join(s['roles'])}): {s['decider_name'] or 'Chưa duyệt'}  {s['comment'] or s['status']}"
                     for s in r["steps"]
                 )
                 for r in doc["approvals"]
@@ -491,17 +526,17 @@ class OpeningView(ttk.Frame):
         )
         posted = self.ack and self.ack["id"] == doc["id"]
         state = (
-            "UNKNOWN · Yêu cầu đang chờ tra ACK/kết quả."
+            "UNKNOWN  Yêu cầu đang chờ tra ACK/kết quả"
             if self.presenter.uncertain
-            else "POSTED · Đã nhận ACK ghi sổ."
+            else "POSTED  Đã nhận ACK ghi sổ"
             if posted
-            else "SYNCED · Đã tải phiên bản máy chủ."
+            else "SYNCED  Đã tải phiên bản máy chủ"
         )
         self.variables["status"].set(
-            state + (" STALE: đã làm mới; kiểm tra nội dung trước khi thao tác tiếp." if stale else "")
+            state + (" STALE: đã làm mới; kiểm tra nội dung trước khi thao tác tiếp" if stale else "")
         )
         if not posted and not self.presenter.uncertain:
-            self.variables["ack"].set("Chưa tra ACK cho phiếu này.")
+            self.variables["ack"].set("Chưa tra ACK cho phiếu này")
         complete = bool(self.lines) and all(
             Decimal(line["posted_base"]) == Decimal(line["base_quantity"])
             and Decimal(line["remaining_base"]) == 0
@@ -509,8 +544,8 @@ class OpeningView(ttk.Frame):
         )
         self.variables["reconciliation"].set(
             "Đối chiếu dòng từ máy chủ: "
-            + ("đã ghi đủ mọi dòng, còn lại 0." if complete else "xem cột Đã ghi / Còn.")
-            + " Lượng ở đơn vị cơ sở từng SKU; đây không phải báo cáo đối soát toàn bộ sổ/số dư."
+            + ("đã ghi đủ mọi dòng, còn lại 0" if complete else "xem cột Đã ghi / Còn")
+            + " Lượng ở đơn vị cơ sở từng SKU; đây không phải báo cáo đối soát toàn bộ sổ/số dư"
         )
         self.render_lines()
         self.enable()
@@ -527,12 +562,12 @@ class OpeningView(ttk.Frame):
         product = self.products.get(product_id)
         unit = self.units.get(product["base_uom_id"]) if product else None
         if not product or not unit or not location_id:
-            self.opening_error("Chọn SKU, tải đơn vị cơ sở và chọn vị trí trong kho.")
+            self.opening_error("Chọn SKU, tải đơn vị cơ sở và chọn vị trí trong kho")
             return
         index = self.owner.current()
         options = self.catalogs["owners"]
         if not 0 <= index < len(options):
-            self.opening_error("Chọn chủ hàng và hợp đồng từ danh sách; tìm mã nếu chưa thấy.")
+            self.opening_error("Chọn chủ hàng và hợp đồng từ danh sách; tìm mã nếu chưa thấy")
             return
         owner = options[index]
         line = dict(
@@ -547,7 +582,7 @@ class OpeningView(ttk.Frame):
             base_uom_code=unit["code"],
             location_code=self.locations[location_id]["code"],
             posted_base="0",
-            remaining_base="—",
+            remaining_base="",
         )
         for field, name in [
             ("lot_code", "lot"),
@@ -601,7 +636,7 @@ class OpeningView(ttk.Frame):
                 )
             )
             self.owner.configure(
-                values=[f"{r['owner_code']} · {r['consignment_code'] or 'Doanh nghiệp'}" for r in options]
+                values=[f"{r['owner_code']}  {r['consignment_code'] or 'Doanh nghiệp'}" for r in options]
             )
             index = len(options) - 1
         self.owner.current(index)
@@ -632,14 +667,14 @@ class OpeningView(ttk.Frame):
                 "end",
                 iid=str(index),
                 values=(
-                    line["sku"],
+                    display_sku(line["sku"]),
                     line["base_uom_code"],
                     line["quantity_base"],
                     line["location_code"],
                     (line.get("owner_code") or line["owner_id"])
                     + " / "
-                    + (line.get("consignment_code") or line.get("consignment_id") or "—"),
-                    line.get("lot_code") or line.get("serial_code") or "—",
+                    + (line.get("consignment_code") or line.get("consignment_id") or ""),
+                    line.get("lot_code") or line.get("serial_code") or "",
                     line["posted_base"],
                     line["remaining_base"],
                 ),
@@ -686,7 +721,7 @@ class OpeningView(ttk.Frame):
                     or self.variables["reference"].get() != self.doc[self.reference_field]
                     or self.variables["day"].get() != self.doc["business_date"]
                 ):
-                    raise ValueError("Lưu các thay đổi nháp trước khi chuyển trạng thái.")
+                    raise ValueError("Lưu các thay đổi nháp trước khi chuyển trạng thái")
                 body = dict(expected_version=self.doc["version"], reason=reason)
                 path, contract = "documents/" + self.doc["id"] + "/" + action, OrderAction
                 if action in {"approve", "reject"}:
@@ -719,7 +754,7 @@ class OpeningView(ttk.Frame):
         try:
             key = str(UUID(self.variables["operation"].get()))
         except ValueError:
-            self.opening_error("Nhập HTTP Idempotency-Key UUID của lần ghi sổ để tra ACK.")
+            self.opening_error("Nhập HTTP Idempotency-Key UUID của lần ghi sổ để tra ACK")
             return
         self.presenter.lookup(key)
 
@@ -729,25 +764,25 @@ class OpeningView(ttk.Frame):
         if post:
             self.ack = result
             self.variables["ack"].set(
-                f"POSTED · ACK transaction: {result['transaction_id']} · request: {result['request_id']}"
+                f"POSTED  ACK transaction: {result['transaction_id']}  request: {result['request_id']}"
             )
         self.presenter.read(result["id"])
 
     def opening_checked(self, doc):
         self.busy = False
         summary = (
-            f"Máy chủ: {doc['number']} · {doc['status']} · v{doc['version']}. "
+            f"Máy chủ: {doc['number']}  {doc['status']}  v{doc['version']}  "
             if doc
-            else "Chưa tìm thấy ACK/kết quả. "
+            else "Chưa tìm thấy ACK/kết quả "
         )
         self.variables["status"].set(
-            "UNKNOWN · " + summary + "Chỉ gửi lại đúng yêu cầu đang giữ; không tạo batch mới."
+            "UNKNOWN  " + summary + "Chỉ gửi lại đúng yêu cầu đang giữ; không tạo batch mới"
         )
         self.enable()
 
     def opening_error(self, message):
         self.busy = False
-        self.variables["status"].set(("UNKNOWN · " if self.presenter.uncertain else "") + message)
+        self.variables["status"].set(("UNKNOWN  " if self.presenter.uncertain else "") + message)
         self.enable()
 
     def release_variables(self):

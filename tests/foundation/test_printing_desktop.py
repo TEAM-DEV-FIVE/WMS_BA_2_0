@@ -47,8 +47,10 @@ def test_print_desktop_real_http_preview_save_and_session_fence(opening_ui, tmp_
     assert PrintExecutor(service).run_one() == "READY"
     view.presenter.refresh()
     wait()
-    view.presenter.preview()
+    assert not view.preview_window.winfo_ismapped()
+    view.preview(0)
     wait()
+    assert view.preview_window.winfo_ismapped()
     assert view.image
     root.geometry("800x620")
     root.update()
@@ -77,9 +79,12 @@ def test_print_desktop_real_http_preview_save_and_session_fence(opening_ui, tmp_
     path.write_bytes(b"keep")
     view.presenter.download(path)
     wait(entered.is_set)
+    pending_download = view.presenter.pending
     view.presenter.reset()
     release.set()
-    wait(lambda: not view.presenter.results.empty())
+    # The shell may already drain and discard a stale response during update().
+    # Wait for the worker itself rather than requiring a transient queue entry.
+    wait(pending_download.done)
     view.presenter.drain()
     assert path.read_bytes() == b"keep" and view.image is None
 

@@ -55,12 +55,12 @@ class AdminPresenter:
         if not self.allowed(resource):
             if body is not None:
                 body.clear()
-            self.view.admin_error("Cần quyền quản trị tương ứng và phiên đã xác thực MFA.")
+            self.view.admin_error("Cần quyền quản trị tương ứng và phiên đã xác thực MFA")
             return False
         if action != "load" and self.uncertain_resource:
             if body is not None:
                 body.clear()
-            self.view.admin_error("Yêu cầu trước chưa rõ kết quả. Tải lại và đối chiếu trước khi tạo thao tác mới.")
+            self.view.admin_error("Yêu cầu trước chưa rõ kết quả; Tải lại và đối chiếu trước khi tạo thao tác mới")
             return False
         self.view.admin_busy()
         sequence, generation = self.sequence, self.generation
@@ -73,6 +73,9 @@ class AdminPresenter:
         return True
 
     def load(self, resource, after=None, query=""):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None:
+            pagination.begin(after)
         return self.submit(resource, "load", after=after, query=query)
 
     def write(self, action, body=None, record_id=None):
@@ -110,7 +113,7 @@ class AdminPresenter:
             payload.clear()
             # ValidationError can include the original secret: never stringify it.
             self.view.admin_error("Kiểm tra dữ liệu: tài khoản 3–100 ký tự, mật khẩu 12–128, tên 1–200; "
-                                  "UUID hợp lệ, lý do 3–2000 ký tự, thời hạn ISO có múi giờ và scope/kho khớp nhau.")
+                                  "UUID hợp lệ, lý do 3–2000 ký tự, thời hạn ISO có múi giờ và scope/kho khớp nhau")
             return False
         return self.submit(ACTION_RESOURCE[action], action, payload, record_id)
 
@@ -118,7 +121,7 @@ class AdminPresenter:
         if not self.pending and self.reloaded:
             self.uncertain_resource = None
             self.reloaded = False
-            self.view.admin_error("Đã ghi nhận đối chiếu. Thao tác mới sẽ là một yêu cầu mới; không tự gửi lại yêu cầu cũ.")
+            self.view.admin_error("Đã ghi nhận đối chiếu; Thao tác mới sẽ là một yêu cầu mới; không tự gửi lại yêu cầu cũ")
 
     def drain(self):
         if self.closed:
@@ -134,11 +137,11 @@ class AdminPresenter:
             result = future.result()
             if result.code == "STALE_SESSION" or result.generation != self.identity.session_generation:
                 self.reset()
-                self.view.admin_signed_out("Phiên đã thay đổi. Tải lại phiên trước khi quản trị.")
+                self.view.admin_signed_out("Phiên đã thay đổi; Tải lại phiên trước khi quản trị")
                 continue
             if result.signed_out:
                 self.reset()
-                self.view.admin_signed_out(result.message or "Đã thu hồi phiên hiện tại. Hãy đăng nhập lại.")
+                self.view.admin_signed_out(result.message or "Đã thu hồi phiên hiện tại; Hãy đăng nhập lại")
                 continue
             self.user = result.user or self.user
             if result.code:
@@ -156,6 +159,11 @@ class AdminPresenter:
                 if resource != "roles" and len(rows) == PAGE_SIZE:
                     cursor = "username" if resource in {"users", "lookup-users", "password-resets"} else ("code" if resource == "lookup-warehouses" else "id")
                     next_after = rows[-1][cursor]
+                if result.paginated:
+                    next_after = result.next_after
+                pagination = getattr(self.view, "pagination", None)
+                if pagination is not None:
+                    pagination.loaded(dict(items=rows, next_after=next_after, total=result.total))
                 self.view.admin_loaded(resource, rows, next_after, after)
             else:
                 self.view.admin_saved(action, result.data)
@@ -163,7 +171,7 @@ class AdminPresenter:
         # must also remove admin data even when no admin request is running.
         if self.user and self.identity.session_generation != self.generation:
             self.reset()
-            self.view.admin_signed_out("Phiên không còn hiệu lực. Hãy đăng nhập lại.")
+            self.view.admin_signed_out("Phiên không còn hiệu lực; Hãy đăng nhập lại")
 
     def close(self):
         self.closed = True

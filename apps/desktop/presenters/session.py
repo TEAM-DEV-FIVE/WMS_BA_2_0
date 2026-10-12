@@ -43,25 +43,45 @@ class SessionPresenter:
             except ApiError as exc:
                 result.message = str(exc)
                 result.signed_out = exc.code in {"UNAUTHENTICATED", "REFRESH_REPLAY"} or action == "logout"
-                if action in {"change_password", "reset_password", "reset_mfa", "recover_mfa", "recovery_codes", "enroll", "confirm"}:
+                if action in {"change_password", "reset_password", "self_reset", "contact_start", "contact_confirm", "google_link", "reset_mfa", "recover_mfa", "recovery_codes", "enroll", "confirm"}:
                     self.api.clear()
                     result.signed_out = True
                     if exc.code in {"TIMEOUT", "NETWORK_ERROR", "INTERNAL_ERROR", "INVALID_RESPONSE"}:
-                        result.message = "Chưa rõ kết quả. Hãy đăng nhập lại; không tự gửi lại thao tác bảo mật."
+                        result.message = "Chưa rõ kết quả; Hãy đăng nhập lại; không tự gửi lại thao tác bảo mật"
             except Exception:
                 self.api.clear()
-                result.message = "Không đọc được phản hồi. Hãy đăng nhập lại; không tự gửi lại thao tác."
+                result.message = "Không đọc được phản hồi; Hãy đăng nhập lại; không tự gửi lại thao tác"
                 result.signed_out = True
             result.generation = self.api.session_generation
         try:
             self.api.in_session(generation, execute)
         except ApiError:
-            result.message = "Phiên đã thay đổi. Hãy đăng nhập lại."
+            result.message = "Phiên đã thay đổi; Hãy đăng nhập lại"
             result.signed_out = True
             result.generation = self.api.session_generation
         return result
 
     def run(self, action, args):
+        if action == "startup":
+            try:
+                options = self.api.auth_options()
+            except ApiError:
+                options = {}
+            try:
+                session = self.snapshot() if self.api.restore_session() else None
+                notice = self.api.persistence_notice
+            except ApiError:
+                session = None
+                notice = "Phiên đã lưu không sử dụng được; hãy đăng nhập lại"
+            return {"options": options, "session": session, "notice": notice}
+        if action == "options":
+            return self.api.auth_options()
+        if action in {"forgot", "contact_start", "contact_confirm", "self_reset"}:
+            return self.api.auth_action(action, args[0])
+        if action in {"google", "google_link"}:
+            result = self.api.google(link=action == "google_link", credentials=args[0] if args else None,
+                                     cancelled=lambda: self.closed, remember=bool(args[1]) if len(args) > 1 else False)
+            return self.snapshot() if result == "AUTHENTICATED" else result
         if action in {"change_password", "reset_password", "reset_mfa", "recover_mfa", "recovery_codes"}:
             return self.api.lifecycle(action, args[0])
         if action == "login":
@@ -70,6 +90,15 @@ class SessionPresenter:
         if action == "mfa":
             self.api.mfa(*args)
             return self.snapshot()
+        if action == "avatar_preview":
+            from packages.media.avatar import load_avatar_file
+            try:
+                return load_avatar_file(args[0])
+            except (ValueError, OSError) as exc:
+                message = str(exc) if isinstance(exc, ValueError) else "Không mở được ảnh đã chọn"
+                raise ApiError("INVALID_IMAGE", message) from None
+        if action == "profile":
+            return self.api.update_profile(args[0])
         if action == "reload":
             return self.snapshot()
         if action == "logout":
@@ -85,7 +114,11 @@ class SessionPresenter:
         raise ValueError("Unknown session action")
 
     def snapshot(self):
-        return {"user": self.api.me(), "warehouses": self.api.warehouses()}
+        user = self.api.me()
+        warehouses = self.api.warehouses()
+        self.api.persist_allowed = user.mfa_verified
+        self.api.persist_session()
+        return {"user": user, "warehouses": warehouses}
 
     def drain(self):
         while True:
@@ -100,7 +133,7 @@ class SessionPresenter:
                 result = future.result()
                 if isinstance(result, SessionResult):
                     if result.generation != self.api.session_generation:
-                        self.view.session_error("Phiên đã thay đổi. Tải lại phiên.", signed_out=True)
+                        self.view.session_error("Phiên đã thay đổi; Tải lại phiên", signed_out=True)
                         continue
                     if result.message:
                         self.view.session_error(result.message, signed_out=result.signed_out)
@@ -109,7 +142,7 @@ class SessionPresenter:
             except ApiError as exc:
                 self.view.session_error(str(exc), signed_out=exc.code in {"UNAUTHENTICATED", "REFRESH_REPLAY"} or action == "logout")
             except Exception:
-                self.view.session_error("Không đọc được phản hồi phiên làm việc.", signed_out=False)
+                self.view.session_error("Không đọc được phản hồi phiên làm việc", signed_out=False)
             else:
                 self.view.session_result(action, result)
 

@@ -1,0 +1,289 @@
+{
+  "revision": "025_modern_identity.sql",
+  "baseline": "model.json",
+  "tables": [
+    {
+      "name": "auth_contact",
+      "cols": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "value",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "verified_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_contact_challenge",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "value",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "code_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "auth_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "consumed_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_self_reset",
+      "cols": [
+        {
+          "name": "token_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "contact_value",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "auth_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "consumed_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_delivery",
+      "cols": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "auth_version",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "ciphertext",
+          "type": "text",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "attempts",
+          "type": "integer",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "lease_token",
+          "type": "uuid",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "last_error",
+          "type": "text",
+          "null": true,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_google_identity",
+      "cols": [
+        {
+          "name": "subject",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": false,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "linked_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        }
+      ]
+    },
+    {
+      "name": "auth_google_flow",
+      "cols": [
+        {
+          "name": "state_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "nonce_hash",
+          "type": "char(64)",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "verifier_ciphertext",
+          "type": "text",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "redirect_uri",
+          "type": "text",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "device_id",
+          "type": "uuid",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "app_user.id"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "null": true,
+          "ref": "auth_session.id"
+        },
+        {
+          "name": "auth_version",
+          "type": "integer",
+          "null": true,
+          "ref": null
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "null": false,
+          "ref": null
+        },
+        {
+          "name": "consumed_at",
+          "type": "timestamptz",
+          "null": true,
+          "ref": null
+        }
+      ]
+    }
+  ],
+  "added_columns": []
+}

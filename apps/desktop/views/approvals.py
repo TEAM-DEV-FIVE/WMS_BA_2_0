@@ -2,7 +2,10 @@ import tkinter as tk
 from tkinter import ttk
 
 from apps.desktop.presenters.approvals import PATHS, ApprovalPresenter, decision_explanation
+from apps.desktop.views.data_table import DataTable
 from apps.desktop.views.document_review import ReviewPanel, fulfillment_label
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import StatusButton
 from packages.contracts.orders import DecisionInput
 
 
@@ -32,8 +35,8 @@ class ApprovalView(ttk.Frame):
         self.prev_button.pack(side="left", padx=4)
         self.next_button = ttk.Button(bar, text="Trang sau", command=lambda: self.load(self.next_after))
         self.next_button.pack(side="left")
-        ttk.Label(self, textvariable=self.variables["status"], wraplength=790).pack(fill="x", pady=4)
-        self.table = ttk.Treeview(self, columns=("number", "partner", "creator", "version"), show="headings", height=4)
+        StatusButton(self, self.variables["status"]).pack(anchor="e", pady=3)
+        self.table = DataTable(self, columns=("number", "partner", "creator", "version"), show="headings", height=4)
         for column, label, width in [("number", "Số phiếu", 230), ("partner", "Đối tác", 250),
                                      ("creator", "Người lập", 180), ("version", "Version", 80)]:
             self.table.heading(column, text=label)
@@ -73,7 +76,9 @@ class ApprovalView(ttk.Frame):
         self.retry_button.pack(side="left")
         ttk.Label(footer, textvariable=self.variables["uncertainty"], wraplength=730).pack(fill="x", pady=4)
         self.orders_clear()
-        self.variables["status"].set("Đăng nhập và chọn kho để mở hộp thư duyệt.")
+        self.variables["status"].set("Đăng nhập và chọn kho để mở hộp thư duyệt")
+        self.enable()
+        install_pagination(self, self.load, limit=25, resource=None)
         self.enable()
 
     @property
@@ -85,20 +90,24 @@ class ApprovalView(ttk.Frame):
         return str(self.warehouses[index].id) if index >= 0 else None
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(user.id if user else None)
         self.warehouses = list(warehouses or [])
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         self.variables["warehouse"].set("")
         if self.warehouses:
             self.selector.current(0)
         self.cursors, self.page_index = [None], 0
-        self.variables["status"].set("Chọn loại phiếu/kho rồi tải hộp thư duyệt." if user else "Đã đăng xuất.")
+        self.variables["status"].set("Chọn loại phiếu/kho rồi tải hộp thư duyệt" if user else "Đã đăng xuất")
         self.enable()
 
     def scope_changed(self, event=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(self.presenter.user_id)
         self.cursors, self.page_index = [None], 0
-        self.variables["status"].set("Tải hộp thư theo loại phiếu và kho vừa chọn.")
+        self.variables["status"].set("Tải hộp thư theo loại phiếu và kho vừa chọn")
         self.enable()
 
     def orders_clear(self):
@@ -133,23 +142,18 @@ class ApprovalView(ttk.Frame):
         self.next_button.state(["!disabled"] if active and self.next_after else ["disabled"])
         self.retry_button.state(["!disabled"] if active and self.presenter.uncertain else ["disabled"])
         self.variables["uncertainty"].set(
-            "UNKNOWN · Kết quả chưa xác định. Giữ nguyên yêu cầu/khóa, kể cả khi đổi màn hình hoặc kho."
+            "UNKNOWN  Kết quả chưa xác định; Giữ nguyên yêu cầu/khóa, kể cả khi đổi màn hình hoặc kho"
             if self.presenter.uncertain else "")
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def load(self, after=None):
         if not self.warehouse_id() or self.busy:
             return
-        if after is None:
-            self.cursors, self.page_index = [None], 0
-        else:
-            self.page_index += 1
-            self.cursors[self.page_index:] = [after]
         self.presenter.load(self.path, self.warehouse_id(), after=after)
 
     def previous(self):
-        if self.page_index and not self.busy:
-            self.page_index -= 1
-            self.presenter.load(self.path, self.warehouse_id(), after=self.cursors[self.page_index])
+        self.pagination.previous()
 
     def orders_busy(self):
         self.busy = True
@@ -158,13 +162,16 @@ class ApprovalView(ttk.Frame):
 
     def orders_loaded(self, page, refs, permissions):
         self.orders_clear()
+        self.pagination.loaded(page)
+        self.page_index = self.pagination.pages.index
+        self.cursors = list(self.pagination.pages.cursors)
         self.permissions = permissions
         self.next_after = page["next_after"]
         for doc in page["items"]:
             self.table.insert("", "end", iid=doc["id"], values=(doc["number"], doc["partner_name"],
                               doc["creator_name"], doc["version"]))
-        self.variables["status"].set(f"Trang {self.page_index + 1} · {len(page['items'])} phiếu chờ. "
-                                     "Chọn phiếu để kiểm tra nội dung, quyền kho và SOD.")
+        self.variables["status"].set(f"Trang {self.page_index + 1}  {len(page['items'])} phiếu chờ "
+                                     "Chọn phiếu để kiểm tra nội dung, quyền kho và SOD")
         self.enable()
 
     def select(self, event=None):
@@ -183,22 +190,22 @@ class ApprovalView(ttk.Frame):
             self.table.delete(doc["id"])
         self.review_panel.clear()
         self.variables["reason"].set("")
-        self.variables["heading"].set(f"{doc['number']} · v{doc['version']} · {fulfillment_label(doc)}")
-        text = [f"Người lập: {doc['creator_name']} · Ngày: {doc['business_date']}",
+        self.variables["heading"].set(f"{doc['number']}  v{doc['version']}  {fulfillment_label(doc)}")
+        text = [f"Người lập: {doc['creator_name']}  Ngày: {doc['business_date']}",
                 "Số lượng đã thực hiện/còn mở/đóng theo đơn vị cơ sở:"]
         for line in doc["lines"]:
-            text.append(f"{line['line_no']}. {line['sku']} · {line['quantity']} {line['uom_code']} · "
-                        f"Đã TH {line['posted_base']} · Còn {line['remaining_base']} · Đóng {line['closed_base']}")
+            text.append(f"{line['line_no']}  {line['sku']}  {line['quantity']} {line['uom_code']}"
+                        f"Đã TH {line['posted_base']}  Còn {line['remaining_base']}  Đóng {line['closed_base']}")
         if doc.get("source_order_id"):
             text.append(f"PO nguồn: {doc['source_order_id']}")
             for plan in doc["plan"]:
-                text.append(f"Nhận tại {plan['location_code']} · Lô {plan['lot_code'] or '—'} · "
-                            f"Serial {plan['serial_code'] or '—'} · Hạn {plan['expires_on'] or '—'}")
+                text.append(f"Nhận tại {plan['location_code']}  Lô {plan['lot_code'] or ""}"
+                            f"Serial {plan['serial_code'] or ""}  Hạn {plan['expires_on'] or ""}")
         for approval in doc["approvals"]:
-            text.append(f"\nGửi duyệt v{approval['document_version']} · policy r{approval['policy_revision']} · {approval['status']}")
+            text.append(f"\nGửi duyệt v{approval['document_version']}  policy r{approval['policy_revision']}  {approval['status']}")
             for step in approval["steps"]:
-                text.append(f"  Bước {step['step_no']} · {' / '.join(step['roles'])} · {step['status']} · "
-                            f"{step['decider_name'] or 'Chưa quyết định'} · {step['comment'] or ''}")
+                text.append(f"  Bước {step['step_no']}  {' / '.join(step['roles'])}  {step['status']}"
+                            f"{step['decider_name'] or 'Chưa quyết định'}  {step['comment'] or ''}")
         self.set_content("\n".join(text))
         self.variables["status"].set(decision_explanation(doc, self.presenter.user_id, self.permissions))
         self.enable()
@@ -211,7 +218,7 @@ class ApprovalView(ttk.Frame):
             body = DecisionInput(expected_version=self.doc["version"], decision=decision,
                                  reason=self.variables["reason"].get().strip()).model_dump(mode="json")
         except ValueError:
-            self.orders_error("Nhập lý do quyết định trước khi gửi.")
+            self.orders_error("Nhập lý do quyết định trước khi gửi")
             return
         self.presenter.command("POST", f"approval-requests/{pending['id']}/decide", body)
 
@@ -225,7 +232,7 @@ class ApprovalView(ttk.Frame):
 
     def orders_error(self, message):
         self.busy = False
-        self.variables["status"].set(message + (" Đọc lại phiếu trước khi quyết định tiếp." if self.presenter.needs_reload else ""))
+        self.variables["status"].set(message + (" Đọc lại phiếu trước khi quyết định tiếp" if self.presenter.needs_reload else ""))
         self.enable()
 
     def load_review(self):
@@ -237,7 +244,7 @@ class ApprovalView(ttk.Frame):
         self.review_panel.loaded(result)
         if self.doc and result["current_version"] != self.doc["version"]:
             self.presenter.needs_reload = True
-            self.orders_error("Phiên bản phiếu đã thay đổi.")
+            self.orders_error("Phiên bản phiếu đã thay đổi")
         else:
             self.enable()
 

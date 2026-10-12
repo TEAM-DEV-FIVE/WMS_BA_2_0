@@ -62,7 +62,7 @@ class PrintPresenter:
             path != "printing"
             and (job["id"] != path.split("/")[1] or job["version"] != payload["expected_version"] + 1)
         ):
-            raise ApiError("INVALID_RESPONSE", "ACK lệnh in không khớp.")
+            raise ApiError("INVALID_RESPONSE", "ACK lệnh in không khớp")
         return job
 
     def command(self, path, body):
@@ -94,7 +94,7 @@ class PrintPresenter:
                     + urlencode(dict(warehouse_id=warehouse, code=serial_code, sku=source["number"]))
                 )
                 if len(rows) != 1:
-                    raise ApiError("SCAN_NOT_FOUND", "Serial không duy nhất trong phạm vi kho.")
+                    raise ApiError("SCAN_NOT_FOUND", "Serial không duy nhất trong phạm vi kho")
                 body["serial_id"] = rows[0]["serial_id"]
             body = PrintCreate.model_validate(body).model_dump(mode="json")
             cmd = self.command("printing", body)
@@ -134,7 +134,7 @@ class PrintPresenter:
             or hashlib.sha256(data).hexdigest() != job["sha256"]
             or not data.startswith(b"%PDF-")
         ):
-            raise ApiError("FILE_HASH_MISMATCH", "PDF không khớp bản in.")
+            raise ApiError("FILE_HASH_MISMATCH", "PDF không khớp bản in")
         return data
 
     def preview(self, index=0):
@@ -184,7 +184,7 @@ class PrintPresenter:
             claimed = self.execute(cmd)
             data = self.data(claimed, attempt)
             if not self.current(seq, gen):
-                raise ApiError("STALE_SESSION", "Phiên đã đổi; chưa gửi máy in.")
+                raise ApiError("STALE_SESSION", "Phiên đã đổi; chưa gửi máy in")
             # One call per explicit fresh claim; no spool call in recover().
             result = spool_submit(data, printer, job["paper"], copies)
             outcome = self.command(

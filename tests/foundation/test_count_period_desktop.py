@@ -51,7 +51,7 @@ def count_ui(counting):  # noqa: F811
             session = shell.session_view
             if session.presenter.api._tokens:
                 session.logout()
-                wait(lambda: session.status.get() == "Đã đăng xuất.")
+                wait(lambda: session.status.get() == "Đã đăng xuất")
             if name == "director":
                 f.iam.advance(31)  # The fixture already consumed the previous TOTP.
             session.username.set(name)

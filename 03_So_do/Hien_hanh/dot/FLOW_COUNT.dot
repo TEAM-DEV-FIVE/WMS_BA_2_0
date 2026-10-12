@@ -1,0 +1,17 @@
+digraph WMS {
+graph [rankdir=TB, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="Luồng kiểm kê trong phần mềm"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"n0" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Chọn phạm vi và tạo phiên</B></FONT></TD></TR></TABLE>>];
+"n1" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Đóng băng phạm vi và snapshot</B></FONT></TD></TR></TABLE>>];
+"n2" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Ghi các lần đếm</B></FONT></TD></TR></TABLE>>];
+"n3" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Nộp kết quả kiểm kê</B></FONT></TD></TR></TABLE>>];
+"n4" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Ra quyết định đối soát</B></FONT></TD></TR></TABLE>>];
+"n5" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Ghi điều chỉnh theo kết quả được duyệt</B></FONT></TD></TR></TABLE>>];
+"n0" -> "n1" [label=""];
+"n1" -> "n2" [label=""];
+"n2" -> "n3" [label=""];
+"n3" -> "n4" [label=""];
+"n4" -> "n5" [label=""];
+}

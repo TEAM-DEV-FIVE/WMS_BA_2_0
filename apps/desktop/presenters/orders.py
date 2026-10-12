@@ -42,6 +42,9 @@ class OrderPresenter:
         self.pending.add_done_callback(lambda future: self.results.put((sequence, generation, action, future)))
 
     def load(self, path, warehouse, status="", after=None, query=""):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None:
+            pagination.begin(after)
         def run():
             permissions = self.api.permissions(warehouse)
             params = {"warehouse_id": str(warehouse), "limit": 25}
@@ -93,10 +96,10 @@ class OrderPresenter:
         if self.closed or not self.user_id:
             return
         if self.needs_reload and "expected_version" in body:
-            self.view.orders_error("Phiếu hoặc quyền đã đổi. Tải lại chi tiết trước khi thao tác tiếp.")
+            self.view.orders_error("Phiếu hoặc quyền đã đổi; Tải lại chi tiết trước khi thao tác tiếp")
             return
         if self.uncertain:
-            self.view.orders_error("Yêu cầu trước chưa rõ kết quả. Gửi lại đúng yêu cầu đang giữ.")
+            self.view.orders_error("Yêu cầu trước chưa rõ kết quả; Gửi lại đúng yêu cầu đang giữ")
             return
         self.commands[self.user_id] = (method, path, deepcopy(body), uuid4())
         self.retry()
@@ -117,7 +120,7 @@ class OrderPresenter:
             self.pending = None
             if generation != self.api.session_generation:
                 self.view.orders_clear()
-                self.view.orders_error("Phiên đã thay đổi. Đăng nhập lại để tải dữ liệu đúng tài khoản.")
+                self.view.orders_error("Phiên đã thay đổi; Đăng nhập lại để tải dữ liệu đúng tài khoản")
                 continue
             try:
                 result = future.result()
@@ -132,10 +135,10 @@ class OrderPresenter:
                     self.needs_reload = True
                 if error.code in {"FORBIDDEN", "UNAUTHENTICATED", "NOT_FOUND", "REFRESH_REPLAY"}:
                     self.view.orders_clear()
-                detail = " · ".join(f"{f.field}: {f.message}" for f in error.field_errors)
-                self.view.orders_error(str(error) + (" · " + detail if detail else ""))
+                detail = "  ".join(f"{f.field}: {f.message}" for f in error.field_errors)
+                self.view.orders_error(str(error) + ("  " + detail if detail else ""))
             except Exception:
-                self.view.orders_error("Không đọc được phản hồi. Giữ nguyên nội dung và kiểm tra kết nối.")
+                self.view.orders_error("Không đọc được phản hồi; Giữ nguyên nội dung và kiểm tra kết nối")
             else:
                 if action == "command":
                     self.commands.pop(self.user_id, None)

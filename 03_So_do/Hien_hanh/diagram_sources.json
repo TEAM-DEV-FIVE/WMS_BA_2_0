@@ -1,0 +1,6963 @@
+[
+  {
+    "code": "ARCHITECTURE",
+    "title": "Kiến trúc ứng dụng hiện tại",
+    "nodes": {
+      "desktop": {
+        "name": "Desktop Tkinter",
+        "lines": [
+          "views / presenters / API client",
+          "Luồng UI và executor I/O"
+        ]
+      },
+      "local": {
+        "name": "SQLite cục bộ",
+        "lines": [
+          "Nháp và nhật ký lệnh",
+          "Tách máy chủ / tài khoản / thiết bị"
+        ]
+      },
+      "proxy": {
+        "name": "Reverse proxy Nginx",
+        "lines": [
+          "Cấu hình triển khai LAN",
+          "HTTPS; chuyển header phục hồi"
+        ]
+      },
+      "api": {
+        "name": "FastAPI",
+        "lines": [
+          "create_app()",
+          "Xác thực và dịch vụ nghiệp vụ"
+        ]
+      },
+      "db": {
+        "name": "PostgreSQL",
+        "lines": [
+          "Schema wms",
+          "108 bảng qua migration 001–026"
+        ]
+      },
+      "workers": {
+        "name": "Worker nền",
+        "lines": [
+          "Outbox · import · export · print",
+          "Export cleanup · print cleanup",
+          "Auth delivery"
+        ]
+      },
+      "files": {
+        "name": "Kho tệp riêng",
+        "lines": [
+          "Import / export / PDF",
+          "Truy cập qua API kiểm quyền"
+        ]
+      },
+      "vault": {
+        "name": "Kho bí mật hệ điều hành",
+        "lines": [
+          "SessionVault",
+          "Nhớ phiên khi người dùng bật"
+        ]
+      },
+      "print": {
+        "name": "Hệ thống in của máy",
+        "lines": [
+          "Spooler Windows / CUPS",
+          "Máy quét HID nhập bàn phím"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "desktop",
+        "proxy",
+        "HTTPS"
+      ],
+      [
+        "proxy",
+        "api",
+        "HTTP nội bộ"
+      ],
+      [
+        "api",
+        "db",
+        "SQLAlchemy / psycopg"
+      ],
+      [
+        "desktop",
+        "local",
+        "Nháp / key"
+      ],
+      [
+        "desktop",
+        "vault",
+        "Refresh token"
+      ],
+      [
+        "workers",
+        "db",
+        "Job / lease / ACK"
+      ],
+      [
+        "workers",
+        "files",
+        "Tác vụ tệp"
+      ],
+      [
+        "api",
+        "files",
+        "Kiểm soát tải tệp"
+      ],
+      [
+        "desktop",
+        "print",
+        "In / nhập mã"
+      ]
+    ],
+    "sources": [
+      "apps/desktop/views/shell.py",
+      "apps/server/api/app.py",
+      "deploy/lan",
+      "apps/desktop/local_store/session_vault.py"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "CLASS_DESKTOP",
+    "title": "Các lớp desktop đang triển khai",
+    "nodes": {
+      "DesktopShell": {
+        "name": "DesktopShell",
+        "lines": [
+          "apps/desktop/views/shell.py",
+          "resize_header()",
+          "toggle_theme()",
+          "style_mapped_widget()",
+          "resize_workspace()",
+          "load_workspace()",
+          "open_key()",
+          "open_group()"
+        ]
+      },
+      "OrderView": {
+        "name": "OrderView",
+        "lines": [
+          "apps/desktop/views/orders.py",
+          "combo()",
+          "tree()",
+          "path()",
+          "warehouse_id()",
+          "session_changed()",
+          "scope_changed()",
+          "orders_clear()"
+        ]
+      },
+      "OrderPresenter": {
+        "name": "OrderPresenter",
+        "lines": [
+          "apps/desktop/presenters/orders.py",
+          "uncertain()",
+          "reset()",
+          "submit()",
+          "load()",
+          "read()",
+          "review()",
+          "candidates()"
+        ]
+      },
+      "IdentityClient": {
+        "name": "IdentityClient",
+        "lines": [
+          "apps/desktop/api/identity.py",
+          "enable_persistence()",
+          "persist_session()",
+          "restore_session()",
+          "file_request()",
+          "login()",
+          "mfa()",
+          "refresh()"
+        ]
+      },
+      "RecoveryJournal": {
+        "name": "RecoveryJournal",
+        "lines": [
+          "apps/desktop/local_store/recovery.py",
+          "work()",
+          "call()",
+          "close_store()",
+          "release()",
+          "close()"
+        ]
+      },
+      "CommandStore": {
+        "name": "CommandStore",
+        "lines": [
+          "apps/desktop/local_store/commands.py",
+          "checked()",
+          "prepare_command()",
+          "discard_draft()",
+          "edit_draft()",
+          "command_transition()",
+          "command_list()",
+          "cleanup()"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "DesktopShell",
+        "OrderView",
+        "Khởi tạo / điều phối"
+      ],
+      [
+        "OrderView",
+        "OrderPresenter",
+        "Sự kiện UI"
+      ],
+      [
+        "OrderPresenter",
+        "IdentityClient",
+        "Gọi API qua executor"
+      ],
+      [
+        "IdentityClient",
+        "RecoveryJournal",
+        "Nhật ký phục hồi"
+      ],
+      [
+        "RecoveryJournal",
+        "CommandStore",
+        "Lưu lệnh cục bộ"
+      ]
+    ],
+    "sources": [
+      "apps/desktop/views/shell.py",
+      "apps/desktop/views/orders.py",
+      "apps/desktop/presenters/orders.py",
+      "apps/desktop/api/identity.py",
+      "apps/desktop/local_store/recovery.py",
+      "apps/desktop/local_store/commands.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "CLASS_SERVER",
+    "title": "Các lớp xử lý lệnh trên máy chủ",
+    "nodes": {
+      "OrderService": {
+        "name": "OrderService",
+        "lines": [
+          "apps/server/application/orders.py",
+          "document()",
+          "may_edit()",
+          "listing()",
+          "lines()",
+          "snapshot()",
+          "approval()",
+          "approver()"
+        ]
+      },
+      "ReceiptService": {
+        "name": "ReceiptService",
+        "lines": [
+          "apps/server/application/receipts.py",
+          "source()",
+          "approved()",
+          "validate_saved()",
+          "may_post()",
+          "locations()",
+          "read()",
+          "validate_tracking()"
+        ]
+      },
+      "CommandBus": {
+        "name": "CommandBus",
+        "lines": [
+          "apps/server/application/commands.py",
+          "execute()"
+        ]
+      },
+      "PostgresUnitOfWork": {
+        "name": "PostgresUnitOfWork",
+        "lines": [
+          "apps/server/infrastructure/database.py",
+          "commit()",
+          "rollback()"
+        ]
+      },
+      "PostgresCommandRepository": {
+        "name": "PostgresCommandRepository",
+        "lines": [
+          "apps/server/infrastructure/database.py",
+          "lock()",
+          "get()",
+          "save()"
+        ]
+      },
+      "UnitOfWork": {
+        "name": "UnitOfWork",
+        "lines": [
+          "apps/server/application/ports.py",
+          "commands",
+          "commit()",
+          "rollback()"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "ReceiptService",
+        "OrderService",
+        "Dùng orders / identity / bus"
+      ],
+      [
+        "OrderService",
+        "CommandBus",
+        "execute()"
+      ],
+      [
+        "CommandBus",
+        "UnitOfWork",
+        "Giao diện transaction"
+      ],
+      [
+        "PostgresUnitOfWork",
+        "UnitOfWork",
+        "Hiện thực giao thức"
+      ],
+      [
+        "PostgresUnitOfWork",
+        "PostgresCommandRepository",
+        "commands"
+      ]
+    ],
+    "sources": [
+      "apps/server/application/orders.py",
+      "apps/server/application/receipts.py",
+      "apps/server/application/commands.py",
+      "apps/server/infrastructure/database.py",
+      "apps/server/infrastructure/database.py",
+      "apps/server/application/ports.py"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "CLASS_CONTRACTS",
+    "title": "Các hợp đồng dữ liệu và lỗi đang triển khai",
+    "nodes": {
+      "OrderAction": {
+        "name": "OrderAction",
+        "lines": [
+          "packages/contracts/orders.py",
+          "expected_version",
+          "reason"
+        ]
+      },
+      "ReceiptPost": {
+        "name": "ReceiptPost",
+        "lines": [
+          "packages/contracts/receipts.py",
+          "execution_key",
+          "lines",
+          "unique_lines()"
+        ]
+      },
+      "OrderView": {
+        "name": "OrderView",
+        "lines": [
+          "packages/contracts/orders.py",
+          "reason",
+          "lines",
+          "assigned_user_ids",
+          "approvals",
+          "allowed_actions"
+        ]
+      },
+      "ReceiptView": {
+        "name": "ReceiptView",
+        "lines": [
+          "packages/contracts/receipts.py",
+          "source_order_id",
+          "plan"
+        ]
+      },
+      "CommandResult": {
+        "name": "CommandResult",
+        "lines": [
+          "apps/server/application/commands.py",
+          "body",
+          "http_status"
+        ]
+      },
+      "DomainError": {
+        "name": "DomainError",
+        "lines": [
+          "apps/server/domain/errors.py"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "ReceiptPost",
+        "OrderAction",
+        "Kế thừa"
+      ],
+      [
+        "ReceiptView",
+        "OrderView",
+        "Kế thừa"
+      ],
+      [
+        "ReceiptPost",
+        "CommandResult",
+        "Xử lý qua ReceiptService"
+      ]
+    ],
+    "sources": [
+      "packages/contracts/orders.py",
+      "packages/contracts/receipts.py",
+      "packages/contracts/orders.py",
+      "packages/contracts/receipts.py",
+      "apps/server/application/commands.py",
+      "apps/server/domain/errors.py"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "STATE_DOCUMENT",
+    "title": "Trạng thái chứng từ và điều kiện chuyển",
+    "nodes": {
+      "DRAFT": {
+        "name": "DRAFT",
+        "lines": []
+      },
+      "SUBMITTED": {
+        "name": "SUBMITTED",
+        "lines": []
+      },
+      "APPROVED": {
+        "name": "APPROVED",
+        "lines": []
+      },
+      "REJECTED": {
+        "name": "REJECTED",
+        "lines": []
+      },
+      "PARTIAL": {
+        "name": "PARTIAL",
+        "lines": []
+      },
+      "COMPLETED": {
+        "name": "COMPLETED",
+        "lines": []
+      },
+      "CANCELLED": {
+        "name": "CANCELLED",
+        "lines": []
+      }
+    },
+    "edges": [
+      [
+        "DRAFT",
+        "SUBMITTED",
+        "submit; kiểm tra dữ liệu"
+      ],
+      [
+        "REJECTED",
+        "DRAFT",
+        "Sửa nháp"
+      ],
+      [
+        "REJECTED",
+        "SUBMITTED",
+        "Gửi lại hợp lệ"
+      ],
+      [
+        "SUBMITTED",
+        "APPROVED",
+        "Đủ các bước duyệt"
+      ],
+      [
+        "SUBMITTED",
+        "REJECTED",
+        "Từ chối"
+      ],
+      [
+        "APPROVED",
+        "DRAFT",
+        "revise; hủy hiệu lực duyệt"
+      ],
+      [
+        "APPROVED",
+        "PARTIAL",
+        "Thực hiện một phần theo loại phiếu"
+      ],
+      [
+        "APPROVED",
+        "COMPLETED",
+        "Thực hiện đủ"
+      ],
+      [
+        "PARTIAL",
+        "COMPLETED",
+        "Thực hiện đủ / đóng phần còn lại hợp lệ"
+      ],
+      [
+        "DRAFT",
+        "CANCELLED",
+        "cancel trước thực hiện"
+      ],
+      [
+        "SUBMITTED",
+        "CANCELLED",
+        "cancel trước thực hiện"
+      ],
+      [
+        "REJECTED",
+        "CANCELLED",
+        "cancel trước thực hiện"
+      ],
+      [
+        "APPROVED",
+        "CANCELLED",
+        "cancel trước thực hiện"
+      ]
+    ],
+    "sources": [
+      "apps/server/application/orders.py",
+      "apps/server/application/receipts.py",
+      "apps/server/application/issues.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "COMMAND_RECOVERY",
+    "title": "Luồng xử lý lệnh và phục hồi ACK",
+    "nodes": {
+      "input": {
+        "name": "Người dùng xác nhận thao tác",
+        "lines": []
+      },
+      "store": {
+        "name": "IdentityClient / RecoveryJournal",
+        "lines": [
+          "Lưu nội dung và idempotency key",
+          "Đánh dấu lệnh SENDING"
+        ]
+      },
+      "api": {
+        "name": "API nhận lệnh",
+        "lines": [
+          "Kiểm tra DTO / phiên / quyền"
+        ]
+      },
+      "lock": {
+        "name": "CommandBus",
+        "lines": [
+          "Khóa key; authorize trong UoW",
+          "Đối chiếu request hash"
+        ]
+      },
+      "old": {
+        "name": "Đã có kết quả cùng key",
+        "lines": [
+          "Trả lại kết quả đã lưu"
+        ]
+      },
+      "handle": {
+        "name": "Handler nghiệp vụ",
+        "lines": [
+          "Kiểm tra phiên bản / trạng thái",
+          "Khóa dữ liệu; cập nhật nghiệp vụ"
+        ]
+      },
+      "commit": {
+        "name": "Transaction commit",
+        "lines": [
+          "Lưu kết quả idempotency",
+          "Dữ liệu / audit / outbox theo handler"
+        ]
+      },
+      "ack": {
+        "name": "Nhận ACK và kết quả",
+        "lines": [
+          "Đánh dấu COMMITTED cục bộ"
+        ]
+      },
+      "unknown": {
+        "name": "Mất phản hồi",
+        "lines": [
+          "Giữ lệnh UNKNOWN"
+        ]
+      },
+      "lookup": {
+        "name": "Tra ACK bằng yêu cầu gốc",
+        "lines": [
+          "X-WMS-Recovery: lookup-v1",
+          "Không thực thi lệnh còn thiếu"
+        ]
+      },
+      "retry": {
+        "name": "Người dùng quyết định gửi lại",
+        "lines": [
+          "Cùng key và cùng nội dung"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "input",
+        "store",
+        ""
+      ],
+      [
+        "store",
+        "api",
+        "send-v1"
+      ],
+      [
+        "api",
+        "lock",
+        ""
+      ],
+      [
+        "lock",
+        "old",
+        "Key tồn tại, hash khớp"
+      ],
+      [
+        "lock",
+        "handle",
+        "Chưa có, gửi lệnh thật"
+      ],
+      [
+        "handle",
+        "commit",
+        "Hợp lệ"
+      ],
+      [
+        "commit",
+        "ack",
+        "Phản hồi nhận được"
+      ],
+      [
+        "old",
+        "ack",
+        ""
+      ],
+      [
+        "commit",
+        "unknown",
+        "Phản hồi bị mất"
+      ],
+      [
+        "unknown",
+        "lookup",
+        "Theo yêu cầu người dùng"
+      ],
+      [
+        "lookup",
+        "ack",
+        "Tìm thấy kết quả"
+      ],
+      [
+        "lookup",
+        "retry",
+        "OPERATION_UNCONFIRMED"
+      ],
+      [
+        "retry",
+        "api",
+        "send-v1"
+      ]
+    ],
+    "sources": [
+      "apps/desktop/local_store/recovery.py",
+      "apps/server/api/recovery.py",
+      "apps/server/application/commands.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "FLOW_RECEIPT",
+    "title": "Luồng nhận hàng trong phần mềm",
+    "nodes": {
+      "n0": {
+        "name": "PO đã được duyệt",
+        "lines": []
+      },
+      "n1": {
+        "name": "Lập phiếu nhận và dòng kế hoạch",
+        "lines": []
+      },
+      "n2": {
+        "name": "Gửi duyệt phiếu nhận",
+        "lines": []
+      },
+      "n3": {
+        "name": "Người có thẩm quyền duyệt",
+        "lines": []
+      },
+      "n4": {
+        "name": "Ghi sổ nhận hàng",
+        "lines": []
+      },
+      "n5": {
+        "name": "Ledger / số dư / kết quả thực hiện",
+        "lines": []
+      }
+    },
+    "edges": [
+      [
+        "n0",
+        "n1",
+        ""
+      ],
+      [
+        "n1",
+        "n2",
+        ""
+      ],
+      [
+        "n2",
+        "n3",
+        ""
+      ],
+      [
+        "n3",
+        "n4",
+        ""
+      ],
+      [
+        "n4",
+        "n5",
+        ""
+      ]
+    ],
+    "sources": [
+      "apps/server/application/receipts.py",
+      "apps/server/application/orders.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "FLOW_ISSUE",
+    "title": "Luồng giữ hàng và xuất kho",
+    "nodes": {
+      "n0": {
+        "name": "SO đã được duyệt",
+        "lines": []
+      },
+      "n1": {
+        "name": "Lập, gửi duyệt và duyệt phiếu xuất",
+        "lines": []
+      },
+      "n2": {
+        "name": "Giữ số lượng khả dụng",
+        "lines": []
+      },
+      "n3": {
+        "name": "Soạn hàng và đóng kiện theo tác vụ",
+        "lines": []
+      },
+      "n4": {
+        "name": "Ghi sổ xuất theo dòng hợp lệ",
+        "lines": []
+      }
+    },
+    "edges": [
+      [
+        "n0",
+        "n1",
+        ""
+      ],
+      [
+        "n1",
+        "n2",
+        ""
+      ],
+      [
+        "n2",
+        "n3",
+        ""
+      ],
+      [
+        "n3",
+        "n4",
+        ""
+      ]
+    ],
+    "sources": [
+      "apps/server/application/issues.py",
+      "apps/server/application/reservations.py",
+      "apps/server/application/picking.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "FLOW_COUNT",
+    "title": "Luồng kiểm kê trong phần mềm",
+    "nodes": {
+      "n0": {
+        "name": "Chọn phạm vi và tạo phiên",
+        "lines": []
+      },
+      "n1": {
+        "name": "Đóng băng phạm vi và snapshot",
+        "lines": []
+      },
+      "n2": {
+        "name": "Ghi các lần đếm",
+        "lines": []
+      },
+      "n3": {
+        "name": "Nộp kết quả kiểm kê",
+        "lines": []
+      },
+      "n4": {
+        "name": "Ra quyết định đối soát",
+        "lines": []
+      },
+      "n5": {
+        "name": "Ghi điều chỉnh theo kết quả được duyệt",
+        "lines": []
+      }
+    },
+    "edges": [
+      [
+        "n0",
+        "n1",
+        ""
+      ],
+      [
+        "n1",
+        "n2",
+        ""
+      ],
+      [
+        "n2",
+        "n3",
+        ""
+      ],
+      [
+        "n3",
+        "n4",
+        ""
+      ],
+      [
+        "n4",
+        "n5",
+        ""
+      ]
+    ],
+    "sources": [
+      "apps/server/application/counting.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "FLOW_TRANSFER",
+    "title": "Luồng chuyển kho trong phần mềm",
+    "nodes": {
+      "n0": {
+        "name": "Lập phiếu chuyển",
+        "lines": []
+      },
+      "n1": {
+        "name": "Gửi duyệt và duyệt",
+        "lines": []
+      },
+      "n2": {
+        "name": "Ghi xuất vào transit",
+        "lines": []
+      },
+      "n3": {
+        "name": "Ghi nhận tại kho đích",
+        "lines": []
+      },
+      "n4": {
+        "name": "Xử lý chênh lệch nếu có",
+        "lines": []
+      },
+      "n5": {
+        "name": "Hoàn tất hoặc tiếp tục phần còn lại",
+        "lines": []
+      }
+    },
+    "edges": [
+      [
+        "n0",
+        "n1",
+        ""
+      ],
+      [
+        "n1",
+        "n2",
+        ""
+      ],
+      [
+        "n2",
+        "n3",
+        ""
+      ],
+      [
+        "n3",
+        "n4",
+        ""
+      ],
+      [
+        "n4",
+        "n5",
+        ""
+      ]
+    ],
+    "sources": [
+      "apps/server/application/transfers.py",
+      "apps/server/application/transfer_stock.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "FLOW_IMPORT",
+    "title": "Luồng nhập dữ liệu từ tệp",
+    "nodes": {
+      "n0": {
+        "name": "Chọn mẫu và tệp",
+        "lines": []
+      },
+      "n1": {
+        "name": "Kiểm tra và tải tệp lên",
+        "lines": []
+      },
+      "n2": {
+        "name": "Tạo job và dry run",
+        "lines": []
+      },
+      "n3": {
+        "name": "Xem lỗi hoặc kết quả kiểm tra",
+        "lines": []
+      },
+      "n4": {
+        "name": "Xác nhận commit với token hợp lệ",
+        "lines": []
+      },
+      "n5": {
+        "name": "Xem chứng từ đã tạo hoặc lịch sử",
+        "lines": []
+      }
+    },
+    "edges": [
+      [
+        "n0",
+        "n1",
+        ""
+      ],
+      [
+        "n1",
+        "n2",
+        ""
+      ],
+      [
+        "n2",
+        "n3",
+        ""
+      ],
+      [
+        "n3",
+        "n4",
+        ""
+      ],
+      [
+        "n4",
+        "n5",
+        ""
+      ]
+    ],
+    "sources": [
+      "apps/desktop/views/imports.py",
+      "apps/server/application/imports.py",
+      "apps/server/application/import_jobs.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "FLOW_LIFECYCLE",
+    "title": "Tải lại giao diện và đóng ứng dụng",
+    "nodes": {
+      "n0": {
+        "name": "Bấm Tải lại hoặc đóng cửa sổ",
+        "lines": []
+      },
+      "n1": {
+        "name": "Xác nhận và nhắc phần chưa lưu",
+        "lines": []
+      },
+      "n2": {
+        "name": "Ngừng nhận việc mới",
+        "lines": []
+      },
+      "n3": {
+        "name": "Chờ executor và đóng journal",
+        "lines": []
+      },
+      "n4": {
+        "name": "Giải phóng Tk và API client",
+        "lines": []
+      },
+      "n5": {
+        "name": "Nhả khóa ứng dụng",
+        "lines": []
+      },
+      "n6": {
+        "name": "Khởi động lại nếu đã chọn Tải lại",
+        "lines": []
+      }
+    },
+    "edges": [
+      [
+        "n0",
+        "n1",
+        ""
+      ],
+      [
+        "n1",
+        "n2",
+        ""
+      ],
+      [
+        "n2",
+        "n3",
+        ""
+      ],
+      [
+        "n3",
+        "n4",
+        ""
+      ],
+      [
+        "n4",
+        "n5",
+        ""
+      ],
+      [
+        "n5",
+        "n6",
+        ""
+      ]
+    ],
+    "sources": [
+      "apps/desktop/views/shell.py",
+      "apps/desktop/lifecycle.py",
+      "apps/desktop/__main__.py"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_AUDITOR",
+    "title": "Vai trò và quyền seed · Kiểm toán",
+    "nodes": {
+      "role": {
+        "name": "Kiểm toán",
+        "lines": [
+          "AUDITOR"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–7",
+        "lines": [
+          "audit.read [WAREHOUSE]",
+          "Đọc audit nghiệp vụ",
+          "",
+          "audit.security.read [GLOBAL]",
+          "Đọc audit tài khoản/quyền",
+          "",
+          "count.snapshot.read [WAREHOUSE]",
+          "Xem số hệ thống và chênh lệch",
+          "",
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "ownership.read [WAREHOUSE]",
+          "Đọc phân tách tồn theo chủ sở hữu",
+          "",
+          "partner.read [GLOBAL]",
+          "Xem đối tác",
+          ""
+        ]
+      },
+      "group1": {
+        "name": "Quyền 8–12",
+        "lines": [
+          "price.read [WAREHOUSE]",
+          "Xem giá tham chiếu/giá trị",
+          "",
+          "report.export [WAREHOUSE]",
+          "Xuất báo cáo/tải file",
+          "",
+          "report.read [WAREHOUSE]",
+          "Xem 8 báo cáo định sẵn",
+          "",
+          "serial.read [WAREHOUSE]",
+          "Tra serial và nguồn bảo hành",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ],
+      [
+        "role",
+        "group1",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_BUYER",
+    "title": "Vai trò và quyền seed · Mua hàng",
+    "nodes": {
+      "role": {
+        "name": "Mua hàng",
+        "lines": [
+          "BUYER"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–6",
+        "lines": [
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "partner.read [GLOBAL]",
+          "Xem đối tác",
+          "",
+          "po.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Yêu cầu mua",
+          "",
+          "return.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Phiếu trả hàng",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_CONTROLLER",
+    "title": "Vai trò và quyền seed · Kiểm soát/kế toán",
+    "nodes": {
+      "role": {
+        "name": "Kiểm soát/kế toán",
+        "lines": [
+          "CONTROLLER"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–7",
+        "lines": [
+          "adjustment.approve [WAREHOUSE]",
+          "Duyệt điều chỉnh/đảo/mất hàng",
+          "",
+          "adjustment.post [WAREHOUSE]",
+          "Ghi điều chỉnh/đảo đã duyệt",
+          "",
+          "audit.read [WAREHOUSE]",
+          "Đọc audit nghiệp vụ",
+          "",
+          "count.approve [WAREHOUSE]",
+          "Duyệt kiểm kê hai bước",
+          "",
+          "count.snapshot.read [WAREHOUSE]",
+          "Xem số hệ thống và chênh lệch",
+          "",
+          "document.approve [WAREHOUSE]",
+          "Duyệt phiếu thông thường",
+          "",
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          ""
+        ]
+      },
+      "group1": {
+        "name": "Quyền 8–14",
+        "lines": [
+          "import.commit [GLOBAL]",
+          "Commit dữ liệu đã dry-run",
+          "",
+          "import.validate [GLOBAL]",
+          "Nạp staging và chạy dry-run",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "opening.approve [WAREHOUSE]",
+          "Duyệt tồn đầu kỳ",
+          "",
+          "opening.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Tồn đầu kỳ",
+          "",
+          "opening.post [WAREHOUSE]",
+          "Ghi tồn đầu kỳ đã duyệt",
+          "",
+          "ownership.read [WAREHOUSE]",
+          "Đọc phân tách tồn theo chủ sở hữu",
+          ""
+        ]
+      },
+      "group2": {
+        "name": "Quyền 15–21",
+        "lines": [
+          "partner.read [GLOBAL]",
+          "Xem đối tác",
+          "",
+          "period.close [WAREHOUSE]",
+          "Khóa kỳ",
+          "",
+          "period.create [WAREHOUSE]",
+          "Mở kỳ kho",
+          "",
+          "price.read [WAREHOUSE]",
+          "Xem giá tham chiếu/giá trị",
+          "",
+          "price.write [GLOBAL]",
+          "Nhập giá tham chiếu mới",
+          "",
+          "report.export [WAREHOUSE]",
+          "Xuất báo cáo/tải file",
+          "",
+          "report.read [WAREHOUSE]",
+          "Xem 8 báo cáo định sẵn",
+          ""
+        ]
+      },
+      "group3": {
+        "name": "Quyền 22–25",
+        "lines": [
+          "return.unlinked [WAREHOUSE]",
+          "Cho trả không có chứng từ gốc",
+          "",
+          "serial.read [WAREHOUSE]",
+          "Tra serial và nguồn bảo hành",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          "",
+          "warranty.write [WAREHOUSE]",
+          "Ghi bổ sung chứng cứ bảo hành",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ],
+      [
+        "role",
+        "group1",
+        ""
+      ],
+      [
+        "role",
+        "group2",
+        ""
+      ],
+      [
+        "role",
+        "group3",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_DIRECTOR",
+    "title": "Vai trò và quyền seed · Ban điều hành",
+    "nodes": {
+      "role": {
+        "name": "Ban điều hành",
+        "lines": [
+          "DIRECTOR"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–7",
+        "lines": [
+          "count.approve [WAREHOUSE]",
+          "Duyệt kiểm kê hai bước",
+          "",
+          "count.snapshot.read [WAREHOUSE]",
+          "Xem số hệ thống và chênh lệch",
+          "",
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "opening.approve [WAREHOUSE]",
+          "Duyệt tồn đầu kỳ",
+          "",
+          "ownership.read [WAREHOUSE]",
+          "Đọc phân tách tồn theo chủ sở hữu",
+          "",
+          "period.reopen [WAREHOUSE]",
+          "Mở lại kỳ",
+          ""
+        ]
+      },
+      "group1": {
+        "name": "Quyền 8–12",
+        "lines": [
+          "price.read [WAREHOUSE]",
+          "Xem giá tham chiếu/giá trị",
+          "",
+          "report.export [WAREHOUSE]",
+          "Xuất báo cáo/tải file",
+          "",
+          "report.read [WAREHOUSE]",
+          "Xem 8 báo cáo định sẵn",
+          "",
+          "serial.read [WAREHOUSE]",
+          "Tra serial và nguồn bảo hành",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ],
+      [
+        "role",
+        "group1",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_MASTER_DATA",
+    "title": "Vai trò và quyền seed · Quản lý danh mục",
+    "nodes": {
+      "role": {
+        "name": "Quản lý danh mục",
+        "lines": [
+          "MASTER_DATA"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–7",
+        "lines": [
+          "import.commit [GLOBAL]",
+          "Commit dữ liệu đã dry-run",
+          "",
+          "import.validate [GLOBAL]",
+          "Nạp staging và chạy dry-run",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "master.write [GLOBAL]",
+          "Tạo/sửa/ngừng dùng danh mục",
+          "",
+          "partner.read [GLOBAL]",
+          "Xem đối tác",
+          "",
+          "partner.write [GLOBAL]",
+          "Quản lý đối tác",
+          "",
+          "warehouse.configure [GLOBAL]",
+          "Tạo kho, vị trí và cấu hình cấu trúc",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_PICKER",
+    "title": "Vai trò và quyền seed · Nhân viên soạn/xuất",
+    "nodes": {
+      "role": {
+        "name": "Nhân viên soạn/xuất",
+        "lines": [
+          "PICKER"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–7",
+        "lines": [
+          "count.enter [WAREHOUSE]",
+          "Nhập số đếm/đếm lại",
+          "",
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          "",
+          "issue.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Phiếu xuất",
+          "",
+          "issue.post [WAREHOUSE]",
+          "Xác nhận xuất hàng",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "move.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Chuyển vị trí",
+          "",
+          "pick.confirm [WAREHOUSE]",
+          "Xác nhận soạn/đóng gói",
+          ""
+        ]
+      },
+      "group1": {
+        "name": "Quyền 8–12",
+        "lines": [
+          "print.execute [WAREHOUSE]",
+          "In/in lại phiếu hoặc tem",
+          "",
+          "reservation.manage [WAREHOUSE]",
+          "Giữ/giải phóng hàng",
+          "",
+          "serial.read [WAREHOUSE]",
+          "Tra serial và nguồn bảo hành",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          "",
+          "transfer.dispatch [WAREHOUSE]",
+          "Xuất chuyển từ kho nguồn",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ],
+      [
+        "role",
+        "group1",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_RECEIVER",
+    "title": "Vai trò và quyền seed · Nhân viên nhận",
+    "nodes": {
+      "role": {
+        "name": "Nhân viên nhận",
+        "lines": [
+          "RECEIVER"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–7",
+        "lines": [
+          "count.enter [WAREHOUSE]",
+          "Nhập số đếm/đếm lại",
+          "",
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "move.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Chuyển vị trí",
+          "",
+          "move.post [WAREHOUSE]",
+          "Ghi sổ chuyển vị trí/cất hàng",
+          "",
+          "print.execute [WAREHOUSE]",
+          "In/in lại phiếu hoặc tem",
+          "",
+          "receipt.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Phiếu nhận",
+          ""
+        ]
+      },
+      "group1": {
+        "name": "Quyền 8–12",
+        "lines": [
+          "receipt.post [WAREHOUSE]",
+          "Ghi nhận hàng thực nhận",
+          "",
+          "return.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Phiếu trả hàng",
+          "",
+          "serial.read [WAREHOUSE]",
+          "Tra serial và nguồn bảo hành",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          "",
+          "transfer.receive [WAREHOUSE]",
+          "Nhận chuyển tại kho đích",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ],
+      [
+        "role",
+        "group1",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_SELLER",
+    "title": "Vai trò và quyền seed · Bán hàng",
+    "nodes": {
+      "role": {
+        "name": "Bán hàng",
+        "lines": [
+          "SELLER"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–6",
+        "lines": [
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "partner.read [GLOBAL]",
+          "Xem đối tác",
+          "",
+          "return.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Phiếu trả hàng",
+          "",
+          "so.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Yêu cầu bán",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_SYSADMIN",
+    "title": "Vai trò và quyền seed · Quản trị kỹ thuật",
+    "nodes": {
+      "role": {
+        "name": "Quản trị kỹ thuật",
+        "lines": [
+          "SYSADMIN"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–5",
+        "lines": [
+          "audit.security.read [GLOBAL]",
+          "Đọc audit tài khoản/quyền",
+          "",
+          "backup.operate [GLOBAL]",
+          "Vận hành sao lưu/khôi phục",
+          "",
+          "config.manage [GLOBAL]",
+          "Cấu hình máy chủ/client và policy kỹ",
+          "thuật",
+          "",
+          "iam.manage [GLOBAL]",
+          "Quản lý user, khóa/thu hồi phiên",
+          "",
+          "role.manage [GLOBAL]",
+          "Quản lý role và grant",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ROLE_WAREHOUSE_MANAGER",
+    "title": "Vai trò và quyền seed · Quản lý kho",
+    "nodes": {
+      "role": {
+        "name": "Quản lý kho",
+        "lines": [
+          "WAREHOUSE_MANAGER"
+        ]
+      },
+      "group0": {
+        "name": "Quyền 1–7",
+        "lines": [
+          "adjustment.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Điều chỉnh",
+          "",
+          "count.create [WAREHOUSE]",
+          "Tạo phiên và khóa vị trí kiểm kê",
+          "",
+          "count.enter [WAREHOUSE]",
+          "Nhập số đếm/đếm lại",
+          "",
+          "count.snapshot.read [WAREHOUSE]",
+          "Xem số hệ thống và chênh lệch",
+          "",
+          "count.submit [WAREHOUSE]",
+          "Chọn kết quả và trình điều chỉnh",
+          "",
+          "document.approve [WAREHOUSE]",
+          "Duyệt phiếu thông thường",
+          "",
+          "document.assign [WAREHOUSE]",
+          "Phân công phiếu",
+          ""
+        ]
+      },
+      "group1": {
+        "name": "Quyền 8–14",
+        "lines": [
+          "document.cancel [WAREHOUSE]",
+          "Hủy phần chưa thực hiện/đóng thiếu",
+          "",
+          "document.read [WAREHOUSE]",
+          "Xem chứng từ",
+          "",
+          "issue.post [WAREHOUSE]",
+          "Xác nhận xuất hàng",
+          "",
+          "lot.correct [WAREHOUSE]",
+          "Sửa dữ liệu lô đã có phát sinh",
+          "",
+          "master.read [GLOBAL]",
+          "Xem sản phẩm, UOM, barcode, nhóm",
+          "",
+          "move.post [WAREHOUSE]",
+          "Ghi sổ chuyển vị trí/cất hàng",
+          "",
+          "ownership.read [WAREHOUSE]",
+          "Đọc phân tách tồn theo chủ sở hữu",
+          ""
+        ]
+      },
+      "group2": {
+        "name": "Quyền 15–21",
+        "lines": [
+          "partner.read [GLOBAL]",
+          "Xem đối tác",
+          "",
+          "pick.confirm [WAREHOUSE]",
+          "Xác nhận soạn/đóng gói",
+          "",
+          "print.execute [WAREHOUSE]",
+          "In/in lại phiếu hoặc tem",
+          "",
+          "quality.decide [WAREHOUSE]",
+          "Kiểm tra hàng và quyết định chất lượng",
+          "",
+          "receipt.post [WAREHOUSE]",
+          "Ghi nhận hàng thực nhận",
+          "",
+          "report.read [WAREHOUSE]",
+          "Xem 8 báo cáo định sẵn",
+          "",
+          "reservation.manage [WAREHOUSE]",
+          "Giữ/giải phóng hàng",
+          ""
+        ]
+      },
+      "group3": {
+        "name": "Quyền 22–28",
+        "lines": [
+          "return.post [WAREHOUSE]",
+          "Ghi nhận khách trả/trả NCC",
+          "",
+          "serial.read [WAREHOUSE]",
+          "Tra serial và nguồn bảo hành",
+          "",
+          "stock.read [WAREHOUSE]",
+          "Xem tồn và thẻ kho",
+          "",
+          "transfer.dispatch [WAREHOUSE]",
+          "Xuất chuyển từ kho nguồn",
+          "",
+          "transfer.draft [WAREHOUSE]",
+          "Lập/sửa/gửi duyệt Lệnh chuyển",
+          "",
+          "transfer.receive [WAREHOUSE]",
+          "Nhận chuyển tại kho đích",
+          "",
+          "warranty.write [WAREHOUSE]",
+          "Ghi bổ sung chứng cứ bảo hành",
+          ""
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role",
+        "group0",
+        ""
+      ],
+      [
+        "role",
+        "group1",
+        ""
+      ],
+      [
+        "role",
+        "group2",
+        ""
+      ],
+      [
+        "role",
+        "group3",
+        ""
+      ]
+    ],
+    "sources": [
+      "04_Phan_quyen/current_permissions.json",
+      "migrations/*.sql"
+    ],
+    "direction": "TB"
+  },
+  {
+    "code": "ERD_app_user",
+    "title": "ERD hiện hành · app_user",
+    "nodes": {
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "PK id : uuid",
+          "username : character varying(100)",
+          "display_name : character varying(200)",
+          "password_hash : text",
+          "is_active : boolean",
+          "auth_version : integer",
+          "created_at : timestamp with time zone"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_approval_policy",
+    "title": "ERD hiện hành · approval_policy",
+    "nodes": {
+      "approval_policy": {
+        "name": "approval_policy",
+        "lines": [
+          "PK id : uuid",
+          "document_kind : character varying(30)",
+          "revision : integer",
+          "is_active : boolean"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_approval_policy_step",
+    "title": "ERD hiện hành · approval_policy_step",
+    "nodes": {
+      "approval_policy_step": {
+        "name": "approval_policy_step",
+        "lines": [
+          "PK id : uuid",
+          "policy_id : uuid",
+          "step_no : integer",
+          "role_id : uuid",
+          "alternative_role_id : uuid ?"
+        ]
+      },
+      "role": {
+        "name": "role",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "approval_policy": {
+        "name": "approval_policy",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "approval_policy_step",
+        "role",
+        "alternative_role_id → id"
+      ],
+      [
+        "approval_policy_step",
+        "approval_policy",
+        "policy_id → id"
+      ],
+      [
+        "approval_policy_step",
+        "role",
+        "role_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_approval_request",
+    "title": "ERD hiện hành · approval_request",
+    "nodes": {
+      "approval_request": {
+        "name": "approval_request",
+        "lines": [
+          "PK id : uuid",
+          "document_id : uuid",
+          "document_version : integer",
+          "policy_id : uuid",
+          "requested_by : uuid",
+          "status : character varying(20)",
+          "created_at : timestamp with time zone",
+          "content_snapshot : jsonb ?"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "approval_policy": {
+        "name": "approval_policy",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "approval_request",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "approval_request",
+        "approval_policy",
+        "policy_id → id"
+      ],
+      [
+        "approval_request",
+        "app_user",
+        "requested_by → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_approval_step",
+    "title": "ERD hiện hành · approval_step",
+    "nodes": {
+      "approval_step": {
+        "name": "approval_step",
+        "lines": [
+          "PK id : uuid",
+          "request_id : uuid",
+          "step_no : integer",
+          "required_role_id : uuid",
+          "status : character varying(20)",
+          "decided_by : uuid ?",
+          "decided_at : timestamp with time zone ?",
+          "comment : text ?",
+          "alternative_role_id : uuid ?"
+        ]
+      },
+      "role": {
+        "name": "role",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "approval_request": {
+        "name": "approval_request",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "approval_step",
+        "role",
+        "alternative_role_id → id"
+      ],
+      [
+        "approval_step",
+        "app_user",
+        "decided_by → id"
+      ],
+      [
+        "approval_step",
+        "approval_request",
+        "request_id → id"
+      ],
+      [
+        "approval_step",
+        "role",
+        "required_role_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_audit_event",
+    "title": "ERD hiện hành · audit_event",
+    "nodes": {
+      "audit_event": {
+        "name": "audit_event",
+        "lines": [
+          "PK id : uuid",
+          "actor_id : uuid ?",
+          "warehouse_id : uuid ?",
+          "action : character varying(100)",
+          "entity_type : character varying(80)",
+          "entity_id : uuid ?",
+          "request_id : uuid",
+          "occurred_at : timestamp with time zone",
+          "before_data : jsonb ?",
+          "after_data : jsonb ?",
+          "reason : text ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "audit_event",
+        "app_user",
+        "actor_id → id"
+      ],
+      [
+        "audit_event",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_challenge",
+    "title": "ERD hiện hành · auth_challenge",
+    "nodes": {
+      "auth_challenge": {
+        "name": "auth_challenge",
+        "lines": [
+          "PK token_hash : character(64)",
+          "user_id : uuid",
+          "device_id : uuid",
+          "auth_version : integer",
+          "expires_at : timestamp with time zone",
+          "consumed_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_challenge",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_contact",
+    "title": "ERD hiện hành · auth_contact",
+    "nodes": {
+      "auth_contact": {
+        "name": "auth_contact",
+        "lines": [
+          "PK user_id : uuid",
+          "PK kind : text",
+          "value : text",
+          "verified_at : timestamp with time zone"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_contact",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_contact_challenge",
+    "title": "ERD hiện hành · auth_contact_challenge",
+    "nodes": {
+      "auth_contact_challenge": {
+        "name": "auth_contact_challenge",
+        "lines": [
+          "PK id : uuid",
+          "user_id : uuid",
+          "kind : text",
+          "value : text",
+          "code_hash : character(64)",
+          "auth_version : integer",
+          "expires_at : timestamp with time zone",
+          "consumed_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_contact_challenge",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_delivery",
+    "title": "ERD hiện hành · auth_delivery",
+    "nodes": {
+      "auth_delivery": {
+        "name": "auth_delivery",
+        "lines": [
+          "PK id : uuid",
+          "user_id : uuid",
+          "auth_version : integer",
+          "ciphertext : text ?",
+          "expires_at : timestamp with time zone",
+          "attempts : integer",
+          "lease_until : timestamp with time zone ?",
+          "lease_token : uuid ?",
+          "completed_at : timestamp with time zone ?",
+          "last_error : text ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_delivery",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_google_flow",
+    "title": "ERD hiện hành · auth_google_flow",
+    "nodes": {
+      "auth_google_flow": {
+        "name": "auth_google_flow",
+        "lines": [
+          "PK state_hash : character(64)",
+          "nonce_hash : character(64)",
+          "verifier_ciphertext : text ?",
+          "redirect_uri : text",
+          "device_id : uuid",
+          "user_id : uuid ?",
+          "session_id : uuid ?",
+          "auth_version : integer ?",
+          "expires_at : timestamp with time zone",
+          "consumed_at : timestamp with time zone ?"
+        ]
+      },
+      "auth_session": {
+        "name": "auth_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_google_flow",
+        "auth_session",
+        "session_id → id"
+      ],
+      [
+        "auth_google_flow",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_google_identity",
+    "title": "ERD hiện hành · auth_google_identity",
+    "nodes": {
+      "auth_google_identity": {
+        "name": "auth_google_identity",
+        "lines": [
+          "PK subject : text",
+          "user_id : uuid",
+          "linked_at : timestamp with time zone"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_google_identity",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_password_reset",
+    "title": "ERD hiện hành · auth_password_reset",
+    "nodes": {
+      "auth_password_reset": {
+        "name": "auth_password_reset",
+        "lines": [
+          "PK token_hash : character(64)",
+          "user_id : uuid",
+          "issued_by : uuid",
+          "auth_version : integer",
+          "created_at : timestamp with time zone",
+          "expires_at : timestamp with time zone",
+          "consumed_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_password_reset",
+        "app_user",
+        "issued_by → id"
+      ],
+      [
+        "auth_password_reset",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_recovery_code",
+    "title": "ERD hiện hành · auth_recovery_code",
+    "nodes": {
+      "auth_recovery_code": {
+        "name": "auth_recovery_code",
+        "lines": [
+          "PK code_hash : character(64)",
+          "user_id : uuid",
+          "created_at : timestamp with time zone",
+          "consumed_at : timestamp with time zone ?",
+          "revoked_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_recovery_code",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_self_reset",
+    "title": "ERD hiện hành · auth_self_reset",
+    "nodes": {
+      "auth_self_reset": {
+        "name": "auth_self_reset",
+        "lines": [
+          "PK token_hash : character(64)",
+          "user_id : uuid",
+          "kind : text",
+          "contact_value : text",
+          "auth_version : integer",
+          "expires_at : timestamp with time zone",
+          "consumed_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_self_reset",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_session",
+    "title": "ERD hiện hành · auth_session",
+    "nodes": {
+      "auth_session": {
+        "name": "auth_session",
+        "lines": [
+          "PK id : uuid",
+          "user_id : uuid",
+          "refresh_hash : text",
+          "device_id : uuid",
+          "auth_version : integer",
+          "expires_at : timestamp with time zone",
+          "revoked_at : timestamp with time zone ?",
+          "mfa_verified_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_session",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_throttle",
+    "title": "ERD hiện hành · auth_throttle",
+    "nodes": {
+      "auth_throttle": {
+        "name": "auth_throttle",
+        "lines": [
+          "PK key : character(64)",
+          "failures : integer",
+          "window_started_at : timestamp with time zone",
+          "blocked_until : timestamp with time zone ?"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_auth_token",
+    "title": "ERD hiện hành · auth_token",
+    "nodes": {
+      "auth_token": {
+        "name": "auth_token",
+        "lines": [
+          "PK token_hash : character(64)",
+          "session_id : uuid",
+          "kind : character varying(10)",
+          "created_at : timestamp with time zone",
+          "expires_at : timestamp with time zone",
+          "used_at : timestamp with time zone ?"
+        ]
+      },
+      "auth_session": {
+        "name": "auth_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "auth_token",
+        "auth_session",
+        "session_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_barcode",
+    "title": "ERD hiện hành · barcode",
+    "nodes": {
+      "barcode": {
+        "name": "barcode",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(160)",
+          "product_uom_id : uuid",
+          "is_active : boolean",
+          "version : integer"
+        ]
+      },
+      "product_uom": {
+        "name": "product_uom",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "barcode",
+        "product_uom",
+        "product_uom_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_client_release",
+    "title": "ERD hiện hành · client_release",
+    "nodes": {
+      "client_release": {
+        "name": "client_release",
+        "lines": [
+          "PK id : uuid",
+          "version : character varying(40)",
+          "os : character varying(20)",
+          "architecture : character varying(20)",
+          "api_major : integer",
+          "sha256 : character(64)",
+          "download_uri : text",
+          "is_minimum : boolean"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_consignment_agreement",
+    "title": "ERD hiện hành · consignment_agreement",
+    "nodes": {
+      "consignment_agreement": {
+        "name": "consignment_agreement",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(80)",
+          "owner_id : uuid",
+          "warehouse_id : uuid",
+          "valid_from : date",
+          "valid_until : date",
+          "source_ref : text",
+          "is_active : boolean",
+          "version : integer"
+        ]
+      },
+      "stock_owner": {
+        "name": "stock_owner",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "consignment_agreement",
+        "stock_owner",
+        "owner_id → id"
+      ],
+      [
+        "consignment_agreement",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_consignment_receipt",
+    "title": "ERD hiện hành · consignment_receipt",
+    "nodes": {
+      "consignment_receipt": {
+        "name": "consignment_receipt",
+        "lines": [
+          "PK document_id : uuid",
+          "warehouse_id : uuid",
+          "batch_key : uuid",
+          "delivery_reference : character varying(2000)"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "consignment_receipt",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "consignment_receipt",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_consignment_receipt_line",
+    "title": "ERD hiện hành · consignment_receipt_line",
+    "nodes": {
+      "consignment_receipt_line": {
+        "name": "consignment_receipt_line",
+        "lines": [
+          "PK document_line_id : uuid",
+          "destination_location_id : uuid",
+          "lot_code : character varying(100) ?",
+          "serial_code : character varying(160) ?",
+          "manufactured_on : date ?",
+          "expires_on : date ?"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "consignment_receipt_line",
+        "location",
+        "destination_location_id → id"
+      ],
+      [
+        "consignment_receipt_line",
+        "document_line",
+        "document_line_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_consumer_receipt",
+    "title": "ERD hiện hành · consumer_receipt",
+    "nodes": {
+      "consumer_receipt": {
+        "name": "consumer_receipt",
+        "lines": [
+          "PK id : uuid",
+          "event_id : uuid",
+          "consumer : character varying(100)",
+          "processed_at : timestamp with time zone"
+        ]
+      },
+      "outbox_event": {
+        "name": "outbox_event",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "consumer_receipt",
+        "outbox_event",
+        "event_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_assignment",
+    "title": "ERD hiện hành · count_assignment",
+    "nodes": {
+      "count_assignment": {
+        "name": "count_assignment",
+        "lines": [
+          "PK id : uuid",
+          "session_id : uuid",
+          "location_id : uuid",
+          "user_id : uuid",
+          "assigned_by : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_assignment",
+        "app_user",
+        "assigned_by → id"
+      ],
+      [
+        "count_assignment",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "count_assignment",
+        "count_session",
+        "session_id → id"
+      ],
+      [
+        "count_assignment",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_decision",
+    "title": "ERD hiện hành · count_decision",
+    "nodes": {
+      "count_decision": {
+        "name": "count_decision",
+        "lines": [
+          "PK id : uuid",
+          "submission_id : uuid",
+          "step_no : integer",
+          "decision : text",
+          "decided_by : uuid",
+          "decided_at : timestamp with time zone",
+          "reason : text"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "count_submission": {
+        "name": "count_submission",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_decision",
+        "app_user",
+        "decided_by → id"
+      ],
+      [
+        "count_decision",
+        "count_submission",
+        "submission_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_empty_confirmation",
+    "title": "ERD hiện hành · count_empty_confirmation",
+    "nodes": {
+      "count_empty_confirmation": {
+        "name": "count_empty_confirmation",
+        "lines": [
+          "PK id : uuid",
+          "session_id : uuid",
+          "location_id : uuid",
+          "counted_by : uuid",
+          "counted_at : timestamp with time zone",
+          "reason : text"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_empty_confirmation",
+        "app_user",
+        "counted_by → id"
+      ],
+      [
+        "count_empty_confirmation",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "count_empty_confirmation",
+        "count_session",
+        "session_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_execution",
+    "title": "ERD hiện hành · count_execution",
+    "nodes": {
+      "count_execution": {
+        "name": "count_execution",
+        "lines": [
+          "PK session_id : uuid",
+          "execution_key : uuid",
+          "request_hash : character(64)",
+          "response : jsonb"
+        ]
+      },
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_execution",
+        "count_session",
+        "session_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_line",
+    "title": "ERD hiện hành · count_line",
+    "nodes": {
+      "count_line": {
+        "name": "count_line",
+        "lines": [
+          "PK id : uuid",
+          "session_id : uuid",
+          "stock_item_id : uuid",
+          "location_id : uuid",
+          "snapshot_quantity : numeric(20,6)",
+          "approved_quantity : numeric(20,6) ?"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_line",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "count_line",
+        "count_session",
+        "session_id → id"
+      ],
+      [
+        "count_line",
+        "stock_item",
+        "stock_item_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_location_lock",
+    "title": "ERD hiện hành · count_location_lock",
+    "nodes": {
+      "count_location_lock": {
+        "name": "count_location_lock",
+        "lines": [
+          "PK id : uuid",
+          "session_id : uuid",
+          "location_id : uuid",
+          "locked_at : timestamp with time zone",
+          "released_at : timestamp with time zone ?"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_location_lock",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "count_location_lock",
+        "count_session",
+        "session_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_observation",
+    "title": "ERD hiện hành · count_observation",
+    "nodes": {
+      "count_observation": {
+        "name": "count_observation",
+        "lines": [
+          "PK id : uuid",
+          "count_line_id : uuid",
+          "round_no : integer",
+          "quantity : numeric(20,6)",
+          "counted_by : uuid",
+          "counted_at : timestamp with time zone",
+          "scan_event_key : uuid ?",
+          "reason : text"
+        ]
+      },
+      "count_line": {
+        "name": "count_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_observation",
+        "count_line",
+        "count_line_id → id"
+      ],
+      [
+        "count_observation",
+        "app_user",
+        "counted_by → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_scope",
+    "title": "ERD hiện hành · count_scope",
+    "nodes": {
+      "count_scope": {
+        "name": "count_scope",
+        "lines": [
+          "PK session_id : uuid",
+          "PK location_id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_scope",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "count_scope",
+        "count_session",
+        "session_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_session",
+    "title": "ERD hiện hành · count_session",
+    "nodes": {
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "PK id : uuid",
+          "warehouse_id : uuid",
+          "number : character varying(80)",
+          "status : character varying(20)",
+          "created_by : uuid",
+          "frozen_at : timestamp with time zone ?",
+          "adjustment_document_id : uuid ?",
+          "version : integer",
+          "business_date : date",
+          "reason : text"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_session",
+        "document",
+        "adjustment_document_id → id"
+      ],
+      [
+        "count_session",
+        "app_user",
+        "created_by → id"
+      ],
+      [
+        "count_session",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_count_submission",
+    "title": "ERD hiện hành · count_submission",
+    "nodes": {
+      "count_submission": {
+        "name": "count_submission",
+        "lines": [
+          "PK id : uuid",
+          "session_id : uuid",
+          "session_version : integer",
+          "policy_revision : integer",
+          "requested_by : uuid",
+          "created_at : timestamp with time zone",
+          "content_snapshot : jsonb"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "count_session": {
+        "name": "count_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "count_submission",
+        "app_user",
+        "requested_by → id"
+      ],
+      [
+        "count_submission",
+        "count_session",
+        "session_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_custom_field_binding",
+    "title": "ERD hiện hành · custom_field_binding",
+    "nodes": {
+      "custom_field_binding": {
+        "name": "custom_field_binding",
+        "lines": [
+          "PK id : uuid",
+          "product_id : uuid ?",
+          "document_id : uuid ?",
+          "revision_id : uuid",
+          "values : jsonb"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "custom_field_revision": {
+        "name": "custom_field_revision",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "custom_field_binding",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "custom_field_binding",
+        "product",
+        "product_id → id"
+      ],
+      [
+        "custom_field_binding",
+        "custom_field_revision",
+        "revision_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_custom_field_change",
+    "title": "ERD hiện hành · custom_field_change",
+    "nodes": {
+      "custom_field_change": {
+        "name": "custom_field_change",
+        "lines": [
+          "PK id : uuid",
+          "binding_id : uuid",
+          "revision_id : uuid",
+          "target_version : integer",
+          "values : jsonb",
+          "changed_by : uuid",
+          "changed_at : timestamp with time zone",
+          "reason : text"
+        ]
+      },
+      "custom_field_binding": {
+        "name": "custom_field_binding",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "custom_field_revision": {
+        "name": "custom_field_revision",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "custom_field_change",
+        "custom_field_binding",
+        "binding_id → id"
+      ],
+      [
+        "custom_field_change",
+        "app_user",
+        "changed_by → id"
+      ],
+      [
+        "custom_field_change",
+        "custom_field_revision",
+        "revision_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_custom_field_definition",
+    "title": "ERD hiện hành · custom_field_definition",
+    "nodes": {
+      "custom_field_definition": {
+        "name": "custom_field_definition",
+        "lines": [
+          "PK id : uuid",
+          "entity_type : character varying(40)",
+          "code : character varying(60)",
+          "value_type : character varying(20)",
+          "required : boolean",
+          "validation : jsonb",
+          "is_active : boolean",
+          "revision_id : uuid ?",
+          "label : character varying(120) ?",
+          "visibility : character varying(20)"
+        ]
+      },
+      "custom_field_revision": {
+        "name": "custom_field_revision",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "custom_field_definition",
+        "custom_field_revision",
+        "revision_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_custom_field_revision",
+    "title": "ERD hiện hành · custom_field_revision",
+    "nodes": {
+      "custom_field_revision": {
+        "name": "custom_field_revision",
+        "lines": [
+          "PK id : uuid",
+          "schema_id : uuid",
+          "version : integer",
+          "created_by : uuid",
+          "created_at : timestamp with time zone",
+          "reason : text"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "custom_field_schema": {
+        "name": "custom_field_schema",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "custom_field_revision",
+        "app_user",
+        "created_by → id"
+      ],
+      [
+        "custom_field_revision",
+        "custom_field_schema",
+        "schema_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_custom_field_schema",
+    "title": "ERD hiện hành · custom_field_schema",
+    "nodes": {
+      "custom_field_schema": {
+        "name": "custom_field_schema",
+        "lines": [
+          "PK id : uuid",
+          "entity_type : character varying(40)",
+          "version : integer"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_document",
+    "title": "ERD hiện hành · document",
+    "nodes": {
+      "document": {
+        "name": "document",
+        "lines": [
+          "PK id : uuid",
+          "number : character varying(80)",
+          "kind : character varying(30)",
+          "status : character varying(20)",
+          "warehouse_id : uuid",
+          "destination_warehouse_id : uuid ?",
+          "transit_location_id : uuid ?",
+          "partner_id : uuid ?",
+          "business_date : date",
+          "created_by : uuid",
+          "created_at : timestamp with time zone",
+          "version : integer",
+          "reason : text ?",
+          "attributes : jsonb"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "partner": {
+        "name": "partner",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "document",
+        "app_user",
+        "created_by → id"
+      ],
+      [
+        "document",
+        "warehouse",
+        "destination_warehouse_id → id"
+      ],
+      [
+        "document",
+        "partner",
+        "partner_id → id"
+      ],
+      [
+        "document",
+        "location",
+        "transit_location_id → id"
+      ],
+      [
+        "document",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_document_assignment",
+    "title": "ERD hiện hành · document_assignment",
+    "nodes": {
+      "document_assignment": {
+        "name": "document_assignment",
+        "lines": [
+          "PK id : uuid",
+          "document_id : uuid",
+          "user_id : uuid",
+          "assigned_by : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "document_assignment",
+        "app_user",
+        "assigned_by → id"
+      ],
+      [
+        "document_assignment",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "document_assignment",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_document_attachment",
+    "title": "ERD hiện hành · document_attachment",
+    "nodes": {
+      "document_attachment": {
+        "name": "document_attachment",
+        "lines": [
+          "PK id : uuid",
+          "document_id : uuid",
+          "file_id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stored_file": {
+        "name": "stored_file",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "document_attachment",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "document_attachment",
+        "stored_file",
+        "file_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_document_line",
+    "title": "ERD hiện hành · document_line",
+    "nodes": {
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "PK id : uuid",
+          "document_id : uuid",
+          "line_no : integer",
+          "product_id : uuid",
+          "uom_id : uuid",
+          "quantity : numeric(20,6)",
+          "factor_snapshot : numeric(20,8)",
+          "base_quantity : numeric(20,6)",
+          "source_line_id : uuid ?",
+          "reference_unit_price : numeric(20,4) ?",
+          "owner_id : uuid",
+          "consignment_id : uuid ?",
+          "closed_base_quantity : numeric(20,6)"
+        ]
+      },
+      "consignment_agreement": {
+        "name": "consignment_agreement",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_owner": {
+        "name": "stock_owner",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "uom": {
+        "name": "uom",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "document_line",
+        "consignment_agreement",
+        "consignment_id → id"
+      ],
+      [
+        "document_line",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "document_line",
+        "stock_owner",
+        "owner_id → id"
+      ],
+      [
+        "document_line",
+        "product",
+        "product_id → id"
+      ],
+      [
+        "document_line",
+        "document_line",
+        "source_line_id → id"
+      ],
+      [
+        "document_line",
+        "uom",
+        "uom_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_document_link",
+    "title": "ERD hiện hành · document_link",
+    "nodes": {
+      "document_link": {
+        "name": "document_link",
+        "lines": [
+          "PK id : uuid",
+          "document_id : uuid",
+          "related_document_id : uuid",
+          "relation : character varying(30)"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "document_link",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "document_link",
+        "document",
+        "related_document_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_export_job",
+    "title": "ERD hiện hành · export_job",
+    "nodes": {
+      "export_job": {
+        "name": "export_job",
+        "lines": [
+          "PK id : uuid",
+          "requested_by : uuid",
+          "report_code : character varying(40)",
+          "filters : jsonb",
+          "status : character varying(20)",
+          "file_id : uuid ?",
+          "created_at : timestamp with time zone",
+          "expires_at : timestamp with time zone",
+          "snapshot_id : uuid ?",
+          "session_id : uuid ?",
+          "format : character varying(4) ?",
+          "version : integer",
+          "generation : integer",
+          "error_code : character varying(40) ?"
+        ]
+      },
+      "stored_file": {
+        "name": "stored_file",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "auth_session": {
+        "name": "auth_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "report_snapshot": {
+        "name": "report_snapshot",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "export_job",
+        "stored_file",
+        "file_id → id"
+      ],
+      [
+        "export_job",
+        "app_user",
+        "requested_by → id"
+      ],
+      [
+        "export_job",
+        "auth_session",
+        "session_id → id"
+      ],
+      [
+        "export_job",
+        "report_snapshot",
+        "snapshot_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_export_task",
+    "title": "ERD hiện hành · export_task",
+    "nodes": {
+      "export_task": {
+        "name": "export_task",
+        "lines": [
+          "PK id : uuid",
+          "job_id : uuid",
+          "generation : integer",
+          "status : character varying(10)",
+          "attempts : integer",
+          "available_at : timestamp with time zone",
+          "lease_token : uuid ?",
+          "lease_until : timestamp with time zone ?"
+        ]
+      },
+      "export_job": {
+        "name": "export_job",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "export_task",
+        "export_job",
+        "job_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_fulfillment_consumption",
+    "title": "ERD hiện hành · fulfillment_consumption",
+    "nodes": {
+      "fulfillment_consumption": {
+        "name": "fulfillment_consumption",
+        "lines": [
+          "PK id : uuid",
+          "package_line_id : uuid",
+          "reservation_consumption_id : uuid",
+          "quantity : numeric(20,6)"
+        ]
+      },
+      "package_line": {
+        "name": "package_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "reservation_consumption": {
+        "name": "reservation_consumption",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "fulfillment_consumption",
+        "package_line",
+        "package_line_id → id"
+      ],
+      [
+        "fulfillment_consumption",
+        "reservation_consumption",
+        "reservation_consumption_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_grant_request",
+    "title": "ERD hiện hành · grant_request",
+    "nodes": {
+      "grant_request": {
+        "name": "grant_request",
+        "lines": [
+          "PK id : uuid",
+          "user_id : uuid",
+          "role_id : uuid",
+          "scope_kind : character varying(20)",
+          "warehouse_id : uuid ?",
+          "valid_until : timestamp with time zone ?",
+          "reason : text",
+          "requested_by : uuid",
+          "requested_at : timestamp with time zone",
+          "approved_by : uuid ?",
+          "grant_id : uuid ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "user_role_grant": {
+        "name": "user_role_grant",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "role": {
+        "name": "role",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "grant_request",
+        "app_user",
+        "approved_by → id"
+      ],
+      [
+        "grant_request",
+        "user_role_grant",
+        "grant_id → id"
+      ],
+      [
+        "grant_request",
+        "app_user",
+        "requested_by → id"
+      ],
+      [
+        "grant_request",
+        "role",
+        "role_id → id"
+      ],
+      [
+        "grant_request",
+        "app_user",
+        "user_id → id"
+      ],
+      [
+        "grant_request",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_idempotency_record",
+    "title": "ERD hiện hành · idempotency_record",
+    "nodes": {
+      "idempotency_record": {
+        "name": "idempotency_record",
+        "lines": [
+          "PK id : uuid",
+          "actor_id : uuid",
+          "key : uuid",
+          "command : character varying(100)",
+          "request_hash : character(64)",
+          "response : jsonb",
+          "http_status : integer",
+          "completed_at : timestamp with time zone",
+          "expires_at : timestamp with time zone"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "idempotency_record",
+        "app_user",
+        "actor_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_import_document_source",
+    "title": "ERD hiện hành · import_document_source",
+    "nodes": {
+      "import_document_source": {
+        "name": "import_document_source",
+        "lines": [
+          "PK warehouse_id : uuid",
+          "PK kind : character varying(20)",
+          "PK source_key : character varying(240)",
+          "document_id : uuid",
+          "job_id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "import_job": {
+        "name": "import_job",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "import_document_source",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "import_document_source",
+        "import_job",
+        "job_id → id"
+      ],
+      [
+        "import_document_source",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_import_file",
+    "title": "ERD hiện hành · import_file",
+    "nodes": {
+      "import_file": {
+        "name": "import_file",
+        "lines": [
+          "PK file_id : uuid",
+          "actor_id : uuid",
+          "warehouse_id : uuid ?",
+          "kind : character varying(60)",
+          "upload_key : uuid",
+          "request_hash : character(64)",
+          "ready : boolean"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stored_file": {
+        "name": "stored_file",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "import_file",
+        "app_user",
+        "actor_id → id"
+      ],
+      [
+        "import_file",
+        "stored_file",
+        "file_id → id"
+      ],
+      [
+        "import_file",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_import_job",
+    "title": "ERD hiện hành · import_job",
+    "nodes": {
+      "import_job": {
+        "name": "import_job",
+        "lines": [
+          "PK id : uuid",
+          "kind : character varying(60)",
+          "file_id : uuid",
+          "requested_by : uuid",
+          "status : character varying(20)",
+          "file_hash : character(64)",
+          "mapping_version : character varying(30)",
+          "operation_key : uuid",
+          "created_at : timestamp with time zone",
+          "warehouse_id : uuid ?",
+          "version : integer",
+          "generation : integer",
+          "auth_version : integer ?",
+          "options : jsonb",
+          "commit_token : uuid ?",
+          "token_expires_at : timestamp with time zone ?",
+          "stage_hash : character(64) ?",
+          "data_snapshot : jsonb",
+          "total_rows : integer",
+          "processed_rows : integer",
+          "errors : jsonb",
+          "result : jsonb ?"
+        ]
+      },
+      "stored_file": {
+        "name": "stored_file",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "import_job",
+        "stored_file",
+        "file_id → id"
+      ],
+      [
+        "import_job",
+        "app_user",
+        "requested_by → id"
+      ],
+      [
+        "import_job",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_import_row",
+    "title": "ERD hiện hành · import_row",
+    "nodes": {
+      "import_row": {
+        "name": "import_row",
+        "lines": [
+          "PK id : uuid",
+          "job_id : uuid",
+          "row_no : integer",
+          "payload : jsonb",
+          "errors : jsonb",
+          "target_id : uuid ?",
+          "status : character varying(20)"
+        ]
+      },
+      "import_job": {
+        "name": "import_job",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "import_row",
+        "import_job",
+        "job_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_import_task",
+    "title": "ERD hiện hành · import_task",
+    "nodes": {
+      "import_task": {
+        "name": "import_task",
+        "lines": [
+          "PK id : uuid",
+          "job_id : uuid",
+          "generation : integer",
+          "state : character varying(20)",
+          "lease_token : uuid ?",
+          "lease_until : timestamp with time zone ?",
+          "attempts : integer",
+          "available_at : timestamp with time zone",
+          "last_error : character varying(60) ?"
+        ]
+      },
+      "import_job": {
+        "name": "import_job",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "import_task",
+        "import_job",
+        "job_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_inventory_transaction",
+    "title": "ERD hiện hành · inventory_transaction",
+    "nodes": {
+      "inventory_transaction": {
+        "name": "inventory_transaction",
+        "lines": [
+          "PK id : uuid",
+          "document_id : uuid",
+          "execution_key : uuid",
+          "operation : character varying(30)",
+          "business_date : date",
+          "posted_at : timestamp with time zone",
+          "posted_by : uuid",
+          "reverses_transaction_id : uuid ?",
+          "request_hash : character(64) ?",
+          "response : jsonb ?"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "inventory_transaction",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "inventory_transaction",
+        "app_user",
+        "posted_by → id"
+      ],
+      [
+        "inventory_transaction",
+        "inventory_transaction",
+        "reverses_transaction_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_issue_document",
+    "title": "ERD hiện hành · issue_document",
+    "nodes": {
+      "issue_document": {
+        "name": "issue_document",
+        "lines": [
+          "PK document_id : uuid",
+          "source_order_id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "issue_document",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "issue_document",
+        "document",
+        "source_order_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_location",
+    "title": "ERD hiện hành · location",
+    "nodes": {
+      "location": {
+        "name": "location",
+        "lines": [
+          "PK id : uuid",
+          "warehouse_id : uuid ?",
+          "parent_id : uuid ?",
+          "code : character varying(80)",
+          "name : character varying(160)",
+          "kind : character varying(20)",
+          "is_active : boolean",
+          "version : integer"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "location",
+        "location",
+        "parent_id → id"
+      ],
+      [
+        "location",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_lot",
+    "title": "ERD hiện hành · lot",
+    "nodes": {
+      "lot": {
+        "name": "lot",
+        "lines": [
+          "PK id : uuid",
+          "product_id : uuid",
+          "code : character varying(100)",
+          "manufactured_on : date ?",
+          "expires_on : date ?",
+          "version : integer"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "lot",
+        "product",
+        "product_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_mfa_factor",
+    "title": "ERD hiện hành · mfa_factor",
+    "nodes": {
+      "mfa_factor": {
+        "name": "mfa_factor",
+        "lines": [
+          "PK id : uuid",
+          "user_id : uuid",
+          "kind : character varying(30)",
+          "credential_ciphertext : text",
+          "verified_at : timestamp with time zone ?",
+          "revoked_at : timestamp with time zone ?",
+          "last_counter : bigint",
+          "enrollment_expires_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "mfa_factor",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_move_line",
+    "title": "ERD hiện hành · move_line",
+    "nodes": {
+      "move_line": {
+        "name": "move_line",
+        "lines": [
+          "PK document_line_id : uuid",
+          "stock_item_id : uuid",
+          "source_location_id : uuid",
+          "destination_location_id : uuid",
+          "quality_decision_id : uuid ?"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "quality_decision": {
+        "name": "quality_decision",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "move_line",
+        "location",
+        "destination_location_id → id"
+      ],
+      [
+        "move_line",
+        "document_line",
+        "document_line_id → id"
+      ],
+      [
+        "move_line",
+        "quality_decision",
+        "quality_decision_id → id"
+      ],
+      [
+        "move_line",
+        "location",
+        "source_location_id → id"
+      ],
+      [
+        "move_line",
+        "stock_item",
+        "stock_item_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_opening_document",
+    "title": "ERD hiện hành · opening_document",
+    "nodes": {
+      "opening_document": {
+        "name": "opening_document",
+        "lines": [
+          "PK document_id : uuid",
+          "warehouse_id : uuid",
+          "batch_key : uuid",
+          "signed_count_reference : character varying(2000)"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "opening_document",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "opening_document",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_opening_line",
+    "title": "ERD hiện hành · opening_line",
+    "nodes": {
+      "opening_line": {
+        "name": "opening_line",
+        "lines": [
+          "PK document_line_id : uuid",
+          "destination_location_id : uuid",
+          "lot_code : character varying(100) ?",
+          "serial_code : character varying(160) ?",
+          "manufactured_on : date ?",
+          "expires_on : date ?"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "opening_line",
+        "location",
+        "destination_location_id → id"
+      ],
+      [
+        "opening_line",
+        "document_line",
+        "document_line_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_organization",
+    "title": "ERD hiện hành · organization",
+    "nodes": {
+      "organization": {
+        "name": "organization",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(40)",
+          "name : character varying(200)",
+          "timezone : character varying(80)",
+          "currency : character(3)"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_outbox_event",
+    "title": "ERD hiện hành · outbox_event",
+    "nodes": {
+      "outbox_event": {
+        "name": "outbox_event",
+        "lines": [
+          "PK id : uuid",
+          "event_type : character varying(100)",
+          "aggregate_id : uuid",
+          "payload : jsonb",
+          "occurred_at : timestamp with time zone",
+          "available_at : timestamp with time zone",
+          "attempts : integer",
+          "processed_at : timestamp with time zone ?",
+          "last_error : text ?",
+          "version : integer",
+          "replay_count : integer",
+          "replayed_at : timestamp with time zone ?"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_package",
+    "title": "ERD hiện hành · package",
+    "nodes": {
+      "package": {
+        "name": "package",
+        "lines": [
+          "PK id : uuid",
+          "document_id : uuid",
+          "code : character varying(100)",
+          "status : character varying(20) ?",
+          "version : integer",
+          "reason : text ?",
+          "created_by : uuid ?",
+          "created_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "package",
+        "app_user",
+        "created_by → id"
+      ],
+      [
+        "package",
+        "document",
+        "document_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_package_line",
+    "title": "ERD hiện hành · package_line",
+    "nodes": {
+      "package_line": {
+        "name": "package_line",
+        "lines": [
+          "PK id : uuid",
+          "package_id : uuid",
+          "document_line_id : uuid",
+          "stock_item_id : uuid",
+          "quantity : numeric(20,6)",
+          "pick_task_id : uuid ?",
+          "consumed_quantity : numeric(20,6)"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "package": {
+        "name": "package",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "pick_task": {
+        "name": "pick_task",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "package_line",
+        "document_line",
+        "document_line_id → id"
+      ],
+      [
+        "package_line",
+        "package",
+        "package_id → id"
+      ],
+      [
+        "package_line",
+        "pick_task",
+        "pick_task_id → id"
+      ],
+      [
+        "package_line",
+        "stock_item",
+        "stock_item_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_partner",
+    "title": "ERD hiện hành · partner",
+    "nodes": {
+      "partner": {
+        "name": "partner",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(60)",
+          "name : character varying(240)",
+          "is_customer : boolean",
+          "is_supplier : boolean",
+          "tax_code : character varying(40) ?",
+          "address : text ?",
+          "is_active : boolean",
+          "version : integer"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_period_reopen_confirmation",
+    "title": "ERD hiện hành · period_reopen_confirmation",
+    "nodes": {
+      "period_reopen_confirmation": {
+        "name": "period_reopen_confirmation",
+        "lines": [
+          "PK id : uuid",
+          "period_id : uuid",
+          "period_version : integer",
+          "confirmed_by : uuid",
+          "confirmed_at : timestamp with time zone",
+          "reason : text"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_period": {
+        "name": "stock_period",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "period_reopen_confirmation",
+        "app_user",
+        "confirmed_by → id"
+      ],
+      [
+        "period_reopen_confirmation",
+        "stock_period",
+        "period_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_permission",
+    "title": "ERD hiện hành · permission",
+    "nodes": {
+      "permission": {
+        "name": "permission",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(100)",
+          "scope_kind : character varying(20)",
+          "description : text"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_pick_task",
+    "title": "ERD hiện hành · pick_task",
+    "nodes": {
+      "pick_task": {
+        "name": "pick_task",
+        "lines": [
+          "PK id : uuid",
+          "reservation_id : uuid",
+          "assigned_to : uuid",
+          "picked_quantity : numeric(20,6)",
+          "status : character varying(20)",
+          "version : integer",
+          "target_quantity : numeric(20,6) ?",
+          "consumed_quantity : numeric(20,6)",
+          "reason : text ?",
+          "created_by : uuid ?",
+          "created_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "reservation": {
+        "name": "reservation",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "pick_task",
+        "app_user",
+        "assigned_to → id"
+      ],
+      [
+        "pick_task",
+        "app_user",
+        "created_by → id"
+      ],
+      [
+        "pick_task",
+        "reservation",
+        "reservation_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_print_attempt",
+    "title": "ERD hiện hành · print_attempt",
+    "nodes": {
+      "print_attempt": {
+        "name": "print_attempt",
+        "lines": [
+          "PK id : uuid",
+          "job_id : uuid",
+          "generation : integer",
+          "actor_id : uuid",
+          "session_id : uuid",
+          "printer : character varying(200)",
+          "driver : character varying(20)",
+          "copies : integer",
+          "status : character varying(10)",
+          "spool_id : character varying(200) ?",
+          "error_code : character varying(40) ?",
+          "created_at : timestamp with time zone",
+          "finished_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "print_job": {
+        "name": "print_job",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "auth_session": {
+        "name": "auth_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "print_attempt",
+        "app_user",
+        "actor_id → id"
+      ],
+      [
+        "print_attempt",
+        "print_job",
+        "job_id → id"
+      ],
+      [
+        "print_attempt",
+        "auth_session",
+        "session_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_print_job",
+    "title": "ERD hiện hành · print_job",
+    "nodes": {
+      "print_job": {
+        "name": "print_job",
+        "lines": [
+          "PK id : uuid",
+          "requested_by : uuid",
+          "session_id : uuid",
+          "warehouse_id : uuid",
+          "source_id : uuid",
+          "source_version : integer",
+          "template : character varying(20)",
+          "template_version : integer",
+          "paper : character varying(10)",
+          "include_price : boolean",
+          "criteria : jsonb",
+          "snapshot : jsonb",
+          "snapshot_hash : character(64)",
+          "status : character varying(12)",
+          "version : integer",
+          "generation : integer",
+          "file_id : uuid ?",
+          "created_at : timestamp with time zone",
+          "expires_at : timestamp with time zone",
+          "error_code : character varying(40) ?"
+        ]
+      },
+      "stored_file": {
+        "name": "stored_file",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "auth_session": {
+        "name": "auth_session",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "print_job",
+        "stored_file",
+        "file_id → id"
+      ],
+      [
+        "print_job",
+        "app_user",
+        "requested_by → id"
+      ],
+      [
+        "print_job",
+        "auth_session",
+        "session_id → id"
+      ],
+      [
+        "print_job",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_print_task",
+    "title": "ERD hiện hành · print_task",
+    "nodes": {
+      "print_task": {
+        "name": "print_task",
+        "lines": [
+          "PK id : uuid",
+          "job_id : uuid",
+          "generation : integer",
+          "status : character varying(10)",
+          "attempts : integer",
+          "available_at : timestamp with time zone",
+          "lease_token : uuid ?",
+          "lease_until : timestamp with time zone ?"
+        ]
+      },
+      "print_job": {
+        "name": "print_job",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "print_task",
+        "print_job",
+        "job_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_product",
+    "title": "ERD hiện hành · product",
+    "nodes": {
+      "product": {
+        "name": "product",
+        "lines": [
+          "PK id : uuid",
+          "sku : character varying(80)",
+          "name : character varying(240)",
+          "category_id : uuid ?",
+          "base_uom_id : uuid",
+          "tracking : character varying(10)",
+          "expiry_required : boolean",
+          "is_active : boolean",
+          "version : integer",
+          "attributes : jsonb"
+        ]
+      },
+      "uom": {
+        "name": "uom",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "product_category": {
+        "name": "product_category",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "product",
+        "uom",
+        "base_uom_id → id"
+      ],
+      [
+        "product",
+        "product_category",
+        "category_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_product_category",
+    "title": "ERD hiện hành · product_category",
+    "nodes": {
+      "product_category": {
+        "name": "product_category",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(40)",
+          "name : character varying(160)",
+          "parent_id : uuid ?",
+          "version : integer",
+          "is_active : boolean"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "product_category",
+        "product_category",
+        "parent_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_product_image",
+    "title": "ERD hiện hành · product_image",
+    "nodes": {
+      "product_image": {
+        "name": "product_image",
+        "lines": [
+          "PK id : uuid",
+          "product_id : uuid",
+          "file_id : uuid",
+          "sort_order : integer"
+        ]
+      },
+      "stored_file": {
+        "name": "stored_file",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "product_image",
+        "stored_file",
+        "file_id → id"
+      ],
+      [
+        "product_image",
+        "product",
+        "product_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_product_uom",
+    "title": "ERD hiện hành · product_uom",
+    "nodes": {
+      "product_uom": {
+        "name": "product_uom",
+        "lines": [
+          "PK id : uuid",
+          "product_id : uuid",
+          "uom_id : uuid",
+          "factor : numeric(20,8)",
+          "revision : integer",
+          "is_active : boolean"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "uom": {
+        "name": "uom",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "product_uom",
+        "product",
+        "product_id → id"
+      ],
+      [
+        "product_uom",
+        "uom",
+        "uom_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_quality_decision",
+    "title": "ERD hiện hành · quality_decision",
+    "nodes": {
+      "quality_decision": {
+        "name": "quality_decision",
+        "lines": [
+          "PK id : uuid",
+          "receipt_move_id : uuid",
+          "quantity : numeric(20,6)",
+          "result : character varying(20)",
+          "reason : text",
+          "decided_by : uuid",
+          "decided_at : timestamp with time zone",
+          "followup_document_id : uuid ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "quality_decision",
+        "app_user",
+        "decided_by → id"
+      ],
+      [
+        "quality_decision",
+        "document",
+        "followup_document_id → id"
+      ],
+      [
+        "quality_decision",
+        "stock_move",
+        "receipt_move_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_reference_price",
+    "title": "ERD hiện hành · reference_price",
+    "nodes": {
+      "reference_price": {
+        "name": "reference_price",
+        "lines": [
+          "PK id : uuid",
+          "product_id : uuid",
+          "effective_on : date",
+          "amount : numeric(20,4)",
+          "currency : character(3)",
+          "source : text",
+          "created_by : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "reference_price",
+        "app_user",
+        "created_by → id"
+      ],
+      [
+        "reference_price",
+        "product",
+        "product_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_report_request_guard",
+    "title": "ERD hiện hành · report_request_guard",
+    "nodes": {
+      "report_request_guard": {
+        "name": "report_request_guard",
+        "lines": [
+          "PK user_id : uuid",
+          "version : bigint"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "report_request_guard",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_report_snapshot",
+    "title": "ERD hiện hành · report_snapshot",
+    "nodes": {
+      "report_snapshot": {
+        "name": "report_snapshot",
+        "lines": [
+          "PK id : uuid",
+          "requested_by : uuid",
+          "report_code : character varying(3)",
+          "criteria : jsonb",
+          "required_warehouses : uuid[]",
+          "created_at : timestamp with time zone",
+          "expires_at : timestamp with time zone",
+          "row_count : integer",
+          "columns : jsonb",
+          "sha256 : character(64)"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "report_snapshot",
+        "app_user",
+        "requested_by → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_report_snapshot_row",
+    "title": "ERD hiện hành · report_snapshot_row",
+    "nodes": {
+      "report_snapshot_row": {
+        "name": "report_snapshot_row",
+        "lines": [
+          "PK snapshot_id : uuid",
+          "PK ordinal : integer",
+          "payload : jsonb"
+        ]
+      },
+      "report_snapshot": {
+        "name": "report_snapshot",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "report_snapshot_row",
+        "report_snapshot",
+        "snapshot_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_reservation",
+    "title": "ERD hiện hành · reservation",
+    "nodes": {
+      "reservation": {
+        "name": "reservation",
+        "lines": [
+          "PK id : uuid",
+          "line_id : uuid",
+          "stock_item_id : uuid",
+          "location_id : uuid",
+          "quantity : numeric(20,6)",
+          "consumed : numeric(20,6)",
+          "released : numeric(20,6)",
+          "expires_at : timestamp with time zone ?",
+          "created_by : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "reservation",
+        "app_user",
+        "created_by → id"
+      ],
+      [
+        "reservation",
+        "document_line",
+        "line_id → id"
+      ],
+      [
+        "reservation",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "reservation",
+        "stock_item",
+        "stock_item_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_reservation_consumption",
+    "title": "ERD hiện hành · reservation_consumption",
+    "nodes": {
+      "reservation_consumption": {
+        "name": "reservation_consumption",
+        "lines": [
+          "PK id : uuid",
+          "reservation_id : uuid",
+          "move_id : uuid",
+          "quantity : numeric(20,6)"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "reservation": {
+        "name": "reservation",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "reservation_consumption",
+        "stock_move",
+        "move_id → id"
+      ],
+      [
+        "reservation_consumption",
+        "reservation",
+        "reservation_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_return_document",
+    "title": "ERD hiện hành · return_document",
+    "nodes": {
+      "return_document": {
+        "name": "return_document",
+        "lines": [
+          "PK document_id : uuid",
+          "source_document_id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "return_document",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "return_document",
+        "document",
+        "source_document_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_return_line",
+    "title": "ERD hiện hành · return_line",
+    "nodes": {
+      "return_line": {
+        "name": "return_line",
+        "lines": [
+          "PK document_line_id : uuid",
+          "source_move_id : uuid",
+          "location_id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "return_line",
+        "document_line",
+        "document_line_id → id"
+      ],
+      [
+        "return_line",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "return_line",
+        "stock_move",
+        "source_move_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_reversal_document",
+    "title": "ERD hiện hành · reversal_document",
+    "nodes": {
+      "reversal_document": {
+        "name": "reversal_document",
+        "lines": [
+          "PK document_id : uuid",
+          "source_transaction_id : uuid",
+          "source_version : integer",
+          "reversal_reason : text"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "inventory_transaction": {
+        "name": "inventory_transaction",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "reversal_document",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "reversal_document",
+        "inventory_transaction",
+        "source_transaction_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_reversal_line",
+    "title": "ERD hiện hành · reversal_line",
+    "nodes": {
+      "reversal_line": {
+        "name": "reversal_line",
+        "lines": [
+          "PK document_line_id : uuid",
+          "source_move_id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "reversal_line",
+        "document_line",
+        "document_line_id → id"
+      ],
+      [
+        "reversal_line",
+        "stock_move",
+        "source_move_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_role",
+    "title": "ERD hiện hành · role",
+    "nodes": {
+      "role": {
+        "name": "role",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(60)",
+          "name : character varying(160)",
+          "is_active : boolean"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_role_permission",
+    "title": "ERD hiện hành · role_permission",
+    "nodes": {
+      "role_permission": {
+        "name": "role_permission",
+        "lines": [
+          "PK id : uuid",
+          "role_id : uuid",
+          "permission_id : uuid"
+        ]
+      },
+      "permission": {
+        "name": "permission",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "role": {
+        "name": "role",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "role_permission",
+        "permission",
+        "permission_id → id"
+      ],
+      [
+        "role_permission",
+        "role",
+        "role_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_serial",
+    "title": "ERD hiện hành · serial",
+    "nodes": {
+      "serial": {
+        "name": "serial",
+        "lines": [
+          "PK id : uuid",
+          "product_id : uuid",
+          "code : character varying(160)",
+          "warranty_version : integer"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "serial",
+        "product",
+        "product_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_serial_position",
+    "title": "ERD hiện hành · serial_position",
+    "nodes": {
+      "serial_position": {
+        "name": "serial_position",
+        "lines": [
+          "PK id : uuid",
+          "serial_id : uuid",
+          "location_id : uuid",
+          "last_move_id : uuid"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "serial": {
+        "name": "serial",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "serial_position",
+        "stock_move",
+        "last_move_id → id"
+      ],
+      [
+        "serial_position",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "serial_position",
+        "serial",
+        "serial_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_serial_warranty_record",
+    "title": "ERD hiện hành · serial_warranty_record",
+    "nodes": {
+      "serial_warranty_record": {
+        "name": "serial_warranty_record",
+        "lines": [
+          "PK id : uuid",
+          "serial_id : uuid",
+          "receipt_move_id : uuid",
+          "revision : integer",
+          "starts_on : date ?",
+          "ends_on : date ?",
+          "evidence_ref : text ?",
+          "recorded_by : uuid",
+          "recorded_at : timestamp with time zone",
+          "reason : text"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "serial": {
+        "name": "serial",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "serial_warranty_record",
+        "stock_move",
+        "receipt_move_id → id"
+      ],
+      [
+        "serial_warranty_record",
+        "app_user",
+        "recorded_by → id"
+      ],
+      [
+        "serial_warranty_record",
+        "serial",
+        "serial_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_stock_balance",
+    "title": "ERD hiện hành · stock_balance",
+    "nodes": {
+      "stock_balance": {
+        "name": "stock_balance",
+        "lines": [
+          "PK id : uuid",
+          "stock_item_id : uuid",
+          "location_id : uuid",
+          "on_hand : numeric(20,6)",
+          "reserved : numeric(20,6)",
+          "version : bigint"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "stock_balance",
+        "location",
+        "location_id → id"
+      ],
+      [
+        "stock_balance",
+        "stock_item",
+        "stock_item_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_stock_item",
+    "title": "ERD hiện hành · stock_item",
+    "nodes": {
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "PK id : uuid",
+          "product_id : uuid",
+          "lot_id : uuid ?",
+          "serial_id : uuid ?",
+          "owner_id : uuid",
+          "consignment_id : uuid ?"
+        ]
+      },
+      "consignment_agreement": {
+        "name": "consignment_agreement",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "lot": {
+        "name": "lot",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_owner": {
+        "name": "stock_owner",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "product": {
+        "name": "product",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "serial": {
+        "name": "serial",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "stock_item",
+        "consignment_agreement",
+        "consignment_id → id"
+      ],
+      [
+        "stock_item",
+        "lot",
+        "lot_id → id"
+      ],
+      [
+        "stock_item",
+        "stock_owner",
+        "owner_id → id"
+      ],
+      [
+        "stock_item",
+        "product",
+        "product_id → id"
+      ],
+      [
+        "stock_item",
+        "serial",
+        "serial_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_stock_move",
+    "title": "ERD hiện hành · stock_move",
+    "nodes": {
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "PK id : uuid",
+          "transaction_id : uuid",
+          "line_id : uuid",
+          "stock_item_id : uuid",
+          "source_location_id : uuid",
+          "destination_location_id : uuid",
+          "quantity_base : numeric(20,6)",
+          "base_uom_id : uuid",
+          "reverses_move_id : uuid ?"
+        ]
+      },
+      "uom": {
+        "name": "uom",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "inventory_transaction": {
+        "name": "inventory_transaction",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "stock_move",
+        "uom",
+        "base_uom_id → id"
+      ],
+      [
+        "stock_move",
+        "location",
+        "destination_location_id → id"
+      ],
+      [
+        "stock_move",
+        "document_line",
+        "line_id → id"
+      ],
+      [
+        "stock_move",
+        "stock_move",
+        "reverses_move_id → id"
+      ],
+      [
+        "stock_move",
+        "location",
+        "source_location_id → id"
+      ],
+      [
+        "stock_move",
+        "stock_item",
+        "stock_item_id → id"
+      ],
+      [
+        "stock_move",
+        "inventory_transaction",
+        "transaction_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_stock_owner",
+    "title": "ERD hiện hành · stock_owner",
+    "nodes": {
+      "stock_owner": {
+        "name": "stock_owner",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(80)",
+          "name : character varying(240)",
+          "kind : character varying(20)",
+          "partner_id : uuid ?",
+          "is_active : boolean",
+          "version : integer"
+        ]
+      },
+      "partner": {
+        "name": "partner",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "stock_owner",
+        "partner",
+        "partner_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_stock_period",
+    "title": "ERD hiện hành · stock_period",
+    "nodes": {
+      "stock_period": {
+        "name": "stock_period",
+        "lines": [
+          "PK id : uuid",
+          "warehouse_id : uuid",
+          "starts_on : date",
+          "ends_on : date",
+          "status : character varying(10)",
+          "closed_by : uuid ?",
+          "closed_at : timestamp with time zone ?",
+          "version : integer"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "stock_period",
+        "app_user",
+        "closed_by → id"
+      ],
+      [
+        "stock_period",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_stored_file",
+    "title": "ERD hiện hành · stored_file",
+    "nodes": {
+      "stored_file": {
+        "name": "stored_file",
+        "lines": [
+          "PK id : uuid",
+          "storage_key : text",
+          "original_name : character varying(240)",
+          "mime_type : character varying(100)",
+          "sha256 : character(64)",
+          "size_bytes : bigint",
+          "uploaded_by : uuid",
+          "created_at : timestamp with time zone"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "stored_file",
+        "app_user",
+        "uploaded_by → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_transfer_adjustment",
+    "title": "ERD hiện hành · transfer_adjustment",
+    "nodes": {
+      "transfer_adjustment": {
+        "name": "transfer_adjustment",
+        "lines": [
+          "PK document_id : uuid",
+          "source_transfer_id : uuid",
+          "discrepancy_id : uuid"
+        ]
+      },
+      "transfer_discrepancy": {
+        "name": "transfer_discrepancy",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "transfer_adjustment",
+        "transfer_discrepancy",
+        "discrepancy_id → id"
+      ],
+      [
+        "transfer_adjustment",
+        "document",
+        "document_id → id"
+      ],
+      [
+        "transfer_adjustment",
+        "document",
+        "source_transfer_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_transfer_discrepancy",
+    "title": "ERD hiện hành · transfer_discrepancy",
+    "nodes": {
+      "transfer_discrepancy": {
+        "name": "transfer_discrepancy",
+        "lines": [
+          "PK id : uuid",
+          "transfer_document_id : uuid",
+          "dispatch_move_id : uuid",
+          "kind : character varying(20)",
+          "quantity : numeric(20,6)",
+          "evidence_ref : character varying(2000)",
+          "recorded_by : uuid",
+          "recorded_at : timestamp with time zone"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "document": {
+        "name": "document",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "transfer_discrepancy",
+        "stock_move",
+        "dispatch_move_id → id"
+      ],
+      [
+        "transfer_discrepancy",
+        "app_user",
+        "recorded_by → id"
+      ],
+      [
+        "transfer_discrepancy",
+        "document",
+        "transfer_document_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_transfer_line",
+    "title": "ERD hiện hành · transfer_line",
+    "nodes": {
+      "transfer_line": {
+        "name": "transfer_line",
+        "lines": [
+          "PK document_line_id : uuid",
+          "stock_item_id : uuid",
+          "source_location_id : uuid"
+        ]
+      },
+      "document_line": {
+        "name": "document_line",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "location": {
+        "name": "location",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "stock_item": {
+        "name": "stock_item",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "transfer_line",
+        "document_line",
+        "document_line_id → id"
+      ],
+      [
+        "transfer_line",
+        "location",
+        "source_location_id → id"
+      ],
+      [
+        "transfer_line",
+        "stock_item",
+        "stock_item_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_transfer_move",
+    "title": "ERD hiện hành · transfer_move",
+    "nodes": {
+      "transfer_move": {
+        "name": "transfer_move",
+        "lines": [
+          "PK move_id : uuid",
+          "dispatch_move_id : uuid ?",
+          "disposition : character varying(20)",
+          "evidence_ref : character varying(2000)"
+        ]
+      },
+      "stock_move": {
+        "name": "stock_move",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "transfer_move",
+        "stock_move",
+        "dispatch_move_id → id"
+      ],
+      [
+        "transfer_move",
+        "stock_move",
+        "move_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_uom",
+    "title": "ERD hiện hành · uom",
+    "nodes": {
+      "uom": {
+        "name": "uom",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(30)",
+          "name : character varying(80)",
+          "decimal_places : integer",
+          "version : integer",
+          "is_active : boolean"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_user_avatar",
+    "title": "ERD hiện hành · user_avatar",
+    "nodes": {
+      "user_avatar": {
+        "name": "user_avatar",
+        "lines": [
+          "PK user_id : uuid",
+          "image_base64 : text ?",
+          "version : integer",
+          "updated_at : timestamp with time zone"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "user_avatar",
+        "app_user",
+        "user_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_user_role_grant",
+    "title": "ERD hiện hành · user_role_grant",
+    "nodes": {
+      "user_role_grant": {
+        "name": "user_role_grant",
+        "lines": [
+          "PK id : uuid",
+          "user_id : uuid",
+          "role_id : uuid",
+          "scope_kind : character varying(20)",
+          "warehouse_id : uuid ?",
+          "valid_from : timestamp with time zone",
+          "valid_until : timestamp with time zone ?",
+          "granted_by : uuid",
+          "revoked_at : timestamp with time zone ?"
+        ]
+      },
+      "app_user": {
+        "name": "app_user",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "role": {
+        "name": "role",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      },
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "Bảng đích — các cột được tham chiếu",
+          "id : uuid"
+        ]
+      }
+    },
+    "edges": [
+      [
+        "user_role_grant",
+        "app_user",
+        "granted_by → id"
+      ],
+      [
+        "user_role_grant",
+        "role",
+        "role_id → id"
+      ],
+      [
+        "user_role_grant",
+        "app_user",
+        "user_id → id"
+      ],
+      [
+        "user_role_grant",
+        "warehouse",
+        "warehouse_id → id"
+      ]
+    ],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_warehouse",
+    "title": "ERD hiện hành · warehouse",
+    "nodes": {
+      "warehouse": {
+        "name": "warehouse",
+        "lines": [
+          "PK id : uuid",
+          "code : character varying(40)",
+          "name : character varying(160)",
+          "address : text ?",
+          "is_active : boolean",
+          "version : integer"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  },
+  {
+    "code": "ERD_worker_status",
+    "title": "ERD hiện hành · worker_status",
+    "nodes": {
+      "worker_status": {
+        "name": "worker_status",
+        "lines": [
+          "PK id : uuid",
+          "kind : character varying(20)",
+          "registry_hash : character(64)",
+          "state : character varying(10)",
+          "started_at : timestamp with time zone",
+          "heartbeat_at : timestamp with time zone",
+          "result_code : character varying(40) ?",
+          "completed_cycles : bigint"
+        ]
+      }
+    },
+    "edges": [],
+    "sources": [
+      "02_CSDL/current/schema.json",
+      "migrations/001_schema.sql … 026_user_avatar.sql"
+    ],
+    "direction": "LR"
+  }
+]

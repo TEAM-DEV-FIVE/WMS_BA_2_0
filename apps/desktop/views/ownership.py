@@ -4,7 +4,9 @@ from tkinter import ttk
 from uuid import UUID
 
 from apps.desktop.presenters.ownership import OwnershipPresenter
+from apps.desktop.views.data_table import DataTable
 from apps.desktop.views.master_data import MasterDataView
+from apps.desktop.views.ui_help import HelpButton, StatusButton
 
 
 class OwnershipCatalogView(MasterDataView):
@@ -19,7 +21,7 @@ class OwnershipCatalogView(MasterDataView):
 
     def save(self):
         if self.current and self.current.get("kind") in {"COMPANY", "UNCLASSIFIED"}:
-            self.status.set("Chủ hàng hệ thống bất biến; chỉ sửa chủ hàng ký gửi.")
+            self.status.set("Chủ hàng hệ thống bất biến; chỉ sửa chủ hàng ký gửi")
             return
         super().save()
 
@@ -30,7 +32,7 @@ class OwnershipStockView(ttk.Frame):
         self.presenter = OwnershipPresenter(self, api)
         self.warehouses, self.busy = [], False
         self.warehouse, self.location, self.item, self.status, self.totals = (tk.StringVar() for _ in range(5))
-        self.status.set("Chọn kho và định danh tồn để xem số lượng theo chủ sở hữu.")
+        self.status.set("Chọn kho và định danh tồn để xem số lượng theo chủ sở hữu")
         form = ttk.Frame(self)
         form.pack(fill="x")
         self.inputs = []
@@ -47,36 +49,34 @@ class OwnershipStockView(ttk.Frame):
             self.inputs.append(entry)
         self.button = ttk.Button(form, text="Tra tồn theo chủ sở hữu", command=self.search)
         self.button.grid(row=3, column=1, sticky="w", padx=10, pady=10)
-        ttk.Label(self, textvariable=self.status, wraplength=800).pack(fill="x", pady=8)
+        StatusButton(self, self.status).pack(anchor="e", pady=8)
         ttk.Label(self, textvariable=self.totals, wraplength=800).pack(fill="x", pady=8)
-        self.table = ttk.Treeview(self, columns=("owner", "partner", "qty"), show="headings", height=8)
+        self.table = DataTable(self, columns=("owner", "partner", "qty"), show="headings", height=8)
         for name, label, width in (("owner", "Chủ hàng ký gửi (ID)", 280), ("partner", "Nhà cung cấp (ID)", 280),
                                    ("qty", "Lượng đơn vị cơ sở", 170)):
             self.table.heading(name, text=label)
             self.table.column(name, width=width)
         self.table.pack(fill="both", expand=True)
-        ttk.Label(self, text="Số lượng thuộc cùng SKU/lô/serial tại vị trí đã chọn. Transit được tra riêng. "
-                  "API hiện cần UUID vị trí và stock_item lấy từ kết quả nghiệp vụ; chưa có danh sách tồn để chọn.",
-                  wraplength=800).pack(fill="x", pady=8)
+        HelpButton(self, "Số lượng thuộc cùng sản phẩm, lô hoặc serial tại vị trí đã chọn. Hàng đang chuyển được tra riêng. Mã vị trí và danh tính tồn lấy từ kết quả nghiệp vụ.").pack(anchor="e", pady=8)
         self.enable()
 
     def session_changed(self, user=None, warehouses=None):
         self.presenter.reset()
         self.warehouses = list(warehouses or []) if user else []
-        self.selector.configure(values=[f"{row.code} · {row.name}" for row in self.warehouses])
+        self.selector.configure(values=[f"{row.code}  {row.name}" for row in self.warehouses])
         self.warehouse.set("")
         self.location.set("")
         self.item.set("")
         if self.warehouses:
             self.selector.current(0)
-        self.status.set("Chọn kho và nhập định danh để tra tồn." if user else "Đăng nhập để tra tồn.")
+        self.status.set("Chọn kho và nhập định danh để tra tồn" if user else "Đăng nhập để tra tồn")
         self.enable()
 
     def scope_changed(self, event=None):
         self.presenter.reset()
         self.location.set("")
         self.item.set("")
-        self.status.set("Kho đã đổi; nhập lại vị trí và danh tính tồn.")
+        self.status.set("Kho đã đổi; nhập lại vị trí và danh tính tồn")
         self.enable()
 
     def search(self):
@@ -86,7 +86,7 @@ class OwnershipStockView(ttk.Frame):
             location, item = UUID(self.location.get().strip()), UUID(self.item.get().strip())
         except ValueError:
             self.catalog_clear()
-            self.status.set("Nhập UUID hợp lệ cho vị trí và danh tính tồn.")
+            self.status.set("Nhập UUID hợp lệ cho vị trí và danh tính tồn")
             return
         self.presenter.search(self.warehouses[self.selector.current()].id, location, item)
 
@@ -104,11 +104,11 @@ class OwnershipStockView(ttk.Frame):
     def catalog_loaded(self, result, refs):
         self.busy = False
         consigned = sum((Decimal(row.quantity_base) for row in result.consigned_by_owner), Decimal(0))
-        self.totals.set(f"Vật lý: {result.physical_base} · Doanh nghiệp: {result.owned_base} · "
-                        f"Ký gửi: {consigned:.6f} · Chưa phân loại: {result.unclassified_base}")
+        self.totals.set(f"Vật lý: {result.physical_base}  Doanh nghiệp: {result.owned_base}"
+                        f"Ký gửi: {consigned:.6f}  Chưa phân loại: {result.unclassified_base}")
         for row in result.consigned_by_owner:
             self.table.insert("", "end", values=(str(row.owner_id), str(row.owner_partner_id), row.quantity_base))
-        self.status.set(f"Số liệu tại {result.as_of.isoformat()} · đơn vị cơ sở của sản phẩm.")
+        self.status.set(f"Số liệu tại {result.as_of.isoformat()}  đơn vị cơ sở của sản phẩm")
         self.enable()
 
     def catalog_error(self, message, *, uncertain):

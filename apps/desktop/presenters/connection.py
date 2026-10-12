@@ -53,7 +53,7 @@ class ConnectionPresenter:
                 reference = f" (Mã tra cứu: {exc.request_id})" if exc.request_id else ""
                 self.view.show_error(str(exc) + reference)
             except Exception:
-                self.view.show_error("Không đọc được kết quả kết nối.")
+                self.view.show_error("Không đọc được kết quả kết nối")
             else:
                 self.view.show_result(result)
 

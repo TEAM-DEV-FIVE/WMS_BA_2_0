@@ -79,12 +79,12 @@ class ReceiptPresenter(OrderPresenter):
                 except Exception:
                     error = ApiError(
                         "LOCAL_STORAGE_ERROR",
-                        "Không đọc được dữ liệu phục hồi. Giữ file và kiểm tra ổ đĩa/quyền truy cập.",
+                        "Không đọc được dữ liệu phục hồi; Giữ file và kiểm tra ổ đĩa/quyền truy cập",
                     )
             except Exception:
                 error = ApiError(
                     "LOCAL_STORAGE_ERROR",
-                    "Không mở/lưu được lệnh nhận hàng. Giữ thư mục dữ liệu; kiểm tra ổ đĩa hoặc cửa sổ WMS khác.",
+                    "Không mở/lưu được lệnh nhận hàng; Giữ thư mục dữ liệu; kiểm tra ổ đĩa hoặc cửa sổ WMS khác",
                 )
             return result, error, records
 
@@ -97,13 +97,13 @@ class ReceiptPresenter(OrderPresenter):
                 and getattr(self.api, "recovery", None) is None):
             if self.uncertain:
                 self.view.orders_error(
-                    "Cần hoàn tất kiểm tra/phục hồi lệnh trước trong tab Phục hồi nhận hàng."
+                    "Cần hoàn tất kiểm tra/phục hồi lệnh trước trong tab Phục hồi nhận hàng"
                 )
                 return
             try:
                 doc_id, endpoint = receipt_endpoint(path)
             except ValueError:
-                self.view.orders_error("Đường dẫn ghi sổ không hợp lệ.")
+                self.view.orders_error("Đường dẫn ghi sổ không hợp lệ")
                 return
             doc = self.view.doc or {}
             context = {
@@ -147,7 +147,7 @@ class ReceiptPresenter(OrderPresenter):
                 self.view.orders_clear()
                 if self.recovery_view:
                     self.recovery_view.clear()
-                self.view.orders_error("Phiên đã đổi; đăng nhập lại để mở dữ liệu phục hồi đúng tài khoản.")
+                self.view.orders_error("Phiên đã đổi; đăng nhập lại để mở dữ liệu phục hồi đúng tài khoản")
                 self.view.recovery_changed()
                 continue
             result, error, records = future.result()
@@ -186,6 +186,9 @@ class ReceiptPresenter(OrderPresenter):
             self.recovery_results.get_nowait()
 
     def load(self, path, warehouse, status="", after=None):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None:
+            pagination.begin(after)
         def run():
             permissions = self.api.permissions(warehouse)
             params = {"warehouse_id": str(warehouse), "limit": 25}

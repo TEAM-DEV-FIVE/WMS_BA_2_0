@@ -1,14 +1,16 @@
 # Migration PostgreSQL
 
+**Hiện hành 13/10/2026:** migration 001–026 dựng 108 bảng, 736 cột, 219 FK trong schema `wms`; seed có 10 vai trò và 58 quyền. [Catalog thực thi](../02_CSDL/current/schema.json) được trích từ cluster PostgreSQL tạm; các số tổng theo Bxx bên dưới là lịch sử từng revision.
+
 Chạy riêng `python -m apps.server.infrastructure.migrations` sau khi đặt `WMS_DATABASE_URL`.
 API chỉ kiểm tra readiness, không migrate khi khởi động. Runner lấy advisory transaction lock;
 migration SQL, seed và lịch sử revision commit cùng nhau. Hai runner đồng thời được tuần tự hóa.
 
 `001_schema.sql` và `002_seed_permissions.sql` là bản đóng băng của baseline 56 bảng và 53 quyền.
 `003_identity.sql` thêm IAM (4 bảng/3 cột); `004_approval_permission.sql` bổ sung CONTROLLER vào quyền duyệt
-phiếu thông thường theo Q04. Revision 005 thêm 8 cột version/active cho danh mục, collation ICU Unicode và trigger bất biến quy đổi/giá. Revision 006 thêm owner/hợp đồng và chứng cứ bảo hành, đánh dấu stock item/dòng phiếu cũ UNCLASSIFIED mà không đổi sổ/số dư. Revision 007 thêm ownership.read, serial.read, warranty.write. Revision 008 thêm snapshot approval/vai trò duyệt thay/đóng thiếu và seed policy PO/SO khi chưa có. Revision 009 thêm execution hash/ACK, vị trí đối ứng và policy RECEIPT. Revision 010 thêm opening_document/opening_line, đối ứng và policy OPENING khi chưa có; không thay policy tùy chỉnh. Runtime có 65 bảng/440 cột/129 FK và 56 quyền/121 role-permission.
+phiếu thông thường theo Q04. Revision 005 thêm 8 cột version/active cho danh mục, collation ICU Unicode và trigger bất biến quy đổi/giá. Revision 006 thêm owner/hợp đồng và chứng cứ bảo hành, đánh dấu stock item/dòng phiếu cũ UNCLASSIFIED mà không đổi sổ/số dư. Revision 007 thêm ownership.read, serial.read, warranty.write. Revision 008 thêm snapshot approval/vai trò duyệt thay/đóng thiếu và seed policy PO/SO khi chưa có. Revision 009 thêm execution hash/ACK, vị trí đối ứng và policy RECEIPT. Revision 010 thêm opening_document/opening_line, đối ứng và policy OPENING khi chưa có; không thay policy tùy chỉnh. Tại mốc revision 010, runtime có 65 bảng/440 cột/129 FK và 56 quyền/121 role-permission (số liệu lịch sử).
 Mô hình/từ điển/DBML phần bổ sung ở `02_CSDL/iam_extension*`, `02_CSDL/master_extension*`, `02_CSDL/ownership_extension*` , `02_CSDL/order_extension*` và `02_CSDL/receiving_extension*`; giữ model.json cho baseline 001.
-Seed trong `02_CSDL` là policy hiện hành; bản migration 002 cũ được giữ nguyên, nâng quyền bằng 004/007.
+Seed cơ sở trong `02_CSDL` thuộc mốc thiết kế ban đầu. Quyền sau đủ migration nằm tại `04_Phan_quyen/current_permissions.json`; migration 002 được giữ nguyên và nâng quyền bằng các revision tiếp theo.
 Không sửa file đã áp dụng: thêm revision mới theo thứ tự tăng dần. Runner lưu SHA-256,
 từ chối revision bị sửa hoặc database đang ở release mới hơn. Mỗi SQL không được tự commit;
 runner chỉ bỏ wrapper BEGIN/COMMIT ngoài cùng của hai bản baseline.
@@ -55,3 +57,8 @@ không backfill nguồn legacy. Kiểm upgrade từ 010 và 016 có dữ liệu.
 B04 tích hợp bằng revision **018_b04_iam_lifecycle.sql**, thêm bảng mã recovery/reset có hash;
 giữ nguyên 001–017. Runtime sau B10/B04: 81 bảng, 542 cột, 172 FK.
 Test nâng cấp IAM từ 010, 016 và 017 giữ nguyên user/session/factor cũ.
+
+
+026_user_avatar.sql bổ sung ảnh đại diện riêng của tài khoản, version ảnh và thời điểm cập nhật
+Không đổi mật khẩu, auth_version, quyền hoặc lịch sử kho
+Sau migration cấp SELECT INSERT UPDATE trên wms.user_avatar cho role runtime theo profile triển khai

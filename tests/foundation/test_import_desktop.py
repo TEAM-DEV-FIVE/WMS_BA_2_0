@@ -82,7 +82,7 @@ def commit(f):
     f.import_idle()
 
 
-def test_import_gui_opening_company_consigned_to_approval_and_post(import_ui):
+def test_import_gui_opening_company_consigned_to_approval_and_post(import_ui, monkeypatch):
     f, view = import_ui, import_ui.import_view
     owner, contract = agreement(f)
     f.import_prepare("11_opening", [
@@ -90,7 +90,11 @@ def test_import_gui_opening_company_consigned_to_approval_and_post(import_ui):
         ["B16-OPEN", "2026-10-02", "ORDERS", "BIN", "ORD-01", "", "", 5, owner["code"], contract["code"]],
     ])
     assert view.job["status"] == "VALIDATED" and inventory(f) == (0, 0, 0, 0)
-    assert "200" in view.variables["limits"].get() and "khởi tạo tồn" in view.variables["limits"].get()
+    requirements = []
+    monkeypatch.setattr("apps.desktop.views.imports.messagebox.showinfo",
+                        lambda title, message, **kwargs: requirements.append(message))
+    view.show_file_requirements()
+    assert "200" in requirements[0] and "khởi tạo một lần" in requirements[0]
     assert view.table.item("3", "values")[2:4] == (owner["code"], contract["code"])
     commit(f)
     assert view.job["status"] == "COMMITTED" and inventory(f) == (0, 0, 0, 0)

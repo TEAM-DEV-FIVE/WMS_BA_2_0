@@ -1,0 +1,13 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · serial_warranty_record"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"serial_warranty_record" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>serial_warranty_record</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">serial_id : uuid</TD></TR><TR><TD ALIGN="LEFT">receipt_move_id : uuid</TD></TR><TR><TD ALIGN="LEFT">revision : integer</TD></TR><TR><TD ALIGN="LEFT">starts_on : date ?</TD></TR><TR><TD ALIGN="LEFT">ends_on : date ?</TD></TR><TR><TD ALIGN="LEFT">evidence_ref : text ?</TD></TR><TR><TD ALIGN="LEFT">recorded_by : uuid</TD></TR><TR><TD ALIGN="LEFT">recorded_at : timestamp with time zone</TD></TR><TR><TD ALIGN="LEFT">reason : text</TD></TR></TABLE>>];
+"stock_move" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_move</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"serial" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>serial</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"serial_warranty_record" -> "stock_move" [label="receipt_move_id → id"];
+"serial_warranty_record" -> "app_user" [label="recorded_by → id"];
+"serial_warranty_record" -> "serial" [label="serial_id → id"];
+}

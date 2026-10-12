@@ -1,0 +1,5 @@
+Official page: https://zalo.me/
+Logo used by that page: https://zalo-site.zadn.vn/_next/static/media/logo.a68785cd.svg
+Downloaded: 2026-10-07
+zalo.svg preserves the source geometry and colors. zalo.png is a raster rendering for Tk.
+The logo identifies the Zalo contact link; WMS is not affiliated with Zalo.

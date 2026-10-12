@@ -1,0 +1,9 @@
+digraph WMS {
+graph [rankdir=TB, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="Vai trò và quyền seed · Quản lý danh mục"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"role" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Quản lý danh mục</B></FONT></TD></TR><TR><TD ALIGN="LEFT">MASTER_DATA</TD></TR></TABLE>>];
+"group0" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Quyền 1–7</B></FONT></TD></TR><TR><TD ALIGN="LEFT">import.commit [GLOBAL]</TD></TR><TR><TD ALIGN="LEFT">Commit dữ liệu đã dry-run</TD></TR><TR><TD ALIGN="LEFT"></TD></TR><TR><TD ALIGN="LEFT">import.validate [GLOBAL]</TD></TR><TR><TD ALIGN="LEFT">Nạp staging và chạy dry-run</TD></TR><TR><TD ALIGN="LEFT"></TD></TR><TR><TD ALIGN="LEFT">master.read [GLOBAL]</TD></TR><TR><TD ALIGN="LEFT">Xem sản phẩm, UOM, barcode, nhóm</TD></TR><TR><TD ALIGN="LEFT"></TD></TR><TR><TD ALIGN="LEFT">master.write [GLOBAL]</TD></TR><TR><TD ALIGN="LEFT">Tạo/sửa/ngừng dùng danh mục</TD></TR><TR><TD ALIGN="LEFT"></TD></TR><TR><TD ALIGN="LEFT">partner.read [GLOBAL]</TD></TR><TR><TD ALIGN="LEFT">Xem đối tác</TD></TR><TR><TD ALIGN="LEFT"></TD></TR><TR><TD ALIGN="LEFT">partner.write [GLOBAL]</TD></TR><TR><TD ALIGN="LEFT">Quản lý đối tác</TD></TR><TR><TD ALIGN="LEFT"></TD></TR><TR><TD ALIGN="LEFT">warehouse.configure [GLOBAL]</TD></TR><TR><TD ALIGN="LEFT">Tạo kho, vị trí và cấu hình cấu trúc</TD></TR><TR><TD ALIGN="LEFT"></TD></TR></TABLE>>];
+"role" -> "group0" [label=""];
+}

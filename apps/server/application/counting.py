@@ -3,6 +3,7 @@
 Session -> adjustment document -> warehouse -> period -> locations -> products ->
 identities -> balances -> reservations. Every command owns one CommandBus UoW.
 """
+
 import hashlib
 import json
 from decimal import Decimal
@@ -15,6 +16,7 @@ from apps.server.application.commands import CommandResult
 from apps.server.application.master_data import active_reference, one
 from apps.server.application.move_safety import check_reservations, location_tree, lock_open_period
 from apps.server.application.orders import amount, encode
+from apps.server.application.pagination import counted_rows
 from apps.server.application.stock_identity import resolve_stock_identity
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.counting import CountResult
@@ -131,12 +133,12 @@ class CountingService:
         if not any(auth.allows(p, warehouse_id) for p in ("count.create", "count.snapshot.read", "count.approve", "count.enter")):
             raise DomainError("NOT_FOUND", "Không tìm thấy kho kiểm kê.")
         broad = any(auth.allows(p, warehouse_id) for p in ("count.create", "count.snapshot.read", "count.approve"))
-        rows = auth.connection.execute(text("""SELECT id,warehouse_id,number,status,version,business_date
+        rows, total = counted_rows(auth.connection, text("""SELECT id,warehouse_id,number,status,version,business_date
             FROM wms.count_session s WHERE warehouse_id=:warehouse AND (CAST(:after AS uuid) IS NULL OR id>:after)
             AND (:broad OR EXISTS(SELECT 1 FROM wms.count_assignment a WHERE a.session_id=s.id AND a.user_id=:actor))
             ORDER BY id LIMIT :limit"""), dict(warehouse=warehouse_id, after=after, broad=broad,
-            actor=auth.principal.user_id, limit=limit + 1)).mappings().all()
-        return {"items": rows[:limit], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
+            actor=auth.principal.user_id, limit=limit + 1))
+        return {"total": total, "items": rows[:limit], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
 
     def read(self, auth, session_id):
         row, c = self.session(auth, session_id), auth.connection
@@ -202,10 +204,10 @@ class CountingService:
                    "products": "SELECT id,sku AS code,name FROM wms.product WHERE is_active",
                    "owners": "SELECT id,code,name FROM wms.stock_owner WHERE is_active AND kind<>'UNCLASSIFIED'",
                    "agreements": "SELECT id,code,source_ref AS name FROM wms.consignment_agreement WHERE is_active AND warehouse_id=:warehouse"}[resource]
-        rows = auth.connection.execute(text("SELECT * FROM (" + sql + """ ) c WHERE
+        rows, total = counted_rows(auth.connection, text("SELECT * FROM (" + sql + """ ) c WHERE
             (CAST(:after AS uuid) IS NULL OR id>:after) AND (strpos(lower(code),lower(:q))>0 OR strpos(lower(name),lower(:q))>0)
-            ORDER BY id LIMIT :limit"""), dict(warehouse=warehouse_id, now=auth.now, after=after, q=q, limit=limit + 1)).mappings().all()
-        return {"items": rows[:limit], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
+            ORDER BY id LIMIT :limit"""), dict(warehouse=warehouse_id, now=auth.now, after=after, q=q, limit=limit + 1))
+        return {"total": total, "items": rows[:limit], "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
 
     def authorize(self, auth, action, row, payload=None):
         auth.require(PERMISSIONS[action], row["warehouse_id"])

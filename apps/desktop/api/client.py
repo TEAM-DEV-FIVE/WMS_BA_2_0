@@ -33,6 +33,7 @@ class DesktopSettings(BaseSettings):
     local_data_dir: Path = Field(default_factory=default_data_directory)
     # The supported entry point forces this on. False preserves library/test clients.
     require_compatibility: bool = False
+    preferred_warehouse: str | None = None
 
     @field_validator("api_url")
     @classmethod

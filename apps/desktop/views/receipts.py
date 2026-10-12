@@ -5,7 +5,10 @@ from tkinter import ttk
 from uuid import uuid4
 
 from apps.desktop.presenters.receipts import ReceiptPresenter
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
 from apps.desktop.views.orders import STATUS, OrderView
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import StatusButton
 from packages.contracts.receipts import ReceiptInput, ReceiptPost, ReceiptUpdate
 
 
@@ -51,7 +54,8 @@ class ReceiptView(ttk.Frame):
         self.next_button.pack(side="left")
         self.new_button = ttk.Button(top, text="Tạo từ PO", command=self.new)
         self.new_button.pack(side="right")
-        ttk.Label(self, textvariable=self.variables["status"], wraplength=820).pack(fill="x", pady=4)
+        self.status_button = StatusButton(self, self.variables["status"])
+        self.status_button.pack(anchor="e", pady=3)
         self.table = self.tree(
             self,
             ["number", "status", "partner"],
@@ -104,7 +108,7 @@ class ReceiptView(ttk.Frame):
         self.add_button.pack(side="left")
         self.remove_button = ttk.Button(bar, text="Bỏ dòng", command=self.remove_line)
         self.remove_button.pack(side="left", padx=5)
-        ttk.Label(bar, text="Ngày: YYYY-MM-DD · Mỗi serial một dòng, số lượng 1.").pack(side="left")
+        ttk.Label(bar, text="Ngày: YYYY-MM-DD  Mỗi serial một dòng, số lượng 1").pack(side="left")
         reason = ttk.Frame(self)
         reason.pack(fill="x", pady=5)
         ttk.Label(reason, text="Lý do").pack(side="left")
@@ -133,38 +137,46 @@ class ReceiptView(ttk.Frame):
         ttk.Label(self, textvariable=self.variables["history"], wraplength=820).pack(fill="x")
         ttk.Label(
             self,
-            text="Chọn dòng đã duyệt, nhập lượng thực nhận rồi ghi sổ. Chỉ báo thành công khi máy chủ xác nhận.",
+            text="Chọn dòng đã duyệt, nhập lượng thực nhận rồi ghi sổ; Chỉ báo thành công khi máy chủ xác nhận",
             wraplength=820,
         ).pack(fill="x", pady=3)
-        self.variables["status"].set("Đăng nhập để nhận hàng từ PO đã duyệt.")
+        self.document_pages = DocumentPages(self.table)
+        self.variables["status"].set("Đăng nhập để nhận hàng từ PO đã duyệt")
         self.enable()
 
         from apps.desktop.scanner.widget import ScanBar
         self.scan_bar = ScanBar(self, self, "RECEIPT")
         self.scan_bar.pack(fill="x", pady=3, before=self.winfo_children()[0])
+        install_pagination(self, self.load, limit=25, resource=None)
+        self.enable()
 
     def warehouse_id(self):
         index = self.selector.current()
         return str(self.warehouses[index].id) if index >= 0 else None
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(user.id if user else None)
         self.warehouses = list(warehouses or [])
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         self.variables["warehouse"].set("")
         if self.warehouses:
             self.selector.current(0)
         self.variables["status"].set(
-            "Tải danh sách phiếu nhận theo kho." if user else "Đăng nhập để nhận hàng."
+            "Tải danh sách phiếu nhận theo kho" if user else "Đăng nhập để nhận hàng"
         )
         self.enable()
 
     def scope_changed(self, event=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(self.presenter.user_id)
-        self.variables["status"].set("Tải lại danh sách theo kho vừa chọn.")
+        self.variables["status"].set("Tải lại danh sách theo kho vừa chọn")
         self.enable()
 
     def orders_clear(self):
+        reset_document_page(self)
         self.doc = self.source_doc = self.next_after = None
         self.lines, self.source_lines, self.sources, self.locations, self.permissions = [], [], [], [], []
         self.busy = False
@@ -216,6 +228,8 @@ class ReceiptView(ttk.Frame):
                 allowed = allowed and bool(self.line_table.selection())
             button.state(["!disabled"] if allowed and not self.presenter.uncertain else ["disabled"])
         self.retry_button.state(["!disabled"] if active and self.presenter.memory_uncertain else ["disabled"])
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def recovery_changed(self):
         if not self.presenter.user_id:
@@ -223,11 +237,11 @@ class ReceiptView(ttk.Frame):
         elif self.presenter.recovery_busy:
             message = "Đang kiểm tra/lưu yêu cầu nhận hàng…"
         elif not self.presenter.recovery_ready:
-            message = "Chưa mở được dữ liệu phục hồi. Kiểm tra tại tab Phục hồi nhận hàng trước khi ghi sổ."
+            message = "Chưa mở được dữ liệu phục hồi; Kiểm tra tại tab Phục hồi nhận hàng trước khi ghi sổ"
         elif self.presenter.unresolved:
-            message = "Còn lệnh chưa rõ kết quả. Mở tab Phục hồi nhận hàng để tra cứu hoặc gửi lại đúng lệnh."
+            message = "Còn lệnh chưa rõ kết quả; Mở tab Phục hồi nhận hàng để tra cứu hoặc gửi lại đúng lệnh"
         else:
-            message = "Lệnh ghi sổ nhận hàng được lưu trên máy này để phục hồi sau khi mở lại ứng dụng."
+            message = "Lệnh ghi sổ nhận hàng được lưu trên máy này để phục hồi sau khi mở lại ứng dụng"
         self.variables["recovery"].set(message)
         self.enable()
 
@@ -242,18 +256,19 @@ class ReceiptView(ttk.Frame):
 
     def orders_loaded(self, page, refs, permissions):
         self.orders_clear()
+        self.pagination.loaded(page)
         self.permissions, self.sources, self.locations = permissions, refs["sources"], refs["locations"]
         self.next_after = page["next_after"]
-        self.source.configure(values=[f"{p['number']} · {p['partner_name']}" for p in self.sources])
-        self.location.configure(values=[f"{p['code']} · {p['name']}" for p in self.locations])
+        self.source.configure(values=[f"{p['number']}  {p['partner_name']}" for p in self.sources])
+        self.location.configure(values=[f"{p['code']}  {p['name']}" for p in self.locations])
         for doc in page["items"]:
             self.table.insert(
                 "", "end", iid=doc["id"], values=(doc["number"], STATUS[doc["status"]], doc["partner_name"])
             )
         self.variables["status"].set(
-            "Đã tải phiếu nhận. PO nguồn chỉ gồm phiếu có quyền xem, đã duyệt và còn nhận."
+            "Đã tải phiếu nhận; PO nguồn chỉ gồm phiếu có quyền xem, đã duyệt và còn nhận"
             + (
-                " Danh sách chọn PO giới hạn 100 phiếu mỗi trạng thái."
+                " Danh sách chọn PO giới hạn 100 phiếu mỗi trạng thái"
                 if refs.get("source_truncated")
                 else ""
             )
@@ -272,11 +287,12 @@ class ReceiptView(ttk.Frame):
             self.variables[name].set("")
         self.variables["day"].set(date.today().isoformat())
         self.variables["qty"].set("1")
-        self.variables["heading"].set("Phiếu nhận mới · Hàng doanh nghiệp")
+        self.variables["heading"].set("Phiếu nhận mới  Hàng doanh nghiệp")
         if self.locations:
             self.location.current(0)
         self.render_lines()
         self.enable()
+        show_document(self)
 
     def source_changed(self, event=None):
         index = self.source.current()
@@ -291,20 +307,20 @@ class ReceiptView(ttk.Frame):
         self.source_lines = [line for line in doc["lines"] if Decimal(line["remaining_base"]) > 0]
         self.line.configure(
             values=[
-                f"{r['line_no']}. {r['sku']} · {r['tracking']} · còn {r['remaining_base']} {r['base_uom_code']}"
+                f"{r['line_no']}  {r['sku']}  {r['tracking']}  còn {r['remaining_base']} {r['base_uom_code']}"
                 for r in self.source_lines
             ]
         )
         self.variables["line"].set("")
         if self.source_lines:
             self.line.current(0)
-        self.variables["status"].set("Nhập kế hoạch nhận theo đơn vị cơ sở, lô/serial và vị trí.")
+        self.variables["status"].set("Nhập kế hoạch nhận theo đơn vị cơ sở, lô/serial và vị trí")
         self.enable()
 
     def add_line(self):
         source, destination = self.line.current(), self.location.current()
         if source < 0 or destination < 0:
-            self.orders_error("Chọn dòng PO và vị trí nhận.")
+            self.orders_error("Chọn dòng PO và vị trí nhận")
             return
         line = self.source_lines[source]
         self.lines.append(
@@ -319,7 +335,7 @@ class ReceiptView(ttk.Frame):
                 sku=line["sku"],
                 base_uom_code=line["base_uom_code"],
                 location_code=self.locations[destination]["code"],
-                remaining_base="—",
+                remaining_base="",
             )
         )
         self.render_lines()
@@ -339,7 +355,7 @@ class ReceiptView(ttk.Frame):
                 iid=str(index),
                 values=(
                     f"{line['sku']} / {line['base_uom_code']}",
-                    line.get("lot_code") or line.get("serial_code") or "—",
+                    line.get("lot_code") or line.get("serial_code") or "",
                     line["location_code"],
                     line["quantity_base"],
                     line["remaining_base"],
@@ -372,7 +388,7 @@ class ReceiptView(ttk.Frame):
                 break
         plan = {p["document_line_id"]: p for p in doc["plan"]}
         self.lines = [{**line, **plan[line["id"]]} for line in doc["lines"]]
-        self.variables["heading"].set(f"{doc['number']} · {STATUS[doc['status']]} · v{doc['version']}")
+        self.variables["heading"].set(f"{doc['number']}  {STATUS[doc['status']]}  v{doc['version']}")
         self.variables["source"].set(
             next(
                 (p["number"] for p in self.sources if p["id"] == doc["source_order_id"]),
@@ -383,7 +399,7 @@ class ReceiptView(ttk.Frame):
         self.variables["reason"].set("")
         self.variables["history"].set(
             "\n".join(
-                f"Duyệt v{a['document_version']}: {a['status']} · "
+                f"Duyệt v{a['document_version']}: {a['status']}"
                 + "; ".join(
                     f"{s['decider_name'] or 'Chưa duyệt'}: {s['comment'] or s['status']}" for s in a["steps"]
                 )
@@ -393,7 +409,7 @@ class ReceiptView(ttk.Frame):
         self.render_lines()
         self.enable()
         self.variables["status"].set(
-            "Đã tải chi tiết. Chọn dòng để xem ngày lô hoặc ghi nhận lượng thực nhận."
+            "Đã tải chi tiết; Chọn dòng để xem ngày lô hoặc ghi nhận lượng thực nhận"
         )
         if "edit" in doc["allowed_actions"]:
             self.presenter.source(doc["source_order_id"])
@@ -401,7 +417,7 @@ class ReceiptView(ttk.Frame):
     def action(self, action):
         reason = self.variables["reason"].get().strip()
         if not reason:
-            self.orders_error("Nhập lý do thao tác.")
+            self.orders_error("Nhập lý do thao tác")
             return
         try:
             if action == "save":
@@ -463,7 +479,7 @@ class ReceiptView(ttk.Frame):
                     body["decision"] = action.upper()
                 self.presenter.command("POST", path, body)
         except (ValueError, TypeError):
-            self.orders_error("Kiểm tra PO, số lượng cơ sở, mã lô/serial và ngày YYYY-MM-DD.")
+            self.orders_error("Kiểm tra PO, số lượng cơ sở, mã lô/serial và ngày YYYY-MM-DD")
 
     def orders_saved(self, result):
         self.busy = False
@@ -477,7 +493,7 @@ class ReceiptView(ttk.Frame):
         self.busy = False
         self.enable()
         self.variables["status"].set(
-            message + " Nội dung nhập được giữ; khi version đổi, tải lại để đối chiếu."
+            message + " Nội dung nhập được giữ; khi version đổi, tải lại để đối chiếu"
         )
 
     def release_variables(self):

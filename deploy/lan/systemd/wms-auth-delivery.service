@@ -1,0 +1,39 @@
+[Unit]
+Description=WMS email and SMS authentication delivery
+Requires=postgresql@16-main.service
+After=postgresql@16-main.service
+PartOf=wms.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=wms
+Group=wms
+WorkingDirectory=/opt/wms/current
+LoadCredential=mfa.env:/etc/wms/mfa.env
+LoadCredential=auth.env:/etc/wms/auth.env
+ExecStart=/opt/wms/current/venv/bin/python -I /opt/wms/current/lan_runtime.py auth-delivery
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=90
+UMask=0077
+LimitCORE=0
+Environment=PYTHONDONTWRITEBYTECODE=1
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=wms-auth-delivery
+
+[Install]
+WantedBy=wms.target

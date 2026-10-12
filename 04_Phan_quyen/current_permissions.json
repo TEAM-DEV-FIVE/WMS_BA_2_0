@@ -1,0 +1,838 @@
+{
+  "roles": [
+    {
+      "code": "AUDITOR",
+      "name": "Kiểm toán"
+    },
+    {
+      "code": "BUYER",
+      "name": "Mua hàng"
+    },
+    {
+      "code": "CONTROLLER",
+      "name": "Kiểm soát/kế toán"
+    },
+    {
+      "code": "DIRECTOR",
+      "name": "Ban điều hành"
+    },
+    {
+      "code": "MASTER_DATA",
+      "name": "Quản lý danh mục"
+    },
+    {
+      "code": "PICKER",
+      "name": "Nhân viên soạn/xuất"
+    },
+    {
+      "code": "RECEIVER",
+      "name": "Nhân viên nhận"
+    },
+    {
+      "code": "SELLER",
+      "name": "Bán hàng"
+    },
+    {
+      "code": "SYSADMIN",
+      "name": "Quản trị kỹ thuật"
+    },
+    {
+      "code": "WAREHOUSE_MANAGER",
+      "name": "Quản lý kho"
+    }
+  ],
+  "permissions": [
+    {
+      "code": "adjustment.approve",
+      "scope_kind": "WAREHOUSE",
+      "description": "Duyệt điều chỉnh/đảo/mất hàng"
+    },
+    {
+      "code": "adjustment.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Điều chỉnh"
+    },
+    {
+      "code": "adjustment.post",
+      "scope_kind": "WAREHOUSE",
+      "description": "Ghi điều chỉnh/đảo đã duyệt"
+    },
+    {
+      "code": "audit.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Đọc audit nghiệp vụ"
+    },
+    {
+      "code": "audit.security.read",
+      "scope_kind": "GLOBAL",
+      "description": "Đọc audit tài khoản/quyền"
+    },
+    {
+      "code": "backup.operate",
+      "scope_kind": "GLOBAL",
+      "description": "Vận hành sao lưu/khôi phục"
+    },
+    {
+      "code": "config.manage",
+      "scope_kind": "GLOBAL",
+      "description": "Cấu hình máy chủ/client và policy kỹ thuật"
+    },
+    {
+      "code": "count.approve",
+      "scope_kind": "WAREHOUSE",
+      "description": "Duyệt kiểm kê hai bước"
+    },
+    {
+      "code": "count.create",
+      "scope_kind": "WAREHOUSE",
+      "description": "Tạo phiên và khóa vị trí kiểm kê"
+    },
+    {
+      "code": "count.enter",
+      "scope_kind": "WAREHOUSE",
+      "description": "Nhập số đếm/đếm lại"
+    },
+    {
+      "code": "count.snapshot.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xem số hệ thống và chênh lệch"
+    },
+    {
+      "code": "count.submit",
+      "scope_kind": "WAREHOUSE",
+      "description": "Chọn kết quả và trình điều chỉnh"
+    },
+    {
+      "code": "document.approve",
+      "scope_kind": "WAREHOUSE",
+      "description": "Duyệt phiếu thông thường"
+    },
+    {
+      "code": "document.assign",
+      "scope_kind": "WAREHOUSE",
+      "description": "Phân công phiếu"
+    },
+    {
+      "code": "document.cancel",
+      "scope_kind": "WAREHOUSE",
+      "description": "Hủy phần chưa thực hiện/đóng thiếu"
+    },
+    {
+      "code": "document.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xem chứng từ"
+    },
+    {
+      "code": "iam.manage",
+      "scope_kind": "GLOBAL",
+      "description": "Quản lý user, khóa/thu hồi phiên"
+    },
+    {
+      "code": "import.commit",
+      "scope_kind": "GLOBAL",
+      "description": "Commit dữ liệu đã dry-run"
+    },
+    {
+      "code": "import.validate",
+      "scope_kind": "GLOBAL",
+      "description": "Nạp staging và chạy dry-run"
+    },
+    {
+      "code": "issue.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Phiếu xuất"
+    },
+    {
+      "code": "issue.post",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xác nhận xuất hàng"
+    },
+    {
+      "code": "lot.correct",
+      "scope_kind": "WAREHOUSE",
+      "description": "Sửa dữ liệu lô đã có phát sinh"
+    },
+    {
+      "code": "master.read",
+      "scope_kind": "GLOBAL",
+      "description": "Xem sản phẩm, UOM, barcode, nhóm"
+    },
+    {
+      "code": "master.write",
+      "scope_kind": "GLOBAL",
+      "description": "Tạo/sửa/ngừng dùng danh mục"
+    },
+    {
+      "code": "move.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Chuyển vị trí"
+    },
+    {
+      "code": "move.post",
+      "scope_kind": "WAREHOUSE",
+      "description": "Ghi sổ chuyển vị trí/cất hàng"
+    },
+    {
+      "code": "opening.approve",
+      "scope_kind": "WAREHOUSE",
+      "description": "Duyệt tồn đầu kỳ"
+    },
+    {
+      "code": "opening.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Tồn đầu kỳ"
+    },
+    {
+      "code": "opening.post",
+      "scope_kind": "WAREHOUSE",
+      "description": "Ghi tồn đầu kỳ đã duyệt"
+    },
+    {
+      "code": "ownership.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Đọc phân tách tồn theo chủ sở hữu"
+    },
+    {
+      "code": "partner.read",
+      "scope_kind": "GLOBAL",
+      "description": "Xem đối tác"
+    },
+    {
+      "code": "partner.write",
+      "scope_kind": "GLOBAL",
+      "description": "Quản lý đối tác"
+    },
+    {
+      "code": "period.close",
+      "scope_kind": "WAREHOUSE",
+      "description": "Khóa kỳ"
+    },
+    {
+      "code": "period.create",
+      "scope_kind": "WAREHOUSE",
+      "description": "Mở kỳ kho"
+    },
+    {
+      "code": "period.reopen",
+      "scope_kind": "WAREHOUSE",
+      "description": "Mở lại kỳ"
+    },
+    {
+      "code": "pick.confirm",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xác nhận soạn/đóng gói"
+    },
+    {
+      "code": "po.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Yêu cầu mua"
+    },
+    {
+      "code": "price.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xem giá tham chiếu/giá trị"
+    },
+    {
+      "code": "price.write",
+      "scope_kind": "GLOBAL",
+      "description": "Nhập giá tham chiếu mới"
+    },
+    {
+      "code": "print.execute",
+      "scope_kind": "WAREHOUSE",
+      "description": "In/in lại phiếu hoặc tem"
+    },
+    {
+      "code": "quality.decide",
+      "scope_kind": "WAREHOUSE",
+      "description": "Kiểm tra hàng và quyết định chất lượng"
+    },
+    {
+      "code": "receipt.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Phiếu nhận"
+    },
+    {
+      "code": "receipt.post",
+      "scope_kind": "WAREHOUSE",
+      "description": "Ghi nhận hàng thực nhận"
+    },
+    {
+      "code": "report.export",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xuất báo cáo/tải file"
+    },
+    {
+      "code": "report.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xem 8 báo cáo định sẵn"
+    },
+    {
+      "code": "reservation.manage",
+      "scope_kind": "WAREHOUSE",
+      "description": "Giữ/giải phóng hàng"
+    },
+    {
+      "code": "return.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Phiếu trả hàng"
+    },
+    {
+      "code": "return.post",
+      "scope_kind": "WAREHOUSE",
+      "description": "Ghi nhận khách trả/trả NCC"
+    },
+    {
+      "code": "return.unlinked",
+      "scope_kind": "WAREHOUSE",
+      "description": "Cho trả không có chứng từ gốc"
+    },
+    {
+      "code": "role.manage",
+      "scope_kind": "GLOBAL",
+      "description": "Quản lý role và grant"
+    },
+    {
+      "code": "serial.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Tra serial và nguồn bảo hành"
+    },
+    {
+      "code": "so.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Yêu cầu bán"
+    },
+    {
+      "code": "stock.read",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xem tồn và thẻ kho"
+    },
+    {
+      "code": "transfer.dispatch",
+      "scope_kind": "WAREHOUSE",
+      "description": "Xuất chuyển từ kho nguồn"
+    },
+    {
+      "code": "transfer.draft",
+      "scope_kind": "WAREHOUSE",
+      "description": "Lập/sửa/gửi duyệt Lệnh chuyển"
+    },
+    {
+      "code": "transfer.receive",
+      "scope_kind": "WAREHOUSE",
+      "description": "Nhận chuyển tại kho đích"
+    },
+    {
+      "code": "warehouse.configure",
+      "scope_kind": "GLOBAL",
+      "description": "Tạo kho, vị trí và cấu hình cấu trúc"
+    },
+    {
+      "code": "warranty.write",
+      "scope_kind": "WAREHOUSE",
+      "description": "Ghi bổ sung chứng cứ bảo hành"
+    }
+  ],
+  "role_permissions": [
+    {
+      "role": "AUDITOR",
+      "permission": "audit.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "audit.security.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "count.snapshot.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "document.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "master.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "ownership.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "partner.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "price.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "report.export"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "report.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "serial.read"
+    },
+    {
+      "role": "AUDITOR",
+      "permission": "stock.read"
+    },
+    {
+      "role": "BUYER",
+      "permission": "document.read"
+    },
+    {
+      "role": "BUYER",
+      "permission": "master.read"
+    },
+    {
+      "role": "BUYER",
+      "permission": "partner.read"
+    },
+    {
+      "role": "BUYER",
+      "permission": "po.draft"
+    },
+    {
+      "role": "BUYER",
+      "permission": "return.draft"
+    },
+    {
+      "role": "BUYER",
+      "permission": "stock.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "adjustment.approve"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "adjustment.post"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "audit.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "count.approve"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "count.snapshot.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "document.approve"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "document.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "import.commit"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "import.validate"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "master.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "opening.approve"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "opening.draft"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "opening.post"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "ownership.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "partner.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "period.close"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "period.create"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "price.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "price.write"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "report.export"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "report.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "return.unlinked"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "serial.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "stock.read"
+    },
+    {
+      "role": "CONTROLLER",
+      "permission": "warranty.write"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "count.approve"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "count.snapshot.read"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "document.read"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "master.read"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "opening.approve"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "ownership.read"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "period.reopen"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "price.read"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "report.export"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "report.read"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "serial.read"
+    },
+    {
+      "role": "DIRECTOR",
+      "permission": "stock.read"
+    },
+    {
+      "role": "MASTER_DATA",
+      "permission": "import.commit"
+    },
+    {
+      "role": "MASTER_DATA",
+      "permission": "import.validate"
+    },
+    {
+      "role": "MASTER_DATA",
+      "permission": "master.read"
+    },
+    {
+      "role": "MASTER_DATA",
+      "permission": "master.write"
+    },
+    {
+      "role": "MASTER_DATA",
+      "permission": "partner.read"
+    },
+    {
+      "role": "MASTER_DATA",
+      "permission": "partner.write"
+    },
+    {
+      "role": "MASTER_DATA",
+      "permission": "warehouse.configure"
+    },
+    {
+      "role": "PICKER",
+      "permission": "count.enter"
+    },
+    {
+      "role": "PICKER",
+      "permission": "document.read"
+    },
+    {
+      "role": "PICKER",
+      "permission": "issue.draft"
+    },
+    {
+      "role": "PICKER",
+      "permission": "issue.post"
+    },
+    {
+      "role": "PICKER",
+      "permission": "master.read"
+    },
+    {
+      "role": "PICKER",
+      "permission": "move.draft"
+    },
+    {
+      "role": "PICKER",
+      "permission": "pick.confirm"
+    },
+    {
+      "role": "PICKER",
+      "permission": "print.execute"
+    },
+    {
+      "role": "PICKER",
+      "permission": "reservation.manage"
+    },
+    {
+      "role": "PICKER",
+      "permission": "serial.read"
+    },
+    {
+      "role": "PICKER",
+      "permission": "stock.read"
+    },
+    {
+      "role": "PICKER",
+      "permission": "transfer.dispatch"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "count.enter"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "document.read"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "master.read"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "move.draft"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "move.post"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "print.execute"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "receipt.draft"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "receipt.post"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "return.draft"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "serial.read"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "stock.read"
+    },
+    {
+      "role": "RECEIVER",
+      "permission": "transfer.receive"
+    },
+    {
+      "role": "SELLER",
+      "permission": "document.read"
+    },
+    {
+      "role": "SELLER",
+      "permission": "master.read"
+    },
+    {
+      "role": "SELLER",
+      "permission": "partner.read"
+    },
+    {
+      "role": "SELLER",
+      "permission": "return.draft"
+    },
+    {
+      "role": "SELLER",
+      "permission": "so.draft"
+    },
+    {
+      "role": "SELLER",
+      "permission": "stock.read"
+    },
+    {
+      "role": "SYSADMIN",
+      "permission": "audit.security.read"
+    },
+    {
+      "role": "SYSADMIN",
+      "permission": "backup.operate"
+    },
+    {
+      "role": "SYSADMIN",
+      "permission": "config.manage"
+    },
+    {
+      "role": "SYSADMIN",
+      "permission": "iam.manage"
+    },
+    {
+      "role": "SYSADMIN",
+      "permission": "role.manage"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "adjustment.draft"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "count.create"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "count.enter"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "count.snapshot.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "count.submit"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "document.approve"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "document.assign"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "document.cancel"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "document.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "issue.post"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "lot.correct"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "master.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "move.post"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "ownership.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "partner.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "pick.confirm"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "print.execute"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "quality.decide"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "receipt.post"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "report.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "reservation.manage"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "return.post"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "serial.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "stock.read"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "transfer.dispatch"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "transfer.draft"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "transfer.receive"
+    },
+    {
+      "role": "WAREHOUSE_MANAGER",
+      "permission": "warranty.write"
+    }
+  ]
+}

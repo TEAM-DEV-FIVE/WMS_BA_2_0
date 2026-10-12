@@ -1,0 +1,9 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · stored_file"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"stored_file" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stored_file</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">storage_key : text</TD></TR><TR><TD ALIGN="LEFT">original_name : character varying(240)</TD></TR><TR><TD ALIGN="LEFT">mime_type : character varying(100)</TD></TR><TR><TD ALIGN="LEFT">sha256 : character(64)</TD></TR><TR><TD ALIGN="LEFT">size_bytes : bigint</TD></TR><TR><TD ALIGN="LEFT">uploaded_by : uuid</TD></TR><TR><TD ALIGN="LEFT">created_at : timestamp with time zone</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"stored_file" -> "app_user" [label="uploaded_by → id"];
+}

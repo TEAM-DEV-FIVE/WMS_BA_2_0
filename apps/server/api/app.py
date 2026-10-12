@@ -89,6 +89,10 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     app.state.operations = OperationsService(app.state.identity, load_registry(worker_settings.consumer_factory), worker_settings.max_attempts)
     app.include_router(operations_router(app.state.operations))
     app.include_router(identity_router(app.state.identity))
+    from apps.server.api.modern_identity import modern_identity_router
+    from apps.server.application.modern_identity import ModernIdentity
+    app.state.modern_identity = ModernIdentity(app.state.identity)
+    app.include_router(modern_identity_router(app.state.modern_identity))
     app.state.master_data = MasterDataService(app.state.identity)
     app.include_router(master_data_router(app.state.master_data))
     app.state.traceability = TraceabilityService(app.state.identity)
@@ -169,7 +173,8 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
     async def domain_error(request, exc):
         statuses = {"NOT_FOUND": 404, "FORBIDDEN": 403, "UNAUTHENTICATED": 401,
                     "MFA_INVALID": 401, "REFRESH_REPLAY": 401, "MFA_REQUIRED": 403,
-                    "RATE_LIMITED": 429, "MFA_UNAVAILABLE": 503, "DATABASE_BUSY": 503, "FILE_LIMIT": 413}
+                    "RATE_LIMITED": 429, "MFA_UNAVAILABLE": 503, "AUTH_PROVIDER_UNAVAILABLE": 503,
+                    "INVALID_CONTACT": 422, "INVALID_AVATAR": 422, "DATABASE_BUSY": 503, "FILE_LIMIT": 413}
         fields = [FieldError(field=exc.field, code=exc.code, message=exc.message)] if exc.field else []
         return error(request, statuses.get(exc.code, 409), exc.code, exc.message, retryable=exc.retryable,
                      field_errors=fields)

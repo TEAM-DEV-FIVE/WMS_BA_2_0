@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import StringConstraints, model_validator
+from pydantic import Field, StringConstraints, model_validator
 
 from packages.contracts import Contract
 from packages.contracts.orders import OrderAction
@@ -46,6 +46,7 @@ class QualitySource(Contract):
 class QualitySourcePage(Contract):
     items: list[QualitySource]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class QualityDecision(Contract):
@@ -65,6 +66,7 @@ class QualityHistory(Contract):
     source: QualitySource
     items: list[QualityDecision]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
     allowed_actions: list[str]
 
 

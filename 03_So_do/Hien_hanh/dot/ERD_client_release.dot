@@ -1,0 +1,7 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · client_release"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"client_release" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>client_release</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">version : character varying(40)</TD></TR><TR><TD ALIGN="LEFT">os : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">architecture : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">api_major : integer</TD></TR><TR><TD ALIGN="LEFT">sha256 : character(64)</TD></TR><TR><TD ALIGN="LEFT">download_uri : text</TD></TR><TR><TD ALIGN="LEFT">is_minimum : boolean</TD></TR></TABLE>>];
+}

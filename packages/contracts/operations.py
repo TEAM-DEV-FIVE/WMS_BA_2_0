@@ -30,6 +30,7 @@ class OutboxEventView(Contract):
 class OutboxPage(Contract):
     items: list[OutboxEventView]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class OperationsJob(Contract):
@@ -47,6 +48,7 @@ class OperationsJob(Contract):
 class OperationsJobPage(Contract):
     items: list[OperationsJob]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class OperationsView(Contract):

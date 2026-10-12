@@ -1,22 +1,25 @@
 import json
 import tkinter as tk
 from datetime import datetime, timezone
-from tkinter import filedialog, ttk
+from tkinter import filedialog, messagebox, ttk
 from uuid import UUID
 
 from apps.desktop.presenters.imports import ImportPresenter
+from apps.desktop.views.action_menu import ActionMenu
+from apps.desktop.views.data_table import DataTable
 from apps.desktop.views.document_review import ScrollPanel
 from apps.desktop.views.job_history import JobHistoryPanel
+from apps.desktop.views.ui_help import StatusButton
 
 LABELS = {
-    "01_uom": "01 · Đơn vị tính", "02_categories": "02 · Nhóm hàng", "03_warehouses": "03 · Kho",
-    "04_locations": "04 · Vị trí", "05_products": "05 · Sản phẩm", "06_product_uom": "06 · Quy đổi",
-    "07_barcodes": "07 · Barcode", "08_partners": "08 · Đối tác", "09_lots": "09 · Lô",
-    "10_serials": "10 · Serial", "11_opening": "11 · Tồn đầu kỳ", "12_open_orders": "12 · PO/SO còn mở",
-    "14_prices": "14 · Giá tham chiếu",
+    "01_uom": "01  Đơn vị tính", "02_categories": "02  Nhóm hàng", "03_warehouses": "03  Kho",
+    "04_locations": "04  Vị trí", "05_products": "05  Sản phẩm", "06_product_uom": "06  Quy đổi",
+    "07_barcodes": "07  Barcode", "08_partners": "08  Đối tác", "09_lots": "09  Lô",
+    "10_serials": "10  Serial", "11_opening": "11  Tồn đầu kỳ", "12_open_orders": "12  PO/SO còn mở",
+    "14_prices": "14  Giá tham chiếu",
 }
 STATUS = {"QUEUED": "Chờ máy chủ xử lý", "VALIDATING": "Đang kiểm tra",
-          "VALIDATED": "Kiểm tra hợp lệ · chưa commit", "INVALID": "Có lỗi dữ liệu",
+          "VALIDATED": "Kiểm tra hợp lệ  chưa commit", "INVALID": "Có lỗi dữ liệu",
           "FAILED": "Xử lý job thất bại", "CANCELLED": "Đã hủy", "COMMITTED": "Đã commit import"}
 
 
@@ -49,29 +52,14 @@ class ImportView(ttk.Frame):
         for combo in (self.kind, self.selector):
             combo.bind("<<ComboboxSelected>>", self.scope_changed)
         self.button(top, "load", "Tải quyền / mẫu", self.load)
-        ttk.Label(self, textvariable=self.variables["status"], wraplength=750).pack(fill="x", pady=4)
+        StatusButton(self, self.variables["status"]).pack(anchor="e", pady=4)
 
-        footer = ttk.Frame(self)
-        footer.pack(side="bottom", fill="x")
-        ttk.Checkbutton(footer, text="Tôi đã kiểm tra dữ liệu, SHA-256 và thời hạn dry-run",
-                        variable=self.confirm, command=self.enable).pack(anchor="w")
-        bar = ttk.Frame(footer)
-        bar.pack(fill="x", pady=3)
-        for name, label in [("create", "Tạo job / dry-run"), ("validate", "Kiểm tra lại"),
-                            ("commit", "Xác nhận commit"), ("cancel", "Hủy job")]:
-            self.button(bar, name, label, lambda a=name: self.action(a))
-        recovery = ttk.Frame(footer)
-        recovery.pack(fill="x")
-        self.button(recovery, "lookup", "Tra yêu cầu chưa rõ", self.presenter.lookup)
-        self.button(recovery, "retry", "Gửi lại đúng yêu cầu", self.presenter.retry)
-        ttk.Label(footer, textvariable=self.variables["uncertainty"], wraplength=740).pack(fill="x")
-
-        tabs = ttk.Notebook(self)
+        tabs = self.tabs = ttk.Notebook(self)
         tabs.pack(fill="both", expand=True)
         self.form = ScrollPanel(tabs)
-        tabs.add(self.form, text="Tệp và job")
+        tabs.add(self.form, text="Tệp nhập")
         body = self.form.inner
-        ttk.Label(body, textvariable=self.variables["limits"], wraplength=710).pack(fill="x", pady=4)
+        ttk.Button(body, text="Yêu cầu tệp", command=self.show_file_requirements).pack(anchor="w", pady=(0, 8))
         files = ttk.Frame(body)
         files.pack(fill="x")
         self.button(files, "template", "Lưu mẫu CSV", self.save_template)
@@ -79,18 +67,21 @@ class ImportView(ttk.Frame):
         self.button(files, "upload", "Upload tệp", self.presenter.upload)
         ttk.Label(body, textvariable=self.variables["source"], wraplength=710).pack(fill="x", pady=4)
         ttk.Label(body, textvariable=self.variables["metadata"], wraplength=710).pack(fill="x", pady=4)
-        for name, label in [("reference", "Biên bản đã ký (tồn đầu kỳ)"), ("reason", "Lý do thao tác")]:
+        self.metadata_entries = []
+        for name, label in [("reference", "Biên bản đã ký (tồn đầu kỳ)"), ("reason", "Lý do thao tác"), ("job_id", "Mã job")]:
             row = ttk.Frame(body)
             row.pack(fill="x", pady=3)
             ttk.Label(row, text=label, width=28).pack(side="left")
-            ttk.Entry(row, textvariable=self.variables[name]).pack(side="left", fill="x", expand=True)
+            entry = ttk.Entry(row, textvariable=self.variables[name])
+            entry.pack(side="left", fill="x", expand=True)
+            self.metadata_entries.append(entry)
+            if name == "job_id":
+                entry.bind("<Return>", lambda event: self.refresh())
         row = ttk.Frame(body)
         row.pack(fill="x", pady=5)
-        ttk.Label(row, text="Mã job").pack(side="left")
-        entry = ttk.Entry(row, textvariable=self.variables["job_id"], width=40)
-        entry.pack(side="left", fill="x", expand=True, padx=4)
-        entry.bind("<Return>", lambda event: self.refresh())
-        self.button(row, "refresh", "Đọc / tiếp tục", self.refresh)
+        refresh = self.button(row, "refresh", "Đọc / tiếp tục", self.refresh)
+        refresh.configure(style="Primary.TButton")
+        refresh.pack_configure(side="right", padx=0)
         ttk.Label(body, textvariable=self.variables["progress"], wraplength=710).pack(fill="x", pady=4)
         self.progress = ttk.Progressbar(body, maximum=100, mode="determinate")
         self.progress.pack(fill="x", pady=3)
@@ -98,10 +89,30 @@ class ImportView(ttk.Frame):
         row.pack(fill="x", pady=4)
         self.button(row, "source", "Tải tệp nguồn", lambda: self.download(False))
         self.button(row, "errors", "Tải CSV lỗi", lambda: self.download(True))
-        ttk.Label(body, text="Import PO/SO/tồn đầu kỳ tạo NHÁP. Mở chứng từ để gửi duyệt và ghi sổ.\n"
-                  "Mất LAN: giữ key và nội dung; tra trước, gửi lại khi bạn chủ động chọn.\n"
-                  "Yêu cầu chưa rõ chỉ được giữ trong phiên chạy này; chưa hỗ trợ phục hồi sau khi thoát.",
-                  wraplength=710).pack(fill="x", pady=4)
+
+        footer = self.action_panel = ttk.LabelFrame(body, text="Kiểm tra và nhập dữ liệu", padding=12)
+        footer.pack(fill="x", pady=(16, 0))
+        ttk.Checkbutton(footer, text="Tôi đã kiểm tra dữ liệu và kết quả kiểm tra tệp",
+                        variable=self.confirm, command=self.enable).pack(anchor="w", pady=(0, 12))
+        bar = ttk.Frame(footer)
+        bar.pack(fill="x")
+        for name, label in [("create", "Tạo job / dry-run"), ("commit", "Xác nhận commit")]:
+            self.button(bar, name, label, lambda a=name: self.action(a))
+        # Unmapped controls retain the existing permission/state guards. Menu
+        # commands invoke them, so a disabled action cannot bypass those guards.
+        recovery = ttk.Frame(footer)
+        self.button(recovery, "validate", "Kiểm tra lại", lambda: self.action("validate"))
+        self.button(recovery, "lookup", "Tra yêu cầu chưa rõ", self.presenter.lookup)
+        self.button(recovery, "retry", "Gửi lại đúng yêu cầu", self.presenter.retry)
+        self.button(recovery, "cancel", "Hủy job", lambda: self.action("cancel"))
+        self.secondary_actions = ("validate", "lookup", "retry", "cancel")
+        self.action_menu = ActionMenu(bar, [
+            (self.buttons[name].cget("text"), self.buttons[name].invoke)
+            for name in self.secondary_actions
+        ], title="Thao tác khác")
+        self.action_menu.pack(side="left", pady=4)
+        ttk.Label(footer, textvariable=self.variables["uncertainty"], wraplength=740).pack(fill="x")
+
 
         table_page = ttk.Frame(tabs, padding=4)
         tabs.add(table_page, text="Dòng dữ liệu / lỗi")
@@ -110,9 +121,11 @@ class ImportView(ttk.Frame):
         self.button(controls, "previous", "Trang trước", lambda: self.page(-1))
         self.button(controls, "next", "Trang sau", lambda: self.page(1))
         self.button(controls, "open", "Mở chứng từ đã tạo", self.open_target)
+        ttk.Button(controls, text="Xác nhận / xử lý tệp", command=self.show_actions,
+                   style="Primary.TButton").pack(side="right", padx=(12, 0), pady=4)
         frame = ttk.Frame(table_page)
         frame.pack(fill="both", expand=True, pady=3)
-        self.table = ttk.Treeview(frame, columns=("row", "state", "owner", "agreement", "error"),
+        self.table = DataTable(frame, columns=("row", "state", "owner", "agreement", "error"),
                                   show="headings", height=7, selectmode="browse")
         for key, label, width in [("row", "Dòng", 55), ("state", "Kết quả", 110),
                                    ("owner", "Chủ hàng", 130), ("agreement", "Hợp đồng", 140),
@@ -135,9 +148,25 @@ class ImportView(ttk.Frame):
         self.form.bind_scrolling()
         self.import_clear()
 
+    def show_actions(self):
+        self.tabs.select(self.form)
+        self.after_idle(lambda: self.form.canvas.yview_moveto(1))
+
     def button(self, parent, name, label, command):
-        button = ttk.Button(parent, text=label, command=command)
-        button.pack(side="left", padx=2)
+        styles = {"load": "Primary", "template": "Teal", "choose": "Primary", "upload": "Indigo",
+                  "refresh": "Primary", "create": "Primary", "validate": "Teal", "commit": "Success",
+                  "cancel": "Danger", "lookup": "Purple", "retry": "Amber", "source": "Slate", "errors": "Amber",
+                  "open": "Primary"}
+        icons = {"template": "file-spreadsheet", "choose": "folder-open", "upload": "upload",
+                 "refresh": "file-search", "create": "file-plus", "validate": "file-check",
+                 "commit": "circle-check", "cancel": "circle-x", "lookup": "file-search",
+                 "retry": "rotate-ccw", "source": "download", "errors": "download", "open": "folder-open"}
+        style = styles[name] + ".TButton" if name in styles else "TButton"
+        if name in {"create", "validate", "commit", "cancel", "lookup", "retry"}:
+            style = "Import." + style
+        button = ttk.Button(parent, text=label, command=command, style=style)
+        button._action_icon_name = icons.get(name)
+        button.pack(side="left", padx=(0, 12), pady=4)
         self.buttons[name] = button
         return button
 
@@ -156,7 +185,7 @@ class ImportView(ttk.Frame):
 
     def session_changed(self, user=None, warehouses=None):
         self.user, self.warehouses = user, warehouses or []
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         self.variables["warehouse"].set("")
         if self.warehouses:
             self.selector.current(0)
@@ -187,9 +216,9 @@ class ImportView(ttk.Frame):
         self.busy = False
         self.permissions, self.capabilities = [], None
         self.import_clear_data()
-        self.variables["status"].set("Đăng nhập, chọn loại import và kho (nếu cần).")
-        self.variables["limits"].set("Mỗi tệp một mẫu; tối đa 500 dòng, 200 dòng/chứng từ.\n"
-                                    "Tồn đầu kỳ: một batch/kho, 200 dòng; kho chưa có lịch sử tồn.")
+        self.variables["status"].set("Đăng nhập, chọn loại import và kho (nếu cần)")
+        self.variables["limits"].set("Mỗi tệp một mẫu; tối đa 500 dòng, 200 dòng/chứng từ\n"
+                                    "Tồn đầu kỳ: một batch/kho, 200 dòng; kho chưa có lịch sử tồn")
         self.enable()
 
     def enable(self):
@@ -219,8 +248,10 @@ class ImportView(ttk.Frame):
         }
         for name, button in self.buttons.items():
             button.configure(state="normal" if states.get(name, False) else "disabled")
+        for index, name in enumerate(self.secondary_actions):
+            self.action_menu.menu.entryconfigure(index, state="normal" if states.get(name, False) else "disabled")
         self.variables["uncertainty"].set(
-            f"UNKNOWN · {uncertain.operation} · key {uncertain.key}" if uncertain else "")
+            f"UNKNOWN  {uncertain.operation}  key {uncertain.key}" if uncertain else "")
 
     def import_busy(self):
         self.busy = True
@@ -230,13 +261,19 @@ class ImportView(ttk.Frame):
     def import_loaded(self, capabilities, permissions):
         self.busy = False
         self.capabilities, self.permissions = capabilities, permissions
-        self.variables["limits"].set(
-            f"Hạn mức upload: {capabilities['max_file_bytes']:,} byte. CSV UTF-8/XLSX; một mẫu/tệp.\n"
-            "Tối đa 500 dòng/tệp, 200 dòng/chứng từ. Tồn đầu kỳ: 200 dòng, một batch/kho chưa có lịch sử.\n"
-            "Opening v2: owner_code bắt buộc; chủ ký gửi cần consignment_code đúng kho/ngày.\n"
-            "PO/SO chỉ COMPANY. Không chia phiếu để vượt giới hạn; máy chủ kiểm tra lại điều kiện khởi tạo tồn.")
-        self.variables["status"].set("Đã tải mẫu/quyền hiện hành. Chọn tệp hoặc nhập mã job để tiếp tục.")
+        self.variables["limits"].set(f"CSV hoặc Excel   Tối đa {capabilities['max_file_bytes'] / (1024 * 1024):g} MB mỗi tệp")
+        self.variables["status"].set("Chọn mẫu và tệp cần nhập")
         self.enable()
+
+    def show_file_requirements(self):
+        messagebox.showinfo("Yêu cầu tệp nhập", self.variables["limits"].get() + "\n\nĐịnh dạng CSV UTF-8 hoặc XLSX, một mẫu mỗi tệp\n\n"
+            "Tối đa 500 dòng mỗi tệp và 200 dòng mỗi chứng từ\n"
+            "Tồn đầu kỳ tối đa 200 dòng, chỉ khởi tạo một lần cho kho chưa có lịch sử\n\n"
+            "Tồn đầu kỳ cần owner_code; hàng ký gửi cần consignment_code đúng kho và ngày\n"
+            "Đơn mua và đơn bán chỉ dùng hàng thuộc doanh nghiệp (COMPANY)\n\n"
+            "Không chia phiếu để vượt giới hạn; máy chủ sẽ kiểm tra điều kiện trước khi nhập\n\n"
+            "Nhập đơn mua, đơn bán hoặc tồn đầu kỳ tạo bản nháp. Mở chứng từ để gửi duyệt và ghi sổ.\n"
+            "Khi mất kết nối, tra kết quả trước khi gửi lại đúng yêu cầu. Yêu cầu chưa rõ chỉ được giữ trong phiên chạy hiện tại.", parent=self)
 
     def choose(self, path=None):
         if self.buttons["choose"].instate(["disabled"]):
@@ -254,16 +291,16 @@ class ImportView(ttk.Frame):
 
     def import_source(self, source):
         self.busy = False
-        self.variables["source"].set(f"{source.name} · {len(source.data):,} byte · {source.row_count} dòng\nSHA-256: {source.sha256}")
-        self.variables["status"].set("Đã kiểm tra kích thước/số dòng; upload rồi chạy dry-run trên máy chủ.")
+        self.variables["source"].set(f"{source.name}  {len(source.data):,} byte  {source.row_count} dòng\nSHA-256: {source.sha256}")
+        self.variables["status"].set("Đã kiểm tra kích thước/số dòng; upload rồi chạy dry-run trên máy chủ")
         self.enable()
 
     def import_saved(self, result, operation):
         self.busy = False
         self.confirm.set(False)
         if operation == "upload":
-            self.variables["metadata"].set(f"File {result['id']} · SHA-256: {result['sha256']}")
-            self.variables["status"].set("Upload hoàn tất. Nhập lý do/biên bản rồi tạo job.")
+            self.variables["metadata"].set(f"File {result['id']}  SHA-256: {result['sha256']}")
+            self.variables["status"].set("Upload hoàn tất; Nhập lý do/biên bản rồi tạo job")
             self.enable()
         else:
             self.variables["job_id"].set(result["id"])
@@ -275,7 +312,7 @@ class ImportView(ttk.Frame):
         try:
             job_id = str(UUID(self.variables["job_id"].get().strip()))
         except ValueError:
-            self.import_error("Nhập mã job UUID do máy chủ trả về.")
+            self.import_error("Nhập mã job UUID do máy chủ trả về")
             return
         self.confirm.set(False)
         self.presenter.read(job_id, after)
@@ -289,23 +326,23 @@ class ImportView(ttk.Frame):
             self.confirm.set(False)
         self.next_after = page["next_after"]
         self.variables["job_id"].set(job["id"])
-        self.variables["metadata"].set(f"{file['original_name']} · {file['size_bytes']:,} byte\nSHA-256: {job['file_hash']}\n"
-                                        f"Mapping {job['mapping_version']} · v{job['version']} · lượt {job['generation']}\n"
+        self.variables["metadata"].set(f"{file['original_name']}  {file['size_bytes']:,} byte\nSHA-256: {job['file_hash']}\n"
+                                        f"Mapping {job['mapping_version']}  v{job['version']}  lượt {job['generation']}\n"
                                         f"Hạn xác nhận: {job['token_expires_at'] or 'Chưa có token hợp lệ'}")
-        self.variables["progress"].set(f"{STATUS[job['status']]} · {job['processed_rows']}/{job['total_rows']} dòng kiểm tra\n"
-                                        f"{len(job['errors'])} lỗi · Trang {self.page_index + 1}; tối đa 50 dòng/trang.")
+        self.variables["progress"].set(f"{STATUS[job['status']]}  {job['processed_rows']}/{job['total_rows']} dòng kiểm tra\n"
+                                        f"{len(job['errors'])} lỗi  Trang {self.page_index + 1}; tối đa 50 dòng/trang")
         self.progress["value"] = min(100, 100 * job["processed_rows"] / max(1, job["total_rows"]))
         self.table.delete(*self.table.get_children())
         for row in self.rows:
             payload = row["payload"]
             errors = "; ".join(f"{e['column']}: {e['message']}" for e in row["errors"])
             self.table.insert("", "end", iid=str(row["row_no"]), values=(row["row_no"], row["status"],
-                              payload.get("owner_code", "COMPANY" if job["kind"] == "12_open_orders" else "—"),
-                              payload.get("consignment_code") or "—", errors or "—"))
+                              payload.get("owner_code", "COMPANY" if job["kind"] == "12_open_orders" else ""),
+                              payload.get("consignment_code") or "", errors or ""))
         # File/worker failures may have no staging rows. Keep these errors visible too.
-        self.set_detail("\n".join(f"Dòng {e['row_no']} · {e['column']} · {e['code']}: {e['message']}\n{e['suggested_fix']}"
+        self.set_detail("\n".join(f"Dòng {e['row_no']}  {e['column']}  {e['code']}: {e['message']}\n{e['suggested_fix']}"
                                    for e in job["errors"][:50]))
-        self.variables["status"].set(STATUS[job["status"]] + (". Chứng từ vẫn cần duyệt/ghi sổ." if job["status"] == "COMMITTED" else ""))
+        self.variables["status"].set(STATUS[job["status"]] + ("; Chứng từ vẫn cần duyệt/ghi sổ" if job["status"] == "COMMITTED" else ""))
         self.enable()
 
     def page(self, step):
@@ -328,11 +365,11 @@ class ImportView(ttk.Frame):
             else:
                 self.presenter.action(action, reason)
         except ValueError:
-            self.import_error("Nhập lý do (3–2000 ký tự); tồn đầu kỳ cần biên bản kiểm đếm đã ký.")
+            self.import_error("Nhập lý do (3–2000 ký tự); tồn đầu kỳ cần biên bản kiểm đếm đã ký")
 
     def open_history(self, job_id):
         if self.presenter.uncertain or self.presenter.pending is not None:
-            self.import_error("Hoàn tất lệnh đang chờ trước khi mở job khác.")
+            self.import_error("Hoàn tất lệnh đang chờ trước khi mở job khác")
             return
         self.variables["job_id"].set(job_id)
         self.refresh()
@@ -340,12 +377,12 @@ class ImportView(ttk.Frame):
     def import_history(self, result):
         self.busy = False
         self.history.show(result)
-        self.variables["status"].set("Chọn job để đọc lại dữ liệu, lỗi và tiếp tục theo quyền hiện tại.")
+        self.variables["status"].set("Chọn job để đọc lại dữ liệu, lỗi và tiếp tục theo quyền hiện tại")
         self.enable()
 
     def import_checked(self):
         self.busy = False
-        self.variables["status"].set("Chưa có ACK xác nhận. Có thể gửi lại đúng key/nội dung; không tạo yêu cầu mới.")
+        self.variables["status"].set("Chưa có ACK xác nhận; Có thể gửi lại đúng key/nội dung; không tạo yêu cầu mới")
         self.enable()
 
     def import_error(self, message):

@@ -3,17 +3,21 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 
 from apps.desktop.presenters.reports import ReportPresenter
+from apps.desktop.views.action_menu import ActionMenu
+from apps.desktop.views.data_table import DataTable
 from apps.desktop.views.job_history import JobHistoryPanel
+from apps.desktop.views.pagination import PaginationBar
+from apps.desktop.views.ui_help import Disclosure, HelpButton, StatusButton
 
 LABELS = [
-    "R01 · Tồn theo vị trí",
-    "R02 · Nhập / xuất qua ranh giới",
-    "R03 · Thẻ kho",
-    "R04 · Giữ hàng / nhu cầu mở",
-    "R05 · Chuyển kho / transit",
-    "R06 · Hạn dùng / tồn lâu",
-    "R07 · Kiểm kê",
-    "R08 · Hoạt động / giá tham chiếu",
+    "R01  Tồn theo vị trí",
+    "R02  Nhập / xuất qua ranh giới",
+    "R03  Thẻ kho",
+    "R04  Giữ hàng / nhu cầu mở",
+    "R05  Chuyển kho / transit",
+    "R06  Hạn dùng / tồn lâu",
+    "R07  Kiểm kê",
+    "R08  Hoạt động / giá tham chiếu",
 ]
 SORTS = {"Mặc định": "default", "SKU": "sku", "Vị trí": "location_code", "Chủ hàng": "owner_code"}
 COLUMNS = {
@@ -100,7 +104,7 @@ class ReportView(ttk.Frame):
         self.user = None
         self.warehouses = []
         self.variables = {}
-        self.status = tk.StringVar(value="Đăng nhập để xem báo cáo.")
+        self.status = tk.StringVar(value="Đăng nhập để xem báo cáo")
         top = ttk.Frame(self)
         top.pack(fill="x")
         self.selector = ttk.Combobox(top, state="readonly", width=22)
@@ -110,8 +114,12 @@ class ReportView(ttk.Frame):
         self.report.current(0)
         self.report.pack(side="left", padx=8)
         self.report.bind("<<ComboboxSelected>>", lambda event: self.scope_changed())
-        filters = ttk.Frame(self)
-        filters.pack(fill="x", pady=6)
+        ttk.Button(top, text="Tạo báo cáo", command=self.create, style="Primary.TButton").pack(side="right")
+        advanced = self.advanced = Disclosure(self, "Xem bộ lọc và tùy chọn")
+        advanced.pack(fill="x", pady=6)
+        advanced.body.configure(padding=(0, 4))
+        filters = ttk.Frame(advanced.body)
+        filters.pack(fill="x", pady=3)
         fields = [
             ("product", "SKU"),
             ("owner", "Mã chủ hàng"),
@@ -131,7 +139,7 @@ class ReportView(ttk.Frame):
             ttk.Entry(box, textvariable=self.variables[key], width=25).pack(fill="x")
         for col in range(3):
             filters.columnconfigure(col, weight=1)
-        options = ttk.Frame(self)
+        options = ttk.Frame(advanced.body)
         options.pack(fill="x")
         self.sort = ttk.Combobox(options, state="readonly", values=list(SORTS), width=16)
         self.sort.current(0)
@@ -139,23 +147,18 @@ class ReportView(ttk.Frame):
         self.desc = tk.BooleanVar(value=False)
         self.price = tk.BooleanVar(value=False)
         ttk.Checkbutton(options, text="Giảm dần", variable=self.desc).pack(side="left")
-        ttk.Checkbutton(options, text="Giá quản trị (R08, cần quyền giá)", variable=self.price).pack(
+        ttk.Checkbutton(options, text="Giá quản trị", variable=self.price).pack(
             side="left"
         )
-        ttk.Button(options, text="Tạo báo cáo", command=self.create).pack(side="right")
-        ttk.Label(
-            self,
-            text="R01/R06: tồn hiện tại. R03: thứ tự ghi sổ cố định. R05: cần quyền cả hai kho. Ngày: YYYY-MM-DD.",
-        ).pack(anchor="w", pady=3)
+        HelpButton(options, "R01/R06 dùng tồn hiện tại; R03 có thứ tự ghi sổ cố định; R05 cần quyền cả hai kho. Ngày theo dạng YYYY-MM-DD. Giá quản trị chỉ áp dụng R08 và cần quyền xem giá.").pack(side="right")
         self.tabs = ttk.Notebook(self)
-        self.tabs.pack(fill="both", expand=True)
         grid = ttk.Frame(self.tabs)
         self.tabs.add(grid, text="Dữ liệu báo cáo")
         self.history = JobHistoryPanel(self.tabs,
             lambda filters: self.presenter.history(filters, self.report.get()[:3]), self.presenter.open_history,
             ["QUEUED", "RUNNING", "READY", "FAILED", "CANCELLED"])
         self.tabs.add(self.history, text="Lịch sử export")
-        self.tree = ttk.Treeview(grid, show="headings", height=8)
+        self.tree = DataTable(grid, show="headings", height=4)
         self.tree.grid(row=0, column=0, sticky="nsew")
         x = ttk.Scrollbar(grid, orient="horizontal", command=self.tree.xview)
         y = ttk.Scrollbar(grid, orient="vertical", command=self.tree.yview)
@@ -164,30 +167,25 @@ class ReportView(ttk.Frame):
         y.grid(row=0, column=1, sticky="ns")
         grid.columnconfigure(0, weight=1)
         grid.rowconfigure(0, weight=1)
-        buttons = ttk.Frame(self)
-        buttons.pack(fill="x", pady=5)
-        for n, (label, fn) in enumerate(
-            [
-                ("Trang đầu", lambda: self.presenter.read()),
-                ("Trang sau", self.next_page),
-                ("Xuất CSV", lambda: self.presenter.export("csv")),
-                ("Xuất XLSX", lambda: self.presenter.export("xlsx")),
-                ("Trạng thái", self.presenter.refresh),
-                ("Tải tệp", self.download),
-                ("Hủy", lambda: self.presenter.action("cancel")),
-                ("Chạy lại job lỗi", lambda: self.presenter.action("retry")),
-                ("Tra / gửi lại cùng key", self.presenter.recover),
-            ]
-        ):
-            ttk.Button(buttons, text=label, command=fn).grid(
-                row=n // 5, column=n % 5, sticky="ew", padx=1, pady=1
-            )
-        ttk.Label(self, textvariable=self.status, wraplength=820).pack(anchor="w")
+        self.pagination = PaginationBar(grid, lambda after: self.presenter.read(after or 0))
+        self.pagination.grid(row=2, column=0, columnspan=2, sticky="ew")
+        self.actions = ActionMenu(top, [
+            ("Xuất CSV", lambda: self.presenter.export("csv")),
+            ("Xuất XLSX", lambda: self.presenter.export("xlsx")),
+            ("Cập nhật trạng thái", self.presenter.refresh),
+            ("Tải tệp", self.download),
+            ("Hủy", lambda: self.presenter.action("cancel")),
+            ("Chạy lại khi lỗi", lambda: self.presenter.action("retry")),
+            ("Kiểm tra yêu cầu", self.presenter.recover),
+        ], title="Thao tác báo cáo")
+        self.actions.pack(side="right", padx=6)
+        StatusButton(self, self.status).pack(side="bottom", anchor="e")
+        self.tabs.pack(fill="both", expand=True)
 
     def session_changed(self, user=None, warehouses=None):
         self.user = user
         self.warehouses = warehouses or []
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         if self.warehouses:
             self.selector.current(0)
         else:
@@ -216,7 +214,7 @@ class ReportView(ttk.Frame):
     def download(self):
         job = self.presenter.job
         if not job or job["status"] != "READY":
-            self.status.set("Đọc trạng thái đến khi tệp READY trước khi tải.")
+            self.status.set("Đọc trạng thái đến khi tệp READY trước khi tải")
             return
         path = filedialog.asksaveasfilename(
             parent=self,
@@ -227,17 +225,22 @@ class ReportView(ttk.Frame):
             self.presenter.download(path)
 
     def report_clear(self):
+        self.pagination.reset()
         self.tree.delete(*self.tree.get_children())
         self.history.clear()
-        self.status.set("Chọn báo cáo và bộ lọc; snapshot có hiệu lực một giờ.")
+        self.status.set("Chọn báo cáo và bộ lọc; snapshot có hiệu lực một giờ")
 
     def report_busy(self):
+        self.pagination.set_enabled(False)
         self.status.set("Đang xử lý…")
 
     def report_error(self, message):
-        self.status.set(message + " Nếu chưa rõ kết quả, dùng Tra / gửi lại cùng key.")
+        self.pagination.set_enabled(True)
+        self.status.set(message + " Nếu chưa rõ kết quả, dùng Tra / gửi lại cùng key")
 
     def report_page(self, page):
+        self.pagination.loaded({**page, "total": page["snapshot"]["row_count"]})
+        self.pagination.set_enabled(True)
         self.tree.delete(*self.tree.get_children())
         columns = [c for c in page["snapshot"]["columns"] if c in COLUMNS]
         self.tree.configure(columns=columns)
@@ -256,17 +259,17 @@ class ReportView(ttk.Frame):
                 ],
             )
         self.status.set(
-            f"{page['snapshot']['report_code']} · {page['snapshot']['row_count']} dòng · snapshot {page['snapshot']['created_at']} · còn trang: {'có' if page['next_after'] else 'không'}"
+            f"{page['snapshot']['report_code']}  {page['snapshot']['row_count']} dòng  snapshot {page['snapshot']['created_at']}  còn trang: {'có' if page['next_after'] else 'không'}"
         )
 
     def report_job(self, job):
         self.status.set(
-            f"Xuất {job['format'].upper()}: {job['status']} · {job['error_code'] or ''}. Bấm Trạng thái để cập nhật."
+            f"Xuất {job['format'].upper()}: {job['status']}  {job['error_code'] or ''}; Bấm Trạng thái để cập nhật"
         )
 
     def report_history(self, result):
         self.history.show(result)
-        self.status.set("Chọn job trong lịch sử để đọc trạng thái, tải tệp, hủy hoặc retry theo quyền hiện tại.")
+        self.status.set("Chọn job trong lịch sử để đọc trạng thái, tải tệp, hủy hoặc retry theo quyền hiện tại")
 
     def report_saved(self, path):
         self.status.set("Đã lưu: " + path)

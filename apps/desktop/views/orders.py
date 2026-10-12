@@ -3,7 +3,11 @@ from datetime import date
 from tkinter import ttk
 
 from apps.desktop.presenters.orders import OrderPresenter
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
 from apps.desktop.views.document_review import ReviewPanel, ScrollPanel, fulfillment_label
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import StatusButton
 from packages.contracts.orders import AssignmentInput, OrderInput, OrderUpdate
 from packages.contracts.traceability import COMPANY_OWNER
 
@@ -13,7 +17,7 @@ STATUS = {
     "APPROVED": "Đã duyệt",
     "REJECTED": "Từ chối",
     "PARTIAL": "Thực hiện một phần",
-    "COMPLETED": "Kết thúc · xem chi tiết",
+    "COMPLETED": "Kết thúc  xem chi tiết",
     "CANCELLED": "Đã hủy",
 }
 
@@ -45,7 +49,7 @@ class OrderView(ttk.Frame):
         self.variables["kind"].set("PO")
         self.variables["day"].set(date.today().isoformat())
         self.variables["qty"].set("1")
-        self.variables["status"].set("Đăng nhập để tạo và duyệt PO/SO.")
+        self.variables["status"].set("Đăng nhập để tạo và duyệt PO/SO")
         self.warehouses = []
         self.permissions = []
         self.catalog_ready = False
@@ -88,7 +92,7 @@ class OrderView(ttk.Frame):
         self.next_button.pack(side="right")
         self.previous_button = ttk.Button(search, text="Trang trước", command=self.previous_page)
         self.previous_button.pack(side="right", padx=4)
-        ttk.Label(self, textvariable=self.variables["status"], wraplength=820).pack(fill="x", pady=5)
+        StatusButton(self, self.variables["status"]).pack(anchor="e", pady=3)
         self.table = self.tree(
             self,
             ["number", "status", "partner", "day"],
@@ -99,7 +103,7 @@ class OrderView(ttk.Frame):
         self.table.bind("<<TreeviewSelect>>", self.select)
         bar = ttk.Frame(self)
         bar.pack(fill="x", pady=(5, 2))
-        self.new_button = ttk.Button(bar, text="Tạo mới", command=self.new)
+        self.new_button = ttk.Button(top, text="Tạo mới", command=self.new)
         self.new_button.pack(side="right")
         self.reload_button = ttk.Button(bar, text="Đọc lại phiếu", command=self.reload)
         self.reload_button.pack(side="right", padx=5)
@@ -177,7 +181,7 @@ class OrderView(ttk.Frame):
         self.receipt_button.pack(side="left")
         self.approval_button = ttk.Button(links, text="Mở hộp thư duyệt", command=self.open_approvals)
         self.approval_button.pack(side="left", padx=4)
-        ttk.Label(content, text="Đã nhận/xuất, còn mở và đã đóng tính theo đơn vị cơ sở; đóng thiếu không phải nhận/xuất đủ.",
+        ttk.Label(content, text="Đã nhận/xuất, còn mở và đã đóng tính theo đơn vị cơ sở; đóng thiếu không phải nhận/xuất đủ",
                   wraplength=760).pack(fill="x", pady=3)
         reason = ttk.Frame(footer)
         reason.pack(fill="x", pady=4)
@@ -206,11 +210,14 @@ class OrderView(ttk.Frame):
         ttk.Label(footer, textvariable=self.variables["uncertainty"], wraplength=730).pack(fill="x")
         ttk.Label(
             footer,
-            text="PO/SO không ghi sổ tồn. Màn này chưa có thao tác xuất kho; số đã xuất chỉ đọc từ máy chủ.",
+            text="PO/SO không ghi sổ tồn; Màn này chưa có thao tác xuất kho; số đã xuất chỉ đọc từ máy chủ",
             wraplength=730,
         ).pack(fill="x")
+        self.document_pages = DocumentPages(self.table, footer=footer)
         for panel in self.form_panels:
             panel.bind_scrolling()
+        self.enable()
+        install_pagination(self, self.load, limit=25, resource=None)
         self.enable()
 
     def combo(self, parent, name, width, values=()):
@@ -219,7 +226,7 @@ class OrderView(ttk.Frame):
         )
 
     def tree(self, parent, columns, labels, widths, height):
-        tree = ttk.Treeview(parent, columns=columns, show="headings", height=height, selectmode="browse")
+        tree = DataTable(parent, columns=columns, show="headings", height=height, selectmode="browse")
         for column, label, width in zip(columns, labels, widths):
             tree.heading(column, text=label)
             tree.column(column, width=width, minwidth=55)
@@ -235,27 +242,32 @@ class OrderView(ttk.Frame):
         return str(self.warehouses[index].id) if index >= 0 else None
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(user.id if user else None)
         self.page_cursors, self.page_index, self.page_query = [None], 0, ""
         self.variables["query"].set("")
         self.variables["candidate_query"].set("")
         self.warehouses = list(warehouses or [])
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         self.variables["warehouse"].set("")
         if self.warehouses:
             self.selector.current(0)
         self.variables["status"].set(
-            "Chọn loại phiếu/kho rồi tải danh sách." if user else "Đăng nhập để tạo và duyệt PO/SO."
+            "Chọn loại phiếu/kho rồi tải danh sách" if user else "Đăng nhập để tạo và duyệt PO/SO"
         )
         self.enable()
 
     def scope_changed(self, event=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(self.presenter.user_id)
         self.page_cursors, self.page_index = [None], 0
-        self.variables["status"].set("Tải lại danh sách theo loại phiếu và kho vừa chọn.")
+        self.variables["status"].set("Tải lại danh sách theo loại phiếu và kho vừa chọn")
         self.enable()
 
     def orders_clear(self):
+        reset_document_page(self)
         self.doc = None
         self.lines = []
         self.permissions = []
@@ -335,8 +347,10 @@ class OrderView(ttk.Frame):
             button.state(["!disabled"] if allowed and not self.presenter.uncertain and not self.presenter.needs_reload else ["disabled"])
         self.retry_button.state(["!disabled"] if active and self.presenter.uncertain else ["disabled"])
         self.variables["uncertainty"].set(
-            "UNKNOWN · Chưa rõ kết quả lệnh trước. Yêu cầu và khóa chống trùng vẫn được giữ khi đổi màn hình."
+            "UNKNOWN  Chưa rõ kết quả lệnh trước; Yêu cầu và khóa chống trùng vẫn được giữ khi đổi màn hình"
             if self.presenter.uncertain else "")
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def load(self, after=None):
         if self.warehouse_id() and not self.busy:
@@ -344,22 +358,11 @@ class OrderView(ttk.Frame):
             if query != self.page_query:
                 after = None
             self.page_query = query
-            if after is None:
-                self.page_cursors, self.page_index = [None], 0
-            elif self.page_index + 1 == len(self.page_cursors):
-                self.page_cursors.append(after)
-                self.page_index += 1
-            else:
-                self.page_index += 1
-                self.page_cursors[self.page_index:] = [after]
             self.presenter.load(self.path, self.warehouse_id(), self.variables["filter"].get(), after,
                                 self.page_query)
 
     def previous_page(self):
-        if self.page_index and not self.busy:
-            self.page_index -= 1
-            self.presenter.load(self.path, self.warehouse_id(), self.variables["filter"].get(),
-                                self.page_cursors[self.page_index], self.page_query)
+        self.pagination.previous()
 
     def reload(self):
         if self.doc and not self.busy:
@@ -372,6 +375,9 @@ class OrderView(ttk.Frame):
 
     def orders_loaded(self, page, refs, permissions):
         self.orders_clear()
+        self.pagination.loaded(page)
+        self.page_index = self.pagination.pages.index
+        self.page_cursors = list(self.pagination.pages.cursors)
         self.permissions = permissions
         self.catalog_ready = all(key in refs for key in ["products", "partners", "uoms"])
         self.next_after = page["next_after"]
@@ -382,8 +388,8 @@ class OrderView(ttk.Frame):
             for p in refs.get("partners", {}).get("items", [])
             if p["is_supplier" if self.path == "purchase-orders" else "is_customer"]
         ]
-        self.partner.configure(values=[f"{p['code']} · {p['name']}" for p in self.partners])
-        self.product.configure(values=[f"{p['sku']} · {p['name']}" for p in self.products])
+        self.partner.configure(values=[f"{p['code']}  {p['name']}" for p in self.partners])
+        self.product.configure(values=[f"{p['sku']}  {p['name']}" for p in self.products])
         for doc in page["items"]:
             self.table.insert(
                 "",
@@ -393,14 +399,14 @@ class OrderView(ttk.Frame):
             )
         limited = any(v.get("next_after") for v in refs.values())
         self.variables["status"].set(
-            "Đã tải phiếu. Chọn một phiếu để xem hoặc bấm Tạo mới."
-            + (" Danh mục chọn giới hạn 200 mục." if limited else "")
+            "Đã tải phiếu; Chọn một phiếu để xem hoặc bấm Tạo mới"
+            + (" Danh mục chọn giới hạn 200 mục" if limited else "")
         )
         if (
             "po.draft" if self.path == "purchase-orders" else "so.draft"
         ) in permissions and not self.catalog_ready:
             self.variables["status"].set(
-                "Đã tải phiếu. Cần quyền đọc danh mục và đối tác GLOBAL để lập/sửa trên màn này."
+                "Đã tải phiếu; Cần quyền đọc danh mục và đối tác GLOBAL để lập/sửa trên màn này"
             )
         self.enable()
 
@@ -415,7 +421,7 @@ class OrderView(ttk.Frame):
         self.doc = None
         self.lines = []
         self.render_lines()
-        self.variables["heading"].set("Phiếu mới · Hàng doanh nghiệp")
+        self.variables["heading"].set("Phiếu mới  Hàng doanh nghiệp")
         self.variables["history"].set("")
         self.set_history("")
         self.review_panel.clear()
@@ -427,13 +433,14 @@ class OrderView(ttk.Frame):
         if self.partners:
             self.partner.current(0)
         self.enable()
+        show_document(self)
 
     def orders_read(self, doc):
         self.busy = False
         self.doc = doc
         self.lines = doc["lines"]
         self.variables["heading"].set(
-            f"{doc['number']} · {fulfillment_label(doc)} · v{doc['version']} · {doc['creator_name']}"
+            f"{doc['number']}  {fulfillment_label(doc)}  v{doc['version']}  {doc['creator_name']}"
         )
         index = next((i for i, p in enumerate(self.partners) if p["id"] == doc["partner_id"]), None)
         if index is not None:
@@ -445,13 +452,13 @@ class OrderView(ttk.Frame):
         history = []
         for approval in doc["approvals"]:
             decisions = "; ".join(
-                f"Bước {s['step_no']} ({'/'.join(s['roles'])}): {s['decider_name'] or 'Chưa duyệt'} — {s['comment'] or s['status']}"
+                f"Bước {s['step_no']} ({'/'.join(s['roles'])}): {s['decider_name'] or 'Chưa duyệt'}  {s['comment'] or s['status']}"
                 for s in approval["steps"]
             )
             label = {**STATUS, "PENDING": "Chờ duyệt", "INVALIDATED": "Đã vô hiệu"}.get(
                 approval["status"], approval["status"]
             )
-            history.append(f"Lần gửi v{approval['document_version']}: {label} · {decisions}")
+            history.append(f"Lần gửi v{approval['document_version']}: {label}  {decisions}")
         self.variables["history"].set("\n".join(history))
         self.set_history(self.variables["history"].get())
         self.assignees = {user_id: user_id for user_id in doc["assigned_user_ids"]}
@@ -463,7 +470,7 @@ class OrderView(ttk.Frame):
         self.line_table.heading("posted", text="Đã nhận (CS)" if doc["kind"] == "PO" else "Đã xuất (CS)")
         self.render_lines()
         self.enable()
-        self.variables["status"].set("Đã tải chi tiết. Lượng đã thực hiện/còn lại do máy chủ tính.")
+        self.variables["status"].set("Đã tải chi tiết; Lượng đã thực hiện/còn lại do máy chủ tính")
 
     def product_changed(self, event=None):
         index = self.product.current()
@@ -475,7 +482,7 @@ class OrderView(ttk.Frame):
         self.conversions = page["items"]
         self.conversion.configure(
             values=[
-                f"{self.uoms.get(r['uom_id'], 'ĐVT')} ×{r['factor']} · r{r['revision']}"
+                f"{self.uoms.get(r['uom_id'], 'ĐVT')} ×{r['factor']}  r{r['revision']}"
                 for r in self.conversions
             ]
         )
@@ -483,7 +490,7 @@ class OrderView(ttk.Frame):
         if self.conversions:
             self.conversion.current(0)
         self.enable()
-        self.variables["status"].set("Chọn quy cách và nhập số lượng rồi thêm dòng.")
+        self.variables["status"].set("Chọn quy cách và nhập số lượng rồi thêm dòng")
 
     def add_line(self):
         p, u = self.product.current(), self.conversion.current()
@@ -500,7 +507,7 @@ class OrderView(ttk.Frame):
                 sku=product["sku"],
                 uom_code=self.uoms.get(conversion["uom_id"], f"×{conversion['factor']}"),
                 posted_base="0",
-                remaining_base="—",
+                remaining_base="",
             )
         )
         self.render_lines()
@@ -533,12 +540,12 @@ class OrderView(ttk.Frame):
             return
         reason = self.variables["reason"].get().strip()
         if not reason:
-            self.orders_error("Nhập lý do trước khi lưu hoặc chuyển trạng thái.")
+            self.orders_error("Nhập lý do trước khi lưu hoặc chuyển trạng thái")
             return
         if action == "save":
             partner = self.partner.current()
             if partner < 0:
-                self.orders_error("Chọn đối tác đang hoạt động.")
+                self.orders_error("Chọn đối tác đang hoạt động")
                 return
             body = dict(
                 warehouse_id=self.warehouse_id(),
@@ -559,7 +566,7 @@ class OrderView(ttk.Frame):
                 body = (OrderUpdate if self.doc else OrderInput).model_validate(body).model_dump(mode="json")
             except ValueError:
                 self.orders_error(
-                    "Kiểm tra ngày, số lượng và quy cách. Quy đổi đã ngừng dùng cần bỏ/thêm lại dòng."
+                    "Kiểm tra ngày, số lượng và quy cách; Quy đổi đã ngừng dùng cần bỏ/thêm lại dòng"
                 )
                 return
             self.presenter.command(
@@ -589,7 +596,7 @@ class OrderView(ttk.Frame):
         self.busy = False
         self.enable()
         suffix = (
-            " Nội dung nhập vẫn được giữ; tải lại phiếu để đối chiếu khi version đã đổi."
+            " Nội dung nhập vẫn được giữ; tải lại phiếu để đối chiếu khi version đã đổi"
             if self.doc or self.lines
             else ""
         )
@@ -615,9 +622,9 @@ class OrderView(ttk.Frame):
         self.review_panel.loaded(result)
         if self.doc and result["current_version"] != self.doc["version"]:
             self.presenter.needs_reload = True
-            self.orders_error("Version máy chủ đã đổi. Đọc lại phiếu trước khi quyết định.")
+            self.orders_error("Version máy chủ đã đổi; Đọc lại phiếu trước khi quyết định")
         else:
-            self.variables["status"].set("Đã tải các bản lưu gửi duyệt để đối chiếu.")
+            self.variables["status"].set("Đã tải các bản lưu gửi duyệt để đối chiếu")
             self.enable()
 
     def load_candidates(self, after=None):
@@ -630,12 +637,12 @@ class OrderView(ttk.Frame):
         self.candidate_after = page["next_after"]
         self.candidate_table.delete(*self.candidate_table.get_children())
         for person in self.candidates:
-            label = f"{person['display_name']} · {person['username']}"
+            label = f"{person['display_name']}  {person['username']}"
             self.candidate_table.insert("", "end", iid=person["id"], values=(label,))
             if person["id"] in self.assignees:
                 self.assignees[person["id"]] = label
         self.render_assignees()
-        self.variables["status"].set("Chọn người để thêm/bỏ; nhập lý do rồi lưu toàn bộ phân công.")
+        self.variables["status"].set("Chọn người để thêm/bỏ; nhập lý do rồi lưu toàn bộ phân công")
         self.enable()
 
     def render_assignees(self):
@@ -664,7 +671,7 @@ class OrderView(ttk.Frame):
             body = AssignmentInput(expected_version=self.doc["version"], user_ids=list(self.assignees),
                                    reason=self.variables["reason"].get().strip()).model_dump(mode="json")
         except ValueError:
-            self.orders_error("Nhập lý do và chọn tối đa 50 người được phân công.")
+            self.orders_error("Nhập lý do và chọn tối đa 50 người được phân công")
             return
         self.presenter.command("POST", f"documents/{self.doc['id']}/assignments", body)
 

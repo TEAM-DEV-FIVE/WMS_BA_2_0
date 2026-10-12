@@ -3,6 +3,13 @@
 ROUTES = (
     ('POST', 'operations/outbox/{event_id}/replay', 'COMMAND'),
     ('POST', 'auth/login', 'ONLINE'),
+    ('PATCH', 'auth/profile', 'ONLINE'),
+    ('POST', 'auth/forgot', 'ONLINE'),
+    ('POST', 'auth/self-reset', 'ONLINE'),
+    ('POST', 'auth/contacts/start', 'ONLINE'),
+    ('POST', 'auth/contacts/confirm', 'ONLINE'),
+    ('POST', 'auth/google/start', 'ONLINE'),
+    ('POST', 'auth/google/complete', 'ONLINE'),
     ('POST', 'auth/mfa', 'ONLINE'),
     ('POST', 'auth/refresh', 'ONLINE'),
     ('POST', 'auth/logout', 'ONLINE'),

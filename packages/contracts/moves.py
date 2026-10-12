@@ -57,6 +57,7 @@ class MoveLocation(Contract):
 class MoveLocationPage(Contract):
     items: list[MoveLocation]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class MoveStock(Contract):
@@ -83,3 +84,4 @@ class MoveStock(Contract):
 class MoveStockPage(Contract):
     items: list[MoveStock]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)

@@ -2,6 +2,8 @@ import json
 import tkinter as tk
 from tkinter import ttk
 
+from apps.desktop.views.data_table import DataTable
+
 
 def flattened(value, prefix=""):
     result = {}
@@ -12,14 +14,14 @@ def flattened(value, prefix=""):
         for line in value:
             result.update(flattened(line, f"Dòng {line['line_no']}"))
     else:
-        result[prefix] = "—" if value is None else (
+        result[prefix] = "" if value is None else (
             json.dumps(value, ensure_ascii=False) if isinstance(value, list) else str(value))
     return result
 
 
 def snapshot_diff(before, after):
     left, right = flattened(before), flattened(after)
-    return [(key, left.get(key, "—"), right.get(key, "—"))
+    return [(key, left.get(key, ""), right.get(key, ""))
             for key in sorted(left.keys() | right.keys()) if left.get(key) != right.get(key)]
 
 
@@ -35,7 +37,7 @@ FIELD_LABELS = {
 
 
 def field_label(path):
-    return " · ".join(FIELD_LABELS.get(p, p) for p in path.split(".") if p not in {"header", "receipt_plan"})
+    return "  ".join(FIELD_LABELS.get(p, p) for p in path.split(".") if p not in {"header", "receipt_plan"})
 
 
 class ScrollPanel(ttk.Frame):
@@ -48,10 +50,23 @@ class ScrollPanel(ttk.Frame):
         scrollbar.pack(side="right", fill="y")
         self.canvas.pack(side="left", fill="both", expand=True)
         self.canvas.configure(yscrollcommand=scrollbar.set)
-        self.inner = ttk.Frame(self.canvas, padding=4)
-        self.window = self.canvas.create_window(0, 0, anchor="nw", window=self.inner)
-        self.canvas.bind("<Configure>", lambda event: self.canvas.itemconfigure(self.window, width=event.width))
-        self.inner.bind("<Configure>", lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.viewport = ttk.Frame(self.canvas)
+        self.viewport.columnconfigure(0, weight=1)
+        self.viewport.rowconfigure(0, weight=1)
+        self.inner = ttk.Frame(self.viewport, padding=4)
+        self.inner.grid(row=0, column=0, sticky="nsew")
+        self.window = self.canvas.create_window(0, 0, anchor="nw", window=self.viewport)
+        self.canvas.bind("<Configure>", self.fit_content)
+        self.viewport.bind("<Configure>", lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        # Collapsing content while scrolled to the bottom can move the entire
+        # canvas window offscreen before Tk emits another Configure event.
+        self.viewport.bind("<Unmap>", lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+    def fit_content(self, event=None):
+        # Fill short pages while retaining scrolling for forms taller than the viewport.
+        self.canvas.itemconfigure(self.window, width=self.canvas.winfo_width())
+        self.viewport.rowconfigure(0, minsize=self.canvas.winfo_height())
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def bind_scrolling(self):
         def focus(event):
@@ -94,7 +109,7 @@ class ReviewPanel(ScrollPanel):
         ttk.Label(self.inner, textvariable=self.message, wraplength=700).pack(fill="x", pady=4)
         frame = ttk.Frame(self.inner)
         frame.pack(fill="both", expand=True)
-        self.table = ttk.Treeview(frame, columns=("field", "before", "after"), show="headings", height=5)
+        self.table = DataTable(frame, columns=("field", "before", "after"), show="headings", height=5)
         for key, title, width in [("field", "Trường thay đổi", 210), ("before", "Bản trước", 280),
                                   ("after", "Bản sau", 280)]:
             self.table.heading(key, text=title)
@@ -106,8 +121,8 @@ class ReviewPanel(ScrollPanel):
         self.detail = tk.Text(self.inner, height=3, wrap="word", state="disabled", takefocus=True)
         self.detail.pack(fill="x", pady=3)
         self.table.bind("<<TreeviewSelect>>", self.show_detail)
-        ttk.Label(self.inner, text="Chỉ có bản lưu lúc gửi duyệt và nội dung hiện tại; không phải lịch sử mọi lần sửa.\n"
-                  "Đối chiếu trường nghiệp vụ được hỗ trợ; không bao gồm giá hoặc thuộc tính tùy biến.",
+        ttk.Label(self.inner, text="Chỉ có bản lưu lúc gửi duyệt và nội dung hiện tại; không phải lịch sử mọi lần sửa\n"
+                  "Đối chiếu trường nghiệp vụ được hỗ trợ; không bao gồm giá hoặc thuộc tính tùy biến",
                   wraplength=740).pack(fill="x")
         self.clear()
         self.bind_scrolling()
@@ -120,7 +135,7 @@ class ReviewPanel(ScrollPanel):
         self.before.configure(values=[])
         self.after.configure(values=[])
         self.table.delete(*self.table.get_children())
-        self.message.set("Chọn phiếu rồi tải các bản lưu để so sánh.")
+        self.message.set("Chọn phiếu rồi tải các bản lưu để so sánh")
         self.set_detail("")
 
     def set_detail(self, text):
@@ -139,7 +154,7 @@ class ReviewPanel(ScrollPanel):
         available = [r for r in result["snapshots"] if r["content"] is not None]
         self.unavailable = len(result["snapshots"]) - len(available)
         self.records = [r["content"] for r in available] + [result["current"]]
-        labels = [f"Gửi duyệt v{r['document_version']} · {r['status']}" for r in available]
+        labels = [f"Gửi duyệt v{r['document_version']}  {r['status']}" for r in available]
         labels += [f"Hiện tại v{result['current_version']}"]
         self.before.configure(values=labels)
         self.after.configure(values=labels)
@@ -155,10 +170,10 @@ class ReviewPanel(ScrollPanel):
         changes = snapshot_diff(self.records[self.before.current()], self.records[self.after.current()])
         for field, left, right in changes:
             self.table.insert("", "end", values=(field_label(field), left, right))
-        self.message.set(f"{len(changes)} trường thay đổi trong nội dung đối chiếu." if changes else
-                         "Không có khác biệt trong các trường được hiển thị của hai bản đã chọn.")
+        self.message.set(f"{len(changes)} trường thay đổi trong nội dung đối chiếu" if changes else
+                         "Không có khác biệt trong các trường được hiển thị của hai bản đã chọn")
         if self.unavailable:
-            self.message.set(f"{self.unavailable} lần gửi cũ không có bản lưu; không thể so sánh các lần đó. "
+            self.message.set(f"{self.unavailable} lần gửi cũ không có bản lưu; không thể so sánh các lần đó "
                              + self.message.get())
 
     def release_variables(self):

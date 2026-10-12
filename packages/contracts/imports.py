@@ -87,6 +87,7 @@ class ImportRowView(Contract):
 class ImportRows(Contract):
     items: list[ImportRowView]
     next_after: int | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class ImportAck(Contract):

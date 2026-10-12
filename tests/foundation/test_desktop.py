@@ -159,7 +159,7 @@ def test_tk_shell_opens_calls_api_and_closes(monkeypatch):
         while "Đã kết nối" not in shell.status.get() and time.monotonic() < deadline:
             root.update()
             time.sleep(0.01)
-        assert shell.status.get() == "Đã kết nối máy chủ."
+        assert shell.status.get() == "Đã kết nối máy chủ"
     finally:
         shell.close()
         shell.finish()

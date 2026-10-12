@@ -196,16 +196,23 @@ class ReversalService:
         return dict(items=items, next_after=ids[limit - 1] if len(ids) > limit else None)
 
     def listing(self, auth, warehouse_id, status=None, after=None, limit=50):
-        result = self.orders.listing(auth, "REVERSAL", warehouse_id, status, after, limit)
         visible = []
-        for item in result["items"]:
-            try:
-                self.orders.document(auth, item.id, "REVERSAL")
-                visible.append(item)
-            except DomainError as exc:
-                if exc.code not in {"NOT_FOUND", "FORBIDDEN"}:
-                    raise
-        return {**result, "items": visible}
+        cursor = None
+        while True:
+            result = self.orders.listing(auth, "REVERSAL", warehouse_id, status, cursor, 200)
+            for item in result["items"]:
+                try:
+                    self.orders.document(auth, item.id, "REVERSAL")
+                    visible.append(item)
+                except DomainError as exc:
+                    if exc.code not in {"NOT_FOUND", "FORBIDDEN"}:
+                        raise
+            cursor = result["next_after"]
+            if cursor is None:
+                break
+        remaining = [item for item in visible if after is None or item.id > after]
+        return dict(items=remaining[:limit], total=len(visible),
+                    next_after=remaining[limit - 1].id if len(remaining) > limit else None)
 
     def snapshot(self, c, doc):
         return {"source": self.metadata(c, doc["id"]), "lines": [dict(r) for r in c.execute(text("""SELECT r.*

@@ -32,6 +32,18 @@ def history_page(
             clauses.append(f"created_at{operator}:{key}")
     if status:
         clauses.append("status=:status")
+    total = 0
+    candidates = auth.connection.execute(
+        text(f"SELECT * FROM wms.{table} WHERE " + " AND ".join(clauses)), params
+    ).mappings()
+    for candidate in candidates:
+        try:
+            authorize(candidate)
+        except DomainError as error:
+            if error.code not in {"FORBIDDEN", "NOT_FOUND"}:
+                raise
+        else:
+            total += 1
     # Cursor resolves only inside the current actor. Unknown/foreign IDs reveal nothing.
     if after:
         anchor = auth.connection.execute(
@@ -64,9 +76,9 @@ def history_page(
                 continue
             items.append(project(row))
             if len(items) > limit:
-                return dict(items=items[:limit], next_after=items[limit - 1]["id"])
+                return dict(items=items[:limit], next_after=items[limit - 1]["id"], total=total)
         if len(rows) < 100:
-            return dict(items=items, next_after=None)
+            return dict(items=items, next_after=None, total=total)
         params.update(anchor_time=rows[-1]["created_at"], anchor_id=rows[-1]["id"])
         boundary = "(created_at,id)<(:anchor_time,:anchor_id)"
         if boundary not in clauses:

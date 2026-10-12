@@ -72,3 +72,35 @@ def test_logout_network_error_still_drops_local_credentials():
         assert api._tokens is None and api._challenge is None
     finally:
         api.close()
+
+
+@pytest.mark.parametrize("supports_avatar,changes_avatar", [(False, True), (False, False), (True, True)])
+def test_profile_detects_old_server_without_sending_unsupported_avatar(tmp_path, supports_avatar, changes_avatar):
+    from packages.contracts.identity import SessionTokens
+
+    user = dict(id=str(uuid4()), username="operator", display_name="Operator", is_active=True,
+                mfa_verified=True, global_permissions=[])
+    if supports_avatar:
+        user.update(avatar_base64=None, avatar_version=0)
+    writes = []
+    def serve(request):
+        if request.method == "PATCH":
+            writes.append(request)
+        return httpx.Response(200, json=user)
+    api = IdentityClient(DesktopSettings(local_data_dir=tmp_path), transport=httpx.MockTransport(serve))
+    api._tokens = SessionTokens.model_validate(token_result())
+    body = dict(display_name="Operator", expected_display_name="Operator")
+    if changes_avatar:
+        body.update(avatar_base64=None, expected_avatar_version=0)
+    try:
+        if changes_avatar and not supports_avatar:
+            with pytest.raises(ApiError) as failure:
+                api.update_profile(body)
+            assert failure.value.code == "SERVER_UPDATE_REQUIRED"
+            assert not writes
+        else:
+            assert str(api.update_profile(body).id) == user["id"]
+            assert len(writes) == 1
+        assert api._tokens is not None
+    finally:
+        api.close()

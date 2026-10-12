@@ -81,6 +81,22 @@ def test_credential_parser_fails_closed(tmp_path, mode, text_value):
         lan_runtime.read_config(f, secret=True)
 
 
+def test_auth_provider_secrets_require_private_separate_file(profile, tmp_path, monkeypatch):
+    monkeypatch.setattr(os, "environ", os.environ.copy())
+    auth = tmp_path / "auth.env"
+    auth.write_text("WMS_AUTH_SMTP_HOST=smtp.example.test\nWMS_AUTH_SMTP_PASSWORD=fixture-secret\n")
+    auth.chmod(0o644)
+    with pytest.raises(ValueError):
+        lan_runtime.configure(*profile, auth)
+    auth.chmod(0o600)
+    lan_runtime.configure(*profile, auth)
+    assert os.environ["WMS_AUTH_SMTP_PASSWORD"] == "fixture-secret"
+    lan_runtime.validate_config()
+    profile[0].write_text(profile[0].read_text() + "\nWMS_AUTH_TWILIO_AUTH_TOKEN=must-be-private\n")
+    with pytest.raises(ValueError):
+        lan_runtime.configure(*profile)
+
+
 def test_failure_output_never_contains_secret(profile, capsys, monkeypatch):
     monkeypatch.setattr(os, "environ", os.environ.copy())
     profile[1].write_text("WMS_MFA_ENCRYPTION_KEY=do-not-log-this-secret\n")
@@ -200,7 +216,7 @@ def test_failed_candidate_migration_preserves_previous_release_and_data(database
     with database.connect() as c:
         assert c.execute(text("SELECT to_regclass('wms.must_rollback')")).scalar_one() is None
         assert c.execute(text("SELECT count(*) FROM wms.warehouse WHERE code='B21'")).scalar_one() == 1
-        assert c.execute(text("SELECT count(*) FROM public.wms_schema_migration")).scalar_one() == 24
+        assert c.execute(text("SELECT count(*) FROM public.wms_schema_migration")).scalar_one() == len(sources)
 
 
 @pytest.mark.integration
@@ -216,12 +232,12 @@ def test_unprivileged_owner_can_upgrade_023_with_data(empty_database, monkeypatc
         lan_runtime.database_check(engine, migration=True)
         sources = migration_sources()
         with monkeypatch.context() as m:
-            m.setattr(migrations, "migration_sources", lambda: sources[:-1])
+            m.setattr(migrations, "migration_sources", lambda: sources[:23])
             assert len(migrate(engine)) == 23
         with engine.begin() as c:
             c.execute(text("INSERT INTO wms.warehouse(id,code,name,is_active) VALUES (:id,'UPGRADE','Keep',true)"),
                       {"id": uuid4()})
-        assert migrate(engine) == ["024_b20_outbox_operations.sql"]
+        assert migrate(engine) == [name for name, _, _ in sources[23:]]
         assert is_ready(engine)
         with engine.connect() as c:
             assert c.execute(text("SELECT name FROM wms.warehouse WHERE code='UPGRADE'")).scalar_one() == "Keep"

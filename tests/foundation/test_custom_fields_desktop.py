@@ -34,6 +34,8 @@ def custom_ui(custom):
         assert server.started
         shell = DesktopShell(tk.Tk(), DesktopSettings(api_url=f"http://127.0.0.1:{sock.getsockname()[1]}/api/v1"))
         view = shell.custom_fields_view
+        # These scenarios exercise purchase-order metadata, not product metadata.
+        view.variables["kind"].set("PO")
         shell.notebook.select(view)
         shell.root.geometry("800x620")
 
@@ -51,7 +53,7 @@ def custom_ui(custom):
             session = shell.session_view
             if session.presenter.api._tokens:
                 session.logout()
-                wait(lambda: session.status.get() == "Đã đăng xuất.")
+                wait(lambda: session.status.get() == "Đã đăng xuất")
             session.username.set(name)
             session.password.set("Test-only-password-2026!")
             session.login()
@@ -60,6 +62,10 @@ def custom_ui(custom):
                 session.code.set(pyotp.TOTP(secret).at(f.orders.iam.now))
                 session.mfa()
             wait(lambda: view.presenter.user_id is not None)
+            # Reopen the workflow after the shell changes its login/workspace page.
+            shell.notebook.select(view)
+            shell.root.update()
+            idle()
 
         f.shell, f.view, f.wait, f.idle, f.login = shell, view, wait, idle, login
         yield f

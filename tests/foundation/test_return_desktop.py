@@ -126,6 +126,7 @@ def test_returns_tk_http_create_approve_lost_ack_reconcile_and_logout(returning,
             time.sleep(.01)
         assert server.started
         root = tk.Tk()
+        root.geometry("900x690")
         shell = DesktopShell(root, DesktopSettings(api_url=f"http://127.0.0.1:{sock.getsockname()[1]}/api/v1", local_data_dir=tmp_path))
         view = shell.customer_return_view if kind == "CUSTOMER_RETURN" else shell.supplier_return_view
         session = shell.session_view
@@ -135,6 +136,9 @@ def test_returns_tk_http_create_approve_lost_ack_reconcile_and_logout(returning,
             session.login()
             wait(root, lambda: session.presenter.pending is None)
             assert view.presenter.user_id
+            # A new login lands on the workspace; reopen the tested workflow.
+            shell.notebook.select(view)
+            root.update()
         def done():
             wait(root, lambda: view.presenter.pending is None and not view.busy)
         login("buyer")
@@ -193,6 +197,8 @@ def test_returns_tk_http_create_approve_lost_ack_reconcile_and_logout(returning,
             assert "GUI-RETURN-SERIAL" in view.variables["detail"].get()
             assert "Chưa xác định" in view.variables["detail"].get()
         for widget in (view.source_selector, view.location_selector, view.day_entry, view.warranty_button, *view.buttons.values()):
+            widget.focus_force()
+            root.update()
             assert widget.winfo_ismapped()
             assert widget.winfo_rootx() + widget.winfo_width() <= root.winfo_rootx() + 900
             assert widget.winfo_rooty() + widget.winfo_height() <= root.winfo_rooty() + 690

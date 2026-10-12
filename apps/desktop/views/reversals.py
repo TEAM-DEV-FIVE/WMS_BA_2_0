@@ -3,7 +3,9 @@ from tkinter import messagebox, ttk
 from uuid import uuid4
 
 from apps.desktop.presenters.reversals import ReversalPresenter
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
 from apps.desktop.views.moves import WorkflowView
+from apps.desktop.views.pagination import install_pagination
 from packages.contracts.orders import DecisionInput, OrderAction
 from packages.contracts.reversals import ReversalInput, ReversalPost, ReversalUpdate
 
@@ -36,9 +38,14 @@ class ReversalView(WorkflowView):
         self.day_entry.pack(side="left", padx=5)
         self.buttons["preview"] = ttk.Button(dates, text="Xem trước ảnh hưởng", command=self.preview)
         self.buttons["preview"].pack(side="left")
-        self.plan = self.tree(self.content, ["sku", "owner", "trace", "source", "destination", "qty"],
+        self.tabs = ttk.Notebook(self.content)
+        self.tabs.pack(fill="both", expand=True, pady=6)
+        plan_page, effects_page, history_page = [ttk.Frame(self.tabs) for _ in range(3)]
+        for page, title in [(plan_page, "Dòng đảo"), (effects_page, "Ảnh hưởng tồn"), (history_page, "Lịch sử duyệt")]:
+            self.tabs.add(page, text=title)
+        self.plan = self.tree(plan_page, ["sku", "owner", "trace", "source", "destination", "qty"],
             ["SKU", "Chủ hàng", "Lô / serial", "Lấy từ", "Trả về", "Lượng cơ sở"], [100, 130, 130, 100, 100, 110])
-        self.effects = self.tree(self.content, ["stock", "location", "before", "reserved", "delta", "after"],
+        self.effects = self.tree(effects_page, ["stock", "location", "before", "reserved", "delta", "after"],
             ["Danh tính tồn", "Vị trí", "Hiện tại", "Giữ chỗ", "Thay đổi", "Sau đảo"], [210, 100, 90, 90, 90, 100])
         self.reason_form()
         actions = ttk.Frame(self.content)
@@ -47,11 +54,14 @@ class ReversalView(WorkflowView):
             ("reject", "Từ chối"), ("revise", "Sửa lại"), ("cancel", "Hủy"), ("post", "Ghi sổ đảo")]):
             self.buttons[action] = ttk.Button(actions, text=title, command=lambda a=action: self.action(a))
             self.buttons[action].grid(row=index // 4, column=index % 4, sticky="ew", padx=3, pady=3)
-        self.history = self.tree(self.content, ["revision", "step", "decision", "actor", "reason"],
+        self.history = self.tree(history_page, ["revision", "step", "decision", "actor", "reason"],
             ["Phiên duyệt", "Bước", "Kết quả", "Người duyệt", "Ý kiến"], [110, 60, 100, 130, 250])
         self.retry_form(operation=True)
         self.operation_button.configure(text="Tra ACK yêu cầu")
+        self.document_pages = DocumentPages(self.table)
         self.session_changed()
+        install_pagination(self, lambda after: self.presenter.load(after=after), limit=50, resource='reversals')
+        self.enable()
 
     def enable(self):
         free = bool(self.presenter.user_id and self.warehouse_id()) and not self.busy
@@ -71,8 +81,11 @@ class ReversalView(WorkflowView):
         self.set_enabled(self.reason_entry, writable)
         self.set_enabled(self.retry_button, free and self.presenter.uncertain)
         self.set_enabled(self.operation_button, free and self.presenter.uncertain)
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.buttons["load"].instate(["!disabled"]) and not self.presenter.uncertain)
 
     def workflow_clear(self):
+        reset_document_page(self)
         self.doc, self.preview_data, self.sources, self.permissions = None, None, [], []
         self.cursors = {"reversals": None, "reversals/sources": None}
         self.busy = False
@@ -90,8 +103,9 @@ class ReversalView(WorkflowView):
             table.delete(*table.get_children())
         self.variables["day"].set(date.today().isoformat())
         self.variables["reason"].set("")
-        self.variables["detail"].set("Chọn một lần ghi sổ gốc và xem trước toàn bộ ảnh hưởng.")
+        self.variables["detail"].set("Chọn một lần ghi sổ gốc và xem trước toàn bộ ảnh hưởng")
         self.enable()
+        show_document(self)
 
     def source_changed(self, event=None):
         self.preview_data = None
@@ -107,7 +121,7 @@ class ReversalView(WorkflowView):
                 raise ValueError()
             self.presenter.preview(source, day)
         except (ValueError, IndexError):
-            self.workflow_error("Chọn nguồn và nhập ngày đảo YYYY-MM-DD.")
+            self.workflow_error("Chọn nguồn và nhập ngày đảo YYYY-MM-DD")
 
     def select(self, event=None):
         selected = self.table.selection()
@@ -122,7 +136,7 @@ class ReversalView(WorkflowView):
             if action == "save":
                 p = self.preview_data
                 if not p or not p["eligible"] or p["business_date"] != self.variables["day"].get():
-                    return self.workflow_error("Xem trước lại đúng nguồn và ngày trước khi lưu nháp.")
+                    return self.workflow_error("Xem trước lại đúng nguồn và ngày trước khi lưu nháp")
                 fields = dict(source_transaction_id=p["source"]["id"], source_version=p["source"]["source_version"], business_date=p["business_date"], reason=reason)
                 body = ReversalUpdate(**fields, expected_version=self.doc["version"]) if self.doc else ReversalInput(**fields)
                 method, path = ("PUT", "reversals/" + self.doc["id"]) if self.doc else ("POST", "reversals")
@@ -143,22 +157,24 @@ class ReversalView(WorkflowView):
                     body = OrderAction(**fields)
             self.presenter.command(method, path, body.model_dump(mode="json"))
         except (ValueError, TypeError, StopIteration):
-            self.workflow_error("Kiểm tra nguồn, ngày, quyền duyệt và lý do (ít nhất 3 ký tự).")
+            self.workflow_error("Kiểm tra nguồn, ngày, quyền duyệt và lý do (ít nhất 3 ký tự)")
 
     def display_preview(self, data):
         self.preview_data = data
         self.plan.delete(*self.plan.get_children())
         self.effects.delete(*self.effects.get_children())
         for row in data["plan"]:
-            self.plan.insert("", "end", values=(row["sku"], row["owner_code"], row["lot_code"] or row["serial_code"] or "—",
+            self.plan.insert("", "end", values=(row["sku"], row["owner_code"], row["lot_code"] or row["serial_code"] or "",
                 row["source_code"], row["destination_code"], row["quantity_base"]))
         for row in data["effects"]:
             self.effects.insert("", "end", values=tuple(row[k] for k in ["stock_item_id", "location_code", "on_hand", "reserved", "delta", "projected_on_hand"]))
         original = data["source"]
-        message = "Đủ điều kiện tại thời điểm xem trước." if data["eligible"] else " | ".join(r["message"] for r in data["blockers"])
-        self.variables["detail"].set(f"Nguồn {original['document_number']} · {original['operation']} · {original['id']}\n{message}")
+        message = "Đủ điều kiện tại thời điểm xem trước" if data["eligible"] else " | ".join(r["message"] for r in data["blockers"])
+        self.variables["detail"].set(f"Nguồn {original['document_number']}  {original['operation']}  {original['id']}\n{message}")
 
     def workflow_loaded(self, action, data, permissions):
+        if action == 'reversals':
+            self.pagination.loaded(data)
         self.busy, self.permissions = False, permissions
         if action == "reversals":
             self.cursors[action] = data["next_after"]
@@ -168,7 +184,7 @@ class ReversalView(WorkflowView):
         elif action == "reversals/sources":
             self.sources, self.cursors[action] = data["items"], data["next_after"]
             self.source_selector.set("")
-            self.source_selector.configure(values=[f"{r['document_number']} · {r['operation']} · {r['id']}" for r in self.sources])
+            self.source_selector.configure(values=[f"{r['document_number']}  {r['operation']}  {r['id']}" for r in self.sources])
             if not self.doc:
                 self.source_changed()
         elif action == "preview":
@@ -178,13 +194,13 @@ class ReversalView(WorkflowView):
             self.variables["day"].set(data["business_date"])
             self.variables["reason"].set(data["reversal_reason"])
             self.display_preview(data["preview"])
-            self.variables["detail"].set(f"{data['number']} · {data['status']} · v{data['version']}\n" + self.variables["detail"].get() +
+            self.variables["detail"].set(f"{data['number']}  {data['status']}  v{data['version']}\n" + self.variables["detail"].get() +
                 (f"\nGiao dịch đảo: {data['transaction_id']}" if data["transaction_id"] else ""))
             self.history.delete(*self.history.get_children())
             for approval in data["approvals"]:
                 for step in approval["steps"]:
-                    self.history.insert("", "end", values=(approval["document_version"], step["step_no"], step["status"], step["decider_name"] or "—", step["comment"] or ""))
-        self.variables["status"].set("Đã tải dữ liệu máy chủ.")
+                    self.history.insert("", "end", values=(approval["document_version"], step["step_no"], step["status"], step["decider_name"] or "", step["comment"] or ""))
+        self.variables["status"].set("Đã tải dữ liệu máy chủ")
         self.enable()
 
     def workflow_saved(self, result):

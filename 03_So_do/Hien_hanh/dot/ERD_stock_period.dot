@@ -1,0 +1,11 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · stock_period"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"stock_period" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_period</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">warehouse_id : uuid</TD></TR><TR><TD ALIGN="LEFT">starts_on : date</TD></TR><TR><TD ALIGN="LEFT">ends_on : date</TD></TR><TR><TD ALIGN="LEFT">status : character varying(10)</TD></TR><TR><TD ALIGN="LEFT">closed_by : uuid ?</TD></TR><TR><TD ALIGN="LEFT">closed_at : timestamp with time zone ?</TD></TR><TR><TD ALIGN="LEFT">version : integer</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"warehouse" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>warehouse</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"stock_period" -> "app_user" [label="closed_by → id"];
+"stock_period" -> "warehouse" [label="warehouse_id → id"];
+}

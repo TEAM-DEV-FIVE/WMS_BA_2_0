@@ -1,0 +1,52 @@
+{
+  "usb": {
+    "file": "usb.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:USB_flash_drive_-_unbranded-6661.jpg",
+    "download_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/USB_flash_drive_-_unbranded-6661.jpg/500px-USB_flash_drive_-_unbranded-6661.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "author": "Raimond Spekking",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sha256": "279f42350e4affdf7450d696785c26604b7a96e19d51d9a82d02370d48af698d",
+    "note": "Ảnh minh họa nhóm hàng; không xác nhận model hoặc cấu hình của SKU demo."
+  },
+  "ssd": {
+    "file": "ssd.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Samsung_SSD_840_EVO-front_left_PNr%C2%B00418.jpg",
+    "download_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Samsung_SSD_840_EVO-front_left_PNr%C2%B00418.jpg/500px-Samsung_SSD_840_EVO-front_left_PNr%C2%B00418.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "author": "D-Kuru",
+    "license": "CC BY-SA 3.0 at",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/at/deed.en",
+    "sha256": "5a066b6e3ae159bcea59a892e972dd1b518e04d6bdba85ac554ad0933f5a1190",
+    "note": "Ảnh minh họa nhóm hàng; không xác nhận model hoặc cấu hình của SKU demo."
+  },
+  "keyboard": {
+    "file": "keyboard.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Logitech_K760-3472.jpg",
+    "download_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Logitech_K760-3472.jpg/500px-Logitech_K760-3472.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "author": "Raimond Spekking",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sha256": "06b63c68a21ec251c60ee092399fbf45d37ea9f7ae6b6271923c0c7323d135d2",
+    "note": "Ảnh minh họa nhóm hàng; không xác nhận model hoặc cấu hình của SKU demo."
+  },
+  "mouse": {
+    "file": "mouse.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Logitech_G5_mouse_(top).jpg",
+    "download_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Logitech_G5_mouse_%28top%29.jpg/500px-Logitech_G5_mouse_%28top%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "author": "William Hook",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+    "sha256": "b1ddf333fd5e957e352d93ef2cf90a669b75031b660496d86d0da75e4dd243ac",
+    "note": "Ảnh minh họa nhóm hàng; không xác nhận model hoặc cấu hình của SKU demo."
+  },
+  "cable": {
+    "file": "cable.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Ethernet_cable.JPG",
+    "download_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Ethernet_cable.JPG/500px-Ethernet_cable.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "author": "Dmitry G",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "sha256": "52f84161abb18bebeb11b6cc357558418a53b32e0042bd1d1c066bf3d760df99",
+    "note": "Ảnh minh họa nhóm hàng; không xác nhận model hoặc cấu hình của SKU demo."
+  }
+}

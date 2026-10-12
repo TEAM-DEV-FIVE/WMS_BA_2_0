@@ -1,0 +1,30 @@
+digraph WMS {
+graph [rankdir=TB, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="Luồng xử lý lệnh và phục hồi ACK"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"input" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Người dùng xác nhận thao tác</B></FONT></TD></TR></TABLE>>];
+"store" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>IdentityClient / RecoveryJournal</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Lưu nội dung và idempotency key</TD></TR><TR><TD ALIGN="LEFT">Đánh dấu lệnh SENDING</TD></TR></TABLE>>];
+"api" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>API nhận lệnh</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Kiểm tra DTO / phiên / quyền</TD></TR></TABLE>>];
+"lock" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>CommandBus</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Khóa key; authorize trong UoW</TD></TR><TR><TD ALIGN="LEFT">Đối chiếu request hash</TD></TR></TABLE>>];
+"old" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Đã có kết quả cùng key</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Trả lại kết quả đã lưu</TD></TR></TABLE>>];
+"handle" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Handler nghiệp vụ</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Kiểm tra phiên bản / trạng thái</TD></TR><TR><TD ALIGN="LEFT">Khóa dữ liệu; cập nhật nghiệp vụ</TD></TR></TABLE>>];
+"commit" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Transaction commit</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Lưu kết quả idempotency</TD></TR><TR><TD ALIGN="LEFT">Dữ liệu / audit / outbox theo handler</TD></TR></TABLE>>];
+"ack" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Nhận ACK và kết quả</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Đánh dấu COMMITTED cục bộ</TD></TR></TABLE>>];
+"unknown" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Mất phản hồi</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Giữ lệnh UNKNOWN</TD></TR></TABLE>>];
+"lookup" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Tra ACK bằng yêu cầu gốc</B></FONT></TD></TR><TR><TD ALIGN="LEFT">X-WMS-Recovery: lookup-v1</TD></TR><TR><TD ALIGN="LEFT">Không thực thi lệnh còn thiếu</TD></TR></TABLE>>];
+"retry" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>Người dùng quyết định gửi lại</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Cùng key và cùng nội dung</TD></TR></TABLE>>];
+"input" -> "store" [label=""];
+"store" -> "api" [label="send-v1"];
+"api" -> "lock" [label=""];
+"lock" -> "old" [label="Key tồn tại, hash khớp"];
+"lock" -> "handle" [label="Chưa có, gửi lệnh thật"];
+"handle" -> "commit" [label="Hợp lệ"];
+"commit" -> "ack" [label="Phản hồi nhận được"];
+"old" -> "ack" [label=""];
+"commit" -> "unknown" [label="Phản hồi bị mất"];
+"unknown" -> "lookup" [label="Theo yêu cầu người dùng"];
+"lookup" -> "ack" [label="Tìm thấy kết quả"];
+"lookup" -> "retry" [label="OPERATION_UNCONFIRMED"];
+"retry" -> "api" [label="send-v1"];
+}

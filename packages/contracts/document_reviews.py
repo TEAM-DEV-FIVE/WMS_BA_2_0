@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import JsonValue
+from pydantic import Field, JsonValue
 
 from packages.contracts import Contract
 
@@ -17,6 +17,7 @@ class AssignmentCandidate(Contract):
 class AssignmentCandidatePage(Contract):
     items: list[AssignmentCandidate]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class ApprovalSnapshot(Contract):

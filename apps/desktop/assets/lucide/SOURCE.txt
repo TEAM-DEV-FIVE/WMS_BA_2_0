@@ -1,0 +1,3 @@
+Official source: https://github.com/lucide-icons/lucide
+Commit: 1fae58d0a9c661a338036838caf3399b5507bab6
+SVG geometry is unchanged. PNGs are rendered from these SVGs for Tk.

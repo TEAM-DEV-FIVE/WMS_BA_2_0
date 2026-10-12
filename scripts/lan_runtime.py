@@ -40,16 +40,22 @@ def read_config(path, *, secret=False):
     return result
 
 
-def configure(config, credential):
+def configure(config, credential, auth_credential=None):
     values = read_config(config)
     secrets = read_config(credential, secret=True)
     if set(secrets) != {"WMS_MFA_ENCRYPTION_KEY"} or "WMS_MFA_ENCRYPTION_KEY" in values:
         raise ValueError("Separate the MFA credential")
+    auth = read_config(auth_credential, secret=True) if auth_credential else {}
+    if any(not key.startswith("WMS_AUTH_") for key in auth) or set(auth) & set(values):
+        raise ValueError("Separate authentication provider credentials")
+    private = {"WMS_AUTH_SMTP_PASSWORD", "WMS_AUTH_TWILIO_AUTH_TOKEN", "WMS_AUTH_GOOGLE_CLIENT_SECRET"}
+    if private & set(values):
+        raise ValueError("Provider secrets require a private credential")
     # Ignore inherited settings, including unexpected storage/registry overrides.
     for key in list(os.environ):
         if key.startswith("WMS_"):
             del os.environ[key]
-    os.environ.update(values | secrets)
+    os.environ.update(values | secrets | auth)
     os.umask(0o077)
 
 
@@ -57,6 +63,7 @@ def validate_config(*, migration=False):
     from sqlalchemy.engine import make_url
 
     from apps.server.application.exports import ExportSettings
+    from apps.server.application.modern_identity import AuthSettings
     from apps.server.application.printing import PrintSettings
     from apps.server.infrastructure.config import Settings
     from apps.server.infrastructure.file_storage import ImportSettings
@@ -65,10 +72,11 @@ def validate_config(*, migration=False):
     settings = Settings()
     allowed = {"WMS_" + name.upper() for name in Settings.model_fields}
     for prefix, model in (("WMS_OUTBOX_", WorkerSettings), ("WMS_IMPORT_", ImportSettings),
-                          ("WMS_EXPORT_", ExportSettings), ("WMS_PRINT_", PrintSettings)):
+                          ("WMS_EXPORT_", ExportSettings), ("WMS_PRINT_", PrintSettings), ("WMS_AUTH_", AuthSettings)):
         allowed.update(prefix + name.upper() for name in model.model_fields)
     if any(key.startswith("WMS_") and key not in allowed for key in os.environ):
         raise ValueError("Unknown deployment setting")
+    AuthSettings()
     url = make_url(settings.database_url.get_secret_value())
     # This profile uses peer auth over a local Unix socket, with separate OS/DB users.
     expected = "wms_owner" if migration else "wms_app"
@@ -155,16 +163,18 @@ def api_ready():
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("check", "api", "worker", "migrate", "bootstrap", "monitor"))
+    parser.add_argument("action", choices=("check", "api", "worker", "auth-delivery", "migrate", "bootstrap", "monitor"))
     parser.add_argument("--config", type=Path, default=Path("/etc/wms/runtime.env"))
     parser.add_argument("--credential", type=Path)
+    parser.add_argument("--auth-credential", type=Path)
     parser.add_argument("--kind", choices=KINDS)
     parser.add_argument("--username")
     parser.add_argument("--display-name")
     args = parser.parse_args(argv)
     try:
         credential = args.credential or Path(os.environ["CREDENTIALS_DIRECTORY"]) / "mfa.env"
-        configure(args.config, credential)
+        auth = args.auth_credential or credential.parent / "auth.env"
+        configure(args.config, credential, auth if auth.exists() else None)
         settings, worker, roots = validate_config(migration=args.action == "migrate")
         if args.action == "migrate":
             from apps.server.infrastructure.database import make_engine
@@ -203,6 +213,10 @@ def main(argv=None):
             uvicorn.run(create_app(settings), host=settings.host, port=settings.port, access_log=False,
                         proxy_headers=False, timeout_graceful_shutdown=60)
             return 0
+        if args.action == "auth-delivery":
+            from apps.server.auth_delivery_worker import main as run
+
+            return run()
         if args.action == "bootstrap":
             if not args.username or not args.display_name or not sys.stdin.isatty():
                 raise ValueError("Bootstrap requires a terminal and user name")

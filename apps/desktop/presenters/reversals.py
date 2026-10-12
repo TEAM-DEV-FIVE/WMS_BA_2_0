@@ -82,7 +82,7 @@ def run_request(api, generation, cancelled, method, path, body, key, warehouse):
     except ApiError as exc:
         return None, [], (exc.code, str(exc)), api.session_generation
     except Exception:
-        return None, [], ("INVALID_RESPONSE", "Chưa xác minh được phản hồi. Giữ yêu cầu để tra ACK/gửi lại."), api.session_generation
+        return None, [], ("INVALID_RESPONSE", "Chưa xác minh được phản hồi; Giữ yêu cầu để tra ACK/gửi lại"), api.session_generation
 
 
 class ReversalPresenter(MovePresenter):

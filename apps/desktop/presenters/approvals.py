@@ -9,6 +9,9 @@ class ApprovalPresenter(OrderPresenter):
     """Inbox uses the existing scoped list/detail/decision APIs, without catalogue grants."""
 
     def load(self, path, warehouse, status="SUBMITTED", after=None, query=""):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None:
+            pagination.begin(after)
         def run():
             permissions = self.api.permissions(warehouse)
             params = {"warehouse_id": warehouse, "status": "SUBMITTED", "limit": 25}
@@ -31,13 +34,13 @@ def decision_explanation(doc, user_id, permissions):
     """Explain denial without inventing eligibility; only server can_decide enables a decision."""
     pending = next((a for a in doc["approvals"] if a["status"] == "PENDING"), None)
     if doc["status"] != "SUBMITTED" or not pending:
-        return "Phiếu không còn chờ duyệt."
+        return "Phiếu không còn chờ duyệt"
     if "document.approve" not in permissions:
-        return "Thiếu quyền duyệt tại kho đang chọn; quyền ở kho khác không áp dụng."
+        return "Thiếu quyền duyệt tại kho đang chọn; quyền ở kho khác không áp dụng"
     actors = {doc["created_by"], pending["requested_by"]}
     actors.update(s["decided_by"] for s in pending["steps"] if s["decided_by"])
     if str(user_id) in actors:
-        return "Không được tự duyệt: bạn là người lập, người gửi hoặc đã duyệt bước trước (SOD)."
+        return "Không được tự duyệt: bạn là người lập, người gửi hoặc đã duyệt bước trước (SOD)"
     if not pending["can_decide"]:
-        return "Máy chủ chưa cho phép duyệt: kiểm tra vai trò của bước hiện tại, quyền kho và nội dung phiếu."
-    return "Máy chủ cho phép quyết định ở phiên bản đang xem; quyền và nội dung được kiểm tra lại khi gửi."
+        return "Máy chủ chưa cho phép duyệt: kiểm tra vai trò của bước hiện tại, quyền kho và nội dung phiếu"
+    return "Máy chủ cho phép quyết định ở phiên bản đang xem; quyền và nội dung được kiểm tra lại khi gửi"

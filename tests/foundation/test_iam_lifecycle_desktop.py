@@ -187,7 +187,8 @@ def test_b04_gui_recovery_codes_and_new_enrollment_real_http(live_admin):  # noq
     session.password.set(PASSWORD)
     session.enroll()
     wait(h.root, lambda: session.presenter.pending is None)
-    new_secret = session.secret.get().split(": ", 1)[1]
+    assert session.enrollment_qr_image is not None
+    new_secret = session.secret.get().splitlines()[-1]
     session.code.set(pyotp.TOTP(new_secret).at(h.iam.now))
     session.confirm()
     wait(h.root, lambda: session.presenter.pending is None)

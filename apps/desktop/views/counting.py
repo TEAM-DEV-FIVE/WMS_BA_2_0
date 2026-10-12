@@ -3,7 +3,9 @@ from tkinter import ttk
 from uuid import uuid4
 
 from apps.desktop.presenters.counting import CountPresenter
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
 from apps.desktop.views.moves import WorkflowView
+from apps.desktop.views.pagination import install_pagination
 from packages.contracts.counting import (
     CountDecisionInput,
     CountEmptyInput,
@@ -64,9 +66,12 @@ class CountView(WorkflowView):
         self.field(counting, "quantity", "Số đếm thực tế (serial: 0 hoặc 1)")
         self.observe_button = ttk.Button(counting, text="Lưu vòng đếm độc lập", command=self.observe)
         self.observe_button.pack(anchor="w", pady=3)
-        self.history = self.tree(counting, ["round", "quantity", "counter", "reason"],
+        history_page = ttk.Frame(self.tabs, padding=8)
+        self.tabs.add(history_page, text="Lịch sử đếm")
+        ttk.Label(history_page, text="Lịch sử của dòng hàng đã chọn ở tab Đếm / duyệt").pack(anchor="w", pady=4)
+        self.history = self.tree(history_page, ["round", "quantity", "counter", "reason"],
                                  ["Vòng", "Số đếm", "Người đếm", "Lý do"], [65, 95, 285, 350])
-        ttk.Label(counting, text="Người được phân công chỉ thấy danh tính hàng và vòng kế tiếp. Hai vòng liên tiếp phải độc lập và khớp nhau.", wraplength=700).pack(fill="x")
+        ttk.Label(counting, text="Người được phân công chỉ thấy danh tính hàng và vòng kế tiếp; Hai vòng liên tiếp phải độc lập và khớp nhau", wraplength=700).pack(fill="x")
         for resource, name, title in [("products", "product", "SKU đã xác minh"), ("owners", "owner", "Chủ hàng"),
                                       ("agreements", "agreement", "Hợp đồng ký gửi (nếu có)")]:
             self.catalog_row(extra, resource, name, title)
@@ -82,11 +87,14 @@ class CountView(WorkflowView):
         self.extra_button.pack(anchor="w", pady=5)
         self.reason_form()
         self.retry_form(operation=True)
+        self.document_pages = DocumentPages(self.table)
         self.session_changed()
 
         from apps.desktop.scanner.widget import ScanBar
         self.scan_bar = ScanBar(self.content, self, "COUNT")
         self.scan_bar.pack(fill="x", pady=3, before=self.content.winfo_children()[0])
+        install_pagination(self, lambda after: self.presenter.load(after=after), limit=50, resource='counts')
+        self.enable()
 
     def field(self, parent, name, title, value=""):
         row = ttk.Frame(parent)
@@ -132,8 +140,11 @@ class CountView(WorkflowView):
         self.set_enabled(self.empty_button, writable and "confirm-empty" in allowed)
         self.set_enabled(self.retry_button, free and self.presenter.uncertain)
         self.set_enabled(self.operation_button, free and self.presenter.uncertain)
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def workflow_clear(self):
+        reset_document_page(self)
         self.doc, self.page_after, self.scope = None, None, []
         self.catalogs, self.catalog_after, self.permissions = {}, {}, []
         self.busy = False
@@ -155,9 +166,10 @@ class CountView(WorkflowView):
         self.lines.delete(*self.lines.get_children())
         self.history.delete(*self.history.get_children())
         self.variables["business_date"].set(date.today().isoformat())
-        self.variables["detail"].set("Phiên mới: chọn vị trí và ít nhất hai người đếm độc lập.")
+        self.variables["detail"].set("Phiên mới: chọn vị trí và ít nhất hai người đếm độc lập")
         self.tabs.select(0)
         self.enable()
+        show_document(self)
 
     def selected_catalog(self, resource, combo):
         index = combo.current()
@@ -168,9 +180,9 @@ class CountView(WorkflowView):
         loc = self.selected_catalog("locations", self.location_selector)
         users = [self.selected_catalog("users", w) for w in (self.counter1_selector, self.counter2)]
         if not loc or not all(users) or users[0]["id"] == users[1]["id"]:
-            return self.workflow_error("Chọn vị trí và hai người đếm khác nhau từ danh sách.")
+            return self.workflow_error("Chọn vị trí và hai người đếm khác nhau từ danh sách")
         if any(r["location_id"] == loc["id"] for r in self.scope):
-            return self.workflow_error("Vị trí đã có trong phạm vi.")
+            return self.workflow_error("Vị trí đã có trong phạm vi")
         self.scope.append(dict(location_id=loc["id"], user_ids=[u["id"] for u in users]))
         self.scope_table.insert("", "end", iid=loc["id"], values=(loc["code"], " / ".join(u["name"] for u in users)))
 
@@ -190,7 +202,7 @@ class CountView(WorkflowView):
             path = "counts" + ("/" + self.doc["id"] + "/" + action if action else "")
             self.presenter.command("POST", path, body)
         except (ValueError, TypeError):
-            self.workflow_error("Kiểm tra dữ liệu, ngày, phân công, số lượng và lý do (ít nhất 3 ký tự).")
+            self.workflow_error("Kiểm tra dữ liệu, ngày, phân công, số lượng và lý do (ít nhất 3 ký tự)")
 
     def action(self, action):
         if not self.doc:
@@ -228,7 +240,7 @@ class CountView(WorkflowView):
         agreement = self.selected_catalog("agreements", self.agreement_selector)
         idx = self.extra_location.current()
         if not product or not owner or idx < 0 or not self.doc:
-            return self.workflow_error("Chọn SKU, chủ hàng và vị trí được phân công.")
+            return self.workflow_error("Chọn SKU, chủ hàng và vị trí được phân công")
         self.send("extra", CountExtraInput, expected_version=self.doc["version"], location_id=self.doc["scope"][idx]["location_id"],
             product_id=product["id"], owner_id=owner["id"], consignment_id=agreement["id"] if agreement else None,
             lot_code=self.variables["lot"].get().strip() or None, serial_code=self.variables["serial"].get().strip() or None,
@@ -245,6 +257,8 @@ class CountView(WorkflowView):
             self.presenter.read(selected[0])
 
     def workflow_loaded(self, action, data, permissions):
+        if action == 'counts':
+            self.pagination.loaded(data)
         self.busy, self.permissions = False, permissions
         if action == "counts":
             self.page_after = data["next_after"]
@@ -258,18 +272,18 @@ class CountView(WorkflowView):
                        "products": [self.product_selector], "owners": [self.owner_selector], "agreements": [self.agreement_selector]}[resource]
             for widget in widgets:
                 widget.set("")
-                widget.configure(values=[r["code"] + " · " + r["name"] for r in data["items"]])
+                widget.configure(values=[r["code"] + "  " + r["name"] for r in data["items"]])
         else:
             self.doc = data
             mode = "Đếm mù" if data["mode"] == "BLIND" else "Xem xét / duyệt"
-            self.variables["detail"].set(f"{data['number']} · {data['status']} · v{data['version']} · {mode}")
+            self.variables["detail"].set(f"{data['number']}  {data['status']}  v{data['version']}  {mode}")
             if data["mode"] == "REVIEW" and data["decisions"]:
                 decisions = data["decisions"]
-                progress = " | ".join(f"Bước {d['step_no']}: {d['decision']} · {d['decided_by']} · {d['reason']}" for d in decisions)
+                progress = " | ".join(f"Bước {d['step_no']}: {d['decision']}  {d['decided_by']}  {d['reason']}" for d in decisions)
                 self.variables["detail"].set(self.variables["detail"].get() + "\n" + progress)
             if data["mode"] == "REVIEW" and data["empty_confirmations"]:
                 self.variables["detail"].set(self.variables["detail"].get() + "\nXác nhận trống: " + " | ".join(
-                    f"{r['location_id']} · {r['counted_by']} · {r['reason']}" for r in data["empty_confirmations"]))
+                    f"{r['location_id']}  {r['counted_by']}  {r['reason']}" for r in data["empty_confirmations"]))
             self.variables["reason"].set("")
             self.variables["quantity"].set("")
             self.lines.delete(*self.lines.get_children())
@@ -277,12 +291,12 @@ class CountView(WorkflowView):
             self.lines.configure(displaycolumns=("sku", "owner", "trace", "location", "round") if data["mode"] == "BLIND" else "#all")
             for row in data["lines"]:
                 self.lines.insert("", "end", iid=row["id"], values=(row["sku"], row["owner_code"] + (" / " + row["consignment_id"] if row["consignment_id"] else ""),
-                    row["lot_code"] or row["serial_code"] or "—", row["location_code"], row["next_round"],
+                    row["lot_code"] or row["serial_code"] or "", row["location_code"], row["next_round"],
                     row.get("snapshot_quantity", ""), row.get("approved_quantity") or "", row.get("delta") or ""))
             self.extra_location.set("")
             self.extra_location.configure(values=[r["location_id"] for r in data["scope"]])
             self.tabs.select(1)
-        self.variables["status"].set("Đã tải dữ liệu máy chủ.")
+        self.variables["status"].set("Đã tải dữ liệu máy chủ")
         self.enable()
 
     def workflow_saved(self, result):

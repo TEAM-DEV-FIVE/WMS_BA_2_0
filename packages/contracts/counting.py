@@ -88,6 +88,7 @@ class CountSummary(Contract):
 class CountPage(Contract):
     items: list[CountSummary]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class BlindLine(Contract):
@@ -152,3 +153,4 @@ class CountScopeView(Contract):
 class CountCatalog(Contract):
     items: list[CountCatalogItem]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)

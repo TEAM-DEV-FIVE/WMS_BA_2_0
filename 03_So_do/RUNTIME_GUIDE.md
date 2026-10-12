@@ -1,21 +1,15 @@
-# Kiến trúc hiện hành và cách đọc sơ đồ
+# Cách đọc sơ đồ hiện hành
 
-Các sơ đồ thiết kế gốc giữ nguyên cho truy vết. Runtime B01–B24 tại `7b168c0` được đọc theo các thành phần:
+Đối chiếu mã nguồn ngày 13/10/2026. Bắt đầu từ [kiến trúc](Hien_hanh/svg/ARCHITECTURE.svg), sau đó đọc [mục lục 130 sơ đồ](Hien_hanh/index.md). [PDF](Hien_hanh/WMS_Hien_hanh.pdf) có 5 trang mục lục và 130 trang nội dung.
 
-| Thành phần | Trách nhiệm và biên tin cậy |
-| --- | --- |
-| Desktop Tkinter | HTTP/TLS tới API; GUI trên main thread; worker cho I/O; SQLite003 chứa nháp và key, không credential DB |
-| Nginx | HTTPS443, guardHost, maintenance503, chuyển header ACK/recovery; không public private storage |
-| API FastAPI | IAM live, scope kho/owner/SOD/version; command kernel transaction ledger/balance/audit/outbox/ACK |
-| PostgreSQL16 | Nguồn chính thức; PG001–024,101bảng; owner migrate riêng runtime role; runtime không DDL/sửa ledger |
-| Outbox +5job/cleanupworker | Consumer chỉ enqueue trong transaction, executor I/O ngoài transaction, lease/fencing/generation |
-| Private files | Import/export/print tách root; tải qua API kiểm quyền hiện tại; không URL tĩnh |
-| Backup B22 | Base+WAL+checkpoint DB/files/config/MFA/release; restore cách ly trước promote/cutover |
-| Thiết bị | HID chỉ nhập; OSspool ngoài DB; UNKNOWN cần kiểm thực tế, không exactly-once giấy |
+| Nhóm | Căn cứ thực tế |
+|---|---|
+| Kiến trúc | Desktop Tkinter, FastAPI, PostgreSQL, journal SQLite, vault, cấu hình Nginx, kho tệp và 7 loại worker |
+| Lớp | Tên/thành viên đọc AST các lớp đang có, lát cắt desktop, server và DTO |
+| Luồng | Đường xử lý chính của service và vòng đời desktop; nhánh quyền/lỗi đọc mã nguồn ghi kèm |
+| Vai trò | 10 vai trò và 58 quyền seed sau migration; không phải quyền đang cấp của một tài khoản cụ thể |
+| ERD | Catalog schema `wms`: 108 bảng, 736 cột, 219 FK, migration 001–026 |
 
-Contract sinh tại [runtime OpenAPI](../05_API/openapi_runtime.json); mô hình gốc trong
-[model.json](../02_CSDL/model.json) và các extension cùng thư mục, SQL release trong `migrations/`.
-Đối chiếu `scripts/export_runtime_contract.py --check` và
-`scripts/check_artifacts.py`, không lấy số bảng ở PDF cũ để kết luận DB mới thiếu/thừa.
-Tài liệu [kiến trúc](../01_Tai_lieu/ARCHITECTURE.md), [recovery](../01_Tai_lieu/RECOVERY_ALL.md),
-[vận hành](../01_Tai_lieu/OPERATIONS_RUNBOOK.md) quy định luồng hiện hành.
+[Schema JSON](../02_CSDL/current/schema.json), [DBML hiện hành](../02_CSDL/current/wms.dbml), [OpenAPI runtime](../05_API/openapi_runtime.json) là các nguồn đối chiếu. `model.json`, core OpenAPI và bộ 91 trang cũ là thiết kế cơ sở.
+
+Chạy `scripts/export_report_schema.py --check`, `scripts/export_runtime_contract.py --check` và `scripts/check_report_current.py` để phát hiện nguồn thay đổi. Không dùng số bảng ở PDF cũ để kết luận DB mới thiếu/thừa. Xem [kiến trúc](../01_Tai_lieu/ARCHITECTURE.md) và [giới hạn bằng chứng](../01_Tai_lieu/HIEN_TRANG_BAO_CAO.md).

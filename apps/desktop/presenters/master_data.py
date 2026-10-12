@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 from uuid import uuid4
 
 from apps.desktop.api.client import ApiError
+from apps.desktop.catalog_display import legacy_sku_query
 
 REFERENCES = {
     "products": {"base_uom_id": "uoms", "category_id": "categories"},
@@ -41,6 +42,10 @@ class MasterDataPresenter:
             if after:
                 params["after"] = after
             result = self.api.get("master/" + entity + "?" + urlencode(params))
+            alias_query = legacy_sku_query(query) if entity == "products" else None
+            if not result["items"] and not after and alias_query:
+                params["q"] = alias_query
+                result = self.api.get("master/" + entity + "?" + urlencode(params))
             if entity == "locations":
                 ancestors, warehouses = {}, {}
                 for row in result["items"]:
@@ -78,7 +83,7 @@ class MasterDataPresenter:
 
     def save(self, entity, record_id, body):
         if self.uncertain:
-            self.view.catalog_error("Yêu cầu trước chưa rõ kết quả. Dùng nút Gửi lại cùng yêu cầu.", uncertain=True)
+            self.view.catalog_error("Yêu cầu trước chưa rõ kết quả; Dùng nút Gửi lại cùng yêu cầu", uncertain=True)
             return
         self.uncertain = (entity, record_id, deepcopy(body), uuid4())
         self.retry()
@@ -111,7 +116,7 @@ class MasterDataPresenter:
             self.pending = None
             if generation != self.api.session_generation:
                 self.view.catalog_clear()
-                self.view.catalog_error("Phiên đã thay đổi. Đăng nhập hoặc tải lại phiên trước khi tiếp tục.",
+                self.view.catalog_error("Phiên đã thay đổi; Đăng nhập hoặc tải lại phiên trước khi tiếp tục",
                                         uncertain=bool(self.uncertain))
                 continue
             try:
@@ -120,13 +125,13 @@ class MasterDataPresenter:
                 uncertain = action == "save" and error.code in {"TIMEOUT", "NETWORK_ERROR", "INTERNAL_ERROR", "INVALID_RESPONSE"}
                 if action == "save" and not uncertain:
                     self.uncertain = None
-                detail = " · ".join(f"{field.field}: {field.message}" for field in error.field_errors)
-                message = str(error) + (" · " + detail if detail else "")
+                detail = "  ".join(f"{field.field}: {field.message}" for field in error.field_errors)
+                message = str(error) + ("  " + detail if detail else "")
                 if error.code in {"FORBIDDEN", "UNAUTHENTICATED", "REFRESH_REPLAY"}:
                     self.view.catalog_clear()
                 self.view.catalog_error(message, uncertain=uncertain)
             except Exception:
-                self.view.catalog_error("Không đọc được phản hồi danh mục. Tải lại trước khi tiếp tục.", uncertain=action == "save")
+                self.view.catalog_error("Không đọc được phản hồi danh mục; Tải lại trước khi tiếp tục", uncertain=action == "save")
             else:
                 if action == "save":
                     self.uncertain = None

@@ -54,6 +54,9 @@ class IssuePresenter:
         self.pending.add_done_callback(lambda f: self.results.put((sequence, user, generation, action, f)))
 
     def load(self, warehouse, after=None):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None:
+            pagination.begin(after)
         def run():
             permissions = self.api.permissions(warehouse)
             query = {"warehouse_id": str(warehouse), "limit": 25}
@@ -82,7 +85,7 @@ class IssuePresenter:
 
     def command(self, method, path, body):
         if self.uncertain:
-            self.view.orders_error("UNKNOWN: tra ACK hoặc gửi lại đúng lệnh đang giữ trước khi tạo lệnh mới.")
+            self.view.orders_error("UNKNOWN: tra ACK hoặc gửi lại đúng lệnh đang giữ trước khi tạo lệnh mới")
             return
         if not self.user_id or self.closed:
             return
@@ -130,7 +133,7 @@ class IssuePresenter:
             if generation != self.api.session_generation:
                 self.mark_unknown()
                 self.view.orders_clear()
-                self.view.orders_error("Phiên đã đổi; đăng nhập và tải lại trước khi thao tác.")
+                self.view.orders_error("Phiên đã đổi; đăng nhập và tải lại trước khi thao tác")
                 continue
             try:
                 result = future.result()
@@ -145,11 +148,11 @@ class IssuePresenter:
                         self.commands.pop(user, None)
                 if error.code in {"FORBIDDEN", "UNAUTHENTICATED", "REFRESH_REPLAY"}:
                     self.view.orders_clear()
-                suffix = " UNKNOWN: chưa xác nhận; giữ cửa sổ và tra ACK/gửi lại cùng key." if self.uncertain else ""
+                suffix = " UNKNOWN: chưa xác nhận; giữ cửa sổ và tra ACK/gửi lại cùng key" if self.uncertain else ""
                 self.view.orders_error(str(error) + suffix)
             except Exception:
                 self.mark_unknown()
-                self.view.orders_error("Không xác minh được phản hồi. UNKNOWN nếu đang ghi; giữ cửa sổ và tra ACK/gửi lại đúng lệnh.")
+                self.view.orders_error("Không xác minh được phản hồi; UNKNOWN nếu đang ghi; giữ cửa sổ và tra ACK/gửi lại đúng lệnh")
             else:
                 if action in {"command", "lookup"}:
                     self.commands.pop(user, None)

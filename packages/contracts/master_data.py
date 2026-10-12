@@ -127,6 +127,7 @@ T = TypeVar("T")
 class Page(Contract, Generic[T]):
     items: list[T]
     next_after: UUID | None = None
+    total: int | None = Field(default=None, ge=0)
 
 
 def entity_models(data: type[Contract]):

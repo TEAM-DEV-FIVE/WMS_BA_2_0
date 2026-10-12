@@ -1,12 +1,13 @@
-# Sơ đồ BA 2.0
-91 trang có bookmark: 56 view ERD vật lý; 3 class implementation; 21 view use case/actor; 1 trạng thái; 1 sequence; 3 ERD khái niệm; 1 BAM; 5 BPMN.
+# Sơ đồ WMS
 
-PDF/SVG/draw.io dùng cùng tọa độ. Mỗi entity xuất hiện một lần trên mỗi trang ERD; toàn bộ 105 FK có mặt. Bảng đích là entity cùng tên thật với các cột liên quan, không có alias lặp. Quan hệ tự tham chiếu đi vòng về cùng một entity. Crow's foot: vòng tròn = 0, vạch = 1, chân quạ = nhiều. Tham khảo SQL cho unique/partial index và các quy tắc ngoài cardinality.
+**Bộ hiện hành ngày 13/10/2026:** [PDF](Hien_hanh/WMS_Hien_hanh.pdf) · [draw.io chỉnh sửa được](Hien_hanh/WMS_Hien_hanh.drawio) · [mục lục SVG](Hien_hanh/index.md) · [nguồn từng sơ đồ](Hien_hanh/diagram_sources.json).
 
-Khái niệm -> vật lý: Đối tác=partner; Chứng từ=document; Dòng=document_line; Sản phẩm=product; Kho=warehouse; Vị trí=location; Số dư=stock_balance; Danh tính hàng=stock_item; Tài khoản=app_user; Cấp vai trò=user_role_grant; Vai trò=role; Quyền=permission; N:N Vai trò/Quyền dùng role_permission. Vị trí đối ứng có warehouse nullable nên quan hệ Kho-Vị trí là 0..1 ở phía Kho trong mô hình bao gồm cả đối ứng; vị trí vận hành phải thuộc kho theo invariant.
+Bộ mới gồm 130 sơ đồ: 1 kiến trúc, 3 lớp thực tế, 1 trạng thái chứng từ, 1 phục hồi lệnh, 6 luồng phần mềm, 10 vai trò/quyền seed và 108 trang ERD. PDF có thêm 5 trang mục lục. Các lớp lấy từ AST Python; ERD lấy catalog PostgreSQL sau khi chạy đủ migration 001–026 trên cluster tạm, gồm 736 cột và 219 FK.
 
-Class diagram dùng mức triển khai (implementation) và interface; conceptual class có thể bổ sung sau khi chủ nghiệp vụ chốt vocabulary. Bản khái niệm hiện có là ERD, không gắn nhãn sai thành class. Document gồm 0..* dòng khi còn nháp; trước submit/post phải đạt điều kiện của loại phiếu.
+Mỗi trang ERD có đầy đủ cột bảng chính và FK đi ra. Bảng đích chỉ hiện các cột được tham chiếu; mỗi tên bảng xuất hiện một lần trên trang. Dấu `?` là nullable; mũi tên từ cột FK sang cột được tham chiếu. CHECK/UNIQUE/index đầy đủ nằm trong [schema JSON](../02_CSDL/current/schema.json); sơ đồ không thay thế invariant nghiệp vụ.
 
-UC05 chỉ bên mua lập/gửi PO; quản lý kho duyệt tại UC30, association cũ gây hiểu nhầm đã bỏ. UC29 extend UC01 có điều kiện MFA; UC22 include UC31; generalization actor chỉ kế thừa tương tác, không tự cấp quyền.
+PDF và SVG do Graphviz dựng; draw.io dùng tọa độ nút từ cùng layout nhưng đường nối do diagrams.net định tuyến lại. File draw.io được kiểm tra cấu trúc XML; không khẳng định đã mở trên mọi phiên bản diagrams.net. Có thể tái sinh bằng `scripts/build_current_diagrams.py`.
 
-BPMN chỉ dùng tập ký pháp cần cho các luồng; không chèn gateway song song nếu không có hành vi song song cần mô hình hóa. File .bpmn có DI và isExecutable=false. Nguồn PlantUML là ngữ nghĩa, engine ngoài có thể tự bố trí khác PDF/SVG/draw.io. Chưa mở kiểm thử bằng diagrams.net Desktop hoặc BPMN engine thực tế.
+**Các thư mục ngoài `Hien_hanh` là bộ thiết kế lịch sử 91 trang** với 56 bảng / 105 FK. Các class khái niệm, As-Is giả thuyết và To-Be đề xuất trong bộ này không phải mô tả đầy đủ ứng dụng hiện tại. Giữ để truy vết, dùng bộ mới khi viết báo cáo hiện trạng.
+
+[Hướng dẫn runtime](RUNTIME_GUIDE.md) · [Căn cứ báo cáo](../01_Tai_lieu/HIEN_TRANG_BAO_CAO.md).

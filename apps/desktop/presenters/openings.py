@@ -28,14 +28,14 @@ UNKNOWN_CODES = {
 
 def validate_lines(lines, products=None, units=None):
     if not 1 <= len(lines) <= 200:
-        raise ValueError("Phiếu tồn đầu kỳ cần 1–200 dòng; không chia nhiều phiếu để vượt giới hạn kho.")
+        raise ValueError("Phiếu tồn đầu kỳ cần 1–200 dòng; không chia nhiều phiếu để vượt giới hạn kho")
     serials = set()
     for index, line in enumerate(lines, 1):
         spec = OpeningLineInput.model_validate(line)
         if spec.owner_id == UNCLASSIFIED_OWNER:
-            raise ValueError("Chưa phân loại chủ hàng; cần chứng cứ và đối soát trước.")
+            raise ValueError("Chưa phân loại chủ hàng; cần chứng cứ và đối soát trước")
         if (spec.owner_id == COMPANY_OWNER) == bool(spec.consignment_id):
-            raise ValueError("Chọn hợp đồng cho chủ ký gửi; COMPANY không gắn hợp đồng.")
+            raise ValueError("Chọn hợp đồng cho chủ ký gửi; COMPANY không gắn hợp đồng")
         product = (products or {}).get(str(spec.product_id))
         if product:
             qty, tracking = Decimal(spec.quantity_base), product["tracking"]
@@ -44,20 +44,20 @@ def validate_lines(lines, products=None, units=None):
                 or (tracking == "LOT" and (not spec.lot_code or spec.serial_code))
                 or (tracking == "SERIAL" and (not spec.serial_code or spec.lot_code or qty != 1))
             ):
-                raise ValueError(f"Dòng {index}: lô/serial không đúng SKU; mỗi serial phải có lượng 1.")
+                raise ValueError(f"Dòng {index}: lô/serial không đúng SKU; mỗi serial phải có lượng 1")
             if tracking != "LOT" and (spec.manufactured_on or spec.expires_on):
-                raise ValueError(f"Dòng {index}: ngày sản xuất/hạn dùng chỉ áp dụng cho lô.")
+                raise ValueError(f"Dòng {index}: ngày sản xuất/hạn dùng chỉ áp dụng cho lô")
             if product.get("expiry_required") and not spec.expires_on:
-                raise ValueError(f"Dòng {index}: SKU yêu cầu hạn dùng.")
+                raise ValueError(f"Dòng {index}: SKU yêu cầu hạn dùng")
             unit = (units or {}).get(product["base_uom_id"])
             if unit and qty != qty.quantize(Decimal(1).scaleb(-unit["decimal_places"])):
-                raise ValueError(f"Dòng {index}: số lượng không đúng độ chính xác đơn vị cơ sở.")
+                raise ValueError(f"Dòng {index}: số lượng không đúng độ chính xác đơn vị cơ sở")
         if spec.manufactured_on and spec.expires_on and spec.manufactured_on > spec.expires_on:
-            raise ValueError(f"Dòng {index}: hạn dùng phải từ ngày sản xuất trở đi.")
+            raise ValueError(f"Dòng {index}: hạn dùng phải từ ngày sản xuất trở đi")
         if spec.serial_code:
             identity = (spec.product_id, spec.serial_code)
             if identity in serials:
-                raise ValueError(f"Dòng {index}: serial lặp trong phiếu.")
+                raise ValueError(f"Dòng {index}: serial lặp trong phiếu")
             serials.add(identity)
 
 
@@ -118,6 +118,9 @@ class OpeningPresenter:
         return True
 
     def load(self, status="", after=None):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None:
+            pagination.begin(after)
         warehouse = self.warehouse
 
         def run():
@@ -156,7 +159,7 @@ class OpeningPresenter:
             def run():
                 ack = self.openings.operation(key)
                 if self.openings.read(ack["id"])["warehouse_id"] != warehouse:
-                    raise ApiError("FORBIDDEN", "ACK thuộc kho khác. Chọn đúng kho rồi tra lại.")
+                    raise ApiError("FORBIDDEN", "ACK thuộc kho khác; Chọn đúng kho rồi tra lại")
                 return ack
 
             self.submit("ack", run, key)
@@ -178,7 +181,7 @@ class OpeningPresenter:
             self.pending = None
             if generation != self.api.session_generation:
                 self.view.opening_clear()
-                self.view.opening_error("Phiên đã thay đổi. Đăng nhập/tải lại để tra trạng thái.")
+                self.view.opening_error("Phiên đã thay đổi; Đăng nhập/tải lại để tra trạng thái")
                 continue
             try:
                 result = future.result()
@@ -189,10 +192,10 @@ class OpeningPresenter:
                     continue
                 if action == "command" and error.code not in UNKNOWN_CODES:
                     self.commands.pop(self.scope, None)
-                detail = " · ".join(f"{f.field}: {f.message}" for f in error.field_errors)
+                detail = "  ".join(f"{f.field}: {f.message}" for f in error.field_errors)
                 if error.code in {"FORBIDDEN", "UNAUTHENTICATED", "REFRESH_REPLAY"}:
                     self.view.opening_clear()
-                self.view.opening_error(f"{error.code}: {error}" + (" · " + detail if detail else ""))
+                self.view.opening_error(f"{error.code}: {error}" + ("  " + detail if detail else ""))
                 if (
                     action == "command"
                     and error.code in {"STALE_VERSION", "STALE_APPROVAL"}
@@ -201,7 +204,7 @@ class OpeningPresenter:
                     self.read(context.doc_id, stale=True)
             except Exception:
                 self.view.opening_error(
-                    "Không đọc được phản hồi. Giữ yêu cầu và tra trạng thái trước khi thử lại."
+                    "Không đọc được phản hồi; Giữ yêu cầu và tra trạng thái trước khi thử lại"
                 )
             else:
                 if action == "command":

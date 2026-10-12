@@ -128,6 +128,7 @@ class ReportService:
         )
         return dict(
             snapshot=self.view(snapshot),
+            total=snapshot["row_count"],
             items=[r["payload"] for r in rows[:limit]],
             next_after=rows[limit - 1]["ordinal"] if len(rows) > limit else None,
         )

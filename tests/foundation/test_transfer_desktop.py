@@ -253,6 +253,7 @@ def test_transfer_layout_900_by_690_and_main_thread_cleanup():
     from packages.contracts.identity import CurrentUser, WarehouseSummary
 
     root = tk.Tk()
+    root.geometry("900x690")
     shell = DesktopShell(root, DesktopSettings())
     try:
         shell.session_changed(
@@ -268,6 +269,7 @@ def test_transfer_layout_900_by_690_and_main_thread_cleanup():
         )
         view = shell.transfer_view
         shell.notebook.select(view)
+        view.document_pages.show_detail()
         for page in view.pages.values():
             view.tabs.select(page)
             root.update()

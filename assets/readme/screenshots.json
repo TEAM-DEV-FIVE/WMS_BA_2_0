@@ -1,0 +1,218 @@
+[
+  {
+    "feature": "login",
+    "title": "Đăng nhập",
+    "file": "assets/readme/login.png",
+    "captured_at": "2026-10-12T18:09:02.610008+00:00",
+    "sha256": "0aeaa5afd42b012d6d44a1e6994e3cf45060a5b53619c2aa81f7ee154f1813fb",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "session_view",
+    "title": "Kho làm việc",
+    "file": "assets/readme/session_view.png",
+    "captured_at": "2026-10-12T18:10:11.849792+00:00",
+    "sha256": "2d4465803e0836c02df66653d2911b4d7e5674f057322127e6477c289cd6bf18",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "master_container",
+    "title": "Danh mục sản phẩm",
+    "file": "assets/readme/master_container.png",
+    "captured_at": "2026-10-12T18:10:12.601741+00:00",
+    "sha256": "ee7d49ca3b6daa8d21b1d7adae9e93a45e39457f2ad46d7203e7e1349bd3b005",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "serial_view",
+    "title": "Serial & bảo hành",
+    "file": "assets/readme/serial_view.png",
+    "captured_at": "2026-10-12T18:10:13.420233+00:00",
+    "sha256": "4a1fb6328777dc2e248022cd5a612a916f355782e04ce9dcb8eb5362782b23fd",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "custom_fields_view",
+    "title": "Trường mở rộng",
+    "file": "assets/readme/custom_fields_view.png",
+    "captured_at": "2026-10-12T18:10:15.455710+00:00",
+    "sha256": "ae0e6e059bae7674f538a571f94c7f5a932a0075d63084830c3bea9a67c6a456",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "order_view",
+    "title": "Đơn mua / đơn bán",
+    "file": "assets/readme/order_view.png",
+    "captured_at": "2026-10-12T18:10:16.636358+00:00",
+    "sha256": "7c18853d9ee94b8bda741f7eac7a1bda24f633732c48d07a8babca3b24dc94da",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "approval_view",
+    "title": "Hộp thư phê duyệt",
+    "file": "assets/readme/approval_view.png",
+    "captured_at": "2026-10-12T18:10:17.500419+00:00",
+    "sha256": "e1e97f52c93fecbe0a6dea2fc5bca5017290c6545392e924563917393fe6966f",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "receipt_view",
+    "title": "Nhận hàng",
+    "file": "assets/readme/receipt_view.png",
+    "captured_at": "2026-10-12T18:10:18.262864+00:00",
+    "sha256": "21120d8b5dad401ec2520077b19edf5ec751ec655771872c7cc9280ed1d6fde2",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "opening_view",
+    "title": "Tồn đầu kỳ",
+    "file": "assets/readme/opening_view.png",
+    "captured_at": "2026-10-12T18:10:19.082900+00:00",
+    "sha256": "1cd960e5d0cb4edbd04aa662cd94898f82744c7824609ca8ccaff40cbd9020d4",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "consignment_view",
+    "title": "Nhận ký gửi",
+    "file": "assets/readme/consignment_view.png",
+    "captured_at": "2026-10-12T18:10:19.914521+00:00",
+    "sha256": "cd1d1e266769b92fc56cc2a792e4aa507ac0ecc261b5c0fe1c819d29463aff3c",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "issue_view",
+    "title": "Giữ hàng & xuất kho",
+    "file": "assets/readme/issue_view.png",
+    "captured_at": "2026-10-12T18:10:20.735880+00:00",
+    "sha256": "10fe837a1c21cb1f19413fa4c98f00e4e6b00395d01c84573ed497825af001b9",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "fulfillment_view",
+    "title": "Soạn & đóng kiện",
+    "file": "assets/readme/fulfillment_view.png",
+    "captured_at": "2026-10-12T18:10:21.995443+00:00",
+    "sha256": "2fe9176aa108654a50effd096546009db194d92c50554a92871cbd85a8ee50c7",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "quality_view",
+    "title": "Kiểm định chất lượng",
+    "file": "assets/readme/quality_view.png",
+    "captured_at": "2026-10-12T18:10:22.777366+00:00",
+    "sha256": "623ef3144e4687e3295cb4e3f0564d7208ff36ad4a83632ad730d7c144cd3eab",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "move_view",
+    "title": "Cất & di chuyển hàng",
+    "file": "assets/readme/move_view.png",
+    "captured_at": "2026-10-12T18:10:23.537781+00:00",
+    "sha256": "66346d6c0939557ae6a52a076e4fa0a338d82d0c3fd93c27135ce7ef540339e0",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "transfer_view",
+    "title": "Chuyển kho",
+    "file": "assets/readme/transfer_view.png",
+    "captured_at": "2026-10-12T18:10:24.439165+00:00",
+    "sha256": "b2dd0b63fe550d91a1487ed7856341b90d474f9ce4d1385fb759c88954618e61",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "customer_return_view",
+    "title": "Khách trả hàng",
+    "file": "assets/readme/customer_return_view.png",
+    "captured_at": "2026-10-12T18:10:25.209093+00:00",
+    "sha256": "48fcfb961547110eaf4049729feb666f0ee9e5e8c7f9ad61ffcd153012321e0e",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "supplier_return_view",
+    "title": "Trả nhà cung cấp",
+    "file": "assets/readme/supplier_return_view.png",
+    "captured_at": "2026-10-12T18:10:25.994845+00:00",
+    "sha256": "4c59555862591880a8d378c69a6ca1cba252dc00ee8fa329a0822afaeb3e8081",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "report_view",
+    "title": "Tồn kho & báo cáo",
+    "file": "assets/readme/report_view.png",
+    "captured_at": "2026-10-12T18:10:26.756111+00:00",
+    "sha256": "fb3ee65f7d82098c9b429abec211648ca5994b14066b83211a778491410c16b1",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "count_view",
+    "title": "Kiểm kê & điều chỉnh",
+    "file": "assets/readme/count_view.png",
+    "captured_at": "2026-10-12T18:10:27.597082+00:00",
+    "sha256": "c562e99154f8159af4d44827a8c69b6e7c9a9d748213d07b4aa59a8aea324977",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "period_view",
+    "title": "Kỳ kho",
+    "file": "assets/readme/period_view.png",
+    "captured_at": "2026-10-12T18:10:28.925390+00:00",
+    "sha256": "6c64ed0d41c5aa40458addad4376beba37b37f84544b751e313799d524e9ebde",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "reversal_view",
+    "title": "Đảo giao dịch",
+    "file": "assets/readme/reversal_view.png",
+    "captured_at": "2026-10-12T18:10:29.762807+00:00",
+    "sha256": "76ea1d88037ff32a294e59023c719d790961d7486aa220cc082ecd8f5eb330ef",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "import_view",
+    "title": "Nhập dữ liệu từ tệp",
+    "file": "assets/readme/import_view.png",
+    "captured_at": "2026-10-12T18:10:30.567389+00:00",
+    "sha256": "1903d70ec6d36880d32480ddd3b2a2da46f1e949f0ce44544e23820661a26350",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "print_view",
+    "title": "In chứng từ & tem",
+    "file": "assets/readme/print_view.png",
+    "captured_at": "2026-10-12T18:10:31.476542+00:00",
+    "sha256": "a1065eef5df0bf3908f6b8f2ba023a96c0e19166a8181373d753b23187293567",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "admin_view",
+    "title": "Tài khoản & phân quyền",
+    "file": "assets/readme/admin_view.png",
+    "captured_at": "2026-10-12T18:10:32.376959+00:00",
+    "sha256": "318c2dde34b67ebcd1d8282fc2cd8322f22ccd0089f225bbd21ee3da29da5b12",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "recovery_view",
+    "title": "Nháp & phục hồi lệnh",
+    "file": "assets/readme/recovery_view.png",
+    "captured_at": "2026-10-12T18:10:33.136953+00:00",
+    "sha256": "61f83ef7c9a2cb3c9076612005eb903031fc6e66ecea50d24ba528528b43a7f3",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "receipt_recovery_view",
+    "title": "Phục hồi nhận hàng",
+    "file": "assets/readme/receipt_recovery_view.png",
+    "captured_at": "2026-10-12T18:10:33.895117+00:00",
+    "sha256": "a51aeda02e6737b25822112656601202bbf079ae9c0e41f8fde80c602fdcf04d",
+    "source": "actual Tk application and current authorized API responses"
+  },
+  {
+    "feature": "connection_view",
+    "title": "Kết nối máy chủ",
+    "file": "assets/readme/connection_view.png",
+    "captured_at": "2026-10-12T18:10:34.645995+00:00",
+    "sha256": "84bae465252c371b0f0ca5180ae3bda5b2d27facf9f1b30c5fa35ae1dc0692cd",
+    "source": "actual Tk application and current authorized API responses"
+  }
+]

@@ -71,7 +71,7 @@ class ReportPresenter:
                 result["id"] == path.split("/")[1] and result["version"] == payload["expected_version"] + 1
             )
         if not matches:
-            raise ApiError("INVALID_RESPONSE", "ACK không khớp yêu cầu; tra/gửi lại cùng key.")
+            raise ApiError("INVALID_RESPONSE", "ACK không khớp yêu cầu; tra/gửi lại cùng key")
         return result
 
     def create(self, code, filters, product_code="", owner_code="", locations=""):
@@ -158,13 +158,16 @@ class ReportPresenter:
         if not self.snapshot:
             return
         snapshot_id = self.snapshot["id"]
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None:
+            pagination.begin(after or None)
 
         def run():
             result = validated(
                 ReportPage, self.api.get(f"reports/snapshots/{snapshot_id}?after={after}&limit=50")
             )
             if result["snapshot"]["id"] != snapshot_id:
-                raise ApiError("INVALID_RESPONSE", "Snapshot không khớp yêu cầu.")
+                raise ApiError("INVALID_RESPONSE", "Snapshot không khớp yêu cầu")
             return result
 
         self.submit("page", run)
@@ -176,7 +179,7 @@ class ReportPresenter:
             def run():
                 result = validated(ExportView, self.api.get("exports/" + job_id))
                 if result["id"] != job_id:
-                    raise ApiError("INVALID_RESPONSE", "Job không khớp yêu cầu.")
+                    raise ApiError("INVALID_RESPONSE", "Job không khớp yêu cầu")
                 return result
 
             self.submit("status", run)
@@ -189,7 +192,7 @@ class ReportPresenter:
 
     def open_history(self, job_id):
         if self.uncertain or self.pending is not None:
-            self.view.report_error("Hoàn tất lệnh đang chờ trước khi mở job khác.")
+            self.view.report_error("Hoàn tất lệnh đang chờ trước khi mở job khác")
             return
         self.snapshot = self.next_after = None
         self.job = None
@@ -206,7 +209,7 @@ class ReportPresenter:
                 hashlib.sha256(response.content).hexdigest() != job["sha256"]
                 or len(response.content) != job["size_bytes"]
             ):
-                raise ApiError("FILE_HASH_MISMATCH", "Tệp tải về không khớp metadata.")
+                raise ApiError("FILE_HASH_MISMATCH", "Tệp tải về không khớp metadata")
             return save_bytes(
                 path,
                 response.content,

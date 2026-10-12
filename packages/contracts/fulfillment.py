@@ -102,6 +102,7 @@ class PickerView(Contract):
 class PickerPage(Contract):
     items: list[PickerView]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class FulfillmentResult(OrderResult):

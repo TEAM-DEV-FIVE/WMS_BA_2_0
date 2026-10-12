@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 
 from apps.desktop.presenters.serial_lookup import SerialLookupPresenter
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.ui_help import Disclosure, HelpButton, StatusButton
 
 STATUSES = {"VALID": "Còn bảo hành", "EXPIRED": "Hết bảo hành", "UNKNOWN": "Chưa xác định"}
 
@@ -13,7 +15,7 @@ class SerialLookupView(ttk.Frame):
         self.warehouse = tk.StringVar()
         self.code = tk.StringVar()
         self.sku = tk.StringVar()
-        self.status = tk.StringVar(value="Đăng nhập để tra serial trong kho được cấp quyền.")
+        self.status = tk.StringVar(value="Đăng nhập để tra cứu")
         self.details = tk.StringVar()
         self.warehouses, self.rows = [], {}
         self.busy, self.permissions = False, set()
@@ -26,24 +28,30 @@ class SerialLookupView(ttk.Frame):
         self.selector.grid(row=0, column=1, columnspan=2, sticky="w", padx=12)
         self.selector.bind("<<ComboboxSelected>>", self.scope_changed)
         self.entries = []
-        for index, (label, variable) in enumerate([("Serial (giữ số 0 đầu)", self.code), ("SKU (nếu cần phân biệt)", self.sku)], 1):
+        for index, (label, variable) in enumerate([("Serial", self.code), ("Mã sản phẩm", self.sku)], 1):
             ttk.Label(form, text=label).grid(row=index, column=0, sticky="w", pady=5)
             entry = ttk.Entry(form, textvariable=variable, width=40)
             entry.grid(row=index, column=1, sticky="w", padx=12)
             self.entries.append(entry)
             entry.bind("<Return>", lambda event: self.search())
-        self.button = ttk.Button(form, text="Tra serial", command=self.search)
+        self.button = ttk.Button(form, text="Tra cứu", command=self.search, style="Primary.TButton")
         self.button.grid(row=2, column=2, padx=10)
-        ttk.Label(self, textvariable=self.status, wraplength=780).pack(fill="x", pady=12)
-        self.table = ttk.Treeview(self, columns=("sku", "code", "status", "end"), show="headings", height=4)
+        StatusButton(self, self.status).pack(anchor="e", pady=12)
+        self.table = DataTable(self, columns=("sku", "code", "status", "end"), show="headings", height=4)
         for field, label, width in [("sku", "SKU", 190), ("code", "Serial", 220), ("status", "Bảo hành", 170), ("end", "Đến ngày", 130)]:
             self.table.heading(field, text=label)
             self.table.column(field, width=width, minwidth=70)
         self.table.pack(fill="both", expand=True)
         self.table.bind("<<TreeviewSelect>>", self.select)
-        ttk.Label(self, textvariable=self.details, wraplength=780, justify="left").pack(fill="x", pady=6)
-        evidence = ttk.LabelFrame(self, text="Chứng cứ bảo hành — ghi revision, giữ lịch sử", padding=8)
-        evidence.pack(fill="x", pady=6)
+        detail_bar = ttk.Frame(self)
+        detail_bar.pack(fill="x", pady=8)
+        self.detail_button = HelpButton(detail_bar, self.details, title="Thông tin bảo hành", label="Xem thông tin bảo hành")
+        self.detail_button.pack(side="left")
+        HelpButton(detail_bar, "Nhập hoặc quét serial, giữ nguyên số 0 ở đầu. Có thể nhập thêm mã sản phẩm để phân biệt. Tình trạng bảo hành được xác định từ chứng cứ và ngày tra cứu; thiếu thông tin sẽ hiển thị Chưa xác định.").pack(side="right")
+        self.evidence_section = Disclosure(self, "Cập nhật chứng cứ bảo hành")
+        self.evidence_section.pack(fill="x")
+        evidence = self.evidence_section.body
+        evidence.columnconfigure(1, weight=1)
         for index, (field, label) in enumerate((("starts_on", "Từ ngày (YYYY-MM-DD)"), ("ends_on", "Đến ngày (YYYY-MM-DD)"),
                                                ("evidence_ref", "Nguồn chứng cứ"), ("reason", "Lý do ghi / đính chính"))):
             ttk.Label(evidence, text=label).grid(row=index, column=0, sticky="w", pady=2)
@@ -53,15 +61,31 @@ class SerialLookupView(ttk.Frame):
             self.evidence_inputs.append(widget)
         buttons = ttk.Frame(evidence)
         buttons.grid(row=4, column=0, columnspan=2, sticky="w", pady=5)
-        self.save_button = ttk.Button(buttons, text="Ghi / đính chính chứng cứ", command=self.save_evidence)
+        self.save_button = ttk.Button(buttons, text="Lưu chứng cứ", command=self.save_evidence, style="Primary.TButton")
         self.save_button.pack(side="left")
-        self.withdraw_button = ttk.Button(buttons, text="Rút chứng cứ bằng revision mới", command=lambda: self.save_evidence(withdraw=True))
+        self.withdraw_button = ttk.Button(buttons, text="Rút chứng cứ", command=lambda: self.save_evidence(withdraw=True), style="Danger.TButton")
         self.withdraw_button.pack(side="left", padx=8)
         self.retry_button = ttk.Button(buttons, text="Gửi lại cùng yêu cầu", command=self.presenter.retry)
         self.retry_button.pack(side="left")
-        ttk.Label(self, text="Tình trạng do máy chủ xác định từ chứng cứ và ngày nghiệp vụ. Thiếu thông tin sẽ hiển thị Chưa xác định.",
-                  wraplength=780).pack(fill="x")
+        browse_bar = ttk.Frame(form)
+        browse_bar.grid(row=3, column=0, columnspan=3, sticky="w", pady=6)
+        self.browse_after = None
+        self.browse_button = ttk.Button(browse_bar, text="Serial trong kho", command=self.browse)
+        self.browse_button.pack(side="left")
+        self.browse_next = ttk.Button(browse_bar, text="Trang tiếp", command=lambda: self.browse(self.browse_after))
+        self.browse_next.pack(side="left", padx=6)
         self.enable()
+
+    def browse(self, after=None):
+        index = self.selector.current()
+        if index >= 0 and not self.busy and not self.presenter.uncertain:
+            self.presenter.browse(self.warehouses[index].id, after)
+
+    def lookup_browse(self, rows, permissions, after):
+        self.lookup_result(rows, permissions)
+        self.browse_after = after
+        self.status.set(f"{len(rows)} serial")
+        self.browse_next.state(["!disabled"] if after else ["disabled"])
 
     def session_changed(self, user=None, warehouses=None):
         if self.actor_id and self.presenter.uncertain:
@@ -69,7 +93,7 @@ class SerialLookupView(ttk.Frame):
         self.presenter.reset()
         self.actor_id = user.id if user else None
         self.warehouses = list(warehouses or [])
-        self.selector.configure(values=[f"{row.code} · {row.name}" for row in self.warehouses])
+        self.selector.configure(values=[f"{row.code}  {row.name}" for row in self.warehouses])
         self.warehouse.set("")
         for widget in [self.selector, *self.entries]:
             widget.state(["!disabled"])
@@ -78,7 +102,7 @@ class SerialLookupView(ttk.Frame):
         if self.warehouses:
             self.selector.current(0)
         self.button.state(["!disabled"] if user and self.warehouses else ["disabled"])
-        self.status.set("Chọn kho, nhập hoặc quét serial rồi bấm Tra serial." if user else "Đăng nhập để tra serial.")
+        self.status.set("" if user else "Đăng nhập để tra serial")
         self.presenter.uncertain = self.suspended.pop(self.actor_id, None)
         if self.presenter.uncertain:
             _, warehouse, body, _ = self.presenter.uncertain
@@ -87,12 +111,12 @@ class SerialLookupView(ttk.Frame):
                     self.selector.current(index)
             for field, variable in self.evidence_vars.items():
                 variable.set(body.get(field) or "")
-            self.status.set("Lệnh ghi trước chưa rõ kết quả. Gửi lại cùng yêu cầu để xác nhận.")
+            self.status.set("Lệnh ghi trước chưa rõ kết quả; Gửi lại cùng yêu cầu để xác nhận")
         self.enable()
 
     def scope_changed(self, event=None):
         self.presenter.reset()
-        self.status.set("Kho đã đổi; tra lại serial trong kho được chọn.")
+        self.status.set("Kho đã đổi; tra lại serial trong kho được chọn")
         self.enable()
 
     def search(self):
@@ -100,7 +124,7 @@ class SerialLookupView(ttk.Frame):
             return
         index = self.selector.current()
         if index < 0 or not self.code.get().strip():
-            self.status.set("Chọn kho và nhập serial trước khi tra cứu.")
+            self.status.set("Chọn kho và nhập serial trước khi tra cứu")
             return
         self.presenter.search(self.warehouses[index].id, self.code.get(), self.sku.get())
 
@@ -112,6 +136,7 @@ class SerialLookupView(ttk.Frame):
         self.enable()
 
     def lookup_clear(self):
+        self.browse_after = None
         self.rows = {}
         self.table.delete(*self.table.get_children())
         self.details.set("")
@@ -124,11 +149,11 @@ class SerialLookupView(ttk.Frame):
         self.permissions = set(permissions)
         self.rows = {str(row.serial_id): row for row in rows}
         for row in rows:
-            self.table.insert("", "end", iid=str(row.serial_id), values=(row.sku, row.serial_code, STATUSES[row.status], row.warranty_ends_on or "—"))
+            self.table.insert("", "end", iid=str(row.serial_id), values=(row.sku, row.serial_code, STATUSES[row.status], row.warranty_ends_on or ""))
         self.button.state(["!disabled"])
         for widget in [self.selector, *self.entries]:
             widget.state(["!disabled"])
-        self.status.set(f"Tìm thấy {len(rows)} serial trong phạm vi được phép." if rows else "Không tìm thấy serial trong phạm vi được phép.")
+        self.status.set(f"{len(rows)} serial" if rows else "Không tìm thấy serial")
         if rows:
             self.table.selection_set(str(rows[0].serial_id))
             self.select()
@@ -136,12 +161,12 @@ class SerialLookupView(ttk.Frame):
 
     def lookup_error(self, message, *, uncertain=False):
         self.busy = False
-        self.status.set(message + (" Chưa rõ kết quả; gửi lại cùng yêu cầu." if uncertain else ""))
+        self.status.set(message + (" Chưa rõ kết quả; gửi lại cùng yêu cầu" if uncertain else ""))
         self.enable()
 
     def lookup_saved(self, result):
         self.lookup_clear()
-        self.status.set(f"Đã ghi chứng cứ revision {result['version']}. Tra lại serial để xem trạng thái hiện hành.")
+        self.status.set(f"Đã ghi chứng cứ revision {result['version']}; Tra lại serial để xem trạng thái hiện hành")
         self.enable()
 
     def select(self, event=None):
@@ -151,8 +176,8 @@ class SerialLookupView(ttk.Frame):
         if not selected or selected[0] not in self.rows:
             return
         row = self.rows[selected[0]]
-        self.details.set(f"{STATUSES[row.status]} · ngày tra cứu {row.as_of}\n"
-                         f"Ngày nhập: {row.received_on or 'Chưa có nguồn'} · Bắt đầu bảo hành: {row.warranty_start_on or 'Chưa xác định'}\n"
+        self.details.set(f"{STATUSES[row.status]}  ngày tra cứu {row.as_of}\n"
+                         f"Ngày nhập: {row.received_on or 'Chưa có nguồn'}  Bắt đầu bảo hành: {row.warranty_start_on or 'Chưa xác định'}\n"
                          f"Chứng cứ: {row.warranty_evidence_ref or 'Chưa có'}\n"
                          f"Phiếu nhận: {row.receipt_number or 'Chưa có'}\n"
                          f"Nhà cung cấp: {row.supplier_name or 'Chưa có'}")
@@ -167,11 +192,11 @@ class SerialLookupView(ttk.Frame):
             return
         row = self.rows.get(selected[0])
         if not row or not row.receipt_move_id:
-            self.status.set("Chưa có nguồn nhận hợp lệ để ghi chứng cứ.")
+            self.status.set("Chưa có nguồn nhận hợp lệ để ghi chứng cứ")
             return
         body = {field: variable.get().strip() or None for field, variable in self.evidence_vars.items()}
         if not body["reason"] or len(body["reason"]) < 3:
-            self.status.set("Nhập lý do ghi / đính chính / rút chứng cứ (ít nhất 3 ký tự).")
+            self.status.set("Nhập lý do ghi / đính chính / rút chứng cứ (ít nhất 3 ký tự)")
             return
         if withdraw:
             body.update(starts_on=None, ends_on=None, evidence_ref=None)
@@ -180,10 +205,12 @@ class SerialLookupView(ttk.Frame):
 
     def enable(self):
         free = not self.busy and not self.presenter.uncertain
-        for widget in (self.selector, *self.entries, self.button):
+        for widget in (self.selector, *self.entries, self.button, self.browse_button):
             widget.state(["!disabled"] if free and self.warehouses else ["disabled"])
+        self.browse_next.state(["!disabled"] if free and self.warehouses and self.browse_after else ["disabled"])
         selected = self.table.selection()
         row = self.rows.get(selected[0]) if selected else None
+        self.detail_button.state(["!disabled"] if row and not self.busy else ["disabled"])
         writable = free and "warranty.write" in self.permissions and row and row.receipt_move_id
         for widget in (*self.evidence_inputs, self.save_button, self.withdraw_button):
             widget.state(["!disabled"] if writable else ["disabled"])

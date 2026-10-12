@@ -85,7 +85,7 @@ def test_master_presenter_keeps_form_on_field_error_and_drops_old_session_respon
         with pytest.raises(ApiError):
             presenter.pending.result(timeout=5)
         presenter.drain()
-        assert view.errors == [("Mã trùng · code: Mã đã tồn tại", False)]
+        assert view.errors == [("Mã trùng  code: Mã đã tồn tại", False)]
         assert presenter.uncertain is None
         presenter.load("uoms")
         assert started.wait(timeout=5)
@@ -125,11 +125,12 @@ def test_desktop_catalog_creates_edits_filters_and_clears_on_logout(iam):
     import socket
     import tkinter as tk
 
+    import pyotp
     import uvicorn
 
     from apps.desktop.views.shell import DesktopShell
 
-    user, _ = iam.user("catalog-ui")
+    user, secret = iam.user("catalog-ui", mfa=True)
     iam.grant(user, "MASTER_DATA")
     sock = socket.socket()
     sock.bind(("127.0.0.1", 0))
@@ -143,6 +144,7 @@ def test_desktop_catalog_creates_edits_filters_and_clears_on_logout(iam):
             time.sleep(0.01)
         assert server.started
         root = tk.Tk()
+        root.geometry("1366x900")
         shell = DesktopShell(root, DesktopSettings(api_url=f"http://127.0.0.1:{sock.getsockname()[1]}/api/v1"))
         def wait(predicate):
             deadline = time.monotonic() + 5
@@ -154,6 +156,10 @@ def test_desktop_catalog_creates_edits_filters_and_clears_on_logout(iam):
         session.username.set("catalog-ui")
         session.password.set("Test-only-password-2026!")
         session.login()
+        wait(lambda: session.presenter.pending is None)
+        session.code.set(pyotp.TOTP(secret).at(iam.now))
+        session.mfa()
+        wait(lambda: shell.authenticated)
         view = shell.master_view
         wait(lambda: "master.write" in view.permissions)
         view.load()
@@ -173,6 +179,49 @@ def test_desktop_catalog_creates_edits_filters_and_clears_on_logout(iam):
         view.load()
         wait(lambda: not view.busy)
         assert len(view.rows) == 1 and next(iter(view.rows.values()))["name"] == "Cái"
+        # Sidebar entry must open products, select the correct nested tab and
+        # fetch real API data without a second click on the load button.
+        view.new()
+        shell.open_key("master_container")
+        wait(lambda: not view.busy)
+        assert view.resource() == "products"
+        view.show_details(True)
+        view.variables["sku"].set("DEMO-0001")
+        view.variables["name"].set("Sản phẩm kiểm tra điều hướng")
+        view.variables["base_uom_id"].set(next(label for label, value in view.references["base_uom_id"].items() if value))
+        view.reason.set("Tạo sản phẩm kiểm tra danh mục")
+        view.save()
+        wait(lambda: view.status.get().startswith("Đã lưu"))
+        assert view.variables["sku"].get() == "ITL-0001"
+        view.variables["name"].set("Sản phẩm đã đổi tên")
+        view.reason.set("Sửa tên nhưng giữ mã gốc")
+        view.save()
+        wait(lambda: not view.busy)
+        assert view.current["sku"] == "DEMO-0001" and view.current["version"] == 2
+        view.query.set("ITL-0001")
+        view.load()
+        wait(lambda: not view.busy)
+        assert len(view.rows) == 1 and next(iter(view.rows.values()))["sku"] == "DEMO-0001"
+        view.query.set("")
+        view.entity.set("Đơn vị tính")
+        view.switch()
+        wait(lambda: not view.busy)
+        shell.master_container.select(shell.product_details_view)
+        shell.open_key("serial_view")
+        root.update()
+        shell.sidebar.tree.see("master_container")
+        root.update()
+        x, y, _, height = shell.sidebar.tree.bbox("master_container")
+        shell.sidebar.tree.event_generate("<Button-1>", x=x + 60, y=y + height // 2)
+        shell.sidebar.tree.event_generate("<ButtonRelease-1>", x=x + 60, y=y + height // 2)
+        wait(lambda: view.resource() == "products" and not view.busy)
+        assert shell.master_container.select() == str(view)
+        assert len(view.rows) == 1
+        assert view.table.item(next(iter(view.rows)), "values")[0] == "ITL-0001"
+        assert "unit" in view.table["columns"] and not view.details.winfo_ismapped()
+        view.entity.set("Đơn vị tính")
+        view.switch()
+        wait(lambda: not view.busy)
         view.new()
         view.variables["code"].set("EA")
         view.variables["name"].set("Giữ nội dung khi lỗi")
@@ -192,7 +241,7 @@ def test_desktop_catalog_creates_edits_filters_and_clears_on_logout(iam):
         assert view.variables["code"].get() == "PENDING"
         session.logout()
         assert view.rows == {} and view.current is None and not view.permissions
-        wait(lambda: session.status.get() == "Đã đăng xuất.")
+        wait(lambda: session.status.get() == "Đã đăng xuất")
     finally:
         if shell:
             shell.close()

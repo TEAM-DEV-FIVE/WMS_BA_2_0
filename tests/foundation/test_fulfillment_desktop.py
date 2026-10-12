@@ -163,6 +163,7 @@ def test_fulfillment_tk_real_http_scan_pack_lost_ack_and_logout(fulfillment):  #
         view.table.selection_set(f.doc["id"])
         view.select_document()
         done()
+        view.document_pages.show_detail()
         view.assignee_button.invoke()
         done()
         view.reservation_selector.current(0)
@@ -205,6 +206,7 @@ def test_fulfillment_tk_real_http_scan_pack_lost_ack_and_logout(fulfillment):  #
         view.package_create.invoke()
         done()
         package_id = next(iter(view.packages))
+        view.tabs.select(2)
         view.package_table.selection_set(package_id)
         root.update()
         view.variables["reason"].set("Chốt kiện giao hàng")
@@ -231,17 +233,25 @@ def test_fulfillment_tk_real_http_scan_pack_lost_ack_and_logout(fulfillment):  #
 def test_fulfillment_layout_900_by_690_and_main_thread_cleanup():
     import tkinter as tk
     root = tk.Tk()
+    root.geometry("900x690")
     shell = DesktopShell(root, DesktopSettings())
     try:
         view = shell.fulfillment_view
         shell.notebook.select(view)
-        for page in [0, 1]:
+        view.document_pages.show_detail()
+        for page in [0, 1, 2]:
             view.tabs.select(page)
             root.update()
             controls = [view.selector, view.load_button, view.reason_entry, view.retry_button, view.operation_button]
             controls += ([view.reservation_selector, view.quantity_entry, *view.scan_entries.values(), *view.pick_buttons.values()] if page == 0
-                         else [view.pack_selector, view.code_entry, view.package_create, *view.package_buttons.values()])
+                         else [view.pack_selector, view.code_entry, view.package_create] if page == 1
+                         else [view.package_table, *view.package_buttons.values()])
             for widget in controls:
+                # The ERP form scrolls while the shared action footer stays fixed.
+                panel = view.form_panels[page]
+                if str(widget).startswith(str(panel.inner)):
+                    widget.focus_force()
+                    root.update()
                 assert widget.winfo_ismapped()
                 assert widget.winfo_rootx() + widget.winfo_width() <= root.winfo_rootx() + 900
                 assert widget.winfo_rooty() + widget.winfo_height() <= root.winfo_rooty() + 690

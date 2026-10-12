@@ -43,7 +43,7 @@ def run_request(api, generation, cancelled, method, path, body, key, warehouse):
     except ApiError as exc:
         return None, [], (exc.code, str(exc)), api.session_generation
     except Exception:
-        return None, [], ("INVALID_RESPONSE", "Không đọc được phản hồi; giữ đúng key/nội dung để đối chiếu."), api.session_generation
+        return None, [], ("INVALID_RESPONSE", "Không đọc được phản hồi; giữ đúng key/nội dung để đối chiếu"), api.session_generation
 
 
 class MovePresenter:
@@ -91,6 +91,9 @@ class MovePresenter:
         return True
 
     def load(self, resource="moves", after=None):
+        pagination = getattr(self.view, "pagination", None)
+        if pagination is not None and resource == getattr(self.view, "pagination_resource", None):
+            pagination.begin(after)
         params = {"warehouse_id": self.warehouse_id, "limit": 50}
         if after:
             params["after"] = after
@@ -103,7 +106,7 @@ class MovePresenter:
         if self.closed or self.pending or not all(self.scope):
             return False
         if self.uncertain:
-            self.view.workflow_error("Yêu cầu trước chưa rõ kết quả. Chỉ gửi lại đúng key/nội dung đang giữ.")
+            self.view.workflow_error("Yêu cầu trước chưa rõ kết quả; Chỉ gửi lại đúng key/nội dung đang giữ")
             return False
         self.commands[self.scope] = (method, path, deepcopy(body), uuid4())
         return self.retry()
@@ -133,7 +136,7 @@ class MovePresenter:
             data, permissions, error, generation = future.result()
             if generation != self.generation or generation != self.api.session_generation or (error and error[0] in {"UNAUTHENTICATED", "REFRESH_REPLAY"}):
                 self.reset()
-                self.view.workflow_signed_out("Phiên không còn hiệu lực. Đăng nhập lại và đối chiếu lệnh chưa rõ kết quả.")
+                self.view.workflow_signed_out("Phiên không còn hiệu lực; Đăng nhập lại và đối chiếu lệnh chưa rõ kết quả")
                 continue
             if error:
                 code, message = error
@@ -153,7 +156,7 @@ class MovePresenter:
                 self.view.workflow_loaded(action, data, permissions)
         if self.user_id and self.generation != self.api.session_generation:
             self.reset()
-            self.view.workflow_signed_out("Phiên đã thay đổi. Tải lại phiên trước khi tiếp tục.")
+            self.view.workflow_signed_out("Phiên đã thay đổi; Tải lại phiên trước khi tiếp tục")
 
     def close(self):
         self.closed = True

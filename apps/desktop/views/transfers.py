@@ -3,7 +3,10 @@ from tkinter import ttk
 from uuid import uuid4
 
 from apps.desktop.presenters.transfers import POST_ACTIONS, TransferPresenter
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
+from apps.desktop.views.document_review import ScrollPanel
 from apps.desktop.views.moves import WorkflowView
+from apps.desktop.views.pagination import install_pagination
 from packages.contracts.transfers import TransferInput, TransferUpdate
 
 
@@ -23,6 +26,8 @@ class TransferView(WorkflowView):
         self.next_button.pack(side="left", padx=4)
         self.new_button = ttk.Button(self.top, text="Lệnh mới", command=self.new)
         self.new_button.pack(side="left")
+        footer = ttk.Frame(self)
+        footer.pack(side="bottom", fill="x")
         self.table = self.tree(
             self, ["number", "status"], ["Lệnh chuyển", "Trạng thái"], [470, 200], height=2
         )
@@ -38,9 +43,9 @@ class TransferView(WorkflowView):
             ("history", "Lịch sử"),
             ("assign", "Phân công"),
         ]:
-            page = self.pages[key] = ttk.Frame(tabs, padding=6)
+            page = self.pages[key] = ScrollPanel(tabs)
             tabs.add(page, text=title)
-        draft = self.pages["draft"]
+        draft = self.pages["draft"].inner
         row = ttk.Frame(draft)
         row.pack(fill="x")
         ttk.Label(row, text="Kho đích").pack(side="left")
@@ -68,11 +73,11 @@ class TransferView(WorkflowView):
         self.line_table = self.tree(
             draft,
             ["stock", "source", "quantity"],
-            ["SKU / chủ / lô-serial", "Nguồn", "SL cơ sở"],
+            ["SKU / chủ / lô / serial", "Nguồn", "SL cơ sở"],
             [420, 190, 100],
             height=4,
         )
-        arrival = self.pages["arrival"]
+        arrival = self.pages["arrival"].inner
         self.source_selector = self.combo(arrival, "source", 92)
         self.source_selector.pack(fill="x")
         row = ttk.Frame(arrival)
@@ -108,13 +113,13 @@ class TransferView(WorkflowView):
         )
         self.discrepancy_button.pack(side="left")
         ttk.Label(
-            arrival, text="Phần chưa nhận giữ ở transit. Hàng hỏng phải vào vị trí cách ly.", wraplength=760
+            arrival, text="Phần chưa nhận giữ ở transit; Hàng hỏng phải vào vị trí cách ly", wraplength=760
         ).pack(anchor="w", pady=6)
         self.evidence_table = self.tree(
             arrival, ["kind", "qty", "evidence"], ["Biên bản", "SL", "Chứng cứ"], [120, 100, 500], height=2
         )
-        loss = self.pages["loss"]
-        ttk.Label(loss, text="Chọn biên bản thiếu, lập phiếu riêng và gửi kiểm soát duyệt.").pack(anchor="w")
+        loss = self.pages["loss"].inner
+        ttk.Label(loss, text="Chọn biên bản thiếu, lập phiếu riêng và gửi kiểm soát duyệt").pack(anchor="w")
         evidence_bar = ttk.Frame(loss)
         evidence_bar.pack(fill="x")
         for label, resource, next_page in [
@@ -144,7 +149,7 @@ class TransferView(WorkflowView):
             loss, ["number", "status"], ["Phiếu điều chỉnh", "Trạng thái"], [440, 220], height=3
         )
         self.adjustment_table.bind("<<TreeviewSelect>>", lambda event: self.select_loss())
-        history = self.pages["history"]
+        history = self.pages["history"].inner
         row = ttk.Frame(history)
         row.pack(fill="x")
         ttk.Button(row, text="Tải lịch sử", command=self.history).pack(side="left")
@@ -156,7 +161,7 @@ class TransferView(WorkflowView):
             [105, 75, 130, 260, 175],
             height=5,
         )
-        assign = self.pages["assign"]
+        assign = self.pages["assign"].inner
         ttk.Button(assign, text="Tải nhân viên hai kho", command=self.load_users).pack(anchor="w")
         ttk.Button(assign, text="Nhân viên tiếp", command=lambda: self.load_users(True)).pack(anchor="w")
         self.user_selector = self.combo(assign, "user", 70)
@@ -167,16 +172,16 @@ class TransferView(WorkflowView):
         self.assign_button.pack(anchor="w")
         ttk.Label(
             assign,
-            text="Phân công trước khi gửi duyệt. Người được giao vẫn chỉ thao tác theo quyền kho của mình.",
+            text="Phân công trước khi gửi duyệt; Người được giao vẫn chỉ thao tác theo quyền kho của mình",
             wraplength=760,
         ).pack(anchor="w", pady=8)
-        row = ttk.Frame(self)
+        row = ttk.Frame(footer)
         row.pack(fill="x")
         ttk.Label(row, text="Chứng cứ giao/nhận").pack(side="left")
         self.evidence_entry = ttk.Entry(row, textvariable=self.variable("evidence"))
         self.evidence_entry.pack(side="left", fill="x", expand=True, padx=4)
-        self.reason_form()
-        row = ttk.Frame(self)
+        self.reason_form(footer)
+        row = ttk.Frame(footer)
         row.pack(fill="x")
         self.buttons = {}
         for action, label in [
@@ -192,12 +197,17 @@ class TransferView(WorkflowView):
             widget = ttk.Button(row, text=label, command=lambda a=action: self.action(a))
             widget.pack(side="left", padx=(0, 3))
             self.buttons[action] = widget
-        self.retry_form(operation=True)
+        self.retry_form(operation=True, parent=footer)
+        for page in self.pages.values():
+            page.bind_scrolling()
+        self.document_pages = DocumentPages(self.table, footer=footer)
         self.session_changed()
 
         from apps.desktop.scanner.widget import ScanBar
         self.scan_bar = ScanBar(self, self, "TRANSFER")
         self.scan_bar.pack(fill="x", pady=3, before=self.winfo_children()[0])
+        install_pagination(self, lambda after: self.presenter.load(after=after), limit=50, resource='transfers')
+        self.enable()
 
     def enable(self):
         free = bool(self.presenter.user_id and self.warehouse_id()) and not self.busy
@@ -234,12 +244,17 @@ class TransferView(WorkflowView):
             self.operation_button,
             free and self.presenter.uncertain and self.presenter.uncertain[1].split("/")[-1] in POST_ACTIONS,
         )
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         super().session_changed(user, warehouses)
-        self.destination_selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.destination_selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
 
     def workflow_clear(self):
+        reset_document_page(self)
         self.doc = None
         self.lines = []
         self.stock = []
@@ -277,6 +292,7 @@ class TransferView(WorkflowView):
         self.variable("day").set(date.today().isoformat())
         self.tabs.select(self.pages["draft"])
         self.enable()
+        show_document(self)
 
     def select(self):
         ids = self.table.selection()
@@ -338,7 +354,7 @@ class TransferView(WorkflowView):
                 stock_item_id=stock["stock_item_id"],
                 source_location_id=stock["source_location_id"],
                 quantity_base=self.variable("quantity").get(),
-                label=f"{stock['sku']} / {stock['owner_code']} / {stock['lot_code'] or stock['serial_code'] or '—'}",
+                label=f"{stock['sku']} / {stock['owner_code']} / {stock['lot_code'] or stock['serial_code'] or ""}",
                 source=stock["source_code"],
             )
         )
@@ -363,7 +379,7 @@ class TransferView(WorkflowView):
             if action == "save":
                 dest = self.destination_selector.current()
                 if dest < 0:
-                    raise ValueError("Chọn kho đích.")
+                    raise ValueError("Chọn kho đích")
                 payload = dict(
                     warehouse_id=self.doc["warehouse_id"] if self.doc else self.warehouse_id(),
                     destination_warehouse_id=str(self.warehouses[dest].id),
@@ -401,7 +417,7 @@ class TransferView(WorkflowView):
             if action == "assign":
                 index = self.user_selector.current()
                 if index < 0:
-                    raise ValueError("Chọn nhân viên.")
+                    raise ValueError("Chọn nhân viên")
                 users = list(dict.fromkeys([*self.doc["assigned_user_ids"], self.users[index]["id"]]))
                 self.presenter.command(
                     "POST", f"documents/{self.doc['id']}/assignments", {**payload, "user_ids": users}
@@ -418,7 +434,7 @@ class TransferView(WorkflowView):
                     source = self.source_selector.current()
                     destination = self.location_selector.current()
                     if source < 0 or destination < 0:
-                        raise ValueError("Chọn dòng đang vận chuyển và vị trí nhận.")
+                        raise ValueError("Chọn dòng đang vận chuyển và vị trí nhận")
                     payload.update(
                         business_date=self.variable("receive_day").get(),
                         lines=[
@@ -433,7 +449,7 @@ class TransferView(WorkflowView):
             elif action == "discrepancy":
                 source = self.source_selector.current()
                 if source < 0:
-                    raise ValueError("Chọn dòng đang vận chuyển.")
+                    raise ValueError("Chọn dòng đang vận chuyển")
                 path += "discrepancies"
                 payload.update(
                     dispatch_move_id=self.doc["sources"][source]["dispatch_move_id"],
@@ -444,7 +460,7 @@ class TransferView(WorkflowView):
             elif action == "loss":
                 index = self.evidence_selector.current()
                 if index < 0:
-                    raise ValueError("Chọn biên bản thiếu.")
+                    raise ValueError("Chọn biên bản thiếu")
                 path += "adjustments"
                 payload.update(
                     discrepancy_id=self.doc["discrepancies"][index]["id"],
@@ -457,10 +473,12 @@ class TransferView(WorkflowView):
 
     def workflow_saved(self, data):
         self.busy = False
-        self.variables["status"].set("Máy chủ đã xác nhận. Đang tải lại chứng từ.")
+        self.variables["status"].set("Máy chủ đã xác nhận; Đang tải lại chứng từ")
         self.presenter.read(data["id"])
 
     def workflow_loaded(self, action, data, permissions):
+        if action == 'transfers':
+            self.pagination.loaded(data)
         self.busy = False
         self.permissions = permissions
         if isinstance(data, dict) and "next_after" in data:
@@ -473,13 +491,13 @@ class TransferView(WorkflowView):
             self.stock = data["items"]
             self.stock_selector.configure(
                 values=[
-                    f"{r['sku']} · {r['owner_code']} · {r['lot_code'] or r['serial_code'] or '—'} · {r['source_code']} · khả dụng {r['available_base']}"
+                    f"{r['sku']}  {r['owner_code']}  {r['lot_code'] or r['serial_code'] or ""}  {r['source_code']}  khả dụng {r['available_base']}"
                     for r in self.stock
                 ]
             )
         elif action == "transfers/locations":
             self.locations = data["items"]
-            self.location_selector.configure(values=[f"{r['code']} · {r['kind']}" for r in self.locations])
+            self.location_selector.configure(values=[f"{r['code']}  {r['kind']}" for r in self.locations])
         elif action == "users":
             self.users = data["items"]
             self.user_selector.configure(
@@ -488,7 +506,7 @@ class TransferView(WorkflowView):
         elif action == "discrepancies" and self.doc:
             self.doc["discrepancies"] = data["items"]
             self.evidence_selector.configure(
-                values=[f"{r['kind']} · {r['quantity_base']} · {r['evidence_ref']}" for r in data["items"]]
+                values=[f"{r['kind']}  {r['quantity_base']}  {r['evidence_ref']}" for r in data["items"]]
             )
             self.evidence_table.delete(*self.evidence_table.get_children())
             for r in data["items"]:
@@ -509,7 +527,7 @@ class TransferView(WorkflowView):
                     values=(
                         r["operation"] + " / " + r["disposition"],
                         r["quantity_base"],
-                        r["destination_code"] or "—",
+                        r["destination_code"] or "",
                         r["evidence_ref"],
                         r["posted_at"],
                     ),
@@ -517,7 +535,7 @@ class TransferView(WorkflowView):
         elif action == "read":
             self.doc = data
             self.variables["detail"].set(
-                f"{data['number']} · {data['status']} · phiên bản {data['version']} · {len(data['sources'])} dòng vận chuyển"
+                f"{data['number']}  {data['status']}  phiên bản {data['version']}  {len(data['sources'])} dòng vận chuyển"
             )
             self.variable("day").set(data["business_date"])
             self.variable("receive_day").set(date.today().isoformat())
@@ -536,7 +554,7 @@ class TransferView(WorkflowView):
                     stock_item_id=r["stock_item_id"],
                     source_location_id=r["source_location_id"],
                     quantity_base=r["quantity_base"],
-                    label=f"{r['sku']} / {r['owner_code']} / {r['lot_code'] or r['serial_code'] or '—'}",
+                    label=f"{r['sku']} / {r['owner_code']} / {r['lot_code'] or r['serial_code'] or ""}",
                     source=r["source_code"] or "Kho nguồn",
                 )
                 for r in data["plan"]
@@ -544,13 +562,13 @@ class TransferView(WorkflowView):
             self.render_lines()
             self.source_selector.configure(
                 values=[
-                    f"{r['sku']} · {r['owner_code']} · {r['lot_code'] or r['serial_code'] or '—'} · gửi {r['dispatched_base']} / nhận {r['received_base']} / mất {r['lost_base']} / còn {r['remaining_base']}"
+                    f"{r['sku']}  {r['owner_code']}  {r['lot_code'] or r['serial_code'] or ""}  gửi {r['dispatched_base']} / nhận {r['received_base']} / mất {r['lost_base']} / còn {r['remaining_base']}"
                     for r in data["sources"]
                 ]
             )
             self.evidence_selector.configure(
                 values=[
-                    f"{r['kind']} · {r['quantity_base']} · {r['evidence_ref']}" for r in data["discrepancies"]
+                    f"{r['kind']}  {r['quantity_base']}  {r['evidence_ref']}" for r in data["discrepancies"]
                 ]
             )
             for table in [self.evidence_table, self.adjustment_table]:
@@ -563,5 +581,5 @@ class TransferView(WorkflowView):
                 self.adjustment_table.insert("", "end", iid=r["id"], values=(r["number"], r["status"]))
             if data["source_transfer_id"]:
                 self.tabs.select(self.pages["loss"])
-        self.variables["status"].set("Đã tải dữ liệu từ máy chủ.")
+        self.variables["status"].set("Đã tải dữ liệu từ máy chủ")
         self.enable()

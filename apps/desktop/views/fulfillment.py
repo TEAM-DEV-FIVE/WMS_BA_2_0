@@ -2,7 +2,10 @@
 from tkinter import ttk
 
 from apps.desktop.presenters.fulfillment import FulfillmentPresenter
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page
+from apps.desktop.views.document_review import ScrollPanel
 from apps.desktop.views.moves import WorkflowView
+from apps.desktop.views.pagination import install_pagination
 from packages.contracts.fulfillment import (
     FulfillmentAction,
     PackageCreate,
@@ -21,16 +24,20 @@ class FulfillmentView(WorkflowView):
         self.load_button.pack(side="left")
         self.next_button = ttk.Button(self.top, text="Trang sau", command=lambda: self.presenter.load(after=self.next_after))
         self.next_button.pack(side="left", padx=5)
-        self.refresh_button = ttk.Button(self.top, text="Tải lại phiếu", command=lambda: self.presenter.read(self.doc["id"]) if self.doc else None)
-        self.refresh_button.pack(side="left")
+        self.refresh_button = ttk.Button(self.top, text="Tải lại phiếu", style="Slate.TButton", command=lambda: self.presenter.read(self.doc["id"]) if self.doc else None)
+        self.refresh_button.pack(side="right")
+        footer = ttk.Frame(self)
+        footer.pack(side="bottom", fill="x")
         self.table = self.tree(self, ["number", "status", "version"], ["Phiếu xuất", "Trạng thái", "Version"], [300, 180, 90], height=2)
         self.table.bind("<<TreeviewSelect>>", self.select_document)
         ttk.Label(self, textvariable=self.variables["detail"], wraplength=820).pack(fill="x", pady=3)
         self.tabs = ttk.Notebook(self)
         self.tabs.pack(fill="both", expand=True)
-        pick, pack = ttk.Frame(self.tabs, padding=6), ttk.Frame(self.tabs, padding=6)
-        self.tabs.add(pick, text="Soạn / quét mã")
-        self.tabs.add(pack, text="Đóng kiện")
+        self.form_panels = [ScrollPanel(self.tabs) for _ in range(3)]
+        self.tabs.add(self.form_panels[0], text="Soạn / quét mã")
+        self.tabs.add(self.form_panels[1], text="Tạo kiện")
+        self.tabs.add(self.form_panels[2], text="Danh sách kiện")
+        pick, pack, packages = [panel.inner for panel in self.form_panels]
         allocation = ttk.Frame(pick)
         allocation.pack(fill="x")
         ttk.Label(allocation, text="Giữ chỗ").grid(row=0, column=0, sticky="w")
@@ -52,7 +59,7 @@ class FulfillmentView(WorkflowView):
         self.create_button = ttk.Button(quantities, text="Giao soạn", command=lambda: self.action("pick", "create"))
         self.create_button.pack(side="left")
         self.task_table = self.tree(pick, ["source", "picker", "quantity", "status"],
-            ["Vị trí · SKU · lô/serial", "Người soạn", "Giao / soạn / xuất", "Trạng thái · version"], [300, 160, 150, 160], height=3)
+            ["Vị trí  SKU  lô/serial", "Người soạn", "Giao / soạn / xuất", "Trạng thái  version"], [300, 160, 150, 160], height=3)
         self.task_table.bind("<<TreeviewSelect>>", self.task_selected)
         scans = ttk.Frame(pick)
         scans.pack(fill="x", pady=4)
@@ -72,7 +79,7 @@ class FulfillmentView(WorkflowView):
             button = ttk.Button(bar, text=label, command=lambda a=action: self.action("pick", a))
             button.pack(side="left", padx=(0, 4))
             self.pick_buttons[action] = button
-        ttk.Label(pick, text="Thiếu một phần: nhập lượng thực soạn và lý do. Không có hàng: chọn Không có hàng.", wraplength=790).pack(anchor="w", pady=3)
+        ttk.Label(pick, text="Thiếu một phần: nhập lượng thực soạn và lý do; Không có hàng: chọn Không có hàng", wraplength=790).pack(anchor="w", pady=3)
         packing = ttk.Frame(pack)
         packing.pack(fill="x")
         ttk.Label(packing, text="Nhiệm vụ đã soạn").grid(row=0, column=0)
@@ -94,23 +101,30 @@ class FulfillmentView(WorkflowView):
         self.code_entry.pack(side="left", padx=6)
         self.package_create = ttk.Button(codes, text="Tạo kiện", command=lambda: self.action("package", "create"))
         self.package_create.pack(side="left")
-        self.package_table = self.tree(pack, ["code", "status", "quantity"],
-            ["Mã kiện", "Trạng thái · version", "Lượng đóng / đã xuất"], [280, 240, 220], height=3)
+        self.package_table = self.tree(packages, ["code", "status", "quantity"],
+            ["Mã kiện", "Trạng thái  version", "Lượng đóng / đã xuất"], [280, 240, 220], height=3)
         self.package_table.bind("<<TreeviewSelect>>", lambda event: self.enable())
+        package_actions = ttk.Frame(packages)
+        package_actions.pack(fill="x", pady=4)
         self.package_buttons = {}
         for action, label in [("seal", "Chốt kiện"), ("cancel", "Hủy phần kiện chưa xuất")]:
-            button = ttk.Button(codes, text=label, command=lambda a=action: self.action("package", a))
+            button = ttk.Button(package_actions, text=label, command=lambda a=action: self.action("package", a))
             button.pack(side="left", padx=5)
             self.package_buttons[action] = button
-        self.reason_form()
-        ttk.Label(self, text="Soạn/đóng kiện giữ nguyên tồn. Xuất hàng tại tab Giữ hàng / xuất kho. Hủy kiện trước khi hủy nhiệm vụ.", wraplength=820).pack(anchor="w")
-        self.retry_form(operation=True)
+        self.reason_form(footer)
+        ttk.Label(footer, text="Soạn/đóng kiện giữ nguyên tồn; Xuất hàng tại tab Giữ hàng / xuất kho; Hủy kiện trước khi hủy nhiệm vụ", wraplength=820).pack(anchor="w")
+        self.retry_form(operation=True, parent=footer)
+        for panel in self.form_panels:
+            panel.bind_scrolling()
+        self.document_pages = DocumentPages(self.table, footer=footer)
         self.operation_button.configure(text="Tra ACK soạn/kiện")
         self.session_changed()
 
         from apps.desktop.scanner.widget import ScanBar
         self.scan_bar = ScanBar(self, self, "PICK")
         self.scan_bar.pack(fill="x", pady=3, before=self.winfo_children()[0])
+        install_pagination(self, lambda after: self.presenter.load(after=after), limit=50, resource='fulfillment')
+        self.enable()
 
     def selected(self, table, rows):
         selection = table.selection()
@@ -140,8 +154,11 @@ class FulfillmentView(WorkflowView):
             self.set_enabled(button, writable and package and action in package["allowed_actions"])
         self.set_enabled(self.retry_button, free and self.presenter.uncertain)
         self.set_enabled(self.operation_button, free and self.presenter.uncertain)
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def workflow_clear(self):
+        reset_document_page(self)
         self.doc, self.next_after, self.assignee_after = None, None, None
         self.reservations, self.tasks, self.packages, self.assignees, self.pack_lines = {}, {}, {}, [], []
         self.permissions, self.busy = [], False
@@ -160,7 +177,7 @@ class FulfillmentView(WorkflowView):
 
     def task_label(self, task):
         res = self.reservations[task["reservation_id"]]
-        return f"{res['location_code']} · {res['sku']} · {res['lot_code'] or res['serial_code'] or '—'}"
+        return f"{res['location_code']}  {res['sku']}  {res['lot_code'] or res['serial_code'] or ""}"
 
     def task_selected(self, event=None):
         task = self.selected(self.task_table, self.tasks)
@@ -171,6 +188,8 @@ class FulfillmentView(WorkflowView):
         self.enable()
 
     def workflow_loaded(self, action, result, permissions):
+        if action == 'fulfillment':
+            self.pagination.loaded(result)
         self.permissions, self.busy = permissions, False
         if action == "fulfillment":
             self.next_after = result["next_after"]
@@ -190,26 +209,26 @@ class FulfillmentView(WorkflowView):
             self.packages = {r["id"]: r for r in result["packages"]}
             self.pack_lines = []
             self.line_table.delete(*self.line_table.get_children())
-            self.variables["detail"].set(f"{result['number']} · {result['status']} · v{result['version']}")
+            self.variables["detail"].set(f"{result['number']}  {result['status']}  v{result['version']}")
             self.variables["reason"].set("")
             for name in ["reservation", "pack_task", "location_code", "item_code", "trace_code"]:
                 self.variables[name].set("")
-            self.reservation_selector.configure(values=[f"{r['sku']} · {r['location_code']} · {r['lot_code'] or r['serial_code'] or '—'} · còn {r['remaining_base']}" for r in self.reservations.values()])
-            self.pack_selector.configure(values=[f"{self.task_label(r)} · chưa đóng {r['unpacked_base']}" for r in self.tasks.values()])
+            self.reservation_selector.configure(values=[f"{r['sku']}  {r['location_code']}  {r['lot_code'] or r['serial_code'] or ""}  còn {r['remaining_base']}" for r in self.reservations.values()])
+            self.pack_selector.configure(values=[f"{self.task_label(r)}  chưa đóng {r['unpacked_base']}" for r in self.tasks.values()])
             for table in [self.task_table, self.package_table]:
                 table.delete(*table.get_children())
             for row in self.tasks.values():
                 self.task_table.insert("", "end", iid=row["id"], values=(self.task_label(row), row["assignee_name"],
-                    f"{row['target_quantity'] or '?'} / {row['picked_quantity']} / {row['consumed_quantity']}", f"{row['status']} · v{row['version']}"))
+                    f"{row['target_quantity'] or '?'} / {row['picked_quantity']} / {row['consumed_quantity']}", f"{row['status']}  v{row['version']}"))
             from decimal import Decimal
             for row in self.packages.values():
                 quantity = sum(Decimal(line["quantity"]) for line in row["lines"])
                 consumed = sum(Decimal(line["consumed_quantity"]) for line in row["lines"])
-                self.package_table.insert("", "end", iid=row["id"], values=(row["code"], f"{row['status'] or 'Cũ'} · v{row['version']}", f"{quantity} / {consumed}"))
+                self.package_table.insert("", "end", iid=row["id"], values=(row["code"], f"{row['status'] or 'Cũ'}  v{row['version']}", f"{quantity} / {consumed}"))
             self.assignees, self.assignee_after = [], None
             self.assignee_selector.configure(values=[])
             self.variables["assignee"].set("")
-        self.variables["status"].set("Đã tải dữ liệu." + (" Còn trang sau." if result.get("next_after") else ""))
+        self.variables["status"].set("Đã tải dữ liệu" + (" Còn trang sau" if result.get("next_after") else ""))
         self.enable()
 
     def workflow_saved(self, result):
@@ -279,5 +298,5 @@ class FulfillmentView(WorkflowView):
                     model = PickConfirm
             return self.presenter.command("POST", path, model.model_validate(body).model_dump(mode="json"))
         except (ValueError, TypeError, IndexError):
-            self.workflow_error("Chọn đúng nguồn/người soạn/nhiệm vụ/kiện; nhập mã quét, lượng cơ sở và lý do hợp lệ.")
+            self.workflow_error("Chọn đúng nguồn/người soạn/nhiệm vụ/kiện; nhập mã quét, lượng cơ sở và lý do hợp lệ")
             return False

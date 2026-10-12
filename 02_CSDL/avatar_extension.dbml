@@ -1,0 +1,6 @@
+Table user_avatar {
+  user_id uuid [pk, not null, ref: > app_user.id]
+  image_base64 text
+  version integer [not null]
+  updated_at timestamptz [not null]
+}

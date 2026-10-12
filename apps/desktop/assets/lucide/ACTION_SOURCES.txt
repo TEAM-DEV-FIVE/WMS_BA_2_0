@@ -1,0 +1,51 @@
+Official Lucide action icons
+Commit: 1fae58d0a9c661a338036838caf3399b5507bab6
+SVG geometry unchanged; only stroke color and PNG rendering size vary.
+License: LICENSE.txt in this directory
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/refresh-cw.svg
+SHA256: 2e10dd403c85a24f163d59fc6151aa21147fe9402e1305dfc8979208caee8944
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/plus.svg
+SHA256: 7f6af73bf1ff6c4bca3f18351c8d1bdec6749c0c2530c4de5da85d520c21df17
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/save.svg
+SHA256: ee9d56a7fec4b20dd6689546d41f68219ea8cbd67f99bd17a1bdaff5be6edb53
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/circle-question-mark.svg
+SHA256: 975db087da041530dbf59ba1e61a7b99c3519fad43dae6375e42ccc74ba63924
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/search.svg
+SHA256: 283d371c2e433817bb9c0c8310caa6c77fa4177c0f4f1168d9c83b97af7389dc
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/folder-open.svg
+SHA256: ee57452b40e71df310214091dd9da1941a397c83197b8ff8d7ae66dd4242578b
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/upload.svg
+SHA256: 42816ee1fa0e9d3b82272a97615c1e562b0e9de64780ebf21963bc1db0ceffd1
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/download.svg
+SHA256: 3daeee13ded5a3afa2198b1bb4e2262d163922f97d96ac6ff9953e8ed4fe039d
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/file-check.svg
+SHA256: c64133f05e44d87830e37c7a9c45a439c5146017f86e91e563f806ff8a2ad4c1
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/file-plus.svg
+SHA256: bbcf862a2a4425baa8a5bda39c7f16ec1d283816a3db77baf84f2e8766dd223e
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/file-search.svg
+SHA256: 6cfea3242132f7f0ae32d66110f9f3ba93a22c16f53a776d77accc6b5a3a31e7
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/file-spreadsheet.svg
+SHA256: 69960bb43dec3b66f0d1c2dd26c2f637a10540b8bea4ffb90f8764a8404016a0
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/circle-check.svg
+SHA256: 9711e045a5999f8a3b0782eb88e09b04e0559bc7b379dcc0a4ae645223e10345
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/circle-x.svg
+SHA256: bcd8788901e6f29e1b231a81ba5e707d083d06cb4848a28f29407fab4f8e0b64
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/rotate-ccw.svg
+SHA256: 622685386ab4017eabfde01cd74550a20b1924df233b353f73b6b155371f2afd
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/printer.svg
+SHA256: fa9a6381687bc519a62eb9eac2492d5d51e8e659182822296b6e14bf2f00ecfb
+
+https://raw.githubusercontent.com/lucide-icons/lucide/1fae58d0a9c661a338036838caf3399b5507bab6/icons/info.svg
+SHA256: bc977a64eb96f3e9c1041ffd09a3fceb70e3e65c02b571f76064062ed31f3cb9

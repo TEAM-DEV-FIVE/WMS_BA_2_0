@@ -2,6 +2,9 @@ import tkinter as tk
 from datetime import datetime
 from tkinter import ttk
 
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.ui_help import StatusButton
+
 LABELS = {
     "READY": "Chờ gửi",
     "SENDING": "Chưa rõ kết quả",
@@ -17,14 +20,14 @@ class ReceiptRecoveryView(ttk.Frame):
         self.presenter = presenter
         presenter.recovery_view = self
         self.records = {}
-        self.status = tk.StringVar(value="Đăng nhập để xem lệnh nhận hàng đã lưu trên máy này.")
+        self.status = tk.StringVar(value="Đăng nhập để xem lệnh nhận hàng đã lưu trên máy này")
         ttk.Label(self, text="Phục hồi lệnh nhận hàng", font=("Segoe UI", 16, "bold")).pack(anchor="w")
         ttk.Label(
             self,
-            text="Mở lại ứng dụng chỉ tải danh sách đã lưu. Tra kết quả trước khi gửi lại; mỗi lần gửi lại giữ nguyên nội dung yêu cầu.",
+            text="Mở lại ứng dụng chỉ tải danh sách đã lưu; Tra kết quả trước khi gửi lại; mỗi lần gửi lại giữ nguyên nội dung yêu cầu",
             wraplength=810,
         ).pack(fill="x", pady=8)
-        self.table = ttk.Treeview(
+        self.table = DataTable(
             self,
             columns=["document", "state", "lines", "updated"],
             show="headings",
@@ -53,12 +56,12 @@ class ReceiptRecoveryView(ttk.Frame):
             actions, text="Gửi lại đúng lệnh đã chọn", command=lambda: self.action("retry")
         )
         self.retry_button.pack(side="left")
-        ttk.Label(self, textvariable=self.status, wraplength=810).pack(fill="x", pady=5)
+        StatusButton(self, self.status).pack(anchor="e", pady=5)
         self.detail = tk.Text(self, height=9, wrap="word", state="disabled")
         self.detail.pack(fill="both", expand=True, pady=5)
         ttk.Label(
             self,
-            text="Chỉ hiển thị dữ liệu của tài khoản và máy chủ hiện tại. Giữ thư mục dữ liệu WMS khi cập nhật ứng dụng.",
+            text="Chỉ hiển thị dữ liệu của tài khoản và máy chủ hiện tại; Giữ thư mục dữ liệu WMS khi cập nhật ứng dụng",
             wraplength=810,
         ).pack(fill="x", pady=5)
         self.enable()
@@ -87,7 +90,7 @@ class ReceiptRecoveryView(ttk.Frame):
         self.records = {}
         self.table.delete(*self.table.get_children())
         self.text("")
-        self.status.set("Đăng nhập để xem lệnh nhận hàng đã lưu trên máy này.")
+        self.status.set("Đăng nhập để xem lệnh nhận hàng đã lưu trên máy này")
         self.enable()
 
     def loading(self):
@@ -123,14 +126,14 @@ class ReceiptRecoveryView(ttk.Frame):
             self.status.set(str(error))
         elif result:
             self.status.set(
-                "Máy chủ xác nhận lệnh đã ghi sổ. Chi tiết phiếu hiện tại được tải ở tab Nhận hàng."
+                "Máy chủ xác nhận lệnh đã ghi sổ; Chi tiết phiếu hiện tại được tải ở tab Nhận hàng"
             )
         elif records:
             self.status.set(
-                "Đã tải tối đa 200 lệnh, ưu tiên lệnh chưa rõ kết quả. Chọn lệnh để tra cứu; chưa tự gửi lệnh nào."
+                "Đã tải tối đa 200 lệnh, ưu tiên lệnh chưa rõ kết quả; Chọn lệnh để tra cứu; chưa tự gửi lệnh nào"
             )
         else:
-            self.status.set("Chưa có lệnh ghi sổ nhận hàng được lưu cho tài khoản này.")
+            self.status.set("Chưa có lệnh ghi sổ nhận hàng được lưu cho tài khoản này")
         self.enable()
 
     def select(self, event=None):
@@ -153,7 +156,7 @@ class ReceiptRecoveryView(ttk.Frame):
             if record["state"] == "CONFLICT":
                 lines += [
                     "Lệnh này bị máy chủ từ chối: " + response.get("message", ""),
-                    "Tải lại phiếu ở tab Nhận hàng, xử lý nguyên nhân rồi tạo yêu cầu mới.",
+                    "Tải lại phiếu ở tab Nhận hàng, xử lý nguyên nhân rồi tạo yêu cầu mới",
                 ]
             lines += [f"Mã tra cứu hỗ trợ: {record['key']}"]
             if response.get("request_id"):

@@ -72,6 +72,7 @@ class ReturnSource(Contract):
 class ReturnSourcePage(Contract):
     items: list[ReturnSource]
     next_after: UUID | None
+    total: int | None = Field(default=None, ge=0)
 
 
 class ReturnPost(OrderAction):

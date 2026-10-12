@@ -175,11 +175,53 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/auth/contacts",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/auth/me",
       "tags": [
         "identity"
       ],
       "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/options",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
       "idempotency_key_required": false,
       "expected_version_required": false,
       "execution_key_required": false,
@@ -777,6 +819,27 @@
         "503"
       ],
       "untyped_success": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/iam/page/{resource}",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": true
     },
     {
       "method": "GET",
@@ -2545,6 +2608,27 @@
     },
     {
       "method": "PATCH",
+      "path": "/api/v1/auth/profile",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "PATCH",
       "path": "/api/v1/users/{user_id}/active",
       "tags": [
         "identity"
@@ -2580,6 +2664,111 @@
         "404",
         "409",
         "422",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/contacts/confirm",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/contacts/start",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": true,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/forgot",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/google/complete",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/google/start",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
         "503"
       ],
       "untyped_success": false
@@ -2797,6 +2986,27 @@
     {
       "method": "POST",
       "path": "/api/v1/auth/refresh",
+      "tags": [
+        "identity"
+      ],
+      "bearer_auth": false,
+      "idempotency_key_required": false,
+      "expected_version_required": false,
+      "execution_key_required": false,
+      "documented_errors": [
+        "401",
+        "403",
+        "404",
+        "409",
+        "422",
+        "429",
+        "503"
+      ],
+      "untyped_success": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/self-reset",
       "tags": [
         "identity"
       ],

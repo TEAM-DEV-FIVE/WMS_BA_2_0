@@ -1,0 +1,5 @@
+table,column,data_type,nullable,references
+user_avatar,user_id,uuid,NO,app_user.id
+user_avatar,image_base64,text,YES,
+user_avatar,version,integer,NO,
+user_avatar,updated_at,timestamptz,NO,

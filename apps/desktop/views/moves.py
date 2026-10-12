@@ -4,6 +4,11 @@ from tkinter import ttk
 from uuid import uuid4
 
 from apps.desktop.presenters.moves import MovePresenter
+from apps.desktop.views.data_table import DataTable
+from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
+from apps.desktop.views.document_review import ScrollPanel
+from apps.desktop.views.pagination import install_pagination
+from apps.desktop.views.ui_help import HelpButton, StatusButton
 from packages.contracts.moves import MoveInput, MovePost, MoveUpdate
 
 
@@ -14,15 +19,10 @@ class WorkflowView(ttk.Frame):
         super().__init__(parent, padding=12)
         self.content = self
         if scrollable:
-            self.canvas = tk.Canvas(self, highlightthickness=0)
-            scroll = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-            scroll.pack(side="right", fill="y")
-            self.canvas.pack(side="left", fill="both", expand=True)
-            self.canvas.configure(yscrollcommand=scroll.set)
-            self.content = ttk.Frame(self.canvas)
-            window = self.canvas.create_window((0, 0), window=self.content, anchor="nw")
-            self.canvas.bind("<Configure>", lambda event: self.canvas.itemconfigure(window, width=event.width))
-            self.content.bind("<Configure>", lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+            self.scroll_panel = ScrollPanel(self)
+            self.scroll_panel.pack(fill="both", expand=True)
+            self.canvas = self.scroll_panel.canvas
+            self.content = self.scroll_panel.inner
         self.variables = {name: tk.StringVar() for name in ["warehouse", "status", "reason", "detail"]}
         self.presenter = presenter_class(self, api)
         self.warehouses, self.permissions = [], []
@@ -33,7 +33,26 @@ class WorkflowView(ttk.Frame):
         self.selector = self.combo(self.top, "warehouse", 28)
         self.selector.pack(side="left", padx=(0, 6))
         self.selector.bind("<<ComboboxSelected>>", self.scope_changed)
-        ttk.Label(self.content, textvariable=self.variables["status"], wraplength=700).pack(fill="x", pady=5)
+        self.status_button = StatusButton(self.content, self.variables["status"])
+        self.status_button.pack(anchor="e", pady=3)
+
+    def align_document_toolbar(self):
+        """Keep list navigation, status and help on a single aligned row."""
+        self.status_button.destroy()
+        pages = self.document_pages
+        self.status_button = StatusButton(pages.bar, self.variables["status"])
+        self.status_button.configure(width=14)
+        pages.hint.configure(width=14)
+        self.status_button.pack(side="right", padx=(0, 8))
+        for button in (pages.list_button, pages.detail_button, pages.hint, self.status_button):
+            button.pack_configure(fill="y")
+        self.load_button.configure(width=14)
+        if hasattr(self, "new_button"):
+            self.new_button.configure(width=14)
+            self.new_button.pack_configure(padx=0)
+        panel = self.detail_scroll
+        panel.canvas.bind("<Configure>", lambda event: self.top.pack_configure(
+            padx=(4, max(0, panel.winfo_width() - event.width) + 4)), add=True)
 
     def variable(self, name, value=""):
         if name not in self.variables:
@@ -49,7 +68,7 @@ class WorkflowView(ttk.Frame):
         frame.pack(fill="both", expand=True)
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=1)
-        table = ttk.Treeview(frame, columns=names, show="headings", height=height, selectmode="browse")
+        table = DataTable(frame, columns=names, show="headings", height=height, selectmode="browse")
         for name, label, width in zip(names, labels, widths):
             table.heading(name, text=label)
             table.column(name, width=width, minwidth=40)
@@ -66,18 +85,22 @@ class WorkflowView(ttk.Frame):
         return str(self.warehouses[index].id) if index >= 0 else None
 
     def session_changed(self, user=None, warehouses=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.warehouses = list(warehouses or [])
-        self.selector.configure(values=[f"{w.code} · {w.name}" for w in self.warehouses])
+        self.selector.configure(values=[f"{w.code}  {w.name}" for w in self.warehouses])
         self.variables["warehouse"].set("")
         if self.warehouses:
             self.selector.current(0)
         self.presenter.reset(user.id if user else None, self.warehouse_id())
-        self.variables["status"].set("Chọn kho và tải dữ liệu." if user else "Đăng nhập để làm việc.")
+        self.variables["status"].set("Chọn kho và tải dữ liệu" if user else "Đăng nhập để làm việc")
         self.enable()
 
     def scope_changed(self, event=None):
+        if hasattr(self, "pagination"):
+            self.pagination.reset()
         self.presenter.reset(self.presenter.user_id, self.warehouse_id())
-        self.variables["status"].set("Kho đã đổi; tải lại dữ liệu. Lệnh chưa rõ kết quả được giữ riêng theo người/kho trong RAM.")
+        self.variables["status"].set("Đã đổi kho")
         self.enable()
 
     def workflow_busy(self):
@@ -87,7 +110,7 @@ class WorkflowView(ttk.Frame):
 
     def workflow_error(self, message):
         self.busy = False
-        self.variables["status"].set(message + (" Chưa rõ kết quả: tra ACK hoặc gửi lại đúng yêu cầu đang giữ."
+        self.variables["status"].set(message + (" Chưa rõ kết quả: tra ACK hoặc gửi lại đúng yêu cầu đang giữ"
                                                if self.presenter.uncertain else ""))
         self.enable()
 
@@ -95,22 +118,22 @@ class WorkflowView(ttk.Frame):
         self.on_signed_out(message)
         self.workflow_error(message)
 
-    def reason_form(self):
-        frame = ttk.Frame(self.content)
+    def reason_form(self, parent=None):
+        frame = ttk.Frame(parent if parent is not None else self.content)
         frame.pack(fill="x", pady=4)
         ttk.Label(frame, text="Lý do").pack(side="left")
         self.reason_entry = ttk.Entry(frame, textvariable=self.variables["reason"])
         self.reason_entry.pack(side="left", fill="x", expand=True, padx=6)
 
-    def retry_form(self, operation=False):
-        frame = ttk.Frame(self.content)
+    def retry_form(self, operation=False, parent=None):
+        frame = ttk.Frame(parent if parent is not None else self.content)
         frame.pack(fill="x", pady=5)
         self.retry_button = ttk.Button(frame, text="Gửi lại đúng yêu cầu", command=self.presenter.retry)
         self.retry_button.pack(side="left")
         if operation:
             self.operation_button = ttk.Button(frame, text="Tra ACK ghi sổ", command=self.presenter.operation)
             self.operation_button.pack(side="left", padx=6)
-        ttk.Label(frame, text="Chỉ máy chủ xác nhận mới hoàn tất. Lệnh hiện giữ trong RAM.").pack(side="left", padx=6)
+        HelpButton(frame, "Chỉ máy chủ xác nhận mới hoàn tất. Khi chưa rõ kết quả, gửi lại đúng yêu cầu hoặc tra cứu xác nhận ghi sổ.").pack(side="right")
 
     @staticmethod
     def set_enabled(widget, enabled):
@@ -133,10 +156,15 @@ class MoveView(WorkflowView):
         self.next_button.pack(side="left", padx=5)
         self.new_button = ttk.Button(self.top, text="Phiếu mới", command=self.new)
         self.new_button.pack(side="left")
-        self.table = self.tree(self, ["number", "state", "version"], ["Phiếu di chuyển", "Trạng thái", "Version"], [360, 220, 140])
+        footer = ttk.Frame(self)
+        footer.pack(side="bottom", fill="x")
+        self.detail_scroll = ScrollPanel(self)
+        self.detail_scroll.pack(fill="both", expand=True)
+        body = self.detail_scroll.inner
+        self.table = self.tree(body, ["number", "state", "version"], ["Phiếu di chuyển", "Trạng thái", "Version"], [360, 220, 140])
         self.table.bind("<<TreeviewSelect>>", self.select)
-        ttk.Label(self, textvariable=self.variables["detail"], wraplength=820).pack(fill="x", pady=3)
-        refs = ttk.Frame(self)
+        ttk.Label(body, textvariable=self.variables["detail"], wraplength=820).pack(fill="x", pady=3)
+        refs = ttk.Frame(body)
         refs.pack(fill="x", pady=4)
         self.ref_buttons = {}
         for resource, label in [("moves/stock", "Tồn nguồn"), ("moves/locations", "Vị trí đích")]:
@@ -145,7 +173,7 @@ class MoveView(WorkflowView):
                     command=lambda r=resource, n=next_page: self.presenter.load(r, self.cursors[r] if n else None))
                 button.pack(side="left", padx=(0, 6))
                 self.ref_buttons[resource, next_page] = button
-        edit = ttk.Frame(self)
+        edit = ttk.Frame(body)
         edit.pack(fill="x")
         ttk.Label(edit, text="Hàng / nguồn").grid(row=0, column=0, sticky="w")
         self.stock_selector = self.combo(edit, "stock", 78)
@@ -164,17 +192,17 @@ class MoveView(WorkflowView):
         self.day_entry = ttk.Entry(edit, textvariable=self.variable("day", date.today().isoformat()), width=14)
         self.day_entry.grid(row=2, column=3)
         edit.columnconfigure(1, weight=1)
-        bar = ttk.Frame(self)
+        bar = ttk.Frame(body)
         bar.pack(fill="x", pady=4)
         self.add_button = ttk.Button(bar, text="Thêm dòng", command=self.add_line)
         self.add_button.pack(side="left")
         self.remove_button = ttk.Button(bar, text="Bỏ dòng", command=self.remove_line)
         self.remove_button.pack(side="left", padx=6)
-        ttk.Label(bar, text="Nguồn nhận/cách ly cần UUID từ tab Kiểm định; nguồn STORAGE có thể để trống.").pack(side="left")
-        self.line_table = self.tree(self, ["stock", "source", "destination", "quantity", "quality"],
-            ["SKU / owner / lô-serial", "Nguồn", "Đích", "Số lượng", "Quyết định"], [230, 100, 100, 90, 300])
-        self.reason_form()
-        actions = ttk.Frame(self)
+        HelpButton(bar, "Nguồn nhận hoặc cách ly cần mã quyết định từ Kiểm định. Nguồn lưu trữ có thể để trống.").pack(side="right")
+        self.line_table = self.tree(body, ["stock", "source", "destination", "quantity", "quality"],
+            ["SKU / owner / lô / serial", "Nguồn", "Đích", "Số lượng", "Quyết định"], [230, 100, 100, 90, 300])
+        self.reason_form(parent=footer)
+        actions = ttk.Frame(footer)
         actions.pack(fill="x")
         self.buttons = {}
         for action, label in [("save", "Lưu nháp"), ("submit", "Gửi duyệt"), ("approve", "Duyệt"),
@@ -182,8 +210,12 @@ class MoveView(WorkflowView):
             button = ttk.Button(actions, text=label, command=lambda a=action: self.action(a))
             button.pack(side="left", padx=(0, 4))
             self.buttons[action] = button
-        self.retry_form(operation=True)
+        self.retry_form(operation=True, parent=footer)
+        self.document_pages = DocumentPages(self.table, footer=footer)
+        self.detail_scroll.bind_scrolling()
         self.session_changed()
+        install_pagination(self, lambda after: self.presenter.load(after=after), limit=50, resource='moves')
+        self.enable()
 
     def enable(self):
         free = bool(self.presenter.user_id and self.warehouse_id()) and not self.busy
@@ -203,8 +235,11 @@ class MoveView(WorkflowView):
             self.set_enabled(widget, editable if action == "save" else writable and self.doc and action in self.doc["allowed_actions"])
         self.set_enabled(self.retry_button, free and self.presenter.uncertain)
         self.set_enabled(self.operation_button, free and self.presenter.uncertain and self.presenter.uncertain[1].endswith("/post"))
+        if hasattr(self, "pagination"):
+            self.pagination.set_enabled(self.load_button.instate(["!disabled"]) and not self.presenter.uncertain)
 
     def workflow_clear(self):
+        reset_document_page(self)
         self.doc, self.lines, self.stock, self.locations, self.permissions = None, [], [], [], []
         self.busy = False
         self.cursors = {key: None for key in self.cursors}
@@ -223,9 +258,10 @@ class MoveView(WorkflowView):
         self.variable("day").set(date.today().isoformat())
         self.variables["reason"].set("")
         self.variables["quality_id"].set("")
-        self.variables["detail"].set("Phiếu mới; tải tồn nguồn và vị trí đích, rồi thêm dòng.")
+        self.variables["detail"].set("Phiếu mới; tải tồn nguồn và vị trí đích, rồi thêm dòng")
         self.render_lines()
         self.enable()
+        show_document(self)
 
     def select(self, event=None):
         selected = self.table.selection()
@@ -236,20 +272,20 @@ class MoveView(WorkflowView):
         index = self.stock_selector.current()
         if index >= 0:
             row = self.stock[index]
-            self.variables["detail"].set(f"Nguồn {row['source_code']} · owner {row['owner_code']} · "
-                f"lô/serial {row['lot_code'] or row['serial_code'] or '—'} · tồn {row['on_hand']} · giữ {row['reserved']} · "
-                f"chưa giữ {row['movable_base']} · UUID {row['stock_item_id']}")
+            self.variables["detail"].set(f"Nguồn {row['source_code']}  owner {row['owner_code']}"
+                f"lô/serial {row['lot_code'] or row['serial_code'] or ""}  tồn {row['on_hand']}  giữ {row['reserved']}"
+                f"chưa giữ {row['movable_base']}  UUID {row['stock_item_id']}")
 
     def add_line(self):
         source, target = self.stock_selector.current(), self.location_selector.current()
         if source < 0 or target < 0:
-            self.workflow_error("Chọn hàng/vị trí nguồn và vị trí đích; tải các trang danh sách nếu cần.")
+            self.workflow_error("Chọn hàng/vị trí nguồn và vị trí đích; tải các trang danh sách nếu cần")
             return
         stock, location = self.stock[source], self.locations[target]
         self.lines.append(dict(stock_item_id=stock["stock_item_id"], source_location_id=stock["source_location_id"],
             destination_location_id=location["id"], quantity_base=self.variables["quantity"].get(),
             quality_decision_id=self.variables["quality_id"].get().strip() or None,
-            label=f"{stock['sku']} / {stock['owner_code']} / {stock['lot_code'] or stock['serial_code'] or '—'}",
+            label=f"{stock['sku']} / {stock['owner_code']} / {stock['lot_code'] or stock['serial_code'] or ""}",
             source_code=stock["source_code"], destination_code=location["code"]))
         self.render_lines()
 
@@ -263,18 +299,20 @@ class MoveView(WorkflowView):
         self.line_table.delete(*self.line_table.get_children())
         for i, row in enumerate(self.lines):
             self.line_table.insert("", "end", iid=str(i), values=(row["label"], row["source_code"], row["destination_code"],
-                row["quantity_base"], row["quality_decision_id"] or "—"))
+                row["quantity_base"], row["quality_decision_id"] or ""))
 
     def workflow_loaded(self, action, result, permissions):
+        if action == 'moves':
+            self.pagination.loaded(result)
         self.busy, self.permissions = False, permissions
         if action == "read":
             self.doc = result
             plans = {p["document_line_id"]: p for p in result["plan"]}
             self.lines = [{**plans[r["id"]], "label": f"{r['sku']} / {r['owner_code']} / "
-                           f"{plans[r['id']]['lot_code'] or plans[r['id']]['serial_code'] or '—'}"} for r in result["lines"]]
+                           f"{plans[r['id']]['lot_code'] or plans[r['id']]['serial_code'] or ""}"} for r in result["lines"]]
             self.variables["day"].set(result["business_date"])
             self.variables["reason"].set("")
-            self.variables["detail"].set(f"{result['number']} · {result['status']} · v{result['version']} · " +
+            self.variables["detail"].set(f"{result['number']}  {result['status']}  v{result['version']}" +
                 "; ".join(f"Duyệt v{a['document_version']}: {a['status']}" for a in result["approvals"]))
             self.render_lines()
         else:
@@ -286,12 +324,12 @@ class MoveView(WorkflowView):
             elif action == "moves/stock":
                 self.stock = result["items"]
                 self.variables["stock"].set("")
-                self.stock_selector.configure(values=[f"{r['sku']} · {r['source_code']} · {r['owner_code']} · {r['lot_code'] or r['serial_code'] or '—'} · chưa giữ {r['movable_base']}" for r in self.stock])
+                self.stock_selector.configure(values=[f"{r['sku']}  {r['source_code']}  {r['owner_code']}  {r['lot_code'] or r['serial_code'] or ""}  chưa giữ {r['movable_base']}" for r in self.stock])
             elif action == "moves/locations":
                 self.locations = result["items"]
                 self.variables["location"].set("")
-                self.location_selector.configure(values=[f"{r['code']} · {r['kind']} · {r['name']}" for r in self.locations])
-        self.variables["status"].set("Đã tải dữ liệu." + (" Còn trang sau." if result.get("next_after") else ""))
+                self.location_selector.configure(values=[f"{r['code']}  {r['kind']}  {r['name']}" for r in self.locations])
+        self.variables["status"].set("Đã tải dữ liệu" + (" Còn trang sau" if result.get("next_after") else ""))
         self.enable()
 
     def workflow_saved(self, result):
@@ -323,4 +361,4 @@ class MoveView(WorkflowView):
                     body["decision"] = action.upper()
                 self.presenter.command("POST", path, body)
         except (ValueError, TypeError, StopIteration):
-            self.workflow_error("Kiểm tra UUID quyết định, lượng cơ sở, ngày YYYY-MM-DD, lý do và quyền duyệt.")
+            self.workflow_error("Kiểm tra UUID quyết định, lượng cơ sở, ngày YYYY-MM-DD, lý do và quyền duyệt")

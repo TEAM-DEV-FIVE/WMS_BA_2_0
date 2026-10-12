@@ -7,6 +7,7 @@ from apps.server.application.commands import CommandResult
 from apps.server.application.master_data import active_reference, one
 from apps.server.application.move_safety import location_tree
 from apps.server.application.orders import amount
+from apps.server.application.pagination import counted_rows
 from apps.server.application.stock_identity import validate_ownership
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.quality import QualityDecision, QualityHistory, QualityResult, QualitySource
@@ -63,26 +64,24 @@ class QualityService:
     def listing(self, auth, warehouse_id, after=None, limit=50):
         auth.require("document.read", warehouse_id, hidden=True)
         broad = any(g["role_code"] not in {"RECEIVER", "PICKER"} for g in auth.grants("document.read", warehouse_id))
-        rows = auth.connection.execute(text(SOURCE_SQL + """ AND l.warehouse_id=:warehouse
+        rows, total = counted_rows(auth.connection, text(SOURCE_SQL + """ AND l.warehouse_id=:warehouse
             AND (CAST(:after AS uuid) IS NULL OR m.id>:after)
             AND (:broad OR d.created_by=:actor OR EXISTS(SELECT 1 FROM wms.document_assignment a
-                WHERE a.document_id=d.id AND a.user_id=:actor)) ORDER BY m.id LIMIT :limit"""),
-            {"warehouse": warehouse_id, "after": after, "broad": broad, "actor": auth.principal.user_id,
-             "limit": limit + 1}).mappings().all()
-        return {"items": [self.view(row) for row in rows[:limit]],
+                WHERE a.document_id=d.id AND a.user_id=:actor)) ORDER BY m.id LIMIT :limit"""), {"warehouse": warehouse_id, "after": after, "broad": broad, "actor": auth.principal.user_id,
+             "limit": limit + 1})
+        return {"total": total, "items": [self.view(row) for row in rows[:limit]],
                 "next_after": rows[limit - 1]["id"] if len(rows) > limit else None}
 
     def history(self, auth, source_id, after=None, limit=50):
         source = self.source(auth, source_id)
-        rows = auth.connection.execute(text("""SELECT * FROM wms.quality_decision WHERE receipt_move_id=:id
-            AND (CAST(:after AS uuid) IS NULL OR id>:after) ORDER BY id LIMIT :limit"""),
-                                       {"id": source_id, "after": after, "limit": limit + 1}).mappings().all()
+        rows, total = counted_rows(auth.connection, text("""SELECT * FROM wms.quality_decision WHERE receipt_move_id=:id
+            AND (CAST(:after AS uuid) IS NULL OR id>:after) ORDER BY id LIMIT :limit"""), {"id": source_id, "after": after, "limit": limit + 1})
         items = []
         for row in rows[:limit]:
             moved = decision_moved(auth.connection, row["id"])
             items.append(QualityDecision(**{**row, "quantity": amount(row["quantity"])},
                                          moved_base=amount(moved), remaining_base=amount(row["quantity"] - moved)))
-        return QualityHistory(source=self.view(source), items=items,
+        return QualityHistory(total=total, source=self.view(source), items=items,
                               next_after=rows[limit - 1]["id"] if len(rows) > limit else None,
                               allowed_actions=["decide"] if auth.allows("quality.decide", source["warehouse_id"]) else [])
 

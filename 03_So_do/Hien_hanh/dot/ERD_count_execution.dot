@@ -1,0 +1,9 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · count_execution"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"count_execution" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>count_execution</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK session_id : uuid</TD></TR><TR><TD ALIGN="LEFT">execution_key : uuid</TD></TR><TR><TD ALIGN="LEFT">request_hash : character(64)</TD></TR><TR><TD ALIGN="LEFT">response : jsonb</TD></TR></TABLE>>];
+"count_session" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>count_session</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"count_execution" -> "count_session" [label="session_id → id"];
+}

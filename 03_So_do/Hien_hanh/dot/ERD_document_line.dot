@@ -1,0 +1,18 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · document_line"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"document_line" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>document_line</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">document_id : uuid</TD></TR><TR><TD ALIGN="LEFT">line_no : integer</TD></TR><TR><TD ALIGN="LEFT">product_id : uuid</TD></TR><TR><TD ALIGN="LEFT">uom_id : uuid</TD></TR><TR><TD ALIGN="LEFT">quantity : numeric(20,6)</TD></TR><TR><TD ALIGN="LEFT">factor_snapshot : numeric(20,8)</TD></TR><TR><TD ALIGN="LEFT">base_quantity : numeric(20,6)</TD></TR><TR><TD ALIGN="LEFT">source_line_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">reference_unit_price : numeric(20,4) ?</TD></TR><TR><TD ALIGN="LEFT">owner_id : uuid</TD></TR><TR><TD ALIGN="LEFT">consignment_id : uuid ?</TD></TR><TR><TD ALIGN="LEFT">closed_base_quantity : numeric(20,6)</TD></TR></TABLE>>];
+"consignment_agreement" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>consignment_agreement</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"document" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>document</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"stock_owner" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>stock_owner</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"product" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>product</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"uom" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>uom</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"document_line" -> "consignment_agreement" [label="consignment_id → id"];
+"document_line" -> "document" [label="document_id → id"];
+"document_line" -> "stock_owner" [label="owner_id → id"];
+"document_line" -> "product" [label="product_id → id"];
+"document_line" -> "document_line" [label="source_line_id → id"];
+"document_line" -> "uom" [label="uom_id → id"];
+}

@@ -1,3 +1,5 @@
+> **Lịch sử thiết kế cơ sở.** Khi mô tả ứng dụng hiện tại, dùng [mục lục mới](../Hien_hanh/index.md) và [PDF hiện hành](../Hien_hanh/WMS_Hien_hanh.pdf).
+
 # Mục lục sơ đồ
 
 | Trang | Mã | Tên |

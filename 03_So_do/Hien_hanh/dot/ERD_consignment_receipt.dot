@@ -1,0 +1,11 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · consignment_receipt"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"consignment_receipt" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>consignment_receipt</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK document_id : uuid</TD></TR><TR><TD ALIGN="LEFT">warehouse_id : uuid</TD></TR><TR><TD ALIGN="LEFT">batch_key : uuid</TD></TR><TR><TD ALIGN="LEFT">delivery_reference : character varying(2000)</TD></TR></TABLE>>];
+"document" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>document</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"warehouse" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>warehouse</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"consignment_receipt" -> "document" [label="document_id → id"];
+"consignment_receipt" -> "warehouse" [label="warehouse_id → id"];
+}

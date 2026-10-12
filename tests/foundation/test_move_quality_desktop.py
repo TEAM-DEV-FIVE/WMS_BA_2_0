@@ -209,8 +209,10 @@ def test_move_quality_tk_http_decision_putaway_approval_and_logout(movement):  #
         def done(view):
             wait(root, lambda: view.presenter.pending is None and not view.busy)
         login("manager")
+        # This fixture signs in without MFA; test the view loader independently
+        # of the shell guard that requires MFA for normal navigation.
         shell.notebook.select(quality)
-        quality.load_button.invoke()
+        quality.open_workspace()
         done(quality)
         quality.table.selection_set(source["id"])
         quality.select()
@@ -287,14 +289,18 @@ def test_move_quality_layout_900_by_690_and_cleanup():
 
     from packages.contracts.identity import CurrentUser, WarehouseSummary
     root = tk.Tk()
+    root.geometry("900x690")
     shell = DesktopShell(root, DesktopSettings())
     try:
         user = CurrentUser(id=uuid4(), username="test-user", display_name="Test", is_active=True,
-                           mfa_verified=False, global_permissions=[])
+                           mfa_verified=True, global_permissions=[])
         warehouse = WarehouseSummary(id=uuid4(), code="UI", name="Test warehouse")
         shell.session_changed(user, [warehouse])
+        # Geometry fixture has no HTTP session; network loading is covered separately.
+        shell.workspace_loaders.clear()
         for view in [shell.quality_view, shell.move_view]:
             shell.notebook.select(view)
+            view.document_pages.show_detail()
             view.permissions = ["quality.decide", "move.draft", "move.post"]
             view.enable()
             root.update()
@@ -304,6 +310,8 @@ def test_move_quality_layout_900_by_690_and_cleanup():
             else:
                 controls += [view.decide_button, view.history_button, view.history_next, *view.entries]
             for widget in controls:
+                widget.focus_force()
+                root.update()
                 assert widget.winfo_ismapped()
                 assert widget.winfo_rootx() + widget.winfo_width() <= root.winfo_rootx() + 900
                 assert widget.winfo_rooty() + widget.winfo_height() <= root.winfo_rooty() + 690

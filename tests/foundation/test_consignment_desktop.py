@@ -95,4 +95,4 @@ def test_consignment_gui_receipt_real_http_unknown_ack_and_session_cleanup(openi
     assert view.doc["status"] == "COMPLETED"
     f.shell.session_view.logout()
     assert not view.lines and not view.doc and not view.catalogs["owners"]
-    f.wait(lambda: f.shell.session_view.status.get() == "Đã đăng xuất.")
+    f.wait(lambda: f.shell.session_view.status.get() == "Đã đăng xuất")

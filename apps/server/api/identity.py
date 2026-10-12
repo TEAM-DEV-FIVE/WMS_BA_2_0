@@ -23,6 +23,7 @@ from packages.contracts.identity import (
     PasswordResetComplete,
     PasswordResetIssue,
     PasswordResetToken,
+    ProfileUpdate,
     Reauthentication,
     RecoveryCodes,
     RecoveryInput,
@@ -64,7 +65,12 @@ def identity_router(service: IdentityService) -> APIRouter:
         actor = auth.principal
         return CurrentUser(id=actor.user_id, username=actor.username, display_name=actor.display_name,
                            is_active=True, mfa_verified=actor.mfa_verified_at is not None,
-                           global_permissions=auth.global_permissions())
+                           global_permissions=auth.global_permissions(),
+                           **service.avatar(auth.connection, actor.user_id))
+
+    @router.patch("/auth/profile", response_model=CurrentUser)
+    def profile(payload: ProfileUpdate, request: Request, access: Annotated[str, Depends(token)]):
+        return service.update_profile(access, payload, request.state.request_id)
 
     @router.post("/auth/mfa/enroll", response_model=Enrollment)
     def enroll(payload: PasswordConfirmation, request: Request, access: Annotated[str, Depends(token)]):
@@ -104,6 +110,14 @@ def identity_router(service: IdentityService) -> APIRouter:
                 value["reference_unit_price"] = str(line["reference_unit_price"]) if line["reference_unit_price"] is not None else None
             result["lines"].append(value)
         return result
+
+    @router.get("/iam/page/{resource}")
+    def paginated_identity(resource: str, auth=Depends(authorization),
+                           limit: int = Query(default=100, ge=1, le=200),
+                           after: str | None = Query(default=None, max_length=160),
+                           q: str = Query(default="", max_length=100)):
+        from apps.server.application.identity_pages import identity_page
+        return identity_page(auth, resource, after, q, limit, service.clock())
 
     @router.get("/users", response_model=list[UserSummary])
     def users(auth=Depends(authorization), limit: int = Query(default=100, ge=1, le=200), after: str = ""):

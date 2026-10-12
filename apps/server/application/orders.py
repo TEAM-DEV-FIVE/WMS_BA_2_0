@@ -10,6 +10,7 @@ from apps.server.application.authorization import Authorization, Principal
 from apps.server.application.commands import CommandBus, CommandResult
 from apps.server.application.custom_fields import snapshot as custom_snapshot
 from apps.server.application.master_data import active_reference, invalid, one
+from apps.server.application.pagination import counted_rows
 from apps.server.application.stock_identity import is_consignment_receipt, ownership_snapshot
 from apps.server.domain.errors import DomainError, require_version
 from apps.server.infrastructure.database import PostgresUnitOfWork
@@ -81,9 +82,7 @@ class OrderService:
         auth.require("document.read", warehouse_id, hidden=True)
         grants = auth.grants("document.read", warehouse_id)
         broad = any(g["role_code"] not in {"RECEIVER", "PICKER"} for g in grants)
-        rows = (
-            auth.connection.execute(
-                text(
+        rows, total = counted_rows(auth.connection, text(
                     SUMMARY_SQL
                     + """ WHERE d.kind=:kind AND d.warehouse_id=:warehouse
             AND (CAST(:consignment_only AS boolean) IS NULL OR
@@ -93,8 +92,7 @@ class OrderService:
             AND (strpos(lower(d.number),lower(:query))>0 OR strpos(lower(COALESCE(p.name,'')),lower(:query))>0)
             AND (:broad OR d.created_by=:user OR EXISTS(SELECT 1 FROM wms.document_assignment a
                 WHERE a.document_id=d.id AND a.user_id=:user)) ORDER BY d.id LIMIT :limit"""
-                ),
-                {
+                ), {
                     "kind": kind,
                     "consignment_only": consignment_only,
                     "warehouse": warehouse_id,
@@ -104,15 +102,11 @@ class OrderService:
                     "broad": broad,
                     "user": auth.principal.user_id,
                     "limit": limit + 1,
-                },
-            )
-            .mappings()
-            .all()
-        )
+                })
         from packages.contracts.orders import OrderSummary
 
         items = [OrderSummary(**{k: r[k] for k in OrderSummary.model_fields}) for r in rows[:limit]]
-        return {"items": items, "next_after": items[-1].id if len(rows) > limit else None}
+        return {"total": total, "items": items, "next_after": items[-1].id if len(rows) > limit else None}
 
     def lines(self, connection, doc):
         # Return net fulfillment; reversal removes the original move once, never subtracts twice.

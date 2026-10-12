@@ -1,0 +1,14 @@
+digraph WMS {
+graph [rankdir=LR, bgcolor="white", nodesep=.32, ranksep=.6, pad=.28];
+node [shape=plain, fontname="DejaVu Sans", fontsize=12];
+edge [fontname="DejaVu Sans", fontsize=10, color="#567086", fontcolor="#334155", arrowsize=.7];
+label="ERD hiện hành · approval_step"; labelloc=t; fontname="DejaVu Sans"; fontsize=20;
+"approval_step" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>approval_step</B></FONT></TD></TR><TR><TD ALIGN="LEFT">PK id : uuid</TD></TR><TR><TD ALIGN="LEFT">request_id : uuid</TD></TR><TR><TD ALIGN="LEFT">step_no : integer</TD></TR><TR><TD ALIGN="LEFT">required_role_id : uuid</TD></TR><TR><TD ALIGN="LEFT">status : character varying(20)</TD></TR><TR><TD ALIGN="LEFT">decided_by : uuid ?</TD></TR><TR><TD ALIGN="LEFT">decided_at : timestamp with time zone ?</TD></TR><TR><TD ALIGN="LEFT">comment : text ?</TD></TR><TR><TD ALIGN="LEFT">alternative_role_id : uuid ?</TD></TR></TABLE>>];
+"role" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>role</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"app_user" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>app_user</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"approval_request" [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="7" COLOR="#b7c9da"><TR><TD BGCOLOR="#005b9e"><FONT COLOR="white"><B>approval_request</B></FONT></TD></TR><TR><TD ALIGN="LEFT">Bảng đích — các cột được tham chiếu</TD></TR><TR><TD ALIGN="LEFT">id : uuid</TD></TR></TABLE>>];
+"approval_step" -> "role" [label="alternative_role_id → id"];
+"approval_step" -> "app_user" [label="decided_by → id"];
+"approval_step" -> "approval_request" [label="request_id → id"];
+"approval_step" -> "role" [label="required_role_id → id"];
+}

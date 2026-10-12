@@ -5,6 +5,7 @@ from uuid import UUID
 
 from apps.desktop.presenters.custom_fields import CustomFieldPresenter
 from apps.desktop.views.moves import WorkflowView
+from apps.desktop.views.ui_help import Disclosure, HelpButton
 from packages.contracts.custom_fields import KINDS, FieldDefinition, SchemaWrite, ValuesWrite
 
 
@@ -14,26 +15,29 @@ class CustomFieldView(WorkflowView):
         self.definition = self.record = None
         self.fields, self.targets, self.inputs, self.input_widgets = [], [], {}, []
         self.after = None
-        self.variable("kind", "PO")
+        self.variable("kind", "PRODUCT")
         self.kind = self.combo(self.top, "kind", 20)
         self.kind.configure(values=KINDS)
         self.kind.pack(side="left")
         self.kind.bind("<<ComboboxSelected>>", self.kind_changed)
-        self.reason_form()
-        self.retry_form()
         tabs = ttk.Notebook(self.content)
         tabs.pack(fill="both", expand=True)
         admin, entry = ttk.Frame(tabs, padding=8), ttk.Frame(tabs, padding=8)
-        tabs.add(entry, text="Giá trị mở rộng")
-        tabs.add(admin, text="Định nghĩa bộ trường")
+        history = ttk.Frame(tabs, padding=8)
+        tabs.add(entry, text="Thông tin mở rộng")
+        tabs.add(admin, text="Thiết lập trường")
+        tabs.add(history, text="Lịch sử thay đổi")
+        self.entry_page, self.history_page = entry, history
         self.tabs = tabs
+        self.reason_form()
+        self.retry_form()
         row = ttk.Frame(admin)
         row.pack(fill="x")
         self.schema_button = ttk.Button(row, text="Tải bộ trường", command=self.load_schema)
         self.schema_button.pack(side="left")
         self.publish_button = ttk.Button(row, text="Phát hành phiên bản", command=self.publish)
         self.publish_button.pack(side="left", padx=5)
-        ttk.Label(admin, text="Bỏ trường hoặc đổi kiểu tạo phiên bản mới. Chứng từ cũ giữ nguyên bộ trường đã gắn.", wraplength=680).pack(fill="x", pady=4)
+        HelpButton(row, "Bỏ trường hoặc đổi kiểu tạo phiên bản mới. Chứng từ cũ giữ nguyên bộ trường đã gắn.").pack(side="right")
         self.field_table = self.tree(admin, ["code", "label", "type", "required", "access"],
             ["Mã", "Tên hiển thị", "Kiểu", "Bắt buộc", "Quyền"], [140, 220, 90, 70, 80], height=4)
         self.field_table.bind("<<TreeviewSelect>>", self.select_field)
@@ -61,33 +65,39 @@ class CustomFieldView(WorkflowView):
         self.remove_button = ttk.Button(buttons, text="Bỏ trường đã chọn", command=self.remove_field)
         self.remove_button.pack(side="left", padx=5)
         row = ttk.Frame(entry)
-        row.pack(fill="x")
-        self.targets_button = ttk.Button(row, text="Tải đối tượng", command=self.load_targets)
-        self.targets_button.pack(side="left")
-        self.next_button = ttk.Button(row, text="Trang sau", command=lambda: self.load_targets(self.after))
-        self.next_button.pack(side="left", padx=5)
-        self.target_selector = self.combo(entry, "target", 65)
-        self.target_selector.pack(fill="x", pady=4)
+        row.pack(fill="x", pady=(0, 12))
+        ttk.Label(row, text="Đối tượng").pack(side="left", padx=(0, 12))
+        self.target_selector = self.combo(row, "target", 40)
+        self.target_selector.pack(side="left", fill="x", expand=True)
         self.target_selector.bind("<<ComboboxSelected>>", self.select_target)
-        row = ttk.Frame(entry)
+        self.targets_button = ttk.Button(row, text="Tải danh sách", command=self.load_targets)
+        self.targets_button.pack(side="left", padx=6)
+        self.next_button = ttk.Button(row, text="Xem tiếp", command=lambda: self.load_targets(self.after))
+        self.next_button.pack(side="left")
+        self.advanced = Disclosure(entry, "Tùy chọn nâng cao")
+        self.advanced.pack(fill="x", pady=(0, 8))
+        row = ttk.Frame(self.advanced.body)
         row.pack(fill="x")
-        ttk.Label(row, text="ID đối tượng (hoặc chọn ở trên)").pack(side="left")
+        ttk.Label(row, text="ID đối tượng").pack(side="left")
         self.target_entry = ttk.Entry(row, textvariable=self.variable("target_id"))
         self.target_entry.pack(side="left", fill="x", expand=True, padx=5)
         self.read_button = ttk.Button(row, text="Tải giá trị", command=self.read)
         self.read_button.pack(side="left")
-        row = ttk.Frame(entry)
+        row = ttk.Frame(self.advanced.body)
         row.pack(fill="x", pady=4)
         self.latest_button = ttk.Button(row, text="Xem bộ trường mới nhất", command=lambda: self.read(latest=True))
         self.latest_button.pack(side="left")
-        self.save_button = ttk.Button(row, text="Lưu giá trị / chuyển phiên bản", command=self.save)
-        self.save_button.pack(side="left", padx=5)
-        self.history_button = ttk.Button(row, text="Lịch sử gần nhất", command=self.history)
-        self.history_button.pack(side="left")
-        ttk.Label(entry, textvariable=self.variables["detail"], wraplength=680).pack(fill="x", pady=4)
+        HelpButton(row, "Chọn bộ trường mới nhất để xem trước. Phiên bản mới chỉ được áp dụng sau khi lưu.").pack(side="right")
+        ttk.Label(self.advanced.body, textvariable=self.variables["detail"], style="Muted.TLabel").pack(fill="x", pady=4)
+        actions = ttk.Frame(entry)
+        actions.pack(side="bottom", fill="x", pady=(12, 0))
+        self.save_button = ttk.Button(actions, text="Lưu thay đổi", command=self.save, style="Primary.TButton")
+        self.save_button.pack(side="left")
         self.value_frame = ttk.Frame(entry)
-        self.value_frame.pack(fill="both", expand=True)
-        self.history_table = self.tree(entry, ["version", "schema", "values"],
+        self.value_frame.pack(fill="x", pady=8)
+        self.history_button = ttk.Button(history, text="Tải lịch sử", command=self.history, style="Primary.TButton")
+        self.history_button.pack(anchor="w", pady=(0, 8))
+        self.history_table = self.tree(history, ["version", "schema", "values"],
                                       ["Phiên bản đối tượng", "Bộ trường", "Giá trị"], [140, 80, 460], height=3)
         self.enable()
 
@@ -104,6 +114,14 @@ class CustomFieldView(WorkflowView):
 
     def scope_changed(self, event=None):
         self.kind_changed(event)
+
+    def open_workspace(self):
+        if not self.busy and not self.presenter.uncertain and self.definition is None:
+            self.auto_target = True
+            if "config.manage" in self.permissions:
+                self.load_schema()
+            else:
+                self.load_targets()
 
     def load_schema(self):
         self.presenter.submit("schema", "GET", "custom-fields/schemas/"+self.variables["kind"].get())
@@ -135,7 +153,7 @@ class CustomFieldView(WorkflowView):
             self.fields = [f for f in self.fields if f["code"] != field["code"]] + [field]
             self.render_fields()
         except (ValueError, TypeError):
-            self.workflow_error("Kiểm tra mã trường, kiểu dữ liệu và ràng buộc.")
+            self.workflow_error("Kiểm tra mã trường, kiểu dữ liệu và ràng buộc")
 
     def remove_field(self):
         selected = self.field_table.selection()
@@ -149,7 +167,7 @@ class CustomFieldView(WorkflowView):
             body = SchemaWrite(expected_version=self.definition["version"], reason=self.variables["reason"].get(), fields=self.fields)
             self.presenter.command("PUT", "custom-fields/schemas/"+self.definition["entity_type"], body.model_dump(mode="json"))
         except ValueError:
-            self.workflow_error("Kiểm tra bộ trường và nhập lý do phát hành.")
+            self.workflow_error("Kiểm tra bộ trường và nhập lý do phát hành")
 
     @property
     def target_type(self):
@@ -174,14 +192,15 @@ class CustomFieldView(WorkflowView):
                 path += ("&" if "?" in path else "?")+"latest=true"
             self.presenter.submit("values", "GET", path)
         except ValueError:
-            self.workflow_error("Chọn đối tượng hoặc nhập ID hợp lệ.")
+            self.workflow_error("Chọn đối tượng hoặc nhập ID hợp lệ")
 
     def history(self):
         try:
             path = self.path().split("?")
+            self.tabs.select(self.history_page)
             self.presenter.submit("history", "GET", path[0]+"/history"+("?"+path[1] if len(path)>1 else ""))
         except ValueError:
-            self.workflow_error("Chọn đối tượng trước.")
+            self.workflow_error("Chọn đối tượng trước")
 
     def clear_inputs(self):
         self.inputs.clear()
@@ -193,8 +212,8 @@ class CustomFieldView(WorkflowView):
         self.clear_inputs()
         for index, field in enumerate(self.record["schema"]["fields"]):
             value = self.record["values"].get(field["code"])
-            label = field["label"]+(" *" if field["required"] else "")+f" ({field['value_type']})"
-            ttk.Label(self.value_frame, text=label, wraplength=250).grid(row=index, column=0, sticky="w", pady=3)
+            label = field["label"]+(" *" if field["required"] else "")
+            ttk.Label(self.value_frame, text=label, wraplength=180).grid(row=index, column=0, sticky="w", pady=8, padx=(0, 18))
             var = tk.StringVar(value=("Có" if value else "Không") if type(value) is bool else str(value) if value is not None else "")
             self.inputs[field["code"]] = var
             if field["value_type"] in {"BOOLEAN", "ENUM"}:
@@ -202,9 +221,10 @@ class CustomFieldView(WorkflowView):
                     values=[""]+(["Có", "Không"] if field["value_type"] == "BOOLEAN" else field["validation"]["choices"]))
             else:
                 widget = ttk.Entry(self.value_frame, textvariable=var)
-            widget.grid(row=index, column=1, sticky="ew", padx=5, pady=3)
+            widget.grid(row=index, column=1, sticky="ew", pady=8)
             self.input_widgets.append((widget, field))
         self.value_frame.columnconfigure(1, weight=1)
+        self.scroll_panel.bind_scrolling()
 
     def save(self):
         if not self.record or not self.record["schema"]["revision_id"]:
@@ -221,7 +241,7 @@ class CustomFieldView(WorkflowView):
             path = self.presenter.target_path(self.record["target_type"], self.record["id"])
             self.presenter.command("PUT", path, body.model_dump(mode="json"))
         except (ValueError, TypeError):
-            self.workflow_error("Kiểm tra kiểu giá trị và nhập lý do thay đổi.")
+            self.workflow_error("Kiểm tra kiểu giá trị và nhập lý do thay đổi")
 
     def workflow_loaded(self, action, data, permissions):
         self.busy = False
@@ -232,22 +252,35 @@ class CustomFieldView(WorkflowView):
         elif action == "targets":
             self.targets, self.after = data["items"], data.get("next_after")
             self.variables["target"].set("")
-            self.target_selector.configure(values=[f"{r.get('number', r.get('sku', r['id']))} · {r.get('name', r.get('status', ''))}" for r in self.targets])
+            self.target_selector.configure(values=[f"{r.get('number', r.get('sku', r['id']))}  {r.get('name', r.get('status', ''))}" for r in self.targets])
         elif action == "values":
             self.record = data
-            self.variables["detail"].set(f"Phiên bản đối tượng {data['version']} · Bộ trường {data['schema']['version']}. Chuyển bộ trường chỉ có hiệu lực sau khi lưu.")
+            self.variables["detail"].set(f"Phiên bản {data['version']}    Bộ trường {data['schema']['version']}")
             self.history_table.delete(*self.history_table.get_children())
             self.render_values()
         elif action == "history":
             self.history_table.delete(*self.history_table.get_children())
             for r in data["items"]:
                 self.history_table.insert("", "end", values=(r["target_version"], r["schema"]["version"], json.dumps(r["values"], ensure_ascii=False)))
-        self.variables["status"].set("Đã tải dữ liệu máy chủ.")
+        self.variables["status"].set("Đã tải dữ liệu máy chủ")
         self.enable()
+        if getattr(self, "auto_target", False):
+            if action == "schema":
+                if self.variables["kind"].get() == "PRODUCT" and "master.read" not in self.permissions:
+                    self.auto_target = False
+                elif self.variables["kind"].get() != "PRODUCT" and not self.warehouse_id():
+                    self.auto_target = False
+                else:
+                    self.load_targets()
+            elif action == "targets":
+                self.auto_target = False
+                if self.targets:
+                    self.target_selector.current(0)
+                    self.select_target()
 
     def workflow_saved(self, data):
         self.busy = False
-        self.variables["status"].set(f"Máy chủ đã xác nhận phiên bản {data['version']}. Tải lại trước khi sửa tiếp.")
+        self.variables["status"].set(f"Máy chủ đã xác nhận phiên bản {data['version']}; Tải lại trước khi sửa tiếp")
         self.definition = self.record = None
         self.fields = []
         self.clear_inputs()
@@ -255,6 +288,7 @@ class CustomFieldView(WorkflowView):
         self.enable()
 
     def workflow_clear(self):
+        self.auto_target = False
         self.busy = False
         self.definition = self.record = None
         self.fields, self.targets, self.permissions = [], [], []
