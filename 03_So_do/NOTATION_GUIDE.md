@@ -27,7 +27,7 @@ Ví dụ: [Use case vận hành kho](Hien_hanh/svg/UC_CURRENT_04.svg). Mẫu ký
 
 Mỗi hình có một pool quy trình WMS, các lane chia trách nhiệm. Vòng tròn nét mảnh là start event; vòng tròn nét đậm là end event; chữ nhật bo góc là task; hình thoi có dấu **×** là exclusive gateway. Nhánh rẽ ghi điều kiện, đường liền có mũi tên là sequence flow. Màu hỗ trợ đọc, ý nghĩa nằm ở hình dạng và nét.
 
-Lane là trách nhiệm thực hiện, không mặc nhiên là bảng phân công nhân sự. Tác vụ phê duyệt gộp các bước nội bộ đã có trong service. Một lần xử lý kết thúc không đồng nghĩa toàn bộ chứng từ đã hoàn tất: nhận/xuất/chuyển có thể thực hiện từng phần. Ghi chú từng hình xác định tiền điều kiện và nhánh được mô tả. Các lỗi quyền, version, kỳ kho và giao dịch vẫn theo service được dẫn nguồn.
+Lane là trách nhiệm thực hiện, không mặc nhiên là bảng phân công nhân sự. Tác vụ phê duyệt gộp các bước nội bộ đã có trong service. Một lần xử lý kết thúc không đồng nghĩa toàn bộ chứng từ đã hoàn tất: nhận/xuất/chuyển có thể thực hiện từng phần. Cột “Phạm vi / điều kiện” trong [mục lục](Hien_hanh/index.md) xác định tiền điều kiện và nhánh được mô tả. Bản vẽ chỉ hiển thị tiêu đề, đối tượng và quan hệ; chú giải ký pháp và nguồn được giữ trong tài liệu riêng. Các lỗi quyền, version, kỳ kho và giao dịch vẫn theo service được dẫn nguồn.
 
 Ví dụ: [Nhận hàng](Hien_hanh/svg/FLOW_RECEIPT.svg), [Kiểm kê](Hien_hanh/svg/FLOW_COUNT.svg), [Nhập tệp](Hien_hanh/svg/FLOW_IMPORT.svg). Mẫu ký pháp: Ch6 PDF 9–14, 15–23, 24–37.
 

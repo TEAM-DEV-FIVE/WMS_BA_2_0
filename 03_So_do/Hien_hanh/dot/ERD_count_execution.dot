@@ -2,7 +2,7 @@ digraph WMS {
 graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
 edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
-label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · count_execution</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">ERD · count_execution</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
 "count_execution" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>count_execution</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">FK PK session_id : uuid<BR ALIGN="LEFT"/>execution_key : uuid<BR ALIGN="LEFT"/>request_hash : character(64)<BR ALIGN="LEFT"/>response : jsonb</TD></TR></TABLE>>];
 "count_session" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>count_session</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Bảng đích — các cột được tham chiếu<BR ALIGN="LEFT"/>id : uuid</TD></TR></TABLE>>];
 "count_execution" -> "count_session" [label="session_id → id", dir="both", arrowtail="teeodot", arrowhead="teetee", taillabel="0..1", headlabel="1", labeldistance="2", style="solid"];

@@ -2,7 +2,7 @@ digraph WMS {
 graph [rankdir=LR, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
 edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
-label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">Kiến trúc ứng dụng hiện tại</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">Kiến trúc triển khai · Desktop, API, lưu trữ và worker</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">Kiến trúc ứng dụng hiện tại</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
 "desktop" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>Desktop Tkinter</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">views / presenters / API client<BR ALIGN="LEFT"/>Luồng UI và executor I/O</TD></TR></TABLE>>];
 "local" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>SQLite cục bộ</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Nháp và nhật ký lệnh<BR ALIGN="LEFT"/>Tách máy chủ / tài khoản / thiết bị</TD></TR></TABLE>>];
 "proxy" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>Reverse proxy Nginx</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">Cấu hình triển khai LAN<BR ALIGN="LEFT"/>HTTPS; chuyển header phục hồi</TD></TR></TABLE>>];

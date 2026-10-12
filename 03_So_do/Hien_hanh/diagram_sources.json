@@ -2674,7 +2674,7 @@
   },
   {
     "code": "ROLE_AUDITOR",
-    "title": "Vai trò và quyền seed · Kiểm toán",
+    "title": "Vai trò và quyền · Kiểm toán",
     "nodes": {
       "role": {
         "name": "Kiểm toán",
@@ -2749,7 +2749,7 @@
   },
   {
     "code": "ROLE_BUYER",
-    "title": "Vai trò và quyền seed · Mua hàng",
+    "title": "Vai trò và quyền · Mua hàng",
     "nodes": {
       "role": {
         "name": "Mua hàng",
@@ -2796,7 +2796,7 @@
   },
   {
     "code": "ROLE_CONTROLLER",
-    "title": "Vai trò và quyền seed · Kiểm soát/kế toán",
+    "title": "Vai trò và quyền · Kiểm soát/kế toán",
     "nodes": {
       "role": {
         "name": "Kiểm soát/kế toán",
@@ -2930,7 +2930,7 @@
   },
   {
     "code": "ROLE_DIRECTOR",
-    "title": "Vai trò và quyền seed · Ban điều hành",
+    "title": "Vai trò và quyền · Ban điều hành",
     "nodes": {
       "role": {
         "name": "Ban điều hành",
@@ -3005,7 +3005,7 @@
   },
   {
     "code": "ROLE_MASTER_DATA",
-    "title": "Vai trò và quyền seed · Quản lý danh mục",
+    "title": "Vai trò và quyền · Quản lý danh mục",
     "nodes": {
       "role": {
         "name": "Quản lý danh mục",
@@ -3055,7 +3055,7 @@
   },
   {
     "code": "ROLE_PICKER",
-    "title": "Vai trò và quyền seed · Nhân viên soạn/xuất",
+    "title": "Vai trò và quyền · Nhân viên soạn/xuất",
     "nodes": {
       "role": {
         "name": "Nhân viên soạn/xuất",
@@ -3130,7 +3130,7 @@
   },
   {
     "code": "ROLE_RECEIVER",
-    "title": "Vai trò và quyền seed · Nhân viên nhận",
+    "title": "Vai trò và quyền · Nhân viên nhận",
     "nodes": {
       "role": {
         "name": "Nhân viên nhận",
@@ -3205,7 +3205,7 @@
   },
   {
     "code": "ROLE_SELLER",
-    "title": "Vai trò và quyền seed · Bán hàng",
+    "title": "Vai trò và quyền · Bán hàng",
     "nodes": {
       "role": {
         "name": "Bán hàng",
@@ -3252,7 +3252,7 @@
   },
   {
     "code": "ROLE_SYSADMIN",
-    "title": "Vai trò và quyền seed · Quản trị kỹ thuật",
+    "title": "Vai trò và quyền · Quản trị kỹ thuật",
     "nodes": {
       "role": {
         "name": "Quản trị kỹ thuật",
@@ -3297,7 +3297,7 @@
   },
   {
     "code": "ROLE_WAREHOUSE_MANAGER",
-    "title": "Vai trò và quyền seed · Quản lý kho",
+    "title": "Vai trò và quyền · Quản lý kho",
     "nodes": {
       "role": {
         "name": "Quản lý kho",

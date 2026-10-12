@@ -7,7 +7,7 @@ Bắt đầu từ [kiến trúc](Hien_hanh/svg/ARCHITECTURE.svg), sau đó đọ
 | Kiến trúc | Thành phần đang triển khai và kết nối trong cấu hình LAN |
 | Use case | Mục tiêu sử dụng tương ứng 26 chức năng; actor tham gia theo quyền được cấp, không biểu thị mọi tài khoản có toàn bộ quyền |
 | Lớp | Implementation view; tên/thành viên từ AST Python, chọn các lớp desktop, server và DTO |
-| BPMN | Quy trình trong phần mềm với làn trách nhiệm; các nhánh phê duyệt, kiểm tra và kết thúc nằm trong phạm vi ghi chú từng hình |
+| BPMN | Quy trình trong phần mềm với làn trách nhiệm; các nhánh phê duyệt, kiểm tra và kết thúc nằm trong phạm vi ghi trong mục lục |
 | Vai trò | 10 vai trò và 58 quyền seed; quyền tài khoản cụ thể còn phụ thuộc scope và thời hạn |
 | ERD | Physical model của schema `wms`: 108 bảng, 736 cột, 219 FK, migration 001–026 |
 

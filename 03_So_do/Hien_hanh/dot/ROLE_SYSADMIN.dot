@@ -2,7 +2,7 @@ digraph WMS {
 graph [rankdir=TB, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
 edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
-label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">Vai trò và quyền seed · Quản trị kỹ thuật</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">RBAC · Vai trò và quyền seed sau migration 001–026</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">Vai trò và quyền · Quản trị kỹ thuật</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
 "role" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>Quản trị kỹ thuật</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">SYSADMIN</TD></TR></TABLE>>];
 "group0" [label=<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7" COLOR="#526f83"><TR><TD BGCOLOR="#b7dff2"><B>Quyền 1–5</B></TD></TR><TR><TD ALIGN="LEFT" BALIGN="LEFT">audit.security.read [GLOBAL]<BR ALIGN="LEFT"/>Đọc audit tài khoản/quyền<BR ALIGN="LEFT"/><BR ALIGN="LEFT"/>backup.operate [GLOBAL]<BR ALIGN="LEFT"/>Vận hành sao lưu/khôi phục<BR ALIGN="LEFT"/><BR ALIGN="LEFT"/>config.manage [GLOBAL]<BR ALIGN="LEFT"/>Cấu hình máy chủ/client và policy kỹ<BR ALIGN="LEFT"/>thuật<BR ALIGN="LEFT"/><BR ALIGN="LEFT"/>iam.manage [GLOBAL]<BR ALIGN="LEFT"/>Quản lý user, khóa/thu hồi phiên<BR ALIGN="LEFT"/><BR ALIGN="LEFT"/>role.manage [GLOBAL]<BR ALIGN="LEFT"/>Quản lý role và grant<BR ALIGN="LEFT"/></TD></TR></TABLE>>];
 "role" -> "group0" [label=""];

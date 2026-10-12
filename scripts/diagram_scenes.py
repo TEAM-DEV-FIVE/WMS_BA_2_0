@@ -328,8 +328,6 @@ class Scene:
     def render(self, svg_path):
         g=self.g
         self.text(g["title"],40,45,self.w-80,26,align="left")
-        ref="Chương 6 · PDF 9–37 · BPMN" if g["notation"]=="BPMN" else "Chương 8 · PDF 5–23 · UML use case"
-        self.text(ref,40,77,self.w-80,14,align="left")
         if g["notation"]=="BPMN":
             self.shape("rect",30,110,self.w-60,595,BLUE)
             self.cell("",30,110,self.w-60,595,"rounded=0;fillColor="+BLUE+";strokeColor="+INK,key="pool")
@@ -376,8 +374,6 @@ class Scene:
             else:
                 lines=wrapped(n["name"],w-22,15)
                 self.text(n["name"],cx,cy-(len(lines)-1)*10+5,w-22,15,export=False)
-        self.text(g["note"],40,self.h-60,self.w-80,13,align="left")
-        self.text("Nguồn: "+" · ".join(g["sources"]),40,self.h-34,self.w-80,10,align="left")
         self.pdf.showPage()
         self.pdf.save()
         ET.indent(self.svg)

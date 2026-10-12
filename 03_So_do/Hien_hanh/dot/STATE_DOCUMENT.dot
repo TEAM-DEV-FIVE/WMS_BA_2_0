@@ -2,7 +2,7 @@ digraph WMS {
 graph [rankdir=TB, bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];
 node [shape=plain, fontname="DejaVu Sans", fontsize=12];
 edge [fontname="DejaVu Sans", fontsize=10, color="#334155", fontcolor="#334155", arrowsize=.8];
-label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">Trạng thái chứng từ và điều kiện chuyển</FONT></TD></TR><TR><TD><FONT POINT-SIZE="10">UML state · Lát cắt trạng thái chung; nhánh thực hiện phụ thuộc loại chứng từ và quyền thao tác.</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
+label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="20">Trạng thái chứng từ và điều kiện chuyển</FONT></TD></TR></TABLE>>; labelloc=t; fontname="DejaVu Sans"; fontsize=16;
 "DRAFT" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="DRAFT"];
 "SUBMITTED" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="SUBMITTED"];
 "APPROVED" [shape=box, style="rounded,filled", fillcolor="#e3f1f8", label="APPROVED"];

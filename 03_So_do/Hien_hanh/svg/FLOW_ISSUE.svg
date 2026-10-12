@@ -2,7 +2,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1850" height="820" viewBox="0 0 1850 820">
   <title>Xuất kho — duyệt, giữ hàng, soạn và ghi sổ</title>
   <text font-family="DejaVu Sans" font-size="26" text-anchor="start" x="40" y="45.0" fill="#17384d">Xuất kho — duyệt, giữ hàng, soạn và ghi sổ</text>
-  <text font-family="DejaVu Sans" font-size="14" text-anchor="start" x="40" y="77.0" fill="#17384d">Chương 6 · PDF 9–37 · BPMN</text>
   <rect stroke-width="1.4" x="30" y="110" width="1790" height="595" rx="0" fill="#dceef8" stroke="#17384d" />
   <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="65" y="395.0" fill="#17384d">WMS</text>
   <rect stroke-width="1.4" x="100" y="135" width="1720" height="190" rx="0" fill="white" stroke="#17384d" />
@@ -57,6 +56,4 @@
   <text font-family="DejaVu Sans" font-size="15" text-anchor="middle" x="1550.0" y="625.25" fill="#17384d">phát sinh xuất</text>
   <ellipse stroke-width="3.5" cx="1760.0" cy="610.0" rx="19.0" ry="19.0" fill="#edc5c6" stroke="#17384d" />
   <text font-family="DejaVu Sans" font-size="14" text-anchor="middle" x="1760.0" y="653.0" fill="#17384d">Đã ghi xuất</text>
-  <text font-family="DejaVu Sans" font-size="13" text-anchor="start" x="40" y="760.0" fill="#17384d">Giữ hàng/soạn hàng thực hiện trên phiếu đã duyệt; nguồn giữ, số lượng và phiên bản được kiểm tra khi ghi sổ.</text>
-  <text font-family="DejaVu Sans" font-size="10" text-anchor="start" x="40" y="786.0" fill="#17384d">Nguồn: apps/server/application/issues.py · apps/server/application/reservations.py · apps/server/application/picking.py</text>
 </svg>

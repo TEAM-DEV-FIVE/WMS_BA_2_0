@@ -243,32 +243,13 @@ def role_graphs(schema):
             key=f'group{start//7}'
             nodes[key]=node(f'Quyền {start+1}–{min(start+7,len(grants))}',lines)
             edges.append(('role',key,''))
-        result.append(graph('ROLE_'+role['code'],'Vai trò và quyền seed · '+role['name'],nodes,edges,
+        result.append(graph('ROLE_'+role['code'],'Vai trò và quyền · '+role['name'],nodes,edges,
                             ['04_Phan_quyen/current_permissions.json','migrations/*.sql'], 'TB'))
     return result
 
 
-def legend(g):
-    if g['code'].startswith('ERD_'):
-        return ('Ch8 PDF 48–52 · ERD vật lý / Crow’s Foot · PK: khóa chính; FK: khóa ngoại; ?: nullable\n'
-                '1: đúng một; 0..1: tùy chọn; 0..*: nhiều · Nét liền: FK thuộc PK; nét đứt: FK không định danh')
-    if g['code'].startswith('CLASS_'):
-        return ('Ch8 PDF 66–71 · UML implementation view · + công khai; − nội bộ theo quy ước Python\n'
-                'Lược chọn thành viên; kiểu chỉ ghi khi mã có annotation. Protocol được hiện thực theo cấu trúc.')
-    if g['code'] == 'COMMAND_RECOVERY':
-        return 'Luồng hoạt động rút gọn; lỗi quyền, hash khác và lỗi nghiệp vụ bị từ chối tại API/CommandBus.'
-    if g['code'] == 'STATE_DOCUMENT':
-        return 'UML state · Lát cắt trạng thái chung; nhánh thực hiện phụ thuộc loại chứng từ và quyền thao tác.'
-    if g['code'].startswith('ROLE_'):
-        return 'RBAC · Vai trò và quyền seed sau migration 001–026'
-    return 'Kiến trúc triển khai · Desktop, API, lưu trữ và worker'
-
-
 def dot_source(g):
     title_rows = ['<TR><TD><FONT POINT-SIZE="20">'+html.escape(g['title'])+'</FONT></TD></TR>']
-    for line in legend(g).splitlines():
-        for part in textwrap.wrap(line, 100):
-            title_rows.append('<TR><TD><FONT POINT-SIZE="10">'+html.escape(part)+'</FONT></TD></TR>')
     title = '<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3">'+''.join(title_rows)+'</TABLE>'
     lines=['digraph WMS {', 'graph [rankdir='+g['direction']+', bgcolor="white", nodesep=.5, ranksep=.9, pad=.3];',
            'node [shape=plain, fontname="DejaVu Sans", fontsize=12];',
@@ -326,9 +307,9 @@ def drawio_page(root,g,layout):
     cells=ET.SubElement(model,'root')
     ET.SubElement(cells,'mxCell',id='0')
     ET.SubElement(cells,'mxCell',id='1',parent='0')
-    title=ET.SubElement(cells,'mxCell',id='title',value=g['title']+'<br/>'+legend(g).replace('\n','<br/>'),vertex='1',parent='1',
+    title=ET.SubElement(cells,'mxCell',id='title',value=html.escape(g['title']),vertex='1',parent='1',
                         style='text;html=1;align=center;fontSize=14;whiteSpace=wrap;')
-    ET.SubElement(title,'mxGeometry',x='20',y='10',width=str(width+40),height='85',attrib={'as':'geometry'})
+    ET.SubElement(title,'mxGeometry',x='20',y='10',width=str(width+40),height='40',attrib={'as':'geometry'})
     for obj in layout['objects']:
         if obj['name'] not in g['nodes']:
             continue
@@ -385,7 +366,7 @@ def main():
            'Các luồng mô tả xử lý trong phần mềm; không đại diện cho khảo sát quy trình doanh nghiệp.', '',
            '[Ký pháp và nguồn giáo trình](../NOTATION_GUIDE.md). Use case và BPMN dùng bố cục riêng; '
            'ERD dùng Crow’s Foot và lực lượng quan hệ suy từ schema. Lớp dùng các ngăn UML.', '',
-           '| Sơ đồ | Nguồn đối chiếu |','|---|---|']
+           '| Sơ đồ | Nguồn đối chiếu | Phạm vi / điều kiện |','|---|---|---|']
     for g in graphs:
         for source in g['sources']:
             if '*' not in source and '…' not in source and not (ROOT/source).exists():
@@ -403,7 +384,7 @@ def main():
             layout=json.loads(subprocess.check_output(['dot','-Tjson',str(source)]))
             drawio_page(drawio,g,layout)
         pdfs.append(str(temporary/f"{g['code']}.pdf"))
-        index.append(f"| [{g['title']}](svg/{g['code']}.svg) | "+'; '.join('`'+s+'`' for s in g['sources'])+' |')
+        index.append(f"| [{g['title']}](svg/{g['code']}.svg) | "+'; '.join('`'+s+'`' for s in g['sources'])+' | '+g.get('note','')+' |')
     pdfmetrics.registerFont(TTFont('WMS', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
     contents = temporary/'contents.pdf'
     pdf = canvas.Canvas(str(contents), pagesize=(595,842))
@@ -414,7 +395,6 @@ def main():
         pdf.setFont('WMS',18)
         pdf.drawString(40,795,'Sơ đồ hiện hành WMS')
         pdf.setFont('WMS',9)
-        pdf.drawString(40,773,'Mã nguồn và migration 001–026 · 13/10/2026')
         pdf.drawString(40,754,'Mục lục — số trang tính từ đầu tệp PDF')
         for offset,g in enumerate(graphs[start:start+per_page]):
             y = 724 - offset*22
