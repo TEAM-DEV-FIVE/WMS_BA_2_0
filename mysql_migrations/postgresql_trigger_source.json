@@ -1,0 +1,146 @@
+[
+  {
+    "tgname": "agreement_history",
+    "sql": "CREATE TRIGGER agreement_history BEFORE DELETE OR UPDATE ON wms.consignment_agreement FOR EACH ROW EXECUTE FUNCTION wms.guard_agreement_history()"
+  },
+  {
+    "tgname": "custom_field_binding_guard",
+    "sql": "CREATE TRIGGER custom_field_binding_guard BEFORE INSERT OR DELETE OR UPDATE ON wms.custom_field_binding FOR EACH ROW EXECUTE FUNCTION wms.guard_custom_field_binding()"
+  },
+  {
+    "tgname": "custom_field_change_immutable",
+    "sql": "CREATE TRIGGER custom_field_change_immutable BEFORE DELETE OR UPDATE ON wms.custom_field_change FOR EACH ROW EXECUTE FUNCTION wms.guard_custom_field_history()"
+  },
+  {
+    "tgname": "custom_field_definition_immutable",
+    "sql": "CREATE TRIGGER custom_field_definition_immutable BEFORE DELETE OR UPDATE ON wms.custom_field_definition FOR EACH ROW EXECUTE FUNCTION wms.guard_custom_field_definition()"
+  },
+  {
+    "tgname": "custom_field_revision_immutable",
+    "sql": "CREATE TRIGGER custom_field_revision_immutable BEFORE DELETE OR UPDATE ON wms.custom_field_revision FOR EACH ROW EXECUTE FUNCTION wms.guard_custom_field_history()"
+  },
+  {
+    "tgname": "document_line_owner",
+    "sql": "CREATE TRIGGER document_line_owner BEFORE INSERT OR UPDATE ON wms.document_line FOR EACH ROW EXECUTE FUNCTION wms.guard_document_line_owner()"
+  },
+  {
+    "tgname": "fulfillment_consumption_append_only",
+    "sql": "CREATE TRIGGER fulfillment_consumption_append_only BEFORE DELETE OR UPDATE ON wms.fulfillment_consumption FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_approval_decision",
+    "sql": "CREATE TRIGGER immutable_approval_decision BEFORE DELETE OR UPDATE ON wms.approval_step FOR EACH ROW EXECUTE FUNCTION wms.guard_approval_decision()"
+  },
+  {
+    "tgname": "immutable_approval_snapshot",
+    "sql": "CREATE TRIGGER immutable_approval_snapshot BEFORE DELETE OR UPDATE ON wms.approval_request FOR EACH ROW EXECUTE FUNCTION wms.guard_approval_snapshot()"
+  },
+  {
+    "tgname": "immutable_audit_event",
+    "sql": "CREATE TRIGGER immutable_audit_event BEFORE DELETE OR UPDATE ON wms.audit_event FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_conversion",
+    "sql": "CREATE TRIGGER immutable_conversion BEFORE DELETE OR UPDATE ON wms.product_uom FOR EACH ROW EXECUTE FUNCTION wms.protect_conversion_identity()"
+  },
+  {
+    "tgname": "immutable_count_decision",
+    "sql": "CREATE TRIGGER immutable_count_decision BEFORE DELETE OR UPDATE ON wms.count_decision FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_count_empty_confirmation",
+    "sql": "CREATE TRIGGER immutable_count_empty_confirmation BEFORE DELETE OR UPDATE ON wms.count_empty_confirmation FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_count_execution",
+    "sql": "CREATE TRIGGER immutable_count_execution BEFORE DELETE OR UPDATE ON wms.count_execution FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_count_observation",
+    "sql": "CREATE TRIGGER immutable_count_observation BEFORE DELETE OR UPDATE ON wms.count_observation FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_count_submission",
+    "sql": "CREATE TRIGGER immutable_count_submission BEFORE DELETE OR UPDATE ON wms.count_submission FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_inventory_transaction",
+    "sql": "CREATE TRIGGER immutable_inventory_transaction BEFORE DELETE OR UPDATE ON wms.inventory_transaction FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_owner",
+    "sql": "CREATE TRIGGER immutable_owner BEFORE DELETE OR UPDATE ON wms.stock_owner FOR EACH ROW EXECUTE FUNCTION wms.guard_owner_identity()"
+  },
+  {
+    "tgname": "immutable_period_confirmation",
+    "sql": "CREATE TRIGGER immutable_period_confirmation BEFORE DELETE OR UPDATE ON wms.period_reopen_confirmation FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_quality_decision",
+    "sql": "CREATE TRIGGER immutable_quality_decision BEFORE DELETE OR UPDATE ON wms.quality_decision FOR EACH ROW EXECUTE FUNCTION wms.guard_quality_decision()"
+  },
+  {
+    "tgname": "immutable_reference_price",
+    "sql": "CREATE TRIGGER immutable_reference_price BEFORE DELETE OR UPDATE ON wms.reference_price FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_report_row",
+    "sql": "CREATE TRIGGER immutable_report_row BEFORE UPDATE ON wms.report_snapshot_row FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_report_snapshot",
+    "sql": "CREATE TRIGGER immutable_report_snapshot BEFORE UPDATE ON wms.report_snapshot FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_stock_identity",
+    "sql": "CREATE TRIGGER immutable_stock_identity BEFORE INSERT OR DELETE OR UPDATE ON wms.stock_item FOR EACH ROW EXECUTE FUNCTION wms.guard_stock_identity()"
+  },
+  {
+    "tgname": "immutable_stock_move",
+    "sql": "CREATE TRIGGER immutable_stock_move BEFORE DELETE OR UPDATE ON wms.stock_move FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_transfer_discrepancy",
+    "sql": "CREATE TRIGGER immutable_transfer_discrepancy BEFORE DELETE OR UPDATE ON wms.transfer_discrepancy FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_transfer_move",
+    "sql": "CREATE TRIGGER immutable_transfer_move BEFORE DELETE OR UPDATE ON wms.transfer_move FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "immutable_warranty",
+    "sql": "CREATE TRIGGER immutable_warranty BEFORE DELETE OR UPDATE ON wms.serial_warranty_record FOR EACH ROW EXECUTE FUNCTION wms.forbid_ledger_mutation()"
+  },
+  {
+    "tgname": "move_owner",
+    "sql": "CREATE TRIGGER move_owner BEFORE INSERT ON wms.stock_move FOR EACH ROW EXECUTE FUNCTION wms.guard_move_owner()"
+  },
+  {
+    "tgname": "print_snapshot_immutable",
+    "sql": "CREATE TRIGGER print_snapshot_immutable BEFORE UPDATE ON wms.print_job FOR EACH ROW EXECUTE FUNCTION wms.protect_print_snapshot()"
+  },
+  {
+    "tgname": "reservation_owner",
+    "sql": "CREATE TRIGGER reservation_owner BEFORE INSERT OR UPDATE ON wms.reservation FOR EACH ROW EXECUTE FUNCTION wms.guard_reservation_owner()"
+  },
+  {
+    "tgname": "reversal_move_integrity",
+    "sql": "CREATE CONSTRAINT TRIGGER reversal_move_integrity AFTER INSERT ON wms.stock_move DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION wms.check_reversal_integrity()"
+  },
+  {
+    "tgname": "reversal_transaction_integrity",
+    "sql": "CREATE CONSTRAINT TRIGGER reversal_transaction_integrity AFTER INSERT ON wms.inventory_transaction DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION wms.check_reversal_integrity()"
+  },
+  {
+    "tgname": "serial_owner_balance",
+    "sql": "CREATE TRIGGER serial_owner_balance BEFORE INSERT OR UPDATE ON wms.stock_balance FOR EACH ROW EXECUTE FUNCTION wms.guard_serial_owner_balance()"
+  },
+  {
+    "tgname": "validate_transfer_move",
+    "sql": "CREATE TRIGGER validate_transfer_move BEFORE INSERT ON wms.stock_move FOR EACH ROW EXECUTE FUNCTION wms.guard_transfer_move()"
+  },
+  {
+    "tgname": "warranty_source",
+    "sql": "CREATE TRIGGER warranty_source BEFORE INSERT ON wms.serial_warranty_record FOR EACH ROW EXECUTE FUNCTION wms.guard_warranty_source()"
+  }
+]

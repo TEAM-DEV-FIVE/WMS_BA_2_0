@@ -30,7 +30,7 @@ def tests(env, options, pg_version=None):
     env = {**env, "WMS_TEST_COLLECTION_REPORT": str(expected), "WMS_TEST_SUITE": "all"}
     paths = [str(p) for p in (options.test_path or ["tests"])]
     collect = subprocess.run(
-        [sys.executable, "-m", "pytest", *paths, "--collect-only", "-q"],
+        [sys.executable, "-m", "pytest", *paths, "--collect-only", "-q", "-m", "not mysql"],
         env=env,
         capture_output=True,
         text=True,
@@ -66,6 +66,7 @@ def tests(env, options, pg_version=None):
             "-q",
             "--tb=short",
             "--strict-markers",
+            "-m", "not mysql",
             f"--junitxml={stem.with_suffix('.xml')}",
         ]
         with stem.with_suffix(".log").open("w") as log:

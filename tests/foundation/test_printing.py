@@ -535,3 +535,17 @@ def test_barcode_uom_factor_and_deactivation(printing):
     assert (
         f.client.post("/api/v1/printing/scan", json=data, headers=headers).json()["code"] == "SCAN_NOT_FOUND"
     )
+
+
+def test_print_claim_skips_another_workers_locked_task(printing):
+    f = printing
+    first, second = ok(create(f), 201), ok(create(f), 201)
+    assert f.print_outbox.run_batch().processed == 2
+    with f.engine.connect() as held:
+        held.execute(text("SELECT id FROM wms.print_task WHERE job_id=:job FOR UPDATE"), {"job": first["id"]}).scalar_one()
+        with ThreadPoolExecutor(1) as pool:
+            claimed = pool.submit(f.printer.claim).result(timeout=5)
+        assert str(claimed["job_id"]) == second["id"]
+        held.rollback()
+    claimed = f.printer.claim()
+    assert str(claimed["job_id"]) == first["id"]

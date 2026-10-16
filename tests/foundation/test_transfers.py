@@ -14,19 +14,10 @@ def reconcile(f):
     from pathlib import Path
 
     reconcile_inventory(f)
-    raw = f.engine.raw_connection()
-    try:
-        with raw.cursor() as cursor:
-            cursor.execute(
-                (Path(__file__).resolve().parents[2] / "02_CSDL/reconcile_transfers.sql").read_text()
-            )
-            while True:
-                if cursor.description:
-                    assert cursor.fetchall() == []
-                if not cursor.nextset():
-                    break
-    finally:
-        raw.close()
+    from apps.server.infrastructure.reconciliation import reconciliation_results
+    with f.engine.connect() as c:
+        for rows in reconciliation_results(c, (Path(__file__).resolve().parents[2] / "02_CSDL/reconcile_transfers.sql").read_text()):
+            assert rows == []
 
 
 @pytest.fixture

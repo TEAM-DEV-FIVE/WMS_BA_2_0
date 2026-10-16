@@ -1,0 +1,49 @@
+name: MySQL compatibility
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mysql-core:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-app-lock.txt
+      - name: Install private MySQL test server dependencies
+        run: sudo apt-get update && sudo apt-get install -y mysql-server mysql-client
+      - run: python -m pip install -r requirements-app-lock.txt
+      - run: python -m pip install --no-deps --no-build-isolation -e .
+      - run: python -m pytest tests/mysql_migration -q
+      - name: Core behavior on a disposable socket-only MySQL instance
+        run: >-
+          python scripts/check_mysql.py
+          tests/foundation/test_database_portability.py
+          tests/foundation/test_mysql_stage.py
+          tests/foundation/test_identity.py
+          tests/foundation/test_orders.py
+          tests/foundation/test_openings.py
+          tests/foundation/test_receipts.py
+          tests/foundation/test_issues.py
+          tests/foundation/test_reports_exports.py
+          tests/foundation/test_printing.py
+          -m 'not gui' -k 'not upgrade' -q
+          --junitxml=.reports/mysql-core.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mysql-core-${{ github.sha }}
+          path: .reports/
+          include-hidden-files: true
+          retention-days: 14

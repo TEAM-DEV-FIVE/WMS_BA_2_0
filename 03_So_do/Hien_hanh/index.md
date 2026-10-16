@@ -1,6 +1,6 @@
 # Sơ đồ hiện hành của WMS
 
-Sinh từ mã nguồn và schema PostgreSQL dựng bằng migration 001–026. Các luồng mô tả xử lý trong phần mềm; không đại diện cho khảo sát quy trình doanh nghiệp.
+Kiến trúc hỗ trợ MySQL và PostgreSQL. ERD mô tả mô hình nghiệp vụ chung từ catalog PostgreSQL 001–026; DDL MySQL nằm trong mysql_migrations. Các luồng mô tả xử lý trong phần mềm; không đại diện cho khảo sát quy trình doanh nghiệp.
 
 [Ký pháp và nguồn giáo trình](../NOTATION_GUIDE.md). Use case và BPMN dùng bố cục riêng; ERD dùng Crow’s Foot và lực lượng quan hệ suy từ schema. Lớp dùng các ngăn UML.
 

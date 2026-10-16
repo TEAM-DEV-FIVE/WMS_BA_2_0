@@ -13,6 +13,7 @@ from test_openings import inventory, opening, orders, second_warehouse, tracking
 from test_orders import ok
 
 from apps.desktop.api.client import DesktopSettings
+from apps.server.infrastructure.reconciliation import reconciliation_results
 
 pytestmark = [pytest.mark.integration, pytest.mark.gui]
 
@@ -194,13 +195,8 @@ def test_opening_gui_lifecycle_stale_sod_timeout_ack_and_reconciliation(opening_
             == 1
         )
         for name in ("reconcile.sql", "reconcile_ownership.sql"):
-            with c.connection.driver_connection.cursor() as cursor:
-                cursor.execute((Path(__file__).resolve().parents[2] / "02_CSDL" / name).read_text())
-                while True:
-                    if cursor.description:
-                        assert cursor.fetchall() == []
-                    if not cursor.nextset():
-                        break
+            for rows in reconciliation_results(c, (Path(__file__).resolve().parents[2] / "02_CSDL" / name).read_text()):
+                assert rows == []
     # A new batch cannot add more stock to an active warehouse.
     f.fill_ui()
     action(f, "save")

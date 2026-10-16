@@ -106,18 +106,11 @@ def test_owned_and_consigned_inventory_remain_ten_and_five_with_reconciliation(t
     assert r.status_code == 200, r.text
     assert (r.json()['physical_base'], r.json()['owned_base'], r.json()['unclassified_base']) == ('15.000000', '10.000000', '0.000000')
     assert r.json()['consigned_by_owner'] == [{'owner_id': owner['id'], 'owner_partner_id': trace.supplier, 'quantity_base': '5.000000'}]
-    raw = trace.engine.raw_connection()
-    try:
-        with raw.cursor() as cursor:
-            for file in ['reconcile.sql', 'reconcile_ownership.sql']:
-                cursor.execute((ROOT / '02_CSDL' / file).read_text())
-                while True:
-                    if cursor.description:
-                        assert cursor.fetchall() == []
-                    if not cursor.nextset():
-                        break
-    finally:
-        raw.close()
+    from apps.server.infrastructure.reconciliation import reconciliation_results
+    with trace.engine.connect() as c:
+        for file in ['reconcile.sql', 'reconcile_ownership.sql']:
+            for rows in reconciliation_results(c, (ROOT / '02_CSDL' / file).read_text()):
+                assert rows == []
     with pytest.raises(RuntimeError), trace.engine.begin() as c:
         c.execute(text('UPDATE wms.stock_balance SET on_hand=99 WHERE stock_item_id=:id'), {'id': consigned['item']})
         raise RuntimeError('rollback fixture')

@@ -1,0 +1,954 @@
+{
+  "app_user": [
+    "id",
+    "username",
+    "display_name",
+    "password_hash",
+    "is_active",
+    "auth_version",
+    "created_at"
+  ],
+  "approval_policy": [
+    "id",
+    "document_kind",
+    "revision",
+    "is_active"
+  ],
+  "approval_policy_step": [
+    "id",
+    "policy_id",
+    "step_no",
+    "role_id",
+    "alternative_role_id"
+  ],
+  "approval_request": [
+    "id",
+    "document_id",
+    "document_version",
+    "policy_id",
+    "requested_by",
+    "status",
+    "created_at",
+    "content_snapshot"
+  ],
+  "approval_step": [
+    "id",
+    "request_id",
+    "step_no",
+    "required_role_id",
+    "status",
+    "decided_by",
+    "decided_at",
+    "comment",
+    "alternative_role_id"
+  ],
+  "audit_event": [
+    "id",
+    "actor_id",
+    "warehouse_id",
+    "action",
+    "entity_type",
+    "entity_id",
+    "request_id",
+    "occurred_at",
+    "before_data",
+    "after_data",
+    "reason"
+  ],
+  "auth_challenge": [
+    "token_hash",
+    "user_id",
+    "device_id",
+    "auth_version",
+    "expires_at",
+    "consumed_at"
+  ],
+  "auth_contact": [
+    "user_id",
+    "kind",
+    "value",
+    "verified_at"
+  ],
+  "auth_contact_challenge": [
+    "id",
+    "user_id",
+    "kind",
+    "value",
+    "code_hash",
+    "auth_version",
+    "expires_at",
+    "consumed_at"
+  ],
+  "auth_delivery": [
+    "id",
+    "user_id",
+    "auth_version",
+    "ciphertext",
+    "expires_at",
+    "attempts",
+    "lease_until",
+    "lease_token",
+    "completed_at",
+    "last_error"
+  ],
+  "auth_google_flow": [
+    "state_hash",
+    "nonce_hash",
+    "verifier_ciphertext",
+    "redirect_uri",
+    "device_id",
+    "user_id",
+    "session_id",
+    "auth_version",
+    "expires_at",
+    "consumed_at"
+  ],
+  "auth_google_identity": [
+    "subject",
+    "user_id",
+    "linked_at"
+  ],
+  "auth_password_reset": [
+    "token_hash",
+    "user_id",
+    "issued_by",
+    "auth_version",
+    "created_at",
+    "expires_at",
+    "consumed_at"
+  ],
+  "auth_recovery_code": [
+    "code_hash",
+    "user_id",
+    "created_at",
+    "consumed_at",
+    "revoked_at"
+  ],
+  "auth_self_reset": [
+    "token_hash",
+    "user_id",
+    "kind",
+    "contact_value",
+    "auth_version",
+    "expires_at",
+    "consumed_at"
+  ],
+  "auth_session": [
+    "id",
+    "user_id",
+    "refresh_hash",
+    "device_id",
+    "auth_version",
+    "expires_at",
+    "revoked_at",
+    "mfa_verified_at"
+  ],
+  "auth_throttle": [
+    "key",
+    "failures",
+    "window_started_at",
+    "blocked_until"
+  ],
+  "auth_token": [
+    "token_hash",
+    "session_id",
+    "kind",
+    "created_at",
+    "expires_at",
+    "used_at"
+  ],
+  "barcode": [
+    "id",
+    "code",
+    "product_uom_id",
+    "is_active",
+    "version"
+  ],
+  "client_release": [
+    "id",
+    "version",
+    "os",
+    "architecture",
+    "api_major",
+    "sha256",
+    "download_uri",
+    "is_minimum"
+  ],
+  "consignment_agreement": [
+    "id",
+    "code",
+    "owner_id",
+    "warehouse_id",
+    "valid_from",
+    "valid_until",
+    "source_ref",
+    "is_active",
+    "version"
+  ],
+  "consignment_receipt": [
+    "document_id",
+    "warehouse_id",
+    "batch_key",
+    "delivery_reference"
+  ],
+  "consignment_receipt_line": [
+    "document_line_id",
+    "destination_location_id",
+    "lot_code",
+    "serial_code",
+    "manufactured_on",
+    "expires_on"
+  ],
+  "consumer_receipt": [
+    "id",
+    "event_id",
+    "consumer",
+    "processed_at"
+  ],
+  "count_assignment": [
+    "id",
+    "session_id",
+    "location_id",
+    "user_id",
+    "assigned_by"
+  ],
+  "count_decision": [
+    "id",
+    "submission_id",
+    "step_no",
+    "decision",
+    "decided_by",
+    "decided_at",
+    "reason"
+  ],
+  "count_empty_confirmation": [
+    "id",
+    "session_id",
+    "location_id",
+    "counted_by",
+    "counted_at",
+    "reason"
+  ],
+  "count_execution": [
+    "session_id",
+    "execution_key",
+    "request_hash",
+    "response"
+  ],
+  "count_line": [
+    "id",
+    "session_id",
+    "stock_item_id",
+    "location_id",
+    "snapshot_quantity",
+    "approved_quantity"
+  ],
+  "count_location_lock": [
+    "id",
+    "session_id",
+    "location_id",
+    "locked_at",
+    "released_at"
+  ],
+  "count_observation": [
+    "id",
+    "count_line_id",
+    "round_no",
+    "quantity",
+    "counted_by",
+    "counted_at",
+    "scan_event_key",
+    "reason"
+  ],
+  "count_scope": [
+    "session_id",
+    "location_id"
+  ],
+  "count_session": [
+    "id",
+    "warehouse_id",
+    "number",
+    "status",
+    "created_by",
+    "frozen_at",
+    "adjustment_document_id",
+    "version",
+    "business_date",
+    "reason"
+  ],
+  "count_submission": [
+    "id",
+    "session_id",
+    "session_version",
+    "policy_revision",
+    "requested_by",
+    "created_at",
+    "content_snapshot"
+  ],
+  "custom_field_binding": [
+    "id",
+    "product_id",
+    "document_id",
+    "revision_id",
+    "values"
+  ],
+  "custom_field_change": [
+    "id",
+    "binding_id",
+    "revision_id",
+    "target_version",
+    "values",
+    "changed_by",
+    "changed_at",
+    "reason"
+  ],
+  "custom_field_definition": [
+    "id",
+    "entity_type",
+    "code",
+    "value_type",
+    "required",
+    "validation",
+    "is_active",
+    "revision_id",
+    "label",
+    "visibility"
+  ],
+  "custom_field_revision": [
+    "id",
+    "schema_id",
+    "version",
+    "created_by",
+    "created_at",
+    "reason"
+  ],
+  "custom_field_schema": [
+    "id",
+    "entity_type",
+    "version"
+  ],
+  "document": [
+    "id",
+    "number",
+    "kind",
+    "status",
+    "warehouse_id",
+    "destination_warehouse_id",
+    "transit_location_id",
+    "partner_id",
+    "business_date",
+    "created_by",
+    "created_at",
+    "version",
+    "reason",
+    "attributes"
+  ],
+  "document_assignment": [
+    "id",
+    "document_id",
+    "user_id",
+    "assigned_by"
+  ],
+  "document_attachment": [
+    "id",
+    "document_id",
+    "file_id"
+  ],
+  "document_line": [
+    "id",
+    "document_id",
+    "line_no",
+    "product_id",
+    "uom_id",
+    "quantity",
+    "factor_snapshot",
+    "base_quantity",
+    "source_line_id",
+    "reference_unit_price",
+    "owner_id",
+    "consignment_id",
+    "closed_base_quantity"
+  ],
+  "document_link": [
+    "id",
+    "document_id",
+    "related_document_id",
+    "relation"
+  ],
+  "export_job": [
+    "id",
+    "requested_by",
+    "report_code",
+    "filters",
+    "status",
+    "file_id",
+    "created_at",
+    "expires_at",
+    "snapshot_id",
+    "session_id",
+    "format",
+    "version",
+    "generation",
+    "error_code"
+  ],
+  "export_task": [
+    "id",
+    "job_id",
+    "generation",
+    "status",
+    "attempts",
+    "available_at",
+    "lease_token",
+    "lease_until"
+  ],
+  "fulfillment_consumption": [
+    "id",
+    "package_line_id",
+    "reservation_consumption_id",
+    "quantity"
+  ],
+  "grant_request": [
+    "id",
+    "user_id",
+    "role_id",
+    "scope_kind",
+    "warehouse_id",
+    "valid_until",
+    "reason",
+    "requested_by",
+    "requested_at",
+    "approved_by",
+    "grant_id"
+  ],
+  "idempotency_record": [
+    "id",
+    "actor_id",
+    "key",
+    "command",
+    "request_hash",
+    "response",
+    "http_status",
+    "completed_at",
+    "expires_at"
+  ],
+  "import_document_source": [
+    "warehouse_id",
+    "kind",
+    "source_key",
+    "document_id",
+    "job_id"
+  ],
+  "import_file": [
+    "file_id",
+    "actor_id",
+    "warehouse_id",
+    "kind",
+    "upload_key",
+    "request_hash",
+    "ready"
+  ],
+  "import_job": [
+    "id",
+    "kind",
+    "file_id",
+    "requested_by",
+    "status",
+    "file_hash",
+    "mapping_version",
+    "operation_key",
+    "created_at",
+    "warehouse_id",
+    "version",
+    "generation",
+    "auth_version",
+    "options",
+    "commit_token",
+    "token_expires_at",
+    "stage_hash",
+    "data_snapshot",
+    "total_rows",
+    "processed_rows",
+    "errors",
+    "result"
+  ],
+  "import_row": [
+    "id",
+    "job_id",
+    "row_no",
+    "payload",
+    "errors",
+    "target_id",
+    "status"
+  ],
+  "import_task": [
+    "id",
+    "job_id",
+    "generation",
+    "state",
+    "lease_token",
+    "lease_until",
+    "attempts",
+    "available_at",
+    "last_error"
+  ],
+  "inventory_transaction": [
+    "id",
+    "document_id",
+    "execution_key",
+    "operation",
+    "business_date",
+    "posted_at",
+    "posted_by",
+    "reverses_transaction_id",
+    "request_hash",
+    "response"
+  ],
+  "issue_document": [
+    "document_id",
+    "source_order_id"
+  ],
+  "location": [
+    "id",
+    "warehouse_id",
+    "parent_id",
+    "code",
+    "name",
+    "kind",
+    "is_active",
+    "version"
+  ],
+  "lot": [
+    "id",
+    "product_id",
+    "code",
+    "manufactured_on",
+    "expires_on",
+    "version"
+  ],
+  "mfa_factor": [
+    "id",
+    "user_id",
+    "kind",
+    "credential_ciphertext",
+    "verified_at",
+    "revoked_at",
+    "last_counter",
+    "enrollment_expires_at"
+  ],
+  "move_line": [
+    "document_line_id",
+    "stock_item_id",
+    "source_location_id",
+    "destination_location_id",
+    "quality_decision_id"
+  ],
+  "opening_document": [
+    "document_id",
+    "warehouse_id",
+    "batch_key",
+    "signed_count_reference"
+  ],
+  "opening_line": [
+    "document_line_id",
+    "destination_location_id",
+    "lot_code",
+    "serial_code",
+    "manufactured_on",
+    "expires_on"
+  ],
+  "organization": [
+    "id",
+    "code",
+    "name",
+    "timezone",
+    "currency"
+  ],
+  "outbox_event": [
+    "id",
+    "event_type",
+    "aggregate_id",
+    "payload",
+    "occurred_at",
+    "available_at",
+    "attempts",
+    "processed_at",
+    "last_error",
+    "version",
+    "replay_count",
+    "replayed_at"
+  ],
+  "package": [
+    "id",
+    "document_id",
+    "code",
+    "status",
+    "version",
+    "reason",
+    "created_by",
+    "created_at"
+  ],
+  "package_line": [
+    "id",
+    "package_id",
+    "document_line_id",
+    "stock_item_id",
+    "quantity",
+    "pick_task_id",
+    "consumed_quantity"
+  ],
+  "partner": [
+    "id",
+    "code",
+    "name",
+    "is_customer",
+    "is_supplier",
+    "tax_code",
+    "address",
+    "is_active",
+    "version"
+  ],
+  "period_reopen_confirmation": [
+    "id",
+    "period_id",
+    "period_version",
+    "confirmed_by",
+    "confirmed_at",
+    "reason"
+  ],
+  "permission": [
+    "id",
+    "code",
+    "scope_kind",
+    "description"
+  ],
+  "pick_task": [
+    "id",
+    "reservation_id",
+    "assigned_to",
+    "picked_quantity",
+    "status",
+    "version",
+    "target_quantity",
+    "consumed_quantity",
+    "reason",
+    "created_by",
+    "created_at"
+  ],
+  "print_attempt": [
+    "id",
+    "job_id",
+    "generation",
+    "actor_id",
+    "session_id",
+    "printer",
+    "driver",
+    "copies",
+    "status",
+    "spool_id",
+    "error_code",
+    "created_at",
+    "finished_at"
+  ],
+  "print_job": [
+    "id",
+    "requested_by",
+    "session_id",
+    "warehouse_id",
+    "source_id",
+    "source_version",
+    "template",
+    "template_version",
+    "paper",
+    "include_price",
+    "criteria",
+    "snapshot",
+    "snapshot_hash",
+    "status",
+    "version",
+    "generation",
+    "file_id",
+    "created_at",
+    "expires_at",
+    "error_code"
+  ],
+  "print_task": [
+    "id",
+    "job_id",
+    "generation",
+    "status",
+    "attempts",
+    "available_at",
+    "lease_token",
+    "lease_until"
+  ],
+  "product": [
+    "id",
+    "sku",
+    "name",
+    "category_id",
+    "base_uom_id",
+    "tracking",
+    "expiry_required",
+    "is_active",
+    "version",
+    "attributes"
+  ],
+  "product_category": [
+    "id",
+    "code",
+    "name",
+    "parent_id",
+    "version",
+    "is_active"
+  ],
+  "product_image": [
+    "id",
+    "product_id",
+    "file_id",
+    "sort_order"
+  ],
+  "product_uom": [
+    "id",
+    "product_id",
+    "uom_id",
+    "factor",
+    "revision",
+    "is_active"
+  ],
+  "quality_decision": [
+    "id",
+    "receipt_move_id",
+    "quantity",
+    "result",
+    "reason",
+    "decided_by",
+    "decided_at",
+    "followup_document_id"
+  ],
+  "reference_price": [
+    "id",
+    "product_id",
+    "effective_on",
+    "amount",
+    "currency",
+    "source",
+    "created_by"
+  ],
+  "report_request_guard": [
+    "user_id",
+    "version"
+  ],
+  "report_snapshot": [
+    "id",
+    "requested_by",
+    "report_code",
+    "criteria",
+    "required_warehouses",
+    "created_at",
+    "expires_at",
+    "row_count",
+    "columns",
+    "sha256"
+  ],
+  "report_snapshot_row": [
+    "snapshot_id",
+    "ordinal",
+    "payload"
+  ],
+  "reservation": [
+    "id",
+    "line_id",
+    "stock_item_id",
+    "location_id",
+    "quantity",
+    "consumed",
+    "released",
+    "expires_at",
+    "created_by"
+  ],
+  "reservation_consumption": [
+    "id",
+    "reservation_id",
+    "move_id",
+    "quantity"
+  ],
+  "return_document": [
+    "document_id",
+    "source_document_id"
+  ],
+  "return_line": [
+    "document_line_id",
+    "source_move_id",
+    "location_id"
+  ],
+  "reversal_document": [
+    "document_id",
+    "source_transaction_id",
+    "source_version",
+    "reversal_reason"
+  ],
+  "reversal_line": [
+    "document_line_id",
+    "source_move_id"
+  ],
+  "role": [
+    "id",
+    "code",
+    "name",
+    "is_active"
+  ],
+  "role_permission": [
+    "id",
+    "role_id",
+    "permission_id"
+  ],
+  "serial": [
+    "id",
+    "product_id",
+    "code",
+    "warranty_version"
+  ],
+  "serial_position": [
+    "id",
+    "serial_id",
+    "location_id",
+    "last_move_id"
+  ],
+  "serial_warranty_record": [
+    "id",
+    "serial_id",
+    "receipt_move_id",
+    "revision",
+    "starts_on",
+    "ends_on",
+    "evidence_ref",
+    "recorded_by",
+    "recorded_at",
+    "reason"
+  ],
+  "stock_balance": [
+    "id",
+    "stock_item_id",
+    "location_id",
+    "on_hand",
+    "reserved",
+    "version"
+  ],
+  "stock_item": [
+    "id",
+    "product_id",
+    "lot_id",
+    "serial_id",
+    "owner_id",
+    "consignment_id"
+  ],
+  "stock_move": [
+    "id",
+    "transaction_id",
+    "line_id",
+    "stock_item_id",
+    "source_location_id",
+    "destination_location_id",
+    "quantity_base",
+    "base_uom_id",
+    "reverses_move_id"
+  ],
+  "stock_owner": [
+    "id",
+    "code",
+    "name",
+    "kind",
+    "partner_id",
+    "is_active",
+    "version"
+  ],
+  "stock_period": [
+    "id",
+    "warehouse_id",
+    "starts_on",
+    "ends_on",
+    "status",
+    "closed_by",
+    "closed_at",
+    "version"
+  ],
+  "stored_file": [
+    "id",
+    "storage_key",
+    "original_name",
+    "mime_type",
+    "sha256",
+    "size_bytes",
+    "uploaded_by",
+    "created_at"
+  ],
+  "transfer_adjustment": [
+    "document_id",
+    "source_transfer_id",
+    "discrepancy_id"
+  ],
+  "transfer_discrepancy": [
+    "id",
+    "transfer_document_id",
+    "dispatch_move_id",
+    "kind",
+    "quantity",
+    "evidence_ref",
+    "recorded_by",
+    "recorded_at"
+  ],
+  "transfer_line": [
+    "document_line_id",
+    "stock_item_id",
+    "source_location_id"
+  ],
+  "transfer_move": [
+    "move_id",
+    "dispatch_move_id",
+    "disposition",
+    "evidence_ref"
+  ],
+  "uom": [
+    "id",
+    "code",
+    "name",
+    "decimal_places",
+    "version",
+    "is_active"
+  ],
+  "user_avatar": [
+    "user_id",
+    "image_base64",
+    "version",
+    "updated_at"
+  ],
+  "user_role_grant": [
+    "id",
+    "user_id",
+    "role_id",
+    "scope_kind",
+    "warehouse_id",
+    "valid_from",
+    "valid_until",
+    "granted_by",
+    "revoked_at"
+  ],
+  "warehouse": [
+    "id",
+    "code",
+    "name",
+    "address",
+    "is_active",
+    "version"
+  ],
+  "worker_status": [
+    "id",
+    "kind",
+    "registry_hash",
+    "state",
+    "started_at",
+    "heartbeat_at",
+    "result_code",
+    "completed_cycles"
+  ]
+}

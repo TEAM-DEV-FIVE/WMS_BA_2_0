@@ -1,0 +1,954 @@
+{
+  "app_user": {
+    "auth_version": "integer",
+    "created_at": "timestamp with time zone",
+    "display_name": "character varying(200)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "password_hash": "text",
+    "username": "character varying(100)"
+  },
+  "approval_policy": {
+    "document_kind": "character varying(30)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "revision": "integer"
+  },
+  "approval_policy_step": {
+    "alternative_role_id": "uuid",
+    "id": "uuid",
+    "policy_id": "uuid",
+    "role_id": "uuid",
+    "step_no": "integer"
+  },
+  "approval_request": {
+    "content_snapshot": "jsonb",
+    "created_at": "timestamp with time zone",
+    "document_id": "uuid",
+    "document_version": "integer",
+    "id": "uuid",
+    "policy_id": "uuid",
+    "requested_by": "uuid",
+    "status": "character varying(20)"
+  },
+  "approval_step": {
+    "alternative_role_id": "uuid",
+    "comment": "text",
+    "decided_at": "timestamp with time zone",
+    "decided_by": "uuid",
+    "id": "uuid",
+    "request_id": "uuid",
+    "required_role_id": "uuid",
+    "status": "character varying(20)",
+    "step_no": "integer"
+  },
+  "audit_event": {
+    "action": "character varying(100)",
+    "actor_id": "uuid",
+    "after_data": "jsonb",
+    "before_data": "jsonb",
+    "entity_id": "uuid",
+    "entity_type": "character varying(80)",
+    "id": "uuid",
+    "occurred_at": "timestamp with time zone",
+    "reason": "text",
+    "request_id": "uuid",
+    "warehouse_id": "uuid"
+  },
+  "auth_challenge": {
+    "auth_version": "integer",
+    "consumed_at": "timestamp with time zone",
+    "device_id": "uuid",
+    "expires_at": "timestamp with time zone",
+    "token_hash": "character(64)",
+    "user_id": "uuid"
+  },
+  "auth_contact": {
+    "kind": "text",
+    "user_id": "uuid",
+    "value": "text",
+    "verified_at": "timestamp with time zone"
+  },
+  "auth_contact_challenge": {
+    "auth_version": "integer",
+    "code_hash": "character(64)",
+    "consumed_at": "timestamp with time zone",
+    "expires_at": "timestamp with time zone",
+    "id": "uuid",
+    "kind": "text",
+    "user_id": "uuid",
+    "value": "text"
+  },
+  "auth_delivery": {
+    "attempts": "integer",
+    "auth_version": "integer",
+    "ciphertext": "text",
+    "completed_at": "timestamp with time zone",
+    "expires_at": "timestamp with time zone",
+    "id": "uuid",
+    "last_error": "text",
+    "lease_token": "uuid",
+    "lease_until": "timestamp with time zone",
+    "user_id": "uuid"
+  },
+  "auth_google_flow": {
+    "auth_version": "integer",
+    "consumed_at": "timestamp with time zone",
+    "device_id": "uuid",
+    "expires_at": "timestamp with time zone",
+    "nonce_hash": "character(64)",
+    "redirect_uri": "text",
+    "session_id": "uuid",
+    "state_hash": "character(64)",
+    "user_id": "uuid",
+    "verifier_ciphertext": "text"
+  },
+  "auth_google_identity": {
+    "linked_at": "timestamp with time zone",
+    "subject": "text",
+    "user_id": "uuid"
+  },
+  "auth_password_reset": {
+    "auth_version": "integer",
+    "consumed_at": "timestamp with time zone",
+    "created_at": "timestamp with time zone",
+    "expires_at": "timestamp with time zone",
+    "issued_by": "uuid",
+    "token_hash": "character(64)",
+    "user_id": "uuid"
+  },
+  "auth_recovery_code": {
+    "code_hash": "character(64)",
+    "consumed_at": "timestamp with time zone",
+    "created_at": "timestamp with time zone",
+    "revoked_at": "timestamp with time zone",
+    "user_id": "uuid"
+  },
+  "auth_self_reset": {
+    "auth_version": "integer",
+    "consumed_at": "timestamp with time zone",
+    "contact_value": "text",
+    "expires_at": "timestamp with time zone",
+    "kind": "text",
+    "token_hash": "character(64)",
+    "user_id": "uuid"
+  },
+  "auth_session": {
+    "auth_version": "integer",
+    "device_id": "uuid",
+    "expires_at": "timestamp with time zone",
+    "id": "uuid",
+    "mfa_verified_at": "timestamp with time zone",
+    "refresh_hash": "text",
+    "revoked_at": "timestamp with time zone",
+    "user_id": "uuid"
+  },
+  "auth_throttle": {
+    "blocked_until": "timestamp with time zone",
+    "failures": "integer",
+    "key": "character(64)",
+    "window_started_at": "timestamp with time zone"
+  },
+  "auth_token": {
+    "created_at": "timestamp with time zone",
+    "expires_at": "timestamp with time zone",
+    "kind": "character varying(10)",
+    "session_id": "uuid",
+    "token_hash": "character(64)",
+    "used_at": "timestamp with time zone"
+  },
+  "barcode": {
+    "code": "character varying(160)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "product_uom_id": "uuid",
+    "version": "integer"
+  },
+  "client_release": {
+    "api_major": "integer",
+    "architecture": "character varying(20)",
+    "download_uri": "text",
+    "id": "uuid",
+    "is_minimum": "boolean",
+    "os": "character varying(20)",
+    "sha256": "character(64)",
+    "version": "character varying(40)"
+  },
+  "consignment_agreement": {
+    "code": "character varying(80)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "owner_id": "uuid",
+    "source_ref": "text",
+    "valid_from": "date",
+    "valid_until": "date",
+    "version": "integer",
+    "warehouse_id": "uuid"
+  },
+  "consignment_receipt": {
+    "batch_key": "uuid",
+    "delivery_reference": "character varying(2000)",
+    "document_id": "uuid",
+    "warehouse_id": "uuid"
+  },
+  "consignment_receipt_line": {
+    "destination_location_id": "uuid",
+    "document_line_id": "uuid",
+    "expires_on": "date",
+    "lot_code": "character varying(100)",
+    "manufactured_on": "date",
+    "serial_code": "character varying(160)"
+  },
+  "consumer_receipt": {
+    "consumer": "character varying(100)",
+    "event_id": "uuid",
+    "id": "uuid",
+    "processed_at": "timestamp with time zone"
+  },
+  "count_assignment": {
+    "assigned_by": "uuid",
+    "id": "uuid",
+    "location_id": "uuid",
+    "session_id": "uuid",
+    "user_id": "uuid"
+  },
+  "count_decision": {
+    "decided_at": "timestamp with time zone",
+    "decided_by": "uuid",
+    "decision": "text",
+    "id": "uuid",
+    "reason": "text",
+    "step_no": "integer",
+    "submission_id": "uuid"
+  },
+  "count_empty_confirmation": {
+    "counted_at": "timestamp with time zone",
+    "counted_by": "uuid",
+    "id": "uuid",
+    "location_id": "uuid",
+    "reason": "text",
+    "session_id": "uuid"
+  },
+  "count_execution": {
+    "execution_key": "uuid",
+    "request_hash": "character(64)",
+    "response": "jsonb",
+    "session_id": "uuid"
+  },
+  "count_line": {
+    "approved_quantity": "numeric(20,6)",
+    "id": "uuid",
+    "location_id": "uuid",
+    "session_id": "uuid",
+    "snapshot_quantity": "numeric(20,6)",
+    "stock_item_id": "uuid"
+  },
+  "count_location_lock": {
+    "id": "uuid",
+    "location_id": "uuid",
+    "locked_at": "timestamp with time zone",
+    "released_at": "timestamp with time zone",
+    "session_id": "uuid"
+  },
+  "count_observation": {
+    "count_line_id": "uuid",
+    "counted_at": "timestamp with time zone",
+    "counted_by": "uuid",
+    "id": "uuid",
+    "quantity": "numeric(20,6)",
+    "reason": "text",
+    "round_no": "integer",
+    "scan_event_key": "uuid"
+  },
+  "count_scope": {
+    "location_id": "uuid",
+    "session_id": "uuid"
+  },
+  "count_session": {
+    "adjustment_document_id": "uuid",
+    "business_date": "date",
+    "created_by": "uuid",
+    "frozen_at": "timestamp with time zone",
+    "id": "uuid",
+    "number": "character varying(80)",
+    "reason": "text",
+    "status": "character varying(20)",
+    "version": "integer",
+    "warehouse_id": "uuid"
+  },
+  "count_submission": {
+    "content_snapshot": "jsonb",
+    "created_at": "timestamp with time zone",
+    "id": "uuid",
+    "policy_revision": "integer",
+    "requested_by": "uuid",
+    "session_id": "uuid",
+    "session_version": "integer"
+  },
+  "custom_field_binding": {
+    "document_id": "uuid",
+    "id": "uuid",
+    "product_id": "uuid",
+    "revision_id": "uuid",
+    "values": "jsonb"
+  },
+  "custom_field_change": {
+    "binding_id": "uuid",
+    "changed_at": "timestamp with time zone",
+    "changed_by": "uuid",
+    "id": "uuid",
+    "reason": "text",
+    "revision_id": "uuid",
+    "target_version": "integer",
+    "values": "jsonb"
+  },
+  "custom_field_definition": {
+    "code": "character varying(60)",
+    "entity_type": "character varying(40)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "label": "character varying(120)",
+    "required": "boolean",
+    "revision_id": "uuid",
+    "validation": "jsonb",
+    "value_type": "character varying(20)",
+    "visibility": "character varying(20)"
+  },
+  "custom_field_revision": {
+    "created_at": "timestamp with time zone",
+    "created_by": "uuid",
+    "id": "uuid",
+    "reason": "text",
+    "schema_id": "uuid",
+    "version": "integer"
+  },
+  "custom_field_schema": {
+    "entity_type": "character varying(40)",
+    "id": "uuid",
+    "version": "integer"
+  },
+  "document": {
+    "attributes": "jsonb",
+    "business_date": "date",
+    "created_at": "timestamp with time zone",
+    "created_by": "uuid",
+    "destination_warehouse_id": "uuid",
+    "id": "uuid",
+    "kind": "character varying(30)",
+    "number": "character varying(80)",
+    "partner_id": "uuid",
+    "reason": "text",
+    "status": "character varying(20)",
+    "transit_location_id": "uuid",
+    "version": "integer",
+    "warehouse_id": "uuid"
+  },
+  "document_assignment": {
+    "assigned_by": "uuid",
+    "document_id": "uuid",
+    "id": "uuid",
+    "user_id": "uuid"
+  },
+  "document_attachment": {
+    "document_id": "uuid",
+    "file_id": "uuid",
+    "id": "uuid"
+  },
+  "document_line": {
+    "base_quantity": "numeric(20,6)",
+    "closed_base_quantity": "numeric(20,6)",
+    "consignment_id": "uuid",
+    "document_id": "uuid",
+    "factor_snapshot": "numeric(20,8)",
+    "id": "uuid",
+    "line_no": "integer",
+    "owner_id": "uuid",
+    "product_id": "uuid",
+    "quantity": "numeric(20,6)",
+    "reference_unit_price": "numeric(20,4)",
+    "source_line_id": "uuid",
+    "uom_id": "uuid"
+  },
+  "document_link": {
+    "document_id": "uuid",
+    "id": "uuid",
+    "related_document_id": "uuid",
+    "relation": "character varying(30)"
+  },
+  "export_job": {
+    "created_at": "timestamp with time zone",
+    "error_code": "character varying(40)",
+    "expires_at": "timestamp with time zone",
+    "file_id": "uuid",
+    "filters": "jsonb",
+    "format": "character varying(4)",
+    "generation": "integer",
+    "id": "uuid",
+    "report_code": "character varying(40)",
+    "requested_by": "uuid",
+    "session_id": "uuid",
+    "snapshot_id": "uuid",
+    "status": "character varying(20)",
+    "version": "integer"
+  },
+  "export_task": {
+    "attempts": "integer",
+    "available_at": "timestamp with time zone",
+    "generation": "integer",
+    "id": "uuid",
+    "job_id": "uuid",
+    "lease_token": "uuid",
+    "lease_until": "timestamp with time zone",
+    "status": "character varying(10)"
+  },
+  "fulfillment_consumption": {
+    "id": "uuid",
+    "package_line_id": "uuid",
+    "quantity": "numeric(20,6)",
+    "reservation_consumption_id": "uuid"
+  },
+  "grant_request": {
+    "approved_by": "uuid",
+    "grant_id": "uuid",
+    "id": "uuid",
+    "reason": "text",
+    "requested_at": "timestamp with time zone",
+    "requested_by": "uuid",
+    "role_id": "uuid",
+    "scope_kind": "character varying(20)",
+    "user_id": "uuid",
+    "valid_until": "timestamp with time zone",
+    "warehouse_id": "uuid"
+  },
+  "idempotency_record": {
+    "actor_id": "uuid",
+    "command": "character varying(100)",
+    "completed_at": "timestamp with time zone",
+    "expires_at": "timestamp with time zone",
+    "http_status": "integer",
+    "id": "uuid",
+    "key": "uuid",
+    "request_hash": "character(64)",
+    "response": "jsonb"
+  },
+  "import_document_source": {
+    "document_id": "uuid",
+    "job_id": "uuid",
+    "kind": "character varying(20)",
+    "source_key": "character varying(240)",
+    "warehouse_id": "uuid"
+  },
+  "import_file": {
+    "actor_id": "uuid",
+    "file_id": "uuid",
+    "kind": "character varying(60)",
+    "ready": "boolean",
+    "request_hash": "character(64)",
+    "upload_key": "uuid",
+    "warehouse_id": "uuid"
+  },
+  "import_job": {
+    "auth_version": "integer",
+    "commit_token": "uuid",
+    "created_at": "timestamp with time zone",
+    "data_snapshot": "jsonb",
+    "errors": "jsonb",
+    "file_hash": "character(64)",
+    "file_id": "uuid",
+    "generation": "integer",
+    "id": "uuid",
+    "kind": "character varying(60)",
+    "mapping_version": "character varying(30)",
+    "operation_key": "uuid",
+    "options": "jsonb",
+    "processed_rows": "integer",
+    "requested_by": "uuid",
+    "result": "jsonb",
+    "stage_hash": "character(64)",
+    "status": "character varying(20)",
+    "token_expires_at": "timestamp with time zone",
+    "total_rows": "integer",
+    "version": "integer",
+    "warehouse_id": "uuid"
+  },
+  "import_row": {
+    "errors": "jsonb",
+    "id": "uuid",
+    "job_id": "uuid",
+    "payload": "jsonb",
+    "row_no": "integer",
+    "status": "character varying(20)",
+    "target_id": "uuid"
+  },
+  "import_task": {
+    "attempts": "integer",
+    "available_at": "timestamp with time zone",
+    "generation": "integer",
+    "id": "uuid",
+    "job_id": "uuid",
+    "last_error": "character varying(60)",
+    "lease_token": "uuid",
+    "lease_until": "timestamp with time zone",
+    "state": "character varying(20)"
+  },
+  "inventory_transaction": {
+    "business_date": "date",
+    "document_id": "uuid",
+    "execution_key": "uuid",
+    "id": "uuid",
+    "operation": "character varying(30)",
+    "posted_at": "timestamp with time zone",
+    "posted_by": "uuid",
+    "request_hash": "character(64)",
+    "response": "jsonb",
+    "reverses_transaction_id": "uuid"
+  },
+  "issue_document": {
+    "document_id": "uuid",
+    "source_order_id": "uuid"
+  },
+  "location": {
+    "code": "character varying(80)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "kind": "character varying(20)",
+    "name": "character varying(160)",
+    "parent_id": "uuid",
+    "version": "integer",
+    "warehouse_id": "uuid"
+  },
+  "lot": {
+    "code": "character varying(100)",
+    "expires_on": "date",
+    "id": "uuid",
+    "manufactured_on": "date",
+    "product_id": "uuid",
+    "version": "integer"
+  },
+  "mfa_factor": {
+    "credential_ciphertext": "text",
+    "enrollment_expires_at": "timestamp with time zone",
+    "id": "uuid",
+    "kind": "character varying(30)",
+    "last_counter": "bigint",
+    "revoked_at": "timestamp with time zone",
+    "user_id": "uuid",
+    "verified_at": "timestamp with time zone"
+  },
+  "move_line": {
+    "destination_location_id": "uuid",
+    "document_line_id": "uuid",
+    "quality_decision_id": "uuid",
+    "source_location_id": "uuid",
+    "stock_item_id": "uuid"
+  },
+  "opening_document": {
+    "batch_key": "uuid",
+    "document_id": "uuid",
+    "signed_count_reference": "character varying(2000)",
+    "warehouse_id": "uuid"
+  },
+  "opening_line": {
+    "destination_location_id": "uuid",
+    "document_line_id": "uuid",
+    "expires_on": "date",
+    "lot_code": "character varying(100)",
+    "manufactured_on": "date",
+    "serial_code": "character varying(160)"
+  },
+  "organization": {
+    "code": "character varying(40)",
+    "currency": "character(3)",
+    "id": "uuid",
+    "name": "character varying(200)",
+    "timezone": "character varying(80)"
+  },
+  "outbox_event": {
+    "aggregate_id": "uuid",
+    "attempts": "integer",
+    "available_at": "timestamp with time zone",
+    "event_type": "character varying(100)",
+    "id": "uuid",
+    "last_error": "text",
+    "occurred_at": "timestamp with time zone",
+    "payload": "jsonb",
+    "processed_at": "timestamp with time zone",
+    "replay_count": "integer",
+    "replayed_at": "timestamp with time zone",
+    "version": "integer"
+  },
+  "package": {
+    "code": "character varying(100)",
+    "created_at": "timestamp with time zone",
+    "created_by": "uuid",
+    "document_id": "uuid",
+    "id": "uuid",
+    "reason": "text",
+    "status": "character varying(20)",
+    "version": "integer"
+  },
+  "package_line": {
+    "consumed_quantity": "numeric(20,6)",
+    "document_line_id": "uuid",
+    "id": "uuid",
+    "package_id": "uuid",
+    "pick_task_id": "uuid",
+    "quantity": "numeric(20,6)",
+    "stock_item_id": "uuid"
+  },
+  "partner": {
+    "address": "text",
+    "code": "character varying(60)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "is_customer": "boolean",
+    "is_supplier": "boolean",
+    "name": "character varying(240)",
+    "tax_code": "character varying(40)",
+    "version": "integer"
+  },
+  "period_reopen_confirmation": {
+    "confirmed_at": "timestamp with time zone",
+    "confirmed_by": "uuid",
+    "id": "uuid",
+    "period_id": "uuid",
+    "period_version": "integer",
+    "reason": "text"
+  },
+  "permission": {
+    "code": "character varying(100)",
+    "description": "text",
+    "id": "uuid",
+    "scope_kind": "character varying(20)"
+  },
+  "pick_task": {
+    "assigned_to": "uuid",
+    "consumed_quantity": "numeric(20,6)",
+    "created_at": "timestamp with time zone",
+    "created_by": "uuid",
+    "id": "uuid",
+    "picked_quantity": "numeric(20,6)",
+    "reason": "text",
+    "reservation_id": "uuid",
+    "status": "character varying(20)",
+    "target_quantity": "numeric(20,6)",
+    "version": "integer"
+  },
+  "print_attempt": {
+    "actor_id": "uuid",
+    "copies": "integer",
+    "created_at": "timestamp with time zone",
+    "driver": "character varying(20)",
+    "error_code": "character varying(40)",
+    "finished_at": "timestamp with time zone",
+    "generation": "integer",
+    "id": "uuid",
+    "job_id": "uuid",
+    "printer": "character varying(200)",
+    "session_id": "uuid",
+    "spool_id": "character varying(200)",
+    "status": "character varying(10)"
+  },
+  "print_job": {
+    "created_at": "timestamp with time zone",
+    "criteria": "jsonb",
+    "error_code": "character varying(40)",
+    "expires_at": "timestamp with time zone",
+    "file_id": "uuid",
+    "generation": "integer",
+    "id": "uuid",
+    "include_price": "boolean",
+    "paper": "character varying(10)",
+    "requested_by": "uuid",
+    "session_id": "uuid",
+    "snapshot": "jsonb",
+    "snapshot_hash": "character(64)",
+    "source_id": "uuid",
+    "source_version": "integer",
+    "status": "character varying(12)",
+    "template": "character varying(20)",
+    "template_version": "integer",
+    "version": "integer",
+    "warehouse_id": "uuid"
+  },
+  "print_task": {
+    "attempts": "integer",
+    "available_at": "timestamp with time zone",
+    "generation": "integer",
+    "id": "uuid",
+    "job_id": "uuid",
+    "lease_token": "uuid",
+    "lease_until": "timestamp with time zone",
+    "status": "character varying(10)"
+  },
+  "product": {
+    "attributes": "jsonb",
+    "base_uom_id": "uuid",
+    "category_id": "uuid",
+    "expiry_required": "boolean",
+    "id": "uuid",
+    "is_active": "boolean",
+    "name": "character varying(240)",
+    "sku": "character varying(80)",
+    "tracking": "character varying(10)",
+    "version": "integer"
+  },
+  "product_category": {
+    "code": "character varying(40)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "name": "character varying(160)",
+    "parent_id": "uuid",
+    "version": "integer"
+  },
+  "product_image": {
+    "file_id": "uuid",
+    "id": "uuid",
+    "product_id": "uuid",
+    "sort_order": "integer"
+  },
+  "product_uom": {
+    "factor": "numeric(20,8)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "product_id": "uuid",
+    "revision": "integer",
+    "uom_id": "uuid"
+  },
+  "quality_decision": {
+    "decided_at": "timestamp with time zone",
+    "decided_by": "uuid",
+    "followup_document_id": "uuid",
+    "id": "uuid",
+    "quantity": "numeric(20,6)",
+    "reason": "text",
+    "receipt_move_id": "uuid",
+    "result": "character varying(20)"
+  },
+  "reference_price": {
+    "amount": "numeric(20,4)",
+    "created_by": "uuid",
+    "currency": "character(3)",
+    "effective_on": "date",
+    "id": "uuid",
+    "product_id": "uuid",
+    "source": "text"
+  },
+  "report_request_guard": {
+    "user_id": "uuid",
+    "version": "bigint"
+  },
+  "report_snapshot": {
+    "columns": "jsonb",
+    "created_at": "timestamp with time zone",
+    "criteria": "jsonb",
+    "expires_at": "timestamp with time zone",
+    "id": "uuid",
+    "report_code": "character varying(3)",
+    "requested_by": "uuid",
+    "required_warehouses": "uuid[]",
+    "row_count": "integer",
+    "sha256": "character(64)"
+  },
+  "report_snapshot_row": {
+    "ordinal": "integer",
+    "payload": "jsonb",
+    "snapshot_id": "uuid"
+  },
+  "reservation": {
+    "consumed": "numeric(20,6)",
+    "created_by": "uuid",
+    "expires_at": "timestamp with time zone",
+    "id": "uuid",
+    "line_id": "uuid",
+    "location_id": "uuid",
+    "quantity": "numeric(20,6)",
+    "released": "numeric(20,6)",
+    "stock_item_id": "uuid"
+  },
+  "reservation_consumption": {
+    "id": "uuid",
+    "move_id": "uuid",
+    "quantity": "numeric(20,6)",
+    "reservation_id": "uuid"
+  },
+  "return_document": {
+    "document_id": "uuid",
+    "source_document_id": "uuid"
+  },
+  "return_line": {
+    "document_line_id": "uuid",
+    "location_id": "uuid",
+    "source_move_id": "uuid"
+  },
+  "reversal_document": {
+    "document_id": "uuid",
+    "reversal_reason": "text",
+    "source_transaction_id": "uuid",
+    "source_version": "integer"
+  },
+  "reversal_line": {
+    "document_line_id": "uuid",
+    "source_move_id": "uuid"
+  },
+  "role": {
+    "code": "character varying(60)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "name": "character varying(160)"
+  },
+  "role_permission": {
+    "id": "uuid",
+    "permission_id": "uuid",
+    "role_id": "uuid"
+  },
+  "serial": {
+    "code": "character varying(160)",
+    "id": "uuid",
+    "product_id": "uuid",
+    "warranty_version": "integer"
+  },
+  "serial_position": {
+    "id": "uuid",
+    "last_move_id": "uuid",
+    "location_id": "uuid",
+    "serial_id": "uuid"
+  },
+  "serial_warranty_record": {
+    "ends_on": "date",
+    "evidence_ref": "text",
+    "id": "uuid",
+    "reason": "text",
+    "receipt_move_id": "uuid",
+    "recorded_at": "timestamp with time zone",
+    "recorded_by": "uuid",
+    "revision": "integer",
+    "serial_id": "uuid",
+    "starts_on": "date"
+  },
+  "stock_balance": {
+    "id": "uuid",
+    "location_id": "uuid",
+    "on_hand": "numeric(20,6)",
+    "reserved": "numeric(20,6)",
+    "stock_item_id": "uuid",
+    "version": "bigint"
+  },
+  "stock_item": {
+    "consignment_id": "uuid",
+    "id": "uuid",
+    "lot_id": "uuid",
+    "owner_id": "uuid",
+    "product_id": "uuid",
+    "serial_id": "uuid"
+  },
+  "stock_move": {
+    "base_uom_id": "uuid",
+    "destination_location_id": "uuid",
+    "id": "uuid",
+    "line_id": "uuid",
+    "quantity_base": "numeric(20,6)",
+    "reverses_move_id": "uuid",
+    "source_location_id": "uuid",
+    "stock_item_id": "uuid",
+    "transaction_id": "uuid"
+  },
+  "stock_owner": {
+    "code": "character varying(80)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "kind": "character varying(20)",
+    "name": "character varying(240)",
+    "partner_id": "uuid",
+    "version": "integer"
+  },
+  "stock_period": {
+    "closed_at": "timestamp with time zone",
+    "closed_by": "uuid",
+    "ends_on": "date",
+    "id": "uuid",
+    "starts_on": "date",
+    "status": "character varying(10)",
+    "version": "integer",
+    "warehouse_id": "uuid"
+  },
+  "stored_file": {
+    "created_at": "timestamp with time zone",
+    "id": "uuid",
+    "mime_type": "character varying(100)",
+    "original_name": "character varying(240)",
+    "sha256": "character(64)",
+    "size_bytes": "bigint",
+    "storage_key": "text",
+    "uploaded_by": "uuid"
+  },
+  "transfer_adjustment": {
+    "discrepancy_id": "uuid",
+    "document_id": "uuid",
+    "source_transfer_id": "uuid"
+  },
+  "transfer_discrepancy": {
+    "dispatch_move_id": "uuid",
+    "evidence_ref": "character varying(2000)",
+    "id": "uuid",
+    "kind": "character varying(20)",
+    "quantity": "numeric(20,6)",
+    "recorded_at": "timestamp with time zone",
+    "recorded_by": "uuid",
+    "transfer_document_id": "uuid"
+  },
+  "transfer_line": {
+    "document_line_id": "uuid",
+    "source_location_id": "uuid",
+    "stock_item_id": "uuid"
+  },
+  "transfer_move": {
+    "dispatch_move_id": "uuid",
+    "disposition": "character varying(20)",
+    "evidence_ref": "character varying(2000)",
+    "move_id": "uuid"
+  },
+  "uom": {
+    "code": "character varying(30)",
+    "decimal_places": "integer",
+    "id": "uuid",
+    "is_active": "boolean",
+    "name": "character varying(80)",
+    "version": "integer"
+  },
+  "user_avatar": {
+    "image_base64": "text",
+    "updated_at": "timestamp with time zone",
+    "user_id": "uuid",
+    "version": "integer"
+  },
+  "user_role_grant": {
+    "granted_by": "uuid",
+    "id": "uuid",
+    "revoked_at": "timestamp with time zone",
+    "role_id": "uuid",
+    "scope_kind": "character varying(20)",
+    "user_id": "uuid",
+    "valid_from": "timestamp with time zone",
+    "valid_until": "timestamp with time zone",
+    "warehouse_id": "uuid"
+  },
+  "warehouse": {
+    "address": "text",
+    "code": "character varying(40)",
+    "id": "uuid",
+    "is_active": "boolean",
+    "name": "character varying(160)",
+    "version": "integer"
+  },
+  "worker_status": {
+    "completed_cycles": "bigint",
+    "heartbeat_at": "timestamp with time zone",
+    "id": "uuid",
+    "kind": "character varying(20)",
+    "registry_hash": "character(64)",
+    "result_code": "character varying(40)",
+    "started_at": "timestamp with time zone",
+    "state": "character varying(10)"
+  }
+}

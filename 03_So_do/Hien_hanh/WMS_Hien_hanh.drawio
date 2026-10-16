@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mxfile host="app.diagrams.net" type="device">
   <diagram id="ARCHITECTURE" name="Kiến trúc ứng dụng hiện tại">
-    <mxGraphModel page="1" pageScale="1" pageWidth="1349" pageHeight="540">
+    <mxGraphModel page="1" pageScale="1" pageWidth="1337" pageHeight="540">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="title" value="Kiến trúc ứng dụng hiện tại" vertex="1" parent="1" style="text;html=1;align=center;fontSize=14;whiteSpace=wrap;">
-          <mxGeometry as="geometry" x="20" y="10" width="1309.0" height="40" />
+          <mxGeometry as="geometry" x="20" y="10" width="1297.0" height="40" />
         </mxCell>
         <mxCell id="desktop" value="&lt;b&gt;Desktop Tkinter&lt;/b&gt;&lt;br/&gt;views / presenters / API client&lt;br/&gt;Luồng UI và executor I/O" vertex="1" parent="1" style="whiteSpace=wrap;html=1;fillColor=#e3f1f8;strokeColor=#526f83;fontSize=12;align=left;verticalAlign=middle;spacing=8;rounded=0;">
           <mxGeometry as="geometry" x="39.998400000000004" y="263.9996" width="193.0032" height="73.0008" />
@@ -20,14 +20,14 @@
         <mxCell id="api" value="&lt;b&gt;FastAPI&lt;/b&gt;&lt;br/&gt;create_app()&lt;br/&gt;Xác thực và dịch vụ nghiệp vụ" vertex="1" parent="1" style="whiteSpace=wrap;html=1;fillColor=#e3f1f8;strokeColor=#526f83;fontSize=12;align=left;verticalAlign=middle;spacing=8;rounded=0;">
           <mxGeometry as="geometry" x="714.0" y="208.9996" width="198.0" height="73.0008" />
         </mxCell>
-        <mxCell id="db" value="&lt;b&gt;PostgreSQL&lt;/b&gt;&lt;br/&gt;Schema wms&lt;br/&gt;108 bảng qua migration 001–026" vertex="1" parent="1" style="whiteSpace=wrap;html=1;fillColor=#e3f1f8;strokeColor=#526f83;fontSize=12;align=left;verticalAlign=middle;spacing=8;rounded=0;">
-          <mxGeometry as="geometry" x="1091.9996" y="210.9996" width="217.0008" height="73.0008" />
+        <mxCell id="db" value="&lt;b&gt;MySQL / PostgreSQL&lt;/b&gt;&lt;br/&gt;Dữ liệu nghiệp vụ và sổ kho&lt;br/&gt;Database theo cấu hình triển khai" vertex="1" parent="1" style="whiteSpace=wrap;html=1;fillColor=#e3f1f8;strokeColor=#526f83;fontSize=12;align=left;verticalAlign=middle;spacing=8;rounded=0;">
+          <mxGeometry as="geometry" x="1076.0016" y="210.9996" width="220.9968" height="73.0008" />
         </mxCell>
         <mxCell id="workers" value="&lt;b&gt;Worker nền&lt;/b&gt;&lt;br/&gt;Outbox · import · export · print&lt;br/&gt;Export cleanup · print cleanup&lt;br/&gt;Auth delivery" vertex="1" parent="1" style="whiteSpace=wrap;html=1;fillColor=#e3f1f8;strokeColor=#526f83;fontSize=12;align=left;verticalAlign=middle;spacing=8;rounded=0;">
           <mxGeometry as="geometry" x="711.9984" y="328.5016" width="202.0032" height="85.9968" />
         </mxCell>
         <mxCell id="files" value="&lt;b&gt;Kho tệp riêng&lt;/b&gt;&lt;br/&gt;Import / export / PDF&lt;br/&gt;Truy cập qua API kiểm quyền" vertex="1" parent="1" style="whiteSpace=wrap;html=1;fillColor=#e3f1f8;strokeColor=#526f83;fontSize=12;align=left;verticalAlign=middle;spacing=8;rounded=0;">
-          <mxGeometry as="geometry" x="1104.4988" y="331.9996" width="192.0024" height="73.0008" />
+          <mxGeometry as="geometry" x="1090.4988" y="331.9996" width="192.0024" height="73.0008" />
         </mxCell>
         <mxCell id="vault" value="&lt;b&gt;Kho bí mật hệ điều hành&lt;/b&gt;&lt;br/&gt;SessionVault&lt;br/&gt;Nhớ phiên khi người dùng bật" vertex="1" parent="1" style="whiteSpace=wrap;html=1;fillColor=#e3f1f8;strokeColor=#526f83;fontSize=12;align=left;verticalAlign=middle;spacing=8;rounded=0;">
           <mxGeometry as="geometry" x="380.0016" y="317.9996" width="193.9968" height="73.0008" />
@@ -41,7 +41,7 @@
         <mxCell id="edge1" value="HTTP nội bộ" edge="1" parent="1" source="proxy" target="api" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#334155;fontSize=10;endArrow=block;">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="edge2" value="SQLAlchemy / psycopg" edge="1" parent="1" source="api" target="db" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#334155;fontSize=10;endArrow=block;">
+        <mxCell id="edge2" value="SQLAlchemy&#10;PyMySQL / psycopg" edge="1" parent="1" source="api" target="db" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#334155;fontSize=10;endArrow=block;">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
         <mxCell id="edge3" value="Nháp / key" edge="1" parent="1" source="desktop" target="local" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#334155;fontSize=10;endArrow=block;">

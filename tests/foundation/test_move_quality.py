@@ -74,17 +74,10 @@ def movement(receiving):  # noqa: F811
 
 
 def reconcile(f):
-    raw = f.engine.raw_connection()
-    try:
-        with raw.cursor() as cursor:
-            cursor.execute((Path(__file__).resolve().parents[2] / "02_CSDL/reconcile.sql").read_text())
-            while True:
-                if cursor.description:
-                    assert cursor.fetchall() == []
-                if not cursor.nextset():
-                    break
-    finally:
-        raw.close()
+    from apps.server.infrastructure.reconciliation import reconciliation_results
+    with f.engine.connect() as c:
+        for rows in reconciliation_results(c, (Path(__file__).resolve().parents[2] / "02_CSDL/reconcile.sql").read_text()):
+            assert rows == []
 
 
 def test_move_quality_t01_receipt_80_accept_75_reject_5_conserves_stock_and_po(movement):

@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from threading import Event
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from pydantic import ValidationError
@@ -69,7 +69,8 @@ def outbox(database):
 
         def effects(self):
             with database.connect() as connection:
-                return connection.execute(text("SELECT event_id,consumer FROM wms.outbox_test_effect")).all()
+                return [(UUID(str(identifier)), consumer) for identifier, consumer in
+                        connection.execute(text("SELECT event_id,consumer FROM wms.outbox_test_effect")).all()]
 
         def receipts(self):
             with database.connect() as connection:
@@ -435,7 +436,8 @@ def handle(connection, event):
     if event.payload.get("fail"):
         raise RuntimeError("password=do-not-store-this-secret")
     if event.payload.get("sleep"):
-        connection.execute(text("SELECT pg_sleep(2) /* outbox_test_in_handler */"))
+        sleep_sql = "SELECT SLEEP(2)" if connection.dialect.name == "mysql" else "SELECT pg_sleep(2)"
+        connection.exec_driver_sql(sleep_sql + " /* outbox_test_in_handler */")
     return HandlerResult.APPLIED
 
 def registry():
@@ -468,9 +470,14 @@ def wait_for_handler(outbox, process):
     while time.monotonic() < deadline:
         assert process.poll() is None
         with outbox.engine.connect() as connection:
-            count = connection.execute(text("""SELECT count(*) FROM pg_stat_activity
-                WHERE datname=current_database() AND pid<>pg_backend_pid()
-                  AND state='active' AND query LIKE '%outbox_test_in_handler%'""")).scalar_one()
+            if connection.dialect.name == "mysql":
+                count = connection.native("""SELECT COUNT(*) FROM information_schema.PROCESSLIST
+                    WHERE DB=DATABASE() AND ID<>CONNECTION_ID() AND COMMAND='Query'
+                      AND INFO LIKE :marker""", {"marker": "%outbox_test_in_handler%"}).scalar_one()
+            else:
+                count = connection.execute(text("""SELECT count(*) FROM pg_stat_activity
+                    WHERE datname=current_database() AND pid<>pg_backend_pid()
+                      AND state='active' AND query LIKE '%outbox_test_in_handler%'""")).scalar_one()
         if count:
             return
         time.sleep(0.02)

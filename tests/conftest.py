@@ -34,21 +34,21 @@ def collect_gui_on_main_thread(request):
 def empty_database():
     value = os.environ.get("WMS_TEST_DATABASE_URL")
     if not value:
-        pytest.fail("Integration tests require a disposable PostgreSQL database; run scripts/check_application.py")
+        pytest.fail("Integration tests require a disposable database; run scripts/check_application.py or scripts/check_mysql.py")
     url = make_url(value)
-    if url.drivername != "postgresql+psycopg" or not (url.database or "").startswith("wms_test_"):
-        pytest.fail("WMS_TEST_DATABASE_URL must point to PostgreSQL and a wms_test_* database")
+    if url.drivername not in {"postgresql+psycopg", "mysql+pymysql"} or not (url.database or "").startswith("wms_test_"):
+        pytest.fail("WMS_TEST_DATABASE_URL must point to PostgreSQL/MySQL and a wms_test_* database")
     name = "wms_test_" + uuid4().hex
     admin = create_engine(url, isolation_level="AUTOCOMMIT", hide_parameters=True)
     with admin.connect() as connection:
-        connection.exec_driver_sql(f'CREATE DATABASE "{name}"')
+        connection.exec_driver_sql(f'CREATE DATABASE `{name}`' if url.drivername == "mysql+pymysql" else f'CREATE DATABASE "{name}"')
     engine = make_engine(Settings(database_url=url.set(database=name).render_as_string(hide_password=False)))
     try:
         yield engine
     finally:
         engine.dispose()
         with admin.connect() as connection:
-            connection.exec_driver_sql(f'DROP DATABASE "{name}" WITH (FORCE)')
+            connection.exec_driver_sql(f'DROP DATABASE `{name}`' if url.drivername == "mysql+pymysql" else f'DROP DATABASE "{name}" WITH (FORCE)')
         admin.dispose()
 
 

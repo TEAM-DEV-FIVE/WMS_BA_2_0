@@ -7,7 +7,7 @@ picking, transfer, returns and expiry adapters. No Python mutex protects stock.
 
 from collections import defaultdict
 from decimal import Decimal
-from uuid import uuid4
+from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import text
@@ -133,10 +133,11 @@ class ReservationService:
         held = defaultdict(Decimal)
         for r in self.rows(c, doc["id"]):
             held[r["line_id"]] += self.remaining(r)
-        source_held = dict(c.execute(text("""SELECT coalesce(l.source_line_id,l.id),sum(r.quantity-r.consumed-r.released)
+        # Computed UUID expressions have no UUID type metadata in MySQL.
+        source_held = {UUID(str(key)): quantity for key, quantity in c.execute(text("""SELECT coalesce(l.source_line_id,l.id),sum(r.quantity-r.consumed-r.released)
             FROM wms.reservation r JOIN wms.document_line l ON l.id=r.line_id
             WHERE l.document_id=:source OR l.source_line_id IN (SELECT id FROM wms.document_line WHERE document_id=:source)
-            GROUP BY coalesce(l.source_line_id,l.id)"""), {"source": source["id"]}).all())
+            GROUP BY coalesce(l.source_line_id,l.id)"""), {"source": source["id"]}).all()}
         free = {key: r["on_hand"] - r["reserved"] for key, r in inventory.items()}
         plan = []
         for line_id, qty in sorted(totals.items()):

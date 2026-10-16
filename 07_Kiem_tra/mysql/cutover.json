@@ -1,0 +1,130 @@
+{
+  "state": "MYSQL_ACTIVE",
+  "finished_at": "2026-10-16T12:14:44.407808+00:00",
+  "database": "wms_mysql",
+  "copied_business_tables": 108,
+  "copied_rows": 218935,
+  "reconciliation": {
+    "postgresql": {
+      "reconcile.sql": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_b24.sql": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_fulfillment.sql": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_ownership.sql": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_transfers.sql": [
+        0,
+        0,
+        0
+      ]
+    },
+    "wms": {
+      "reconcile.sql": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_b24.sql": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_fulfillment.sql": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_ownership.sql": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_transfers.sql": [
+        0,
+        0,
+        0
+      ]
+    },
+    "kws": {
+      "reconcile.sql": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_b24.sql": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_fulfillment.sql": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_ownership.sql": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "reconcile_transfers.sql": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "postgresql_preserved": true,
+  "backup_checksums_verified": true,
+  "postgresql_backup_sha256": "cd10bf24e14c94c7e9d0f96e2866c7971b328079156ec132d771ef0f70acb1c4",
+  "mysql_backup_sha256": "b14f34693d985e2fe946dfca4471f0e3ecdb6b660e663213faa182c5b4fc3a84",
+  "local_final_native_tests_passed": 42,
+  "offline_migration_tests_passed": 23,
+  "installed_wheel_probe": "PASS",
+  "hosted_ci": "NOT_VERIFIED",
+  "api_worker_readiness_at_cutover": "PASS",
+  "source_driver_after_cutover": "mysql+pymysql"
+}

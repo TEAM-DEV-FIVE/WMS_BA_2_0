@@ -31,14 +31,18 @@ class PostgresOutboxStore:
         with self.engine.begin() as connection:
             # Lock is acquired OUTSIDE the savepoint, so a failed handler cannot
             # release it before attempts/backoff are durably recorded.
+            archive_filter = ""
+            if connection.dialect.name == "mysql":
+                archive_filter = "AND NOT EXISTS (SELECT 1 FROM migration_outbox_archive a WHERE a.event_id=outbox_event.id)"
             row = connection.execute(text("""
                 SELECT id, event_type, aggregate_id, payload, occurred_at, attempts
                 FROM wms.outbox_event
                 WHERE processed_at IS NULL AND available_at <= statement_timestamp()
                   AND attempts < :maximum AND event_type IN :types AND id NOT IN :exclude
+                  {archive_filter}
                 ORDER BY available_at, id
                 LIMIT 1 FOR UPDATE SKIP LOCKED
-            """).bindparams(bindparam("types", expanding=True),
+            """.format(archive_filter=archive_filter)).bindparams(bindparam("types", expanding=True),
                               bindparam("exclude", expanding=True, type_=Uuid)),
                 {"maximum": retry.max_attempts, "types": registry.event_types, "exclude": exclude}
             ).mappings().one_or_none()

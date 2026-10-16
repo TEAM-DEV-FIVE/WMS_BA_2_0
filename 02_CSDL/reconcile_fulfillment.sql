@@ -27,13 +27,13 @@ GROUP BY rc.id HAVING sum(fc.quantity)<>rc.quantity;
 SELECT r.id AS reservation_id,r.quantity-r.consumed-r.released AS remaining,
   sum(CASE WHEN t.status='DONE' THEN t.picked_quantity ELSE t.target_quantity END-t.consumed_quantity) AS assigned
 FROM wms.reservation r JOIN wms.pick_task t ON t.reservation_id=r.id
-WHERE t.target_quantity IS NOT NULL AND t.status<>'CANCELLED' GROUP BY r.id
+WHERE t.target_quantity IS NOT NULL AND t.status<>'CANCELLED' GROUP BY r.id,r.quantity,r.consumed,r.released
 HAVING sum(CASE WHEN t.status='DONE' THEN t.picked_quantity ELSE t.target_quantity END-t.consumed_quantity)
   > r.quantity-r.consumed-r.released;
 
 SELECT t.id AS pick_task_id FROM wms.pick_task t JOIN wms.package_line l ON l.pick_task_id=t.id
 JOIN wms.package p ON p.id=l.package_id WHERE t.target_quantity IS NOT NULL AND p.status<>'CANCELLED'
-GROUP BY t.id HAVING sum(l.quantity-l.consumed_quantity)>t.picked_quantity-t.consumed_quantity
+GROUP BY t.id,t.picked_quantity,t.consumed_quantity,t.status HAVING sum(l.quantity-l.consumed_quantity)>t.picked_quantity-t.consumed_quantity
   OR (sum(l.quantity-l.consumed_quantity)>0 AND t.status<>'DONE');
 
 SELECT l.id AS package_line_id FROM wms.package_line l JOIN wms.package p ON p.id=l.package_id

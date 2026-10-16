@@ -1,0 +1,5 @@
+# Isolated staging tools only; not application runtime dependencies.
+PyMySQL==1.2.3
+SQLAlchemy==2.0.54
+psycopg[binary]==3.3.6
+sqlglot==30.23.0

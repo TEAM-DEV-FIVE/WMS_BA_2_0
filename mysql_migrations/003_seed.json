@@ -1,0 +1,1271 @@
+[
+  {
+    "table": "approval_policy",
+    "rows": [
+      {
+        "id": "00000000-0000-4000-8000-000000000101",
+        "document_kind": "PO",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000102",
+        "document_kind": "SO",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000103",
+        "document_kind": "RECEIPT",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000104",
+        "document_kind": "OPENING",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000105",
+        "document_kind": "ISSUE",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000106",
+        "document_kind": "INTERNAL_MOVE",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4110-8000-000000000001",
+        "document_kind": "TRANSFER",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4110-8000-000000000002",
+        "document_kind": "ADJUSTMENT",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000112",
+        "document_kind": "CUSTOMER_RETURN",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000113",
+        "document_kind": "SUPPLIER_RETURN",
+        "revision": 1,
+        "is_active": true
+      },
+      {
+        "id": "00000000-0000-4140-8000-000000000001",
+        "document_kind": "REVERSAL",
+        "revision": 1,
+        "is_active": true
+      }
+    ]
+  },
+  {
+    "table": "approval_policy_step",
+    "rows": [
+      {
+        "id": "00000000-0000-4000-8000-000000000111",
+        "policy_id": "00000000-0000-4000-8000-000000000101",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000112",
+        "policy_id": "00000000-0000-4000-8000-000000000102",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000113",
+        "policy_id": "00000000-0000-4000-8000-000000000103",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000114",
+        "policy_id": "00000000-0000-4000-8000-000000000104",
+        "step_no": 1,
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "alternative_role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000115",
+        "policy_id": "00000000-0000-4000-8000-000000000105",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000116",
+        "policy_id": "00000000-0000-4000-8000-000000000106",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4110-8000-000000000011",
+        "policy_id": "00000000-0000-4110-8000-000000000001",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4110-8000-000000000012",
+        "policy_id": "00000000-0000-4110-8000-000000000002",
+        "step_no": 1,
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "alternative_role_id": null
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000122",
+        "policy_id": "00000000-0000-4000-8000-000000000112",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000123",
+        "policy_id": "00000000-0000-4000-8000-000000000113",
+        "step_no": 1,
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "alternative_role_id": "63d31000-79a7-54e5-b273-163fbcb183af"
+      },
+      {
+        "id": "00000000-0000-4140-8000-000000000002",
+        "policy_id": "00000000-0000-4140-8000-000000000001",
+        "step_no": 1,
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "alternative_role_id": null
+      }
+    ]
+  },
+  {
+    "table": "location",
+    "rows": [
+      {
+        "id": "00000000-0000-4000-8000-000000000201",
+        "warehouse_id": null,
+        "parent_id": null,
+        "code": "WMS-EXTERNAL",
+        "name": "Đối ứng nhận hàng",
+        "kind": "EXTERNAL",
+        "is_active": true,
+        "version": 1
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000202",
+        "warehouse_id": null,
+        "parent_id": null,
+        "code": "WMS-OPENING",
+        "name": "Đối ứng tồn đầu kỳ",
+        "kind": "OPENING",
+        "is_active": true,
+        "version": 1
+      },
+      {
+        "id": "00000000-0000-4110-8000-000000000020",
+        "warehouse_id": null,
+        "parent_id": null,
+        "code": "WMS-TRANSFER-LOSS",
+        "name": "Đối ứng mất hàng chuyển kho",
+        "kind": "LOSS",
+        "is_active": true,
+        "version": 1
+      },
+      {
+        "id": "00000000-0000-4130-8000-000000000020",
+        "warehouse_id": null,
+        "parent_id": null,
+        "code": "WMS-COUNT-ADJUST",
+        "name": "Đối ứng điều chỉnh kiểm kê",
+        "kind": "LOSS",
+        "is_active": true,
+        "version": 1
+      }
+    ]
+  },
+  {
+    "table": "permission",
+    "rows": [
+      {
+        "id": "1529b877-7efd-5660-96be-2a116e02b30b",
+        "code": "iam.manage",
+        "scope_kind": "GLOBAL",
+        "description": "Quản lý user, khóa/thu hồi phiên"
+      },
+      {
+        "id": "a40d58cc-343e-5fe6-94e6-bd604904bc30",
+        "code": "role.manage",
+        "scope_kind": "GLOBAL",
+        "description": "Quản lý role và grant"
+      },
+      {
+        "id": "4bbdf1a4-85dd-58a4-aabd-7ddd0a50dd5d",
+        "code": "config.manage",
+        "scope_kind": "GLOBAL",
+        "description": "Cấu hình máy chủ/client và policy kỹ thuật"
+      },
+      {
+        "id": "ad0c6733-042d-582d-bb37-6d153d51d416",
+        "code": "master.read",
+        "scope_kind": "GLOBAL",
+        "description": "Xem sản phẩm, UOM, barcode, nhóm"
+      },
+      {
+        "id": "b18c1e07-d8fd-55ab-bee6-7361756e28f7",
+        "code": "master.write",
+        "scope_kind": "GLOBAL",
+        "description": "Tạo/sửa/ngừng dùng danh mục"
+      },
+      {
+        "id": "5b9f26b0-39d7-5ee5-8f90-6229595c4e16",
+        "code": "lot.correct",
+        "scope_kind": "WAREHOUSE",
+        "description": "Sửa dữ liệu lô đã có phát sinh"
+      },
+      {
+        "id": "ecb85e16-d7a5-54f4-9633-3e8fbf959f41",
+        "code": "partner.read",
+        "scope_kind": "GLOBAL",
+        "description": "Xem đối tác"
+      },
+      {
+        "id": "0f33dbab-9926-5d9f-9e79-64f762fe8d14",
+        "code": "partner.write",
+        "scope_kind": "GLOBAL",
+        "description": "Quản lý đối tác"
+      },
+      {
+        "id": "2b448d4a-5b25-5607-9922-2140184c0add",
+        "code": "warehouse.configure",
+        "scope_kind": "GLOBAL",
+        "description": "Tạo kho, vị trí và cấu hình cấu trúc"
+      },
+      {
+        "id": "585364bd-854b-577a-9613-a4b16a0bc079",
+        "code": "price.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xem giá tham chiếu/giá trị"
+      },
+      {
+        "id": "885b7c67-cfab-57dc-bd47-fd396d0c5602",
+        "code": "price.write",
+        "scope_kind": "GLOBAL",
+        "description": "Nhập giá tham chiếu mới"
+      },
+      {
+        "id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3",
+        "code": "stock.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xem tồn và thẻ kho"
+      },
+      {
+        "id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23",
+        "code": "document.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xem chứng từ"
+      },
+      {
+        "id": "dc330ee3-6578-5940-8d77-c98c42874c7d",
+        "code": "po.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Yêu cầu mua"
+      },
+      {
+        "id": "828dddce-e579-5dd7-8b3a-3e997d79be22",
+        "code": "so.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Yêu cầu bán"
+      },
+      {
+        "id": "4a0e7cff-a9a6-576d-84b6-94c0dc536019",
+        "code": "receipt.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Phiếu nhận"
+      },
+      {
+        "id": "b73e8ef2-32d5-5904-9526-59d8fcf819a8",
+        "code": "issue.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Phiếu xuất"
+      },
+      {
+        "id": "aa8ec1c9-6cde-5fdd-9791-04d1dab0f091",
+        "code": "transfer.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Lệnh chuyển"
+      },
+      {
+        "id": "2d53736e-6ea1-54e9-98b5-7b85fd7ea46b",
+        "code": "return.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Phiếu trả hàng"
+      },
+      {
+        "id": "add65f22-30b4-550f-9f06-98dab8ad6bb5",
+        "code": "move.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Chuyển vị trí"
+      },
+      {
+        "id": "0a3c7f45-d5a0-54a2-aed7-c7881d25f493",
+        "code": "adjustment.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Điều chỉnh"
+      },
+      {
+        "id": "8ef0d507-6ab3-509c-8a2a-074a64a04430",
+        "code": "opening.draft",
+        "scope_kind": "WAREHOUSE",
+        "description": "Lập/sửa/gửi duyệt Tồn đầu kỳ"
+      },
+      {
+        "id": "6f13b992-46f8-54ed-9850-2b4c2af606fd",
+        "code": "document.assign",
+        "scope_kind": "WAREHOUSE",
+        "description": "Phân công phiếu"
+      },
+      {
+        "id": "556b1a63-5bbd-5bcc-9d1d-ac693f1f5266",
+        "code": "document.approve",
+        "scope_kind": "WAREHOUSE",
+        "description": "Duyệt phiếu thông thường"
+      },
+      {
+        "id": "116687a6-a418-50bd-9ccd-afa4541447af",
+        "code": "adjustment.approve",
+        "scope_kind": "WAREHOUSE",
+        "description": "Duyệt điều chỉnh/đảo/mất hàng"
+      },
+      {
+        "id": "4bf194d9-ad1c-5336-b40a-07b5b1451a0f",
+        "code": "opening.approve",
+        "scope_kind": "WAREHOUSE",
+        "description": "Duyệt tồn đầu kỳ"
+      },
+      {
+        "id": "f9c3a896-125b-59fe-aa36-4c3282eaba78",
+        "code": "document.cancel",
+        "scope_kind": "WAREHOUSE",
+        "description": "Hủy phần chưa thực hiện/đóng thiếu"
+      },
+      {
+        "id": "340d00ea-85d3-5eb6-bfea-fc97de1432a9",
+        "code": "receipt.post",
+        "scope_kind": "WAREHOUSE",
+        "description": "Ghi nhận hàng thực nhận"
+      },
+      {
+        "id": "19e9b818-109b-57e6-868f-42583e5d8445",
+        "code": "quality.decide",
+        "scope_kind": "WAREHOUSE",
+        "description": "Kiểm tra hàng và quyết định chất lượng"
+      },
+      {
+        "id": "55bfa818-ff6a-5baf-be2a-49ce83cdb0e7",
+        "code": "move.post",
+        "scope_kind": "WAREHOUSE",
+        "description": "Ghi sổ chuyển vị trí/cất hàng"
+      },
+      {
+        "id": "35581a3e-c31d-520f-8e3e-51c0c20df87f",
+        "code": "reservation.manage",
+        "scope_kind": "WAREHOUSE",
+        "description": "Giữ/giải phóng hàng"
+      },
+      {
+        "id": "4d29ec65-18be-52bb-9063-be1aaca522ea",
+        "code": "pick.confirm",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xác nhận soạn/đóng gói"
+      },
+      {
+        "id": "4ff41209-7e9f-5d23-8d92-445d8ed6d488",
+        "code": "issue.post",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xác nhận xuất hàng"
+      },
+      {
+        "id": "e9065bd6-c712-5211-b022-2edbe72aaaaf",
+        "code": "transfer.dispatch",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xuất chuyển từ kho nguồn"
+      },
+      {
+        "id": "b89ce314-dd3c-5bb3-afe1-d421c31204ab",
+        "code": "transfer.receive",
+        "scope_kind": "WAREHOUSE",
+        "description": "Nhận chuyển tại kho đích"
+      },
+      {
+        "id": "04ac5a4a-297e-5dce-9d8a-cb8ec367910d",
+        "code": "return.post",
+        "scope_kind": "WAREHOUSE",
+        "description": "Ghi nhận khách trả/trả NCC"
+      },
+      {
+        "id": "3fd3158f-28f3-590b-94e8-0bb9bd2c8e7f",
+        "code": "return.unlinked",
+        "scope_kind": "WAREHOUSE",
+        "description": "Cho trả không có chứng từ gốc"
+      },
+      {
+        "id": "78b0bc7e-8a46-5567-bb99-e130c857febb",
+        "code": "adjustment.post",
+        "scope_kind": "WAREHOUSE",
+        "description": "Ghi điều chỉnh/đảo đã duyệt"
+      },
+      {
+        "id": "b5d67945-5f8e-56cf-9787-1fd34fca932f",
+        "code": "opening.post",
+        "scope_kind": "WAREHOUSE",
+        "description": "Ghi tồn đầu kỳ đã duyệt"
+      },
+      {
+        "id": "8eeb4adc-57db-5e40-87b4-c46254275fa1",
+        "code": "count.create",
+        "scope_kind": "WAREHOUSE",
+        "description": "Tạo phiên và khóa vị trí kiểm kê"
+      },
+      {
+        "id": "8d464a00-4fdf-536e-9987-f1f878aed6e4",
+        "code": "count.enter",
+        "scope_kind": "WAREHOUSE",
+        "description": "Nhập số đếm/đếm lại"
+      },
+      {
+        "id": "0a995c86-5fc6-56da-979b-a768ed6f1b10",
+        "code": "count.snapshot.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xem số hệ thống và chênh lệch"
+      },
+      {
+        "id": "105104ec-3bde-5f29-8a42-bbd940a3d8ea",
+        "code": "count.submit",
+        "scope_kind": "WAREHOUSE",
+        "description": "Chọn kết quả và trình điều chỉnh"
+      },
+      {
+        "id": "832f6d41-7126-5528-af61-b9011cd96566",
+        "code": "period.close",
+        "scope_kind": "WAREHOUSE",
+        "description": "Khóa kỳ"
+      },
+      {
+        "id": "e4b04aa8-a305-5c48-85e4-9bb0ff4c1fa8",
+        "code": "period.reopen",
+        "scope_kind": "WAREHOUSE",
+        "description": "Mở lại kỳ"
+      },
+      {
+        "id": "0e681db5-7f92-5bdf-bf00-23a1fc87cc42",
+        "code": "report.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xem 8 báo cáo định sẵn"
+      },
+      {
+        "id": "11d994bd-7503-595b-82fd-5d5d1982431f",
+        "code": "report.export",
+        "scope_kind": "WAREHOUSE",
+        "description": "Xuất báo cáo/tải file"
+      },
+      {
+        "id": "ede3d3d1-4f4e-532d-9061-517574f938c2",
+        "code": "print.execute",
+        "scope_kind": "WAREHOUSE",
+        "description": "In/in lại phiếu hoặc tem"
+      },
+      {
+        "id": "49231dec-004d-537f-ac90-a6a6c519b35c",
+        "code": "import.validate",
+        "scope_kind": "GLOBAL",
+        "description": "Nạp staging và chạy dry-run"
+      },
+      {
+        "id": "83ad7248-6e19-5afa-89d3-54a9fb7d64d6",
+        "code": "import.commit",
+        "scope_kind": "GLOBAL",
+        "description": "Commit dữ liệu đã dry-run"
+      },
+      {
+        "id": "4fa0b03c-16e5-5201-bccb-fe11d6cba2c3",
+        "code": "audit.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Đọc audit nghiệp vụ"
+      },
+      {
+        "id": "58793ad2-3003-5f2a-ac1e-f6f789060395",
+        "code": "audit.security.read",
+        "scope_kind": "GLOBAL",
+        "description": "Đọc audit tài khoản/quyền"
+      },
+      {
+        "id": "73eabb6b-d030-59ec-954d-f3024e7e7d07",
+        "code": "backup.operate",
+        "scope_kind": "GLOBAL",
+        "description": "Vận hành sao lưu/khôi phục"
+      },
+      {
+        "id": "10b5390f-04fb-5f52-9f9e-3ec732c9593f",
+        "code": "ownership.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Đọc phân tách tồn theo chủ sở hữu"
+      },
+      {
+        "id": "181db566-da6e-5f4b-b436-8d5cb83c53ac",
+        "code": "serial.read",
+        "scope_kind": "WAREHOUSE",
+        "description": "Tra serial và nguồn bảo hành"
+      },
+      {
+        "id": "7fd3fb40-f15b-5f89-a9e9-2b4351367421",
+        "code": "warranty.write",
+        "scope_kind": "WAREHOUSE",
+        "description": "Ghi bổ sung chứng cứ bảo hành"
+      },
+      {
+        "id": "00000000-0000-4130-8000-000000000001",
+        "code": "count.approve",
+        "scope_kind": "WAREHOUSE",
+        "description": "Duyệt kiểm kê hai bước"
+      },
+      {
+        "id": "00000000-0000-4130-8000-000000000002",
+        "code": "period.create",
+        "scope_kind": "WAREHOUSE",
+        "description": "Mở kỳ kho"
+      }
+    ]
+  },
+  {
+    "table": "role",
+    "rows": [
+      {
+        "id": "a537dc0b-aa9a-5b09-9331-e72c059cba77",
+        "code": "SYSADMIN",
+        "name": "Quản trị kỹ thuật",
+        "is_active": true
+      },
+      {
+        "id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "code": "MASTER_DATA",
+        "name": "Quản lý danh mục",
+        "is_active": true
+      },
+      {
+        "id": "123938d7-27d1-5f6c-8cc5-d3151250f9df",
+        "code": "BUYER",
+        "name": "Mua hàng",
+        "is_active": true
+      },
+      {
+        "id": "c7e10955-02fa-5747-8a4d-bdb8084103a4",
+        "code": "SELLER",
+        "name": "Bán hàng",
+        "is_active": true
+      },
+      {
+        "id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "code": "RECEIVER",
+        "name": "Nhân viên nhận",
+        "is_active": true
+      },
+      {
+        "id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "code": "PICKER",
+        "name": "Nhân viên soạn/xuất",
+        "is_active": true
+      },
+      {
+        "id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "code": "WAREHOUSE_MANAGER",
+        "name": "Quản lý kho",
+        "is_active": true
+      },
+      {
+        "id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "code": "CONTROLLER",
+        "name": "Kiểm soát/kế toán",
+        "is_active": true
+      },
+      {
+        "id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "code": "DIRECTOR",
+        "name": "Ban điều hành",
+        "is_active": true
+      },
+      {
+        "id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "code": "AUDITOR",
+        "name": "Kiểm toán",
+        "is_active": true
+      }
+    ]
+  },
+  {
+    "table": "role_permission",
+    "rows": [
+      {
+        "id": "f2493f5b-7a01-524e-af90-32bde2f0844c",
+        "role_id": "a537dc0b-aa9a-5b09-9331-e72c059cba77",
+        "permission_id": "1529b877-7efd-5660-96be-2a116e02b30b"
+      },
+      {
+        "id": "2ac0b579-fa7d-5077-b52d-bf69bdc5cb8a",
+        "role_id": "a537dc0b-aa9a-5b09-9331-e72c059cba77",
+        "permission_id": "a40d58cc-343e-5fe6-94e6-bd604904bc30"
+      },
+      {
+        "id": "20c28d78-f831-582a-96e6-a7f6529d8a33",
+        "role_id": "a537dc0b-aa9a-5b09-9331-e72c059cba77",
+        "permission_id": "4bbdf1a4-85dd-58a4-aabd-7ddd0a50dd5d"
+      },
+      {
+        "id": "3c4daa28-aeff-55a7-bd3a-a38467549071",
+        "role_id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "26128016-a457-5a26-877b-aac7b8e64e60",
+        "role_id": "123938d7-27d1-5f6c-8cc5-d3151250f9df",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "afba4695-ef9d-5ce8-82ca-7ae5a717dc4c",
+        "role_id": "c7e10955-02fa-5747-8a4d-bdb8084103a4",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "28030d96-2009-5039-a41d-346d6827f358",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "fc95d0fb-cc6f-5b0d-93ac-3dc938cffc49",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "93e421ec-7d61-5262-bfc9-e1d117bc848e",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "a1b0f465-b9b3-5fd4-ae4c-6abffd98dbcf",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "af610732-22c6-5da9-918d-257d4af7e850",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "d7828b17-a05b-5d5c-944c-c8776a8ba5c2",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "ad0c6733-042d-582d-bb37-6d153d51d416"
+      },
+      {
+        "id": "9a0e293a-e0dc-5063-bfb6-fe5dc7490260",
+        "role_id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "permission_id": "b18c1e07-d8fd-55ab-bee6-7361756e28f7"
+      },
+      {
+        "id": "87611f1d-83bf-583c-aca0-fc945de772e9",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "5b9f26b0-39d7-5ee5-8f90-6229595c4e16"
+      },
+      {
+        "id": "14cf28bb-5ed9-5612-8bf1-984dbb3f571c",
+        "role_id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "permission_id": "ecb85e16-d7a5-54f4-9633-3e8fbf959f41"
+      },
+      {
+        "id": "948d7bb2-2cd1-5251-8629-3f66a68e3099",
+        "role_id": "123938d7-27d1-5f6c-8cc5-d3151250f9df",
+        "permission_id": "ecb85e16-d7a5-54f4-9633-3e8fbf959f41"
+      },
+      {
+        "id": "214480ac-519d-5f39-8cd4-72b4c00419e1",
+        "role_id": "c7e10955-02fa-5747-8a4d-bdb8084103a4",
+        "permission_id": "ecb85e16-d7a5-54f4-9633-3e8fbf959f41"
+      },
+      {
+        "id": "cfd2c84d-83a1-55af-91e1-a58980231582",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "ecb85e16-d7a5-54f4-9633-3e8fbf959f41"
+      },
+      {
+        "id": "937d7384-1c84-560f-936b-c5b3a14d600e",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "ecb85e16-d7a5-54f4-9633-3e8fbf959f41"
+      },
+      {
+        "id": "9e90719b-86e3-533d-a179-ac7a41e99276",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "ecb85e16-d7a5-54f4-9633-3e8fbf959f41"
+      },
+      {
+        "id": "c661ebea-04ea-5401-9a97-f8133b06fbfd",
+        "role_id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "permission_id": "0f33dbab-9926-5d9f-9e79-64f762fe8d14"
+      },
+      {
+        "id": "b7790c65-34df-5418-be4b-6d2932d93c13",
+        "role_id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "permission_id": "2b448d4a-5b25-5607-9922-2140184c0add"
+      },
+      {
+        "id": "c9848642-f62e-5871-9ad6-9f0ff22e5fba",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "585364bd-854b-577a-9613-a4b16a0bc079"
+      },
+      {
+        "id": "3a8f59e6-e10f-53df-8f82-fe4bf0102e32",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "585364bd-854b-577a-9613-a4b16a0bc079"
+      },
+      {
+        "id": "e3b89d10-5406-575e-9833-dfae7f9162af",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "585364bd-854b-577a-9613-a4b16a0bc079"
+      },
+      {
+        "id": "a57acf0c-d7a4-58f2-84a5-0d4be5869f81",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "885b7c67-cfab-57dc-bd47-fd396d0c5602"
+      },
+      {
+        "id": "1cb56b06-eb45-58e8-9ed3-dadb639858bb",
+        "role_id": "123938d7-27d1-5f6c-8cc5-d3151250f9df",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "4880c0fe-8885-5a85-9673-21aefc9c61d4",
+        "role_id": "c7e10955-02fa-5747-8a4d-bdb8084103a4",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "a5477d32-beff-56f9-ac56-7f955c4f67e6",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "cfc52248-37db-5749-9b5e-a565c4249fed",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "61aecc79-c7b4-529b-ab2c-0d515a08801e",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "46d638a9-cce5-5efe-b163-4f984ee2b6ef",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "ddcf94df-958f-57a1-bbac-39f42a823527",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "3532efad-906d-5768-ab86-f9d8426f150f",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "82e0cbcc-e51d-5035-a49d-bfa1212cdbd3"
+      },
+      {
+        "id": "d41c0c8c-71df-51c6-be9a-5bbba0de87e0",
+        "role_id": "123938d7-27d1-5f6c-8cc5-d3151250f9df",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "534c1f31-fd26-5d52-8700-008cea2fa2e7",
+        "role_id": "c7e10955-02fa-5747-8a4d-bdb8084103a4",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "d9cee967-60de-574e-92cf-4a4dc3481734",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "88717914-ac0c-5b96-b02a-204394b33522",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "ef85850c-a619-5ab5-b3e5-469d61e63821",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "7e7384e8-87f6-5275-8644-3a0870593f6b",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "94441f88-6f13-5b32-aa12-80251d4c19ae",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "f01e1a6f-eb43-5a5f-9de5-9a36999b96fb",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "e04ca35d-1a53-5f91-9406-d2fffb1fab23"
+      },
+      {
+        "id": "1446da8d-e9ff-5279-8274-7a255c5e9ed4",
+        "role_id": "123938d7-27d1-5f6c-8cc5-d3151250f9df",
+        "permission_id": "dc330ee3-6578-5940-8d77-c98c42874c7d"
+      },
+      {
+        "id": "a92e20ce-afb1-5619-be32-1106f454e391",
+        "role_id": "c7e10955-02fa-5747-8a4d-bdb8084103a4",
+        "permission_id": "828dddce-e579-5dd7-8b3a-3e997d79be22"
+      },
+      {
+        "id": "93d68edd-f59f-5395-8a1b-cea1b06408ed",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "4a0e7cff-a9a6-576d-84b6-94c0dc536019"
+      },
+      {
+        "id": "04599d39-6617-567d-9809-f5598a0763dd",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "b73e8ef2-32d5-5904-9526-59d8fcf819a8"
+      },
+      {
+        "id": "6c065385-cf94-5278-8682-d45dd8fc30ac",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "aa8ec1c9-6cde-5fdd-9791-04d1dab0f091"
+      },
+      {
+        "id": "53d8faf2-7651-520c-8d60-dc6276d53560",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "2d53736e-6ea1-54e9-98b5-7b85fd7ea46b"
+      },
+      {
+        "id": "4fe6105e-083a-560d-a1dd-ed1a258f4068",
+        "role_id": "123938d7-27d1-5f6c-8cc5-d3151250f9df",
+        "permission_id": "2d53736e-6ea1-54e9-98b5-7b85fd7ea46b"
+      },
+      {
+        "id": "87f8d592-c5a8-5e60-940e-29fee60079cb",
+        "role_id": "c7e10955-02fa-5747-8a4d-bdb8084103a4",
+        "permission_id": "2d53736e-6ea1-54e9-98b5-7b85fd7ea46b"
+      },
+      {
+        "id": "ea0ae2dd-44ce-5d95-8f79-1616218c5445",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "add65f22-30b4-550f-9f06-98dab8ad6bb5"
+      },
+      {
+        "id": "9a7f148b-1a84-5678-9ede-d173ab746d1b",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "add65f22-30b4-550f-9f06-98dab8ad6bb5"
+      },
+      {
+        "id": "8f3595d7-f6e8-578b-82a6-4e91b257d761",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "0a3c7f45-d5a0-54a2-aed7-c7881d25f493"
+      },
+      {
+        "id": "835147bc-fbc0-5f0d-aa0a-f6d01f10c325",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "8ef0d507-6ab3-509c-8a2a-074a64a04430"
+      },
+      {
+        "id": "e278e459-3e9e-500a-81e8-3fa53d21e26f",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "6f13b992-46f8-54ed-9850-2b4c2af606fd"
+      },
+      {
+        "id": "e51dbf95-afa0-5eb5-adc2-c87ef74cfce5",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "556b1a63-5bbd-5bcc-9d1d-ac693f1f5266"
+      },
+      {
+        "id": "c3508720-9c24-502a-b878-ab734e7d8a21",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "116687a6-a418-50bd-9ccd-afa4541447af"
+      },
+      {
+        "id": "9e4e2121-a2a4-5f3d-84be-cf4e105a0a32",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "4bf194d9-ad1c-5336-b40a-07b5b1451a0f"
+      },
+      {
+        "id": "2c1d07df-b512-535c-9b45-54ad98fa48f7",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "4bf194d9-ad1c-5336-b40a-07b5b1451a0f"
+      },
+      {
+        "id": "9901131b-00ca-537a-8c49-fa59e2df129b",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "f9c3a896-125b-59fe-aa36-4c3282eaba78"
+      },
+      {
+        "id": "0df1466e-9692-5e24-8bcb-61f8a0485218",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "340d00ea-85d3-5eb6-bfea-fc97de1432a9"
+      },
+      {
+        "id": "44285b9b-ae63-5731-ba2d-ee6ce57d75ea",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "340d00ea-85d3-5eb6-bfea-fc97de1432a9"
+      },
+      {
+        "id": "be57bf2c-61bd-5ca3-ac32-4d3ef4f6d2a8",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "19e9b818-109b-57e6-868f-42583e5d8445"
+      },
+      {
+        "id": "7aba0128-b0fa-5785-9b58-ef0211b48044",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "55bfa818-ff6a-5baf-be2a-49ce83cdb0e7"
+      },
+      {
+        "id": "96cdbd4d-58eb-547a-ac6d-b6e5961b9288",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "55bfa818-ff6a-5baf-be2a-49ce83cdb0e7"
+      },
+      {
+        "id": "7c952a86-f861-5c18-ab28-d8a0572e5e2d",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "35581a3e-c31d-520f-8e3e-51c0c20df87f"
+      },
+      {
+        "id": "831cb894-4047-5308-a1cd-cd015df5dbc6",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "35581a3e-c31d-520f-8e3e-51c0c20df87f"
+      },
+      {
+        "id": "c20f6272-5967-5156-8b21-706451ff809d",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "4d29ec65-18be-52bb-9063-be1aaca522ea"
+      },
+      {
+        "id": "72e717dd-95b4-5047-a23b-ef82f834fd96",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "4d29ec65-18be-52bb-9063-be1aaca522ea"
+      },
+      {
+        "id": "e2f8acf6-3934-58ec-8bff-a01275896732",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "4ff41209-7e9f-5d23-8d92-445d8ed6d488"
+      },
+      {
+        "id": "2b635ab1-48b7-5bf0-a055-e0ad25898f8f",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "4ff41209-7e9f-5d23-8d92-445d8ed6d488"
+      },
+      {
+        "id": "2e6d910e-8d04-5783-87ac-1d46466ebaac",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "e9065bd6-c712-5211-b022-2edbe72aaaaf"
+      },
+      {
+        "id": "5249a9e5-416d-56ef-ba82-59ff2e55b66d",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "e9065bd6-c712-5211-b022-2edbe72aaaaf"
+      },
+      {
+        "id": "e3200d3f-2a0c-5fa4-93ed-726b3583a156",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "b89ce314-dd3c-5bb3-afe1-d421c31204ab"
+      },
+      {
+        "id": "5426898c-b0af-58b8-9c60-797767c4fa2b",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "b89ce314-dd3c-5bb3-afe1-d421c31204ab"
+      },
+      {
+        "id": "5b59ae15-545b-5e3a-8fb5-68e38b1757ea",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "04ac5a4a-297e-5dce-9d8a-cb8ec367910d"
+      },
+      {
+        "id": "fa782dce-7726-5b32-a3a9-e76b74f44829",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "3fd3158f-28f3-590b-94e8-0bb9bd2c8e7f"
+      },
+      {
+        "id": "cb267dd5-ded4-5758-94eb-1b9e01d78912",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "78b0bc7e-8a46-5567-bb99-e130c857febb"
+      },
+      {
+        "id": "3412f09b-15b9-5e96-b002-70f7f18f0f04",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "b5d67945-5f8e-56cf-9787-1fd34fca932f"
+      },
+      {
+        "id": "764b61f4-5a3b-58bb-afb7-ecce53be322e",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "8eeb4adc-57db-5e40-87b4-c46254275fa1"
+      },
+      {
+        "id": "5806a8e0-c7be-5731-86a3-456917a5e7c0",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "8d464a00-4fdf-536e-9987-f1f878aed6e4"
+      },
+      {
+        "id": "bbfb2349-24a4-5894-9169-72c01a9f72e3",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "8d464a00-4fdf-536e-9987-f1f878aed6e4"
+      },
+      {
+        "id": "2e79fd44-458e-543c-acab-00b8dd2db9aa",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "8d464a00-4fdf-536e-9987-f1f878aed6e4"
+      },
+      {
+        "id": "acfd2f3e-7b46-5fb4-baac-090362535dc8",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "0a995c86-5fc6-56da-979b-a768ed6f1b10"
+      },
+      {
+        "id": "3a085c63-68f1-506c-85c3-daf0a0319462",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "0a995c86-5fc6-56da-979b-a768ed6f1b10"
+      },
+      {
+        "id": "6d48a805-6b2e-5af2-87d1-d2faebd10a96",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "0a995c86-5fc6-56da-979b-a768ed6f1b10"
+      },
+      {
+        "id": "b1d4a0f0-53f4-51f7-8fa5-5a284a9d2704",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "105104ec-3bde-5f29-8a42-bbd940a3d8ea"
+      },
+      {
+        "id": "4781814f-e781-55ba-b9b6-db4747e0a26b",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "832f6d41-7126-5528-af61-b9011cd96566"
+      },
+      {
+        "id": "e99089b7-0613-5d6e-a1da-e601c0f917f5",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "e4b04aa8-a305-5c48-85e4-9bb0ff4c1fa8"
+      },
+      {
+        "id": "751b59d8-8fb5-5bd7-8c55-d9815b44266a",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "0e681db5-7f92-5bdf-bf00-23a1fc87cc42"
+      },
+      {
+        "id": "5a73d5c8-5f30-51d6-a5a2-880a62ea8576",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "0e681db5-7f92-5bdf-bf00-23a1fc87cc42"
+      },
+      {
+        "id": "fbb3ead5-5061-512b-a8f4-0f55de410ec0",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "0e681db5-7f92-5bdf-bf00-23a1fc87cc42"
+      },
+      {
+        "id": "23b2a51f-b3c2-5f4c-aac0-24e997417763",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "0e681db5-7f92-5bdf-bf00-23a1fc87cc42"
+      },
+      {
+        "id": "6fcc826d-1ffb-5292-aa87-c000c9c39792",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "11d994bd-7503-595b-82fd-5d5d1982431f"
+      },
+      {
+        "id": "b9e2ebf3-94ce-58eb-9082-20d94e737fdb",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "11d994bd-7503-595b-82fd-5d5d1982431f"
+      },
+      {
+        "id": "1a850e6c-cbaf-5740-a951-78ce21b17260",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "11d994bd-7503-595b-82fd-5d5d1982431f"
+      },
+      {
+        "id": "1d13f9b7-f7c2-54ba-b9fc-a2d0588b53c5",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "ede3d3d1-4f4e-532d-9061-517574f938c2"
+      },
+      {
+        "id": "1fc5b552-0436-5eda-90cf-3f848d1061b1",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "ede3d3d1-4f4e-532d-9061-517574f938c2"
+      },
+      {
+        "id": "dce44da8-3a7f-5b56-8211-859176424935",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "ede3d3d1-4f4e-532d-9061-517574f938c2"
+      },
+      {
+        "id": "ecae3a91-f211-5ef5-a0a2-a97e34afc570",
+        "role_id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "permission_id": "49231dec-004d-537f-ac90-a6a6c519b35c"
+      },
+      {
+        "id": "c074c4d8-550f-53aa-9fb3-77ff3d37e5dc",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "49231dec-004d-537f-ac90-a6a6c519b35c"
+      },
+      {
+        "id": "c2d8c80d-4f72-5210-874f-9e70e7a6b01c",
+        "role_id": "4ee0eb13-4690-5c96-b2ad-eeb4535c3589",
+        "permission_id": "83ad7248-6e19-5afa-89d3-54a9fb7d64d6"
+      },
+      {
+        "id": "8231f187-7560-5fa2-9d79-04f62e7e3a74",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "83ad7248-6e19-5afa-89d3-54a9fb7d64d6"
+      },
+      {
+        "id": "2a22f7ad-2bd3-5834-9677-d391f20b817e",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "4fa0b03c-16e5-5201-bccb-fe11d6cba2c3"
+      },
+      {
+        "id": "07476a74-808d-5851-accc-f7329ca72a56",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "4fa0b03c-16e5-5201-bccb-fe11d6cba2c3"
+      },
+      {
+        "id": "0ecd5936-472a-5dc8-b91b-15881f627381",
+        "role_id": "a537dc0b-aa9a-5b09-9331-e72c059cba77",
+        "permission_id": "58793ad2-3003-5f2a-ac1e-f6f789060395"
+      },
+      {
+        "id": "2371e90b-09fc-5e85-aa60-18a7bbc35b55",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "58793ad2-3003-5f2a-ac1e-f6f789060395"
+      },
+      {
+        "id": "11be8f6a-f8e0-5588-b8e5-2b55d4bdc56c",
+        "role_id": "a537dc0b-aa9a-5b09-9331-e72c059cba77",
+        "permission_id": "73eabb6b-d030-59ec-954d-f3024e7e7d07"
+      },
+      {
+        "id": "dcc98749-f700-5935-99fb-461357272d27",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "556b1a63-5bbd-5bcc-9d1d-ac693f1f5266"
+      },
+      {
+        "id": "e81c64d0-a924-5791-98a8-e5f459a98e40",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "10b5390f-04fb-5f52-9f9e-3ec732c9593f"
+      },
+      {
+        "id": "3228e519-f9bd-5aec-9546-365f8f65041d",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "10b5390f-04fb-5f52-9f9e-3ec732c9593f"
+      },
+      {
+        "id": "065c07c5-6d1e-5585-b24a-28d4b1db07bb",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "10b5390f-04fb-5f52-9f9e-3ec732c9593f"
+      },
+      {
+        "id": "b49fb996-3532-565c-bbef-6ace814670c2",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "10b5390f-04fb-5f52-9f9e-3ec732c9593f"
+      },
+      {
+        "id": "a7c72e05-e979-53f9-add4-c8864e3cda7b",
+        "role_id": "b3f5273c-3264-57b7-9913-84c4901c558b",
+        "permission_id": "181db566-da6e-5f4b-b436-8d5cb83c53ac"
+      },
+      {
+        "id": "31eb9a68-b84e-59c2-a6eb-4d5779b3fe04",
+        "role_id": "73201512-f523-537d-a085-83d8c3ac9c7c",
+        "permission_id": "181db566-da6e-5f4b-b436-8d5cb83c53ac"
+      },
+      {
+        "id": "f497d966-411c-529e-94cf-855f2efb9297",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "181db566-da6e-5f4b-b436-8d5cb83c53ac"
+      },
+      {
+        "id": "10c08970-c5f1-5fb2-af6d-01a1f59cb1bf",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "181db566-da6e-5f4b-b436-8d5cb83c53ac"
+      },
+      {
+        "id": "19a9d356-d0cb-5198-b347-36012382815f",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "181db566-da6e-5f4b-b436-8d5cb83c53ac"
+      },
+      {
+        "id": "eddd005b-9f13-5c88-8793-9cdf2b3f5041",
+        "role_id": "f9347f78-07dc-59a8-9210-57a9cf30e068",
+        "permission_id": "181db566-da6e-5f4b-b436-8d5cb83c53ac"
+      },
+      {
+        "id": "09dfff09-fcda-5a3b-ba8a-4ed983049fb3",
+        "role_id": "b76327dd-3734-5392-b626-fbe010a2a0d0",
+        "permission_id": "7fd3fb40-f15b-5f89-a9e9-2b4351367421"
+      },
+      {
+        "id": "05a5206b-b644-5a0a-9909-bbaf39d5bdb9",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "7fd3fb40-f15b-5f89-a9e9-2b4351367421"
+      },
+      {
+        "id": "90e5114c-3691-f1b1-5e6a-0ebe76ffb94c",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "00000000-0000-4130-8000-000000000001"
+      },
+      {
+        "id": "1880b713-9060-1e13-2c64-d84ba843eda0",
+        "role_id": "63d31000-79a7-54e5-b273-163fbcb183af",
+        "permission_id": "00000000-0000-4130-8000-000000000002"
+      },
+      {
+        "id": "21e55178-d783-48cc-1d1b-11306fff8e03",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "0a995c86-5fc6-56da-979b-a768ed6f1b10"
+      },
+      {
+        "id": "33e6c104-cd01-30be-4029-413df1fd3a32",
+        "role_id": "4ea5fcd0-3312-55be-ad61-f3c076ae8475",
+        "permission_id": "00000000-0000-4130-8000-000000000001"
+      }
+    ]
+  },
+  {
+    "table": "stock_owner",
+    "rows": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "code": "COMPANY",
+        "name": "Hàng thuộc doanh nghiệp",
+        "kind": "COMPANY",
+        "partner_id": null,
+        "is_active": true,
+        "version": 1
+      },
+      {
+        "id": "00000000-0000-4000-8000-000000000002",
+        "code": "UNCLASSIFIED",
+        "name": "Chưa phân loại chủ sở hữu",
+        "kind": "UNCLASSIFIED",
+        "partner_id": null,
+        "is_active": true,
+        "version": 1
+      }
+    ]
+  }
+]

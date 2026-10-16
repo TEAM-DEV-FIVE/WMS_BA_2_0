@@ -121,7 +121,9 @@ def test_reports_boundary_internal_moves_inverse_and_stable_paging(movement):
     f.iam.grant(f.buyer, "CONTROLLER", f.warehouse)
     source, moved = f.putaway()
     whole = rows(f, "R02")[0]
-    assert (whole["inbound"], whole["outbound"], whole["closing"]) == ("80.000000", "0", "80.000000")
+    # Both engines return exact decimal strings; aggregate zero may carry scale.
+    assert all(isinstance(whole[key], str) for key in ("inbound", "outbound", "closing"))
+    assert tuple(Decimal(whole[key]) for key in ("inbound", "outbound", "closing")) == (80, 0, 80)
     bins = rows(f, "R02", location_ids=[f.bin["id"], f.quarantine["id"]])[0]
     assert Decimal(bins["inbound"]) == 80 and Decimal(bins["outbound"]) == 0
     snapshot_before = ok(snapshot(f, "R03"), 201)
@@ -474,7 +476,7 @@ def test_exports_current_permission_before_download_even_after_ready(reports, pe
 
 
 def test_reports_quota_race_and_snapshot_immutability(reports, monkeypatch):
-    from sqlalchemy.exc import ProgrammingError
+    from sqlalchemy.exc import DatabaseError
 
     f = reports
     monkeypatch.setattr("apps.server.application.reports.MAX_ACTIVE", 1)
@@ -482,7 +484,7 @@ def test_reports_quota_race_and_snapshot_immutability(reports, monkeypatch):
         result = list(pool.map(lambda _: snapshot(f), range(2)))
     assert sorted(r.status_code for r in result) == [201, 409]
     report = next(r.json() for r in result if r.status_code == 201)
-    with pytest.raises(ProgrammingError), f.engine.begin() as c:
+    with pytest.raises(DatabaseError, match="append-only relation"), f.engine.begin() as c:
         c.execute(
             text("UPDATE wms.report_snapshot_row SET payload='{}' WHERE snapshot_id=:id"),
             {"id": report["id"]},

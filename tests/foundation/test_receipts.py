@@ -6,6 +6,8 @@ import pytest
 from sqlalchemy import text
 from test_orders import ok, orders  # noqa: F401
 
+from apps.server.infrastructure.reconciliation import reconciliation_results
+
 pytestmark = pytest.mark.integration
 
 
@@ -350,7 +352,10 @@ def test_receipt_deadlock_retries_whole_transaction_with_same_key(receiving, mon
         original(c, *args, **kwargs)
         attempts.append(1)
         if len(attempts) <= failures:
-            c.exec_driver_sql("DO $$ BEGIN RAISE EXCEPTION 'test deadlock' USING ERRCODE='40P01'; END $$")
+            if c.dialect.name == "mysql":
+                c.exec_driver_sql("SIGNAL SQLSTATE '40001' SET MYSQL_ERRNO=1213, MESSAGE_TEXT='test deadlock'")
+            else:
+                c.exec_driver_sql("DO $$ BEGIN RAISE EXCEPTION 'test deadlock' USING ERRCODE='40P01'; END $$")
 
     monkeypatch.setattr(f.iam.client.app.state.orders, "effects", fail)
     response = f.post(doc, f.post_body(doc), key)
@@ -452,13 +457,8 @@ def test_receipt_batch_serial_rollback_and_reconciliation(receiving, monkeypatch
     with f.engine.connect() as c:
         root = Path(__file__).resolve().parents[2]
         for name in ["reconcile.sql", "reconcile_ownership.sql"]:
-            with c.connection.driver_connection.cursor() as cursor:
-                cursor.execute((root / "02_CSDL" / name).read_text())
-                while True:
-                    if cursor.description:
-                        assert cursor.fetchall() == []
-                    if not cursor.nextset():
-                        break
+            for rows in reconciliation_results(c, (root / "02_CSDL" / name).read_text()):
+                assert rows == []
 
 
 @pytest.mark.gui

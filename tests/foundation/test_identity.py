@@ -337,7 +337,8 @@ def test_desktop_login_mfa_and_revocation_over_real_http(iam):
         view.selector.current(0)
         view.select_warehouse()
         wait_for("Đã chọn kho")
-        assert "receipt.post" in view.permissions.get()
+        assert "receipt.post" in view.permission_codes
+        assert view.permissions.get() == f"Được cấp {len(view.permission_codes)} quyền tại kho"
         with iam.engine.begin() as connection:
             connection.execute(text("UPDATE wms.app_user SET is_active=false WHERE id=:id"), {"id": user})
         view.reload()

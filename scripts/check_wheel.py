@@ -30,7 +30,7 @@ from uuid import uuid4
 
 prefix = Path(sys.prefix).resolve()
 source = Path(sys.argv[1]).resolve()
-for name in ("apps", "packages", "migrations"):
+for name in ("apps", "packages", "migrations", "mysql_migrations"):
     package = importlib.import_module(name)
     modules = [package] + [importlib.import_module(m.name) for m in pkgutil.walk_packages(package.__path__, name + ".")]
     for module in modules:
@@ -44,9 +44,9 @@ for entry in distribution("wms-lan").entry_points:
 
 expected = json.loads(Path("resources.json").read_text(encoding="utf-8"))
 actual = {}
-for package in ("migrations", "apps.desktop.local_store", "apps.server.printing_assets"):
+for package in ("migrations", "mysql_migrations", "apps.desktop.local_store", "apps.server.printing_assets"):
     for path in files(package).iterdir():
-        if path.name.endswith((".sql", ".ttf", ".txt")):
+        if path.name.endswith((".sql", ".json", ".ttf", ".txt")):
             actual[package + "/" + path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
 assert actual == expected, "Wheel SQL resources differ from source"
 
@@ -56,6 +56,10 @@ from apps.server.infrastructure.migrations import expected_revisions
 from apps.desktop.local_store.store import LocalStore
 from fastapi.testclient import TestClient
 assert expected_revisions()
+from apps.server.infrastructure.mysql_migrations import assets
+from apps.server.infrastructure.mysql_sql import translate
+assert len(assets()) == 6
+assert "`role`" in translate("SELECT * FROM wms.role")
 with TestClient(create_app(Settings(database_url="postgresql+psycopg://localhost/unused"))) as client:
     assert client.get("/api/v1/health").status_code == 200
     assert client.get("/api/v1/openapi.json").json()["paths"]
@@ -68,7 +72,7 @@ finally:
 from apps.server.application.print_render import render
 pdf=render(dict(template="LOCATION_LABEL",paper="80x40",header=dict(number="K01",name="Kho tiếng Việt",barcode="K01",symbology="QR")))
 assert pdf.startswith(b"%PDF-")
-print("PASS installed WMS modules/entry points, OpenAPI, health, PG SQL checksums and SQLite migrations outside repo")
+print("PASS installed WMS modules/entry points, OpenAPI, health, PG/MySQL assets and SQLite migrations outside repo")
 '''
 
 
@@ -94,15 +98,16 @@ def main():
         purelib = Path(subprocess.check_output(
             [str(python), "-I", "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"], text=True,
         ).strip())
-        dependencies = sorted({sysconfig.get_path("purelib"), sysconfig.get_path("platlib")})
+        dependencies = sorted({sysconfig.get_path("purelib"), sysconfig.get_path("platlib")} |
+                              {str(Path(path).resolve()) for path in sys.path if Path(path).name == "site-packages"})
         (purelib / "locked_dependencies.pth").write_text("\n".join(dependencies) + "\n", encoding="utf-8")
         status = logged_run([python, "-m", "pip", "install", "--ignore-installed", "--no-deps", "--no-index", wheel],
                             report.with_suffix(".install.log"), cwd=directory, env=environment)
         if status == 0:
             resources = {package + "/" + path.name: hashlib.sha256(path.read_bytes()).hexdigest()
-                         for package in ("migrations", "apps.desktop.local_store", "apps.server.printing_assets")
+                         for package in ("migrations", "mysql_migrations", "apps.desktop.local_store", "apps.server.printing_assets")
                          for path in (ROOT / package.replace(".", "/")).iterdir()
-                         if path.suffix in {".sql", ".ttf", ".txt"}}
+                         if path.suffix in {".sql", ".json", ".ttf", ".txt"}}
             (directory / "resources.json").write_text(json.dumps(resources), encoding="utf-8")
             status = logged_run([python, "-I", "-c", PROBE, ROOT], report.with_suffix(".log"),
                                 cwd=directory, env=environment)

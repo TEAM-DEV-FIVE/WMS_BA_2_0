@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "tables": [
+    "CREATE TABLE transaction_lock(lock_key CHAR(32) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY) ENGINE=InnoDB",
+    "CREATE TABLE session_lock_reader(lock_key CHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,reader_key VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY,KEY ix_lock_key(lock_key)) ENGINE=InnoDB",
+    "CREATE TABLE order_number_sequence(value BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY) ENGINE=InnoDB",
+    "CREATE TABLE migration_outbox_archive(event_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY, reason VARCHAR(100) NOT NULL, archived_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), CONSTRAINT fk_migration_archive_event FOREIGN KEY(event_id) REFERENCES outbox_event(id)) ENGINE=InnoDB"
+  ],
+  "sequences": {
+    "order_number_seq": "order_number_sequence"
+  },
+  "triggers": [
+    "CREATE TRIGGER trg_migration_archived_outbox_update BEFORE UPDATE ON outbox_event FOR EACH ROW BEGIN IF EXISTS(SELECT 1 FROM migration_outbox_archive WHERE event_id=OLD.id) THEN SIGNAL SQLSTATE '23000' SET MYSQL_ERRNO=3819, MESSAGE_TEXT='Imported outbox history cannot be replayed'; END IF; END",
+    "CREATE TRIGGER trg_migration_archive_update BEFORE UPDATE ON migration_outbox_archive FOR EACH ROW SIGNAL SQLSTATE '23000' SET MYSQL_ERRNO=3819, MESSAGE_TEXT='Migration archive is immutable'",
+    "CREATE TRIGGER trg_migration_archive_delete BEFORE DELETE ON migration_outbox_archive FOR EACH ROW SIGNAL SQLSTATE '23000' SET MYSQL_ERRNO=3819, MESSAGE_TEXT='Migration archive is immutable'"
+  ],
+  "indexes": [
+    "CREATE INDEX ix_print_task_claim ON print_task(available_at,id)",
+    "CREATE INDEX ix_print_task_lease ON print_task(status,lease_until,id)",
+    "CREATE INDEX ix_export_task_lease ON export_task(status,lease_until,id)",
+    "CREATE INDEX ix_import_task_lease ON import_task(state,lease_until,id)"
+  ]
+}

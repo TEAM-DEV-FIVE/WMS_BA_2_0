@@ -1,0 +1,1969 @@
+{
+  "format": 1,
+  "status": "STAGING_ONLY",
+  "tables": [
+    "CREATE TABLE `app_user` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `username` VARCHAR(100) NOT NULL,\n  `display_name` VARCHAR(200) NOT NULL,\n  `password_hash` LONGTEXT NOT NULL,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `app_user_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `auth_version` INT NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `app_user_auth_version_check` CHECK ((`auth_version` >= 0)),\n  UNIQUE KEY `app_user_username_key` (`username`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `approval_policy` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_kind` VARCHAR(30) NOT NULL,\n  `revision` INT NOT NULL,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `approval_policy_is_active_bool` CHECK (`is_active` IN (0,1)),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `approval_policy_document_kind_revision_key` (`document_kind`,`revision`),\n  `_uq_uq_active_policy_0` VARCHAR(30) GENERATED ALWAYS AS (CASE WHEN `is_active` THEN `document_kind` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_active_policy` (`_uq_uq_active_policy_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `approval_policy_step` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `policy_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `step_no` INT NOT NULL,\n  `role_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `alternative_role_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `approval_policy_step_step_no_check` CHECK (((`step_no` >= 1) AND (`step_no` <= 2))),\n  UNIQUE KEY `approval_policy_step_policy_id_step_no_key` (`policy_id`,`step_no`),\n  KEY `ix_approval_policy_step_policy_id` (`policy_id`),\n  KEY `ix_approval_policy_step_role_id` (`role_id`),\n  KEY `ix_policy_alternative_role` (`alternative_role_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `approval_request` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_version` INT NOT NULL,\n  `policy_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `requested_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `status` VARCHAR(20) NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `content_snapshot` JSON,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `approval_request_status_check` CHECK (((`status`) IN ('PENDING', 'APPROVED', 'REJECTED', 'INVALIDATED'))),\n  UNIQUE KEY `approval_request_document_id_document_version_key` (`document_id`,`document_version`),\n  KEY `ix_approval_request_document_id` (`document_id`),\n  KEY `ix_approval_request_policy_id` (`policy_id`),\n  KEY `ix_approval_request_requested_by` (`requested_by`),\n  `_uq_uq_pending_approval_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN ((`status`) = 'PENDING') THEN `document_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_pending_approval` (`_uq_uq_pending_approval_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `approval_step` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `request_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `step_no` INT NOT NULL,\n  `required_role_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `status` VARCHAR(20) NOT NULL,\n  `decided_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `decided_at` DATETIME(6),\n  `comment` LONGTEXT,\n  `alternative_role_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `approval_step_status_check` CHECK (((`status`) IN ('PENDING', 'APPROVED', 'REJECTED'))),\n  CONSTRAINT `approval_step_step_no_check` CHECK (((`step_no` >= 1) AND (`step_no` <= 2))),\n  UNIQUE KEY `approval_step_request_id_step_no_key` (`request_id`,`step_no`),\n  KEY `ix_approval_step_decided_by` (`decided_by`),\n  KEY `ix_approval_step_request_id` (`request_id`),\n  KEY `ix_approval_step_required_role_id` (`required_role_id`),\n  KEY `ix_step_alternative_role` (`alternative_role_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `audit_event` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `actor_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `action` VARCHAR(100) NOT NULL,\n  `entity_type` VARCHAR(80) NOT NULL,\n  `entity_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `request_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `occurred_at` DATETIME(6) NOT NULL,\n  `before_data` JSON,\n  `after_data` JSON,\n  `reason` LONGTEXT,\n  PRIMARY KEY (`id`),\n  KEY `ix_audit_event_actor_id` (`actor_id`),\n  KEY `ix_audit_event_warehouse_id` (`warehouse_id`),\n  KEY `ix_audit_time` (`warehouse_id`,`occurred_at`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_challenge` (\n  `token_hash` CHAR(64) NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `device_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `auth_version` INT NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `consumed_at` DATETIME(6),\n  PRIMARY KEY (`token_hash`),\n  KEY `ix_auth_challenge_user` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_contact` (\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` VARCHAR(10) NOT NULL,\n  `value` VARCHAR(512) NOT NULL,\n  `verified_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`user_id`,`kind`),\n  CONSTRAINT `auth_contact_kind_check` CHECK ((`kind` IN ('email', 'sms'))),\n  UNIQUE KEY `auth_contact_kind_value_key` (`kind`,`value`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_contact_challenge` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` LONGTEXT NOT NULL,\n  `value` LONGTEXT NOT NULL,\n  `code_hash` CHAR(64) NOT NULL,\n  `auth_version` INT NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `consumed_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `auth_contact_challenge_kind_check` CHECK ((`kind` IN ('email', 'sms')))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_delivery` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `auth_version` INT NOT NULL,\n  `ciphertext` LONGTEXT,\n  `expires_at` DATETIME(6) NOT NULL,\n  `attempts` INT NOT NULL DEFAULT (0),\n  `lease_until` DATETIME(6),\n  `lease_token` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `completed_at` DATETIME(6),\n  `last_error` LONGTEXT,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `auth_delivery_attempts_check` CHECK ((`attempts` >= 0)),\n  CONSTRAINT `auth_delivery_last_error_check` CHECK (((`last_error` IS NULL) OR (`last_error` = 'DELIVERY_FAILED'))),\n  KEY `ix_auth_delivery_pending` (`expires_at`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_google_flow` (\n  `state_hash` CHAR(64) NOT NULL,\n  `nonce_hash` CHAR(64) NOT NULL,\n  `verifier_ciphertext` LONGTEXT,\n  `redirect_uri` LONGTEXT NOT NULL,\n  `device_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `auth_version` INT,\n  `expires_at` DATETIME(6) NOT NULL,\n  `consumed_at` DATETIME(6),\n  PRIMARY KEY (`state_hash`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_google_identity` (\n  `subject` VARCHAR(255) NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `linked_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`subject`),\n  UNIQUE KEY `auth_google_identity_user_id_key` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_password_reset` (\n  `token_hash` CHAR(64) NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `issued_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `auth_version` INT NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `consumed_at` DATETIME(6),\n  PRIMARY KEY (`token_hash`),\n  CONSTRAINT `auth_password_reset_check` CHECK ((`expires_at` > `created_at`)),\n  CONSTRAINT `auth_password_reset_check1` CHECK ((`user_id` <> `issued_by`)),\n  KEY `ix_auth_password_reset_user` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_recovery_code` (\n  `code_hash` CHAR(64) NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `consumed_at` DATETIME(6),\n  `revoked_at` DATETIME(6),\n  PRIMARY KEY (`code_hash`),\n  KEY `ix_auth_recovery_user` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_self_reset` (\n  `token_hash` CHAR(64) NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` LONGTEXT NOT NULL,\n  `contact_value` LONGTEXT NOT NULL,\n  `auth_version` INT NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `consumed_at` DATETIME(6),\n  PRIMARY KEY (`token_hash`),\n  KEY `ix_auth_self_reset_user` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_session` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `refresh_hash` VARCHAR(64) NOT NULL,\n  `device_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `auth_version` INT NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `revoked_at` DATETIME(6),\n  `mfa_verified_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `auth_session_refresh_hash_key` (`refresh_hash`),\n  KEY `ix_auth_session_user_id` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_throttle` (\n  `key` CHAR(64) NOT NULL,\n  `failures` INT NOT NULL,\n  `window_started_at` DATETIME(6) NOT NULL,\n  `blocked_until` DATETIME(6),\n  PRIMARY KEY (`key`),\n  CONSTRAINT `auth_throttle_failures_check` CHECK ((`failures` >= 0))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `auth_token` (\n  `token_hash` CHAR(64) NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` VARCHAR(10) NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `used_at` DATETIME(6),\n  PRIMARY KEY (`token_hash`),\n  CONSTRAINT `auth_token_check` CHECK ((`expires_at` > `created_at`)),\n  CONSTRAINT `auth_token_kind_check` CHECK (((`kind`) IN ('ACCESS', 'REFRESH'))),\n  KEY `ix_auth_token_session` (`session_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `barcode` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(160) NOT NULL,\n  `product_uom_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `barcode_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `version` INT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `barcode_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `barcode_code_key` (`code`),\n  KEY `ix_barcode_product_uom_id` (`product_uom_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `client_release` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `version` VARCHAR(40) NOT NULL,\n  `os` VARCHAR(20) NOT NULL,\n  `architecture` VARCHAR(20) NOT NULL,\n  `api_major` INT NOT NULL,\n  `sha256` CHAR(64) NOT NULL,\n  `download_uri` LONGTEXT NOT NULL,\n  `is_minimum` BOOLEAN NOT NULL,\n  CONSTRAINT `client_release_is_minimum_bool` CHECK (`is_minimum` IN (0,1)),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `client_release_version_os_architecture_key` (`version`,`os`,`architecture`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `consignment_agreement` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(80) NOT NULL,\n  `owner_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `valid_from` DATE NOT NULL,\n  `valid_until` DATE NOT NULL,\n  `source_ref` LONGTEXT NOT NULL,\n  `is_active` BOOLEAN NOT NULL DEFAULT (TRUE),\n  CONSTRAINT `consignment_agreement_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `version` INT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `consignment_agreement_check` CHECK ((`valid_until` >= `valid_from`)),\n  CONSTRAINT `consignment_agreement_source_ref_check` CHECK ((CHAR_LENGTH(TRIM(`source_ref`)) >= 3)),\n  CONSTRAINT `consignment_agreement_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `consignment_agreement_code_key` (`code`),\n  KEY `ix_agreement_owner` (`owner_id`),\n  KEY `ix_agreement_warehouse` (`warehouse_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `consignment_receipt` (\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `batch_key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `delivery_reference` VARCHAR(2000) NOT NULL,\n  PRIMARY KEY (`document_id`),\n  CONSTRAINT `consignment_receipt_delivery_reference_check` CHECK ((CHAR_LENGTH(TRIM(`delivery_reference`)) > 0)),\n  UNIQUE KEY `consignment_receipt_warehouse_id_batch_key_key` (`warehouse_id`,`batch_key`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `consignment_receipt_line` (\n  `document_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `destination_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `lot_code` VARCHAR(100),\n  `serial_code` VARCHAR(160),\n  `manufactured_on` DATE,\n  `expires_on` DATE,\n  PRIMARY KEY (`document_line_id`),\n  CONSTRAINT `consignment_receipt_line_check` CHECK (((`lot_code` IS NULL) OR (`serial_code` IS NULL))),\n  CONSTRAINT `consignment_receipt_line_check1` CHECK (((`manufactured_on` IS NULL) OR (`expires_on` IS NULL) OR (`manufactured_on` <= `expires_on`))),\n  KEY `ix_consignment_receipt_line_location` (`destination_location_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `consumer_receipt` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `event_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `consumer` VARCHAR(100) NOT NULL,\n  `processed_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `consumer_receipt_event_id_consumer_key` (`event_id`,`consumer`),\n  KEY `ix_consumer_receipt_event_id` (`event_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_assignment` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `assigned_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `count_assignment_session_id_location_id_user_id_key` (`session_id`,`location_id`,`user_id`),\n  KEY `ix_count_assignment_assigned_by` (`assigned_by`),\n  KEY `ix_count_assignment_location_id` (`location_id`),\n  KEY `ix_count_assignment_session_id` (`session_id`),\n  KEY `ix_count_assignment_user_id` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_decision` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `submission_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `step_no` INT NOT NULL,\n  `decision` LONGTEXT NOT NULL,\n  `decided_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `decided_at` DATETIME(6) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `count_decision_decision_check` CHECK ((`decision` IN ('APPROVE', 'REJECT'))),\n  CONSTRAINT `count_decision_step_no_check` CHECK ((`step_no` IN (1, 2))),\n  UNIQUE KEY `count_decision_submission_id_decided_by_key` (`submission_id`,`decided_by`),\n  UNIQUE KEY `count_decision_submission_id_step_no_key` (`submission_id`,`step_no`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_empty_confirmation` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `counted_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `counted_at` DATETIME(6) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `count_empty_confirmation_session_id_location_id_counted_by_key` (`session_id`,`location_id`,`counted_by`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_execution` (\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `execution_key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `request_hash` CHAR(64) NOT NULL,\n  `response` JSON NOT NULL,\n  PRIMARY KEY (`session_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_line` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `stock_item_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `snapshot_quantity` DECIMAL(20,6) NOT NULL,\n  `approved_quantity` DECIMAL(20,6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `count_line_approved_quantity_check` CHECK (((`approved_quantity` IS NULL) OR (`approved_quantity` >= CAST((0) AS DECIMAL)))),\n  CONSTRAINT `count_line_snapshot_quantity_check` CHECK ((`snapshot_quantity` >= CAST((0) AS DECIMAL))),\n  UNIQUE KEY `count_line_session_id_stock_item_id_location_id_key` (`session_id`,`stock_item_id`,`location_id`),\n  KEY `ix_count_line_location_id` (`location_id`),\n  KEY `ix_count_line_session_id` (`session_id`),\n  KEY `ix_count_line_stock_item_id` (`stock_item_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_location_lock` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `locked_at` DATETIME(6) NOT NULL,\n  `released_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `count_location_lock_session_id_location_id_key` (`session_id`,`location_id`),\n  KEY `ix_count_location_lock_location_id` (`location_id`),\n  KEY `ix_count_location_lock_session_id` (`session_id`),\n  `_uq_uq_active_location_lock_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`released_at` IS NULL) THEN `location_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_active_location_lock` (`_uq_uq_active_location_lock_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_observation` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `count_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `round_no` INT NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  `counted_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `counted_at` DATETIME(6) NOT NULL,\n  `scan_event_key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `reason` LONGTEXT NOT NULL DEFAULT ('Legacy observation'),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `count_observation_quantity_check` CHECK ((`quantity` >= CAST((0) AS DECIMAL))),\n  CONSTRAINT `count_observation_round_no_check` CHECK ((`round_no` > 0)),\n  UNIQUE KEY `count_observation_count_line_id_round_no_key` (`count_line_id`,`round_no`),\n  KEY `ix_count_observation_count_line_id` (`count_line_id`),\n  KEY `ix_count_observation_counted_by` (`counted_by`),\n  `_uq_uq_count_scan_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`scan_event_key` IS NOT NULL) THEN `scan_event_key` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_count_scan` (`_uq_uq_count_scan_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_scope` (\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`session_id`,`location_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_session` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `number` VARCHAR(80) NOT NULL,\n  `status` VARCHAR(20) NOT NULL,\n  `created_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `frozen_at` DATETIME(6),\n  `adjustment_document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `version` INT NOT NULL,\n  `business_date` DATE NOT NULL DEFAULT (CURRENT_DATE),\n  `reason` LONGTEXT NOT NULL DEFAULT ('Legacy count'),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `count_session_status_check` CHECK (((`status`) IN ('DRAFT', 'FROZEN', 'COUNTED', 'SUBMITTED', 'POSTED', 'CANCELLED'))),\n  UNIQUE KEY `count_session_number_key` (`number`),\n  KEY `ix_count_session_adjustment_document_id` (`adjustment_document_id`),\n  KEY `ix_count_session_created_by` (`created_by`),\n  KEY `ix_count_session_warehouse_id` (`warehouse_id`),\n  `_uq_uq_count_adjustment_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`adjustment_document_id` IS NOT NULL) THEN `adjustment_document_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_count_adjustment` (`_uq_uq_count_adjustment_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `count_submission` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_version` INT NOT NULL,\n  `policy_revision` INT NOT NULL,\n  `requested_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `content_snapshot` JSON NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `count_submission_policy_revision_check` CHECK ((`policy_revision` = 1)),\n  CONSTRAINT `count_submission_session_version_check` CHECK ((`session_version` > 0)),\n  UNIQUE KEY `count_submission_session_id_session_version_key` (`session_id`,`session_version`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `custom_field_binding` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `revision_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `values` JSON NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `custom_field_binding_check` CHECK (((CAST(((`product_id` IS NOT NULL)) AS SIGNED) + CAST(((`document_id` IS NOT NULL)) AS SIGNED)) = 1)),\n  CONSTRAINT `custom_field_binding_values_check` CHECK (((LOWER(JSON_TYPE(`values`)) = 'object') AND (OCTET_LENGTH(CAST((`values`) AS CHAR)) <= 65536))),\n  UNIQUE KEY `custom_field_binding_document_id_key` (`document_id`),\n  UNIQUE KEY `custom_field_binding_product_id_key` (`product_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `custom_field_change` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `binding_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `revision_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `target_version` INT NOT NULL,\n  `values` JSON NOT NULL,\n  `changed_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `changed_at` DATETIME(6) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `custom_field_change_target_version_check` CHECK ((`target_version` > 0)),\n  CONSTRAINT `custom_field_change_values_check` CHECK (((LOWER(JSON_TYPE(`values`)) = 'object') AND (OCTET_LENGTH(CAST((`values`) AS CHAR)) <= 65536))),\n  UNIQUE KEY `custom_field_change_binding_id_target_version_key` (`binding_id`,`target_version`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `custom_field_definition` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `entity_type` VARCHAR(40) NOT NULL,\n  `code` VARCHAR(60) NOT NULL,\n  `value_type` VARCHAR(20) NOT NULL,\n  `required` BOOLEAN NOT NULL,\n  CONSTRAINT `custom_field_definition_required_bool` CHECK (`required` IN (0,1)),\n  `validation` JSON NOT NULL,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `custom_field_definition_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `revision_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `label` VARCHAR(120),\n  `visibility` VARCHAR(20) NOT NULL DEFAULT ('BUSINESS'),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `custom_field_definition_visibility_check` CHECK (((`visibility`) IN ('BUSINESS', 'PRICE'))),\n  CONSTRAINT `custom_field_managed_definition` CHECK (((`revision_id` IS NULL) OR ((`label` IS NOT NULL) AND `is_active` AND ((`value_type`) IN ('TEXT', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATE', 'ENUM')) AND (REGEXP_LIKE((`code`), '^[a-z][a-z0-9_]{0,59}$'))))),\n  UNIQUE KEY `custom_field_definition_revision_id_code_key` (`revision_id`,`code`),\n  `_uq_custom_field_legacy_code_0` VARCHAR(40) GENERATED ALWAYS AS (CASE WHEN (`revision_id` IS NULL) THEN `entity_type` ELSE NULL END) STORED INVISIBLE,\n  `_uq_custom_field_legacy_code_1` VARCHAR(60) GENERATED ALWAYS AS (CASE WHEN (`revision_id` IS NULL) THEN `code` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `custom_field_legacy_code` (`_uq_custom_field_legacy_code_0`,`_uq_custom_field_legacy_code_1`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `custom_field_revision` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `schema_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `version` INT NOT NULL,\n  `created_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `custom_field_revision_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `custom_field_revision_schema_id_version_key` (`schema_id`,`version`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `custom_field_schema` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `entity_type` VARCHAR(40) NOT NULL,\n  `version` INT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `custom_field_schema_entity_type_check` CHECK (((`entity_type`) IN ('PRODUCT', 'PO', 'SO', 'RECEIPT', 'OPENING', 'ISSUE', 'INTERNAL_MOVE', 'TRANSFER', 'ADJUSTMENT', 'CUSTOMER_RETURN', 'SUPPLIER_RETURN', 'REVERSAL'))),\n  CONSTRAINT `custom_field_schema_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `custom_field_schema_entity_type_key` (`entity_type`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `document` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `number` VARCHAR(80) NOT NULL,\n  `kind` VARCHAR(30) NOT NULL,\n  `status` VARCHAR(20) NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `destination_warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `transit_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `partner_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `business_date` DATE NOT NULL,\n  `created_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `version` INT NOT NULL,\n  `reason` LONGTEXT,\n  `attributes` JSON NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `document_check` CHECK ((((`kind`) = 'TRANSFER') = ((`destination_warehouse_id` IS NOT NULL) AND (`transit_location_id` IS NOT NULL)))),\n  CONSTRAINT `document_check1` CHECK (((`destination_warehouse_id` IS NULL) OR (`destination_warehouse_id` <> `warehouse_id`))),\n  CONSTRAINT `document_check2` CHECK ((((`kind`) = 'TRANSFER') OR ((`destination_warehouse_id` IS NULL) AND (`transit_location_id` IS NULL)))),\n  CONSTRAINT `document_kind_check` CHECK (((`kind`) IN ('PO', 'SO', 'RECEIPT', 'ISSUE', 'TRANSFER', 'CUSTOMER_RETURN', 'SUPPLIER_RETURN', 'INTERNAL_MOVE', 'ADJUSTMENT', 'OPENING', 'REVERSAL'))),\n  CONSTRAINT `document_status_check` CHECK (((`status`) IN ('DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'PARTIAL', 'COMPLETED', 'CANCELLED'))),\n  CONSTRAINT `document_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `document_number_key` (`number`),\n  KEY `ix_document_created_by` (`created_by`),\n  KEY `ix_document_destination_warehouse_id` (`destination_warehouse_id`),\n  KEY `ix_document_partner_id` (`partner_id`),\n  KEY `ix_document_queue` (`warehouse_id`,`status`,`business_date`,`id`),\n  KEY `ix_document_transit_location_id` (`transit_location_id`),\n  KEY `ix_document_warehouse_id` (`warehouse_id`),\n  `_uq_uq_transfer_transit_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`transit_location_id` IS NOT NULL) THEN `transit_location_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_transfer_transit` (`_uq_uq_transfer_transit_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `document_assignment` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `assigned_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `document_assignment_document_id_user_id_key` (`document_id`,`user_id`),\n  KEY `ix_document_assignment_assigned_by` (`assigned_by`),\n  KEY `ix_document_assignment_document_id` (`document_id`),\n  KEY `ix_document_assignment_user_id` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `document_attachment` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `file_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `document_attachment_document_id_file_id_key` (`document_id`,`file_id`),\n  KEY `ix_document_attachment_document_id` (`document_id`),\n  KEY `ix_document_attachment_file_id` (`file_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `document_line` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `line_no` INT NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `uom_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  `factor_snapshot` DECIMAL(20,8) NOT NULL,\n  `base_quantity` DECIMAL(20,6) NOT NULL,\n  `source_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `reference_unit_price` DECIMAL(20,4),\n  `owner_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `consignment_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `closed_base_quantity` DECIMAL(20,6) NOT NULL DEFAULT (0),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `document_line_base_quantity_check` CHECK ((`base_quantity` > CAST((0) AS DECIMAL))),\n  CONSTRAINT `document_line_check` CHECK (((`source_line_id` IS NULL) OR (`source_line_id` <> `id`))),\n  CONSTRAINT `document_line_check1` CHECK (((`closed_base_quantity` >= CAST((0) AS DECIMAL)) AND (`closed_base_quantity` <= `base_quantity`))),\n  CONSTRAINT `document_line_factor_snapshot_check` CHECK ((`factor_snapshot` > CAST((0) AS DECIMAL))),\n  CONSTRAINT `document_line_line_no_check` CHECK ((`line_no` > 0)),\n  CONSTRAINT `document_line_quantity_check` CHECK ((`quantity` > CAST((0) AS DECIMAL))),\n  UNIQUE KEY `document_line_document_id_line_no_key` (`document_id`,`line_no`),\n  KEY `ix_document_line_consignment` (`consignment_id`),\n  KEY `ix_document_line_document_id` (`document_id`),\n  KEY `ix_document_line_owner` (`owner_id`),\n  KEY `ix_document_line_product_id` (`product_id`),\n  KEY `ix_document_line_source_line_id` (`source_line_id`),\n  KEY `ix_document_line_uom_id` (`uom_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `document_link` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `related_document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `relation` VARCHAR(30) NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `document_link_check` CHECK ((`document_id` <> `related_document_id`)),\n  UNIQUE KEY `document_link_document_id_related_document_id_relation_key` (`document_id`,`related_document_id`,`relation`),\n  KEY `ix_document_link_document_id` (`document_id`),\n  KEY `ix_document_link_related_document_id` (`related_document_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `export_job` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `requested_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `report_code` VARCHAR(40) NOT NULL,\n  `filters` JSON NOT NULL,\n  `status` VARCHAR(20) NOT NULL,\n  `file_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `created_at` DATETIME(6) NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `snapshot_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `format` VARCHAR(4),\n  `version` INT NOT NULL DEFAULT (1),\n  `generation` INT NOT NULL DEFAULT (1),\n  `error_code` VARCHAR(40),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `export_job_format_check` CHECK (((`format`) IN ('csv', 'xlsx'))),\n  CONSTRAINT `export_job_generation_check` CHECK ((`generation` > 0)),\n  CONSTRAINT `export_job_version_check` CHECK ((`version` > 0)),\n  CONSTRAINT `export_snapshot_state` CHECK (((`snapshot_id` IS NULL) OR ((`session_id` IS NOT NULL) AND (`format` IS NOT NULL) AND (`expires_at` IS NOT NULL) AND ((`status`) IN ('QUEUED', 'RUNNING', 'READY', 'FAILED', 'CANCELLED'))))),\n  KEY `ix_export_actor` (`requested_by`,`expires_at`),\n  KEY `ix_export_job_file_id` (`file_id`),\n  KEY `ix_export_job_requested_by` (`requested_by`),\n  `_uq_uq_export_snapshot_format_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`snapshot_id` IS NOT NULL) THEN `snapshot_id` ELSE NULL END) STORED INVISIBLE,\n  `_uq_uq_export_snapshot_format_1` VARCHAR(4) GENERATED ALWAYS AS (CASE WHEN (`snapshot_id` IS NOT NULL) THEN `format` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_export_snapshot_format` (`_uq_uq_export_snapshot_format_0`,`_uq_uq_export_snapshot_format_1`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `export_task` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `job_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `generation` INT NOT NULL,\n  `status` VARCHAR(10) NOT NULL DEFAULT ('READY'),\n  `attempts` INT NOT NULL DEFAULT (0),\n  `available_at` DATETIME(6) NOT NULL DEFAULT (CURRENT_TIMESTAMP(6)),\n  `lease_token` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `lease_until` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `export_task_attempts_check` CHECK ((`attempts` >= 0)),\n  CONSTRAINT `export_task_generation_check` CHECK ((`generation` > 0)),\n  CONSTRAINT `export_task_status_check` CHECK (((`status`) IN ('READY', 'RUNNING', 'DONE', 'EXHAUSTED'))),\n  UNIQUE KEY `export_task_job_id_generation_key` (`job_id`,`generation`),\n  KEY `ix_export_task_queue` (`available_at`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `fulfillment_consumption` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `package_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `reservation_consumption_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `fulfillment_consumption_quantity_check` CHECK ((`quantity` > CAST((0) AS DECIMAL))),\n  UNIQUE KEY `fulfillment_consumption_package_line_id_reservation_consump_key` (`package_line_id`,`reservation_consumption_id`),\n  KEY `ix_fulfillment_reservation_consumption` (`reservation_consumption_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `grant_request` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `role_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `scope_kind` VARCHAR(20) NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `valid_until` DATETIME(6),\n  `reason` LONGTEXT NOT NULL,\n  `requested_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `requested_at` DATETIME(6) NOT NULL,\n  `approved_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `grant_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `grant_request_check` CHECK ((((`scope_kind`) = 'WAREHOUSE') = (`warehouse_id` IS NOT NULL))),\n  CONSTRAINT `grant_request_check1` CHECK ((`requested_by` <> `user_id`)),\n  CONSTRAINT `grant_request_check2` CHECK (((`approved_by` IS NULL) OR ((`approved_by` <> `requested_by`) AND (`approved_by` <> `user_id`)))),\n  CONSTRAINT `grant_request_check3` CHECK (((`approved_by` IS NULL) = (`grant_id` IS NULL))),\n  CONSTRAINT `grant_request_scope_kind_check` CHECK (((`scope_kind`) IN ('GLOBAL', 'WAREHOUSE', 'ALL_WAREHOUSES'))),\n  UNIQUE KEY `grant_request_grant_id_key` (`grant_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `idempotency_record` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `actor_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `command` VARCHAR(100) NOT NULL,\n  `request_hash` CHAR(64) NOT NULL,\n  `response` JSON NOT NULL,\n  `http_status` INT NOT NULL,\n  `completed_at` DATETIME(6) NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `idempotency_record_actor_id_key_key` (`actor_id`,`key`),\n  KEY `ix_idempotency_record_actor_id` (`actor_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `import_document_source` (\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` VARCHAR(20) NOT NULL,\n  `source_key` VARCHAR(240) NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `job_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`warehouse_id`,`kind`,`source_key`),\n  CONSTRAINT `import_document_source_kind_check` CHECK (((`kind`) IN ('PO', 'SO', 'OPENING'))),\n  UNIQUE KEY `import_document_source_document_id_key` (`document_id`),\n  KEY `ix_import_document_source_job` (`job_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `import_file` (\n  `file_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `actor_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `kind` VARCHAR(60) NOT NULL,\n  `upload_key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `request_hash` CHAR(64) NOT NULL,\n  `ready` BOOLEAN NOT NULL DEFAULT (FALSE),\n  CONSTRAINT `import_file_ready_bool` CHECK (`ready` IN (0,1)),\n  PRIMARY KEY (`file_id`),\n  UNIQUE KEY `import_file_actor_id_upload_key_key` (`actor_id`,`upload_key`),\n  KEY `ix_import_file_warehouse` (`warehouse_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `import_job` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` VARCHAR(60) NOT NULL,\n  `file_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `requested_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `status` VARCHAR(20) NOT NULL,\n  `file_hash` CHAR(64) NOT NULL,\n  `mapping_version` VARCHAR(30) NOT NULL,\n  `operation_key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `version` INT NOT NULL DEFAULT (1),\n  `generation` INT NOT NULL DEFAULT (1),\n  `auth_version` INT,\n  `options` JSON NOT NULL DEFAULT (CAST('{}' AS JSON)),\n  `commit_token` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `token_expires_at` DATETIME(6),\n  `stage_hash` CHAR(64),\n  `data_snapshot` JSON NOT NULL DEFAULT (CAST('[]' AS JSON)),\n  `total_rows` INT NOT NULL DEFAULT (0),\n  `processed_rows` INT NOT NULL DEFAULT (0),\n  `errors` JSON NOT NULL DEFAULT (CAST('[]' AS JSON)),\n  `result` JSON,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `import_job_generation_check` CHECK ((`generation` > 0)),\n  CONSTRAINT `import_job_processed_rows_check` CHECK ((`processed_rows` >= 0)),\n  CONSTRAINT `import_job_total_rows_check` CHECK ((`total_rows` >= 0)),\n  CONSTRAINT `import_job_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `import_job_operation_key_key` (`operation_key`),\n  KEY `ix_import_job_file_id` (`file_id`),\n  KEY `ix_import_job_requested_by` (`requested_by`),\n  KEY `ix_import_job_warehouse` (`warehouse_id`),\n  `_uq_uq_import_content_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`auth_version` IS NOT NULL) THEN `requested_by` ELSE NULL END) STORED INVISIBLE,\n  `_uq_uq_import_content_1` VARCHAR(60) GENERATED ALWAYS AS (CASE WHEN (`auth_version` IS NOT NULL) THEN `kind` ELSE NULL END) STORED INVISIBLE,\n  `_uq_uq_import_content_2` VARCHAR(37) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`auth_version` IS NOT NULL) THEN IF(`warehouse_id` IS NULL,'0',CONCAT('1',`warehouse_id`)) ELSE NULL END) STORED INVISIBLE,\n  `_uq_uq_import_content_3` CHAR(64) GENERATED ALWAYS AS (CASE WHEN (`auth_version` IS NOT NULL) THEN `file_hash` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_import_content` (`_uq_uq_import_content_0`,`_uq_uq_import_content_1`,`_uq_uq_import_content_2`,`_uq_uq_import_content_3`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `import_row` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `job_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `row_no` INT NOT NULL,\n  `payload` JSON NOT NULL,\n  `errors` JSON NOT NULL,\n  `target_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `status` VARCHAR(20) NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `import_row_job_id_row_no_key` (`job_id`,`row_no`),\n  KEY `ix_import_row_job_id` (`job_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `import_task` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `job_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `generation` INT NOT NULL,\n  `state` VARCHAR(20) NOT NULL,\n  `lease_token` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `lease_until` DATETIME(6),\n  `attempts` INT NOT NULL DEFAULT (0),\n  `available_at` DATETIME(6) NOT NULL,\n  `last_error` VARCHAR(60),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `import_task_attempts_check` CHECK ((`attempts` >= 0)),\n  CONSTRAINT `import_task_generation_check` CHECK ((`generation` > 0)),\n  CONSTRAINT `import_task_state_check` CHECK (((`state`) IN ('READY', 'RUNNING', 'DONE', 'EXHAUSTED'))),\n  UNIQUE KEY `import_task_job_id_generation_key` (`job_id`,`generation`),\n  KEY `ix_import_task_due` (`available_at`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `inventory_transaction` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `execution_key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `operation` VARCHAR(30) NOT NULL,\n  `business_date` DATE NOT NULL,\n  `posted_at` DATETIME(6) NOT NULL,\n  `posted_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `reverses_transaction_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `request_hash` CHAR(64),\n  `response` JSON,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `execution_receipt_pair` CHECK (((`request_hash` IS NULL) = (`response` IS NULL))),\n  CONSTRAINT `inventory_transaction_operation_check` CHECK (((`operation`) IN ('RECEIVE', 'ISSUE', 'DISPATCH', 'ARRIVE', 'MOVE', 'ADJUST', 'OPEN', 'REVERSE'))),\n  UNIQUE KEY `inventory_transaction_document_id_execution_key_key` (`document_id`,`execution_key`),\n  KEY `ix_inventory_transaction_document_id` (`document_id`),\n  KEY `ix_inventory_transaction_posted_by` (`posted_by`),\n  KEY `ix_inventory_transaction_reverses_transaction_id` (`reverses_transaction_id`),\n  KEY `ix_transaction_date` (`business_date`,`posted_at`,`id`),\n  `_uq_uq_reversed_transaction_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`reverses_transaction_id` IS NOT NULL) THEN `reverses_transaction_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_reversed_transaction` (`_uq_uq_reversed_transaction_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `issue_document` (\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_order_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`document_id`),\n  CONSTRAINT `issue_document_check` CHECK ((`document_id` <> `source_order_id`)),\n  KEY `ix_issue_source` (`source_order_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `location` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `parent_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `code` VARCHAR(80) NOT NULL,\n  `name` VARCHAR(160) NOT NULL,\n  `kind` VARCHAR(20) NOT NULL,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `location_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `version` INT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `location_check` CHECK ((((`kind`) IN ('GROUP', 'STORAGE', 'RECEIVING', 'QUARANTINE', 'SHIPPING')) = (`warehouse_id` IS NOT NULL))),\n  CONSTRAINT `location_check1` CHECK (((`parent_id` IS NULL) OR (`parent_id` <> `id`))),\n  CONSTRAINT `location_kind_check` CHECK (((`kind`) IN ('GROUP', 'STORAGE', 'RECEIVING', 'QUARANTINE', 'SHIPPING', 'TRANSIT', 'EXTERNAL', 'LOSS', 'OPENING'))),\n  CONSTRAINT `location_version_check` CHECK ((`version` > 0)),\n  KEY `ix_location_parent_id` (`parent_id`),\n  KEY `ix_location_warehouse_id` (`warehouse_id`),\n  UNIQUE KEY `location_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `lot` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(100) NOT NULL,\n  `manufactured_on` DATE,\n  `expires_on` DATE,\n  `version` INT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `lot_check` CHECK (((`expires_on` IS NULL) OR (`manufactured_on` IS NULL) OR (`expires_on` >= `manufactured_on`))),\n  KEY `ix_lot_expiry` (`expires_on`),\n  KEY `ix_lot_product_id` (`product_id`),\n  UNIQUE KEY `lot_product_id_code_key` (`product_id`,`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `mfa_factor` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` VARCHAR(30) NOT NULL,\n  `credential_ciphertext` LONGTEXT NOT NULL,\n  `verified_at` DATETIME(6),\n  `revoked_at` DATETIME(6),\n  `last_counter` BIGINT NOT NULL DEFAULT (CAST('-1' AS SIGNED)),\n  `enrollment_expires_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  KEY `ix_mfa_factor_user_id` (`user_id`),\n  `_uq_uq_verified_totp_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (((`kind`) = 'TOTP') AND (`verified_at` IS NOT NULL) AND (`revoked_at` IS NULL)) THEN `user_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_verified_totp` (`_uq_uq_verified_totp_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `move_line` (\n  `document_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `stock_item_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `destination_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quality_decision_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  PRIMARY KEY (`document_line_id`),\n  CONSTRAINT `move_line_check` CHECK ((`source_location_id` <> `destination_location_id`)),\n  KEY `ix_move_line_quality` (`quality_decision_id`),\n  KEY `ix_move_line_stock` (`stock_item_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `opening_document` (\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `batch_key` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `signed_count_reference` VARCHAR(2000) NOT NULL,\n  PRIMARY KEY (`document_id`),\n  CONSTRAINT `opening_document_signed_count_reference_check` CHECK ((CHAR_LENGTH(TRIM(`signed_count_reference`)) > 0)),\n  UNIQUE KEY `opening_document_warehouse_id_batch_key_key` (`warehouse_id`,`batch_key`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `opening_line` (\n  `document_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `destination_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `lot_code` VARCHAR(100),\n  `serial_code` VARCHAR(160),\n  `manufactured_on` DATE,\n  `expires_on` DATE,\n  PRIMARY KEY (`document_line_id`),\n  CONSTRAINT `opening_line_check` CHECK (((`lot_code` IS NULL) OR (`serial_code` IS NULL))),\n  CONSTRAINT `opening_line_check1` CHECK (((`manufactured_on` IS NULL) OR (`expires_on` IS NULL) OR (`manufactured_on` <= `expires_on`))),\n  KEY `ix_opening_line_location` (`destination_location_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `organization` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(40) NOT NULL,\n  `name` VARCHAR(200) NOT NULL,\n  `timezone` VARCHAR(80) NOT NULL,\n  `currency` CHAR(3) NOT NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `organization_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `outbox_event` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `event_type` VARCHAR(100) NOT NULL,\n  `aggregate_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `payload` JSON NOT NULL,\n  `occurred_at` DATETIME(6) NOT NULL,\n  `available_at` DATETIME(6) NOT NULL,\n  `attempts` INT NOT NULL,\n  `processed_at` DATETIME(6),\n  `last_error` LONGTEXT,\n  `version` INT NOT NULL DEFAULT (1),\n  `replay_count` INT NOT NULL DEFAULT (0),\n  `replayed_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `outbox_event_attempts_check` CHECK ((`attempts` >= 0)),\n  CONSTRAINT `outbox_event_replay_count_check` CHECK (((`replay_count` >= 0) AND (`replay_count` <= 3))),\n  CONSTRAINT `outbox_event_version_check` CHECK ((`version` > 0)),\n  KEY `ix_outbox_pending` (`available_at`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `package` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(100) NOT NULL,\n  `status` VARCHAR(20),\n  `version` INT NOT NULL DEFAULT (1),\n  `reason` LONGTEXT,\n  `created_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `created_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `ck_package_status` CHECK (((`status`) IN ('DRAFT', 'PACKED', 'CANCELLED'))),\n  CONSTRAINT `package_version_check` CHECK ((`version` >= 1)),\n  KEY `ix_package_document_id` (`document_id`),\n  UNIQUE KEY `package_document_id_code_key` (`document_id`,`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `package_line` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `package_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `document_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `stock_item_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  `pick_task_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `consumed_quantity` DECIMAL(20,6) NOT NULL DEFAULT (0),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `ck_package_consumed` CHECK (((`consumed_quantity` >= CAST((0) AS DECIMAL)) AND (`consumed_quantity` <= `quantity`))),\n  CONSTRAINT `package_line_quantity_check` CHECK ((`quantity` > CAST((0) AS DECIMAL))),\n  KEY `ix_package_line_document_line_id` (`document_line_id`),\n  KEY `ix_package_line_package_id` (`package_id`),\n  KEY `ix_package_line_pick` (`pick_task_id`,`id`),\n  KEY `ix_package_line_stock_item_id` (`stock_item_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `partner` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(60) NOT NULL,\n  `name` VARCHAR(240) NOT NULL,\n  `is_customer` BOOLEAN NOT NULL,\n  CONSTRAINT `partner_is_customer_bool` CHECK (`is_customer` IN (0,1)),\n  `is_supplier` BOOLEAN NOT NULL,\n  CONSTRAINT `partner_is_supplier_bool` CHECK (`is_supplier` IN (0,1)),\n  `tax_code` VARCHAR(40),\n  `address` LONGTEXT,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `partner_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `version` INT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `partner_check` CHECK ((`is_customer` OR `is_supplier`)),\n  CONSTRAINT `partner_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `partner_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `period_reopen_confirmation` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `period_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `period_version` INT NOT NULL,\n  `confirmed_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `confirmed_at` DATETIME(6) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `period_reopen_confirmation_period_version_check` CHECK ((`period_version` > 0))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `permission` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(100) NOT NULL,\n  `scope_kind` VARCHAR(20) NOT NULL,\n  `description` LONGTEXT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `permission_scope_kind_check` CHECK (((`scope_kind`) IN ('WAREHOUSE', 'GLOBAL'))),\n  UNIQUE KEY `permission_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `pick_task` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `reservation_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `assigned_to` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `picked_quantity` DECIMAL(20,6) NOT NULL,\n  `status` VARCHAR(20) NOT NULL,\n  `version` INT NOT NULL,\n  `target_quantity` DECIMAL(20,6),\n  `consumed_quantity` DECIMAL(20,6) NOT NULL DEFAULT (0),\n  `reason` LONGTEXT,\n  `created_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `created_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `ck_pick_consumed` CHECK (((`consumed_quantity` >= CAST((0) AS DECIMAL)) AND (`consumed_quantity` <= `picked_quantity`))),\n  CONSTRAINT `ck_pick_target` CHECK (((`target_quantity` IS NULL) OR ((`target_quantity` > CAST((0) AS DECIMAL)) AND (`picked_quantity` <= `target_quantity`)))),\n  CONSTRAINT `pick_task_picked_quantity_check` CHECK ((`picked_quantity` >= CAST((0) AS DECIMAL))),\n  CONSTRAINT `pick_task_status_check` CHECK (((`status`) IN ('OPEN', 'PICKING', 'DONE', 'CANCELLED'))),\n  KEY `ix_pick_reservation` (`reservation_id`,`id`),\n  KEY `ix_pick_task_assigned_to` (`assigned_to`),\n  KEY `ix_pick_task_reservation_id` (`reservation_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `print_attempt` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `job_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `generation` INT NOT NULL,\n  `actor_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `printer` VARCHAR(200) NOT NULL,\n  `driver` VARCHAR(20) NOT NULL,\n  `copies` INT NOT NULL,\n  `status` VARCHAR(10) NOT NULL DEFAULT ('UNKNOWN'),\n  `spool_id` VARCHAR(200),\n  `error_code` VARCHAR(40),\n  `created_at` DATETIME(6) NOT NULL,\n  `finished_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `print_attempt_copies_check` CHECK (((`copies` >= 1) AND (`copies` <= 20))),\n  CONSTRAINT `print_attempt_driver_check` CHECK (((`driver`) IN ('WINDOWS_GDI', 'CUPS'))),\n  CONSTRAINT `print_attempt_generation_check` CHECK ((`generation` > 0)),\n  CONSTRAINT `print_attempt_status_check` CHECK (((`status`) IN ('UNKNOWN', 'SUBMITTED', 'FAILED'))),\n  UNIQUE KEY `print_attempt_job_id_generation_key` (`job_id`,`generation`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `print_job` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `requested_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `session_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_version` INT NOT NULL,\n  `template` VARCHAR(20) NOT NULL,\n  `template_version` INT NOT NULL DEFAULT (1),\n  `paper` VARCHAR(10) NOT NULL,\n  `include_price` BOOLEAN NOT NULL,\n  CONSTRAINT `print_job_include_price_bool` CHECK (`include_price` IN (0,1)),\n  `criteria` JSON NOT NULL,\n  `snapshot` JSON NOT NULL,\n  `snapshot_hash` CHAR(64) NOT NULL,\n  `status` VARCHAR(12) NOT NULL DEFAULT ('QUEUED'),\n  `version` INT NOT NULL DEFAULT (1),\n  `generation` INT NOT NULL DEFAULT (1),\n  `file_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `created_at` DATETIME(6) NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `error_code` VARCHAR(40),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `print_job_check` CHECK ((`expires_at` > `created_at`)),\n  CONSTRAINT `print_job_generation_check` CHECK ((`generation` > 0)),\n  CONSTRAINT `print_job_paper_check` CHECK (((`paper`) IN ('A4', 'A5', '100x50', '80x40'))),\n  CONSTRAINT `print_job_source_version_check` CHECK ((`source_version` > 0)),\n  CONSTRAINT `print_job_status_check` CHECK (((`status`) IN ('QUEUED', 'RENDERING', 'READY', 'FAILED', 'CANCELLED'))),\n  CONSTRAINT `print_job_template_check` CHECK (((`template`) IN ('RECEIPT', 'ISSUE', 'TRANSFER', 'COUNT', 'PRODUCT_LABEL', 'LOCATION_LABEL'))),\n  CONSTRAINT `print_job_template_version_check` CHECK ((`template_version` = 1)),\n  CONSTRAINT `print_job_version_check` CHECK ((`version` > 0)),\n  KEY `ix_print_job_actor` (`requested_by`,`expires_at`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `print_task` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `job_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `generation` INT NOT NULL,\n  `status` VARCHAR(10) NOT NULL DEFAULT ('READY'),\n  `attempts` INT NOT NULL DEFAULT (0),\n  `available_at` DATETIME(6) NOT NULL DEFAULT (CURRENT_TIMESTAMP(6)),\n  `lease_token` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `lease_until` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `print_task_attempts_check` CHECK ((`attempts` >= 0)),\n  CONSTRAINT `print_task_generation_check` CHECK ((`generation` > 0)),\n  CONSTRAINT `print_task_status_check` CHECK (((`status`) IN ('READY', 'RUNNING', 'DONE', 'EXHAUSTED'))),\n  UNIQUE KEY `print_task_job_id_generation_key` (`job_id`,`generation`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `product` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `sku` VARCHAR(80) NOT NULL,\n  `name` VARCHAR(240) NOT NULL,\n  `category_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `base_uom_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `tracking` VARCHAR(10) NOT NULL,\n  `expiry_required` BOOLEAN NOT NULL,\n  CONSTRAINT `product_expiry_required_bool` CHECK (`expiry_required` IN (0,1)),\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `product_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `version` INT NOT NULL,\n  `attributes` JSON NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `product_check` CHECK (((NOT `expiry_required`) OR ((`tracking`) = 'LOT'))),\n  CONSTRAINT `product_tracking_check` CHECK (((`tracking`) IN ('NONE', 'LOT', 'SERIAL'))),\n  CONSTRAINT `product_version_check` CHECK ((`version` > 0)),\n  KEY `ix_product_base_uom_id` (`base_uom_id`),\n  KEY `ix_product_category_id` (`category_id`),\n  UNIQUE KEY `product_sku_key` (`sku`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `product_category` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(40) NOT NULL,\n  `name` VARCHAR(160) NOT NULL,\n  `parent_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `version` INT NOT NULL DEFAULT (1),\n  `is_active` BOOLEAN NOT NULL DEFAULT (TRUE),\n  CONSTRAINT `product_category_is_active_bool` CHECK (`is_active` IN (0,1)),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `product_category_check` CHECK (((`parent_id` IS NULL) OR (`parent_id` <> `id`))),\n  CONSTRAINT `product_category_version_check` CHECK ((`version` > 0)),\n  KEY `ix_product_category_parent_id` (`parent_id`),\n  UNIQUE KEY `product_category_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `product_image` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `file_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `sort_order` INT NOT NULL,\n  PRIMARY KEY (`id`),\n  KEY `ix_product_image_file_id` (`file_id`),\n  KEY `ix_product_image_product_id` (`product_id`),\n  UNIQUE KEY `product_image_product_id_file_id_key` (`product_id`,`file_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `product_uom` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `uom_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `factor` DECIMAL(20,8) NOT NULL,\n  `revision` INT NOT NULL,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `product_uom_is_active_bool` CHECK (`is_active` IN (0,1)),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `product_uom_factor_check` CHECK ((`factor` > CAST((0) AS DECIMAL))),\n  CONSTRAINT `product_uom_revision_check` CHECK ((`revision` > 0)),\n  KEY `ix_product_uom_product_id` (`product_id`),\n  KEY `ix_product_uom_uom_id` (`uom_id`),\n  UNIQUE KEY `product_uom_product_id_uom_id_revision_key` (`product_id`,`uom_id`,`revision`),\n  `_uq_uq_active_product_uom_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN `is_active` THEN `product_id` ELSE NULL END) STORED INVISIBLE,\n  `_uq_uq_active_product_uom_1` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN `is_active` THEN `uom_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_active_product_uom` (`_uq_uq_active_product_uom_0`,`_uq_uq_active_product_uom_1`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `quality_decision` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `receipt_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  `result` VARCHAR(20) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  `decided_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `decided_at` DATETIME(6) NOT NULL,\n  `followup_document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `quality_decision_quantity_check` CHECK ((`quantity` > CAST((0) AS DECIMAL))),\n  CONSTRAINT `quality_decision_result_check` CHECK (((`result`) IN ('ACCEPT', 'REJECT'))),\n  KEY `ix_quality_decision_decided_by` (`decided_by`),\n  KEY `ix_quality_decision_followup_document_id` (`followup_document_id`),\n  KEY `ix_quality_decision_receipt_move_id` (`receipt_move_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `reference_price` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `effective_on` DATE NOT NULL,\n  `amount` DECIMAL(20,4) NOT NULL,\n  `currency` CHAR(3) NOT NULL,\n  `source` LONGTEXT NOT NULL,\n  `created_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `reference_price_amount_check` CHECK ((`amount` >= CAST((0) AS DECIMAL))),\n  KEY `ix_reference_price_created_by` (`created_by`),\n  KEY `ix_reference_price_product_id` (`product_id`),\n  UNIQUE KEY `reference_price_product_id_effective_on_key` (`product_id`,`effective_on`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `report_request_guard` (\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `version` BIGINT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`user_id`),\n  CONSTRAINT `report_request_guard_version_check` CHECK ((`version` > 0))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `report_snapshot` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `requested_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `report_code` VARCHAR(3) NOT NULL,\n  `criteria` JSON NOT NULL,\n  `required_warehouses` JSON NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  `expires_at` DATETIME(6) NOT NULL,\n  `row_count` INT NOT NULL,\n  `columns` JSON NOT NULL,\n  `sha256` CHAR(64) NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `report_snapshot_check` CHECK ((`expires_at` > `created_at`)),\n  CONSTRAINT `report_snapshot_check1` CHECK (((LOWER(JSON_TYPE(`criteria`)) = 'object') AND (LOWER(JSON_TYPE(`columns`)) = 'array'))),\n  CONSTRAINT `report_snapshot_report_code_check` CHECK (((`report_code`) IN ('R01', 'R02', 'R03', 'R04', 'R05', 'R06', 'R07', 'R08'))),\n  CONSTRAINT `report_snapshot_row_count_check` CHECK (((`row_count` >= 0) AND (`row_count` <= 20000))),\n  KEY `ix_report_snapshot_actor` (`requested_by`,`expires_at`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `report_snapshot_row` (\n  `snapshot_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `ordinal` INT NOT NULL,\n  `payload` JSON NOT NULL,\n  PRIMARY KEY (`snapshot_id`,`ordinal`),\n  CONSTRAINT `report_snapshot_row_ordinal_check` CHECK (((`ordinal` >= 1) AND (`ordinal` <= 20000))),\n  CONSTRAINT `report_snapshot_row_payload_check` CHECK ((LOWER(JSON_TYPE(`payload`)) = 'object'))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `reservation` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `stock_item_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  `consumed` DECIMAL(20,6) NOT NULL,\n  `released` DECIMAL(20,6) NOT NULL,\n  `expires_at` DATETIME(6),\n  `created_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `reservation_check` CHECK (((`consumed` + `released`) <= `quantity`)),\n  CONSTRAINT `reservation_consumed_check` CHECK ((`consumed` >= CAST((0) AS DECIMAL))),\n  CONSTRAINT `reservation_quantity_check` CHECK ((`quantity` > CAST((0) AS DECIMAL))),\n  CONSTRAINT `reservation_released_check` CHECK ((`released` >= CAST((0) AS DECIMAL))),\n  KEY `ix_reservation_created_by` (`created_by`),\n  KEY `ix_reservation_line_id` (`line_id`),\n  KEY `ix_reservation_location_id` (`location_id`),\n  KEY `ix_reservation_stock_item_id` (`stock_item_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `reservation_consumption` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `reservation_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `reservation_consumption_quantity_check` CHECK ((`quantity` > CAST((0) AS DECIMAL))),\n  KEY `ix_reservation_consumption_move_id` (`move_id`),\n  KEY `ix_reservation_consumption_reservation_id` (`reservation_id`),\n  UNIQUE KEY `reservation_consumption_reservation_id_move_id_key` (`reservation_id`,`move_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `return_document` (\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`document_id`),\n  CONSTRAINT `return_document_check` CHECK ((`document_id` <> `source_document_id`)),\n  KEY `ix_return_document_source` (`source_document_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `return_line` (\n  `document_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`document_line_id`),\n  KEY `ix_return_line_source` (`source_move_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `reversal_document` (\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_transaction_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_version` INT NOT NULL,\n  `reversal_reason` LONGTEXT NOT NULL,\n  PRIMARY KEY (`document_id`),\n  CONSTRAINT `reversal_document_reversal_reason_check` CHECK ((CHAR_LENGTH(TRIM(`reversal_reason`)) > 0)),\n  CONSTRAINT `reversal_document_source_version_check` CHECK ((`source_version` > 0)),\n  KEY `ix_reversal_source` (`source_transaction_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `reversal_line` (\n  `document_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`document_line_id`),\n  KEY `ix_reversal_line_source` (`source_move_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `role` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(60) NOT NULL,\n  `name` VARCHAR(160) NOT NULL,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `role_is_active_bool` CHECK (`is_active` IN (0,1)),\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `role_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `role_permission` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `role_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `permission_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`id`),\n  KEY `ix_role_permission_permission_id` (`permission_id`),\n  KEY `ix_role_permission_role_id` (`role_id`),\n  UNIQUE KEY `role_permission_role_id_permission_id_key` (`role_id`,`permission_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `serial` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(160) NOT NULL,\n  `warranty_version` INT NOT NULL DEFAULT (0),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `serial_warranty_version_check` CHECK ((`warranty_version` >= 0)),\n  KEY `ix_serial_product_id` (`product_id`),\n  UNIQUE KEY `serial_product_id_code_key` (`product_id`,`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `serial_position` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `serial_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `last_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`id`),\n  KEY `ix_serial_position_last_move_id` (`last_move_id`),\n  KEY `ix_serial_position_location_id` (`location_id`),\n  KEY `ix_serial_position_serial_id` (`serial_id`),\n  UNIQUE KEY `serial_position_serial_id_key` (`serial_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `serial_warranty_record` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `serial_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `receipt_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `revision` INT NOT NULL,\n  `starts_on` DATE,\n  `ends_on` DATE,\n  `evidence_ref` LONGTEXT,\n  `recorded_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `recorded_at` DATETIME(6) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `serial_warranty_record_check` CHECK (((`starts_on` IS NULL) OR (`ends_on` IS NULL) OR (`ends_on` >= `starts_on`))),\n  CONSTRAINT `serial_warranty_record_evidence_ref_check` CHECK (((`evidence_ref` IS NULL) OR (CHAR_LENGTH(TRIM(`evidence_ref`)) >= 3))),\n  CONSTRAINT `serial_warranty_record_reason_check` CHECK ((CHAR_LENGTH(TRIM(`reason`)) >= 3)),\n  CONSTRAINT `serial_warranty_record_revision_check` CHECK ((`revision` > 0)),\n  KEY `ix_warranty_actor` (`recorded_by`),\n  KEY `ix_warranty_receipt` (`receipt_move_id`),\n  UNIQUE KEY `serial_warranty_record_serial_id_revision_key` (`serial_id`,`revision`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `stock_balance` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `stock_item_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `on_hand` DECIMAL(20,6) NOT NULL,\n  `reserved` DECIMAL(20,6) NOT NULL,\n  `version` BIGINT NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `stock_balance_check` CHECK ((`reserved` <= `on_hand`)),\n  CONSTRAINT `stock_balance_on_hand_check` CHECK ((`on_hand` >= CAST((0) AS DECIMAL))),\n  CONSTRAINT `stock_balance_reserved_check` CHECK ((`reserved` >= CAST((0) AS DECIMAL))),\n  CONSTRAINT `stock_balance_version_check` CHECK ((`version` >= 0)),\n  KEY `ix_stock_balance_location_id` (`location_id`),\n  KEY `ix_stock_balance_stock_item_id` (`stock_item_id`),\n  UNIQUE KEY `stock_balance_stock_item_id_location_id_key` (`stock_item_id`,`location_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `stock_item` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `product_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `lot_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `serial_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `owner_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `consignment_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `stock_item_check` CHECK ((NOT ((`lot_id` IS NOT NULL) AND (`serial_id` IS NOT NULL)))),\n  KEY `ix_stock_item_consignment` (`consignment_id`),\n  KEY `ix_stock_item_lot_id` (`lot_id`),\n  KEY `ix_stock_item_owner` (`owner_id`),\n  KEY `ix_stock_item_product_id` (`product_id`),\n  KEY `ix_stock_item_serial_id` (`serial_id`),\n  `_uq_uq_stock_item_dimensions_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (`product_id`) STORED INVISIBLE,\n  `_uq_uq_stock_item_dimensions_1` VARCHAR(37) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (IF(`lot_id` IS NULL,'0',CONCAT('1',`lot_id`))) STORED INVISIBLE,\n  `_uq_uq_stock_item_dimensions_2` VARCHAR(37) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (IF(`serial_id` IS NULL,'0',CONCAT('1',`serial_id`))) STORED INVISIBLE,\n  `_uq_uq_stock_item_dimensions_3` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (`owner_id`) STORED INVISIBLE,\n  `_uq_uq_stock_item_dimensions_4` VARCHAR(37) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (IF(`consignment_id` IS NULL,'0',CONCAT('1',`consignment_id`))) STORED INVISIBLE,\n  UNIQUE KEY `uq_stock_item_dimensions` (`_uq_uq_stock_item_dimensions_0`,`_uq_uq_stock_item_dimensions_1`,`_uq_uq_stock_item_dimensions_2`,`_uq_uq_stock_item_dimensions_3`,`_uq_uq_stock_item_dimensions_4`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `stock_move` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `transaction_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `stock_item_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `destination_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `quantity_base` DECIMAL(20,6) NOT NULL,\n  `base_uom_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `reverses_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `stock_move_check` CHECK ((`source_location_id` <> `destination_location_id`)),\n  CONSTRAINT `stock_move_quantity_base_check` CHECK ((`quantity_base` > CAST((0) AS DECIMAL))),\n  KEY `ix_stock_move_base_uom_id` (`base_uom_id`),\n  KEY `ix_stock_move_destination_location_id` (`destination_location_id`),\n  KEY `ix_stock_move_line_id` (`line_id`),\n  KEY `ix_stock_move_reverses_move_id` (`reverses_move_id`),\n  KEY `ix_stock_move_source_location_id` (`source_location_id`),\n  KEY `ix_stock_move_stock_item_id` (`stock_item_id`),\n  KEY `ix_stock_move_transaction_id` (`transaction_id`),\n  `_uq_uq_reversed_move_0` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN (`reverses_move_id` IS NOT NULL) THEN `reverses_move_id` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_reversed_move` (`_uq_uq_reversed_move_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `stock_owner` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(80) NOT NULL,\n  `name` VARCHAR(240) NOT NULL,\n  `kind` VARCHAR(20) NOT NULL,\n  `partner_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `is_active` BOOLEAN NOT NULL DEFAULT (TRUE),\n  CONSTRAINT `stock_owner_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `version` INT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `stock_owner_check` CHECK ((((`kind`) = 'CONSIGNOR') = (`partner_id` IS NOT NULL))),\n  CONSTRAINT `stock_owner_kind_check` CHECK (((`kind`) IN ('COMPANY', 'CONSIGNOR', 'UNCLASSIFIED'))),\n  CONSTRAINT `stock_owner_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `stock_owner_code_key` (`code`),\n  UNIQUE KEY `stock_owner_partner_id_key` (`partner_id`),\n  `_uq_uq_system_owner_0` VARCHAR(20) GENERATED ALWAYS AS (CASE WHEN ((`kind`) IN ('COMPANY', 'UNCLASSIFIED')) THEN `kind` ELSE NULL END) STORED INVISIBLE,\n  UNIQUE KEY `uq_system_owner` (`_uq_uq_system_owner_0`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `stock_period` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `starts_on` DATE NOT NULL,\n  `ends_on` DATE NOT NULL,\n  `status` VARCHAR(10) NOT NULL,\n  `closed_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `closed_at` DATETIME(6),\n  `version` INT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `stock_period_check` CHECK ((`ends_on` >= `starts_on`)),\n  CONSTRAINT `stock_period_status_check` CHECK (((`status`) IN ('OPEN', 'CLOSED'))),\n  CONSTRAINT `stock_period_version_check` CHECK ((`version` > 0)),\n  KEY `ix_stock_period_closed_by` (`closed_by`),\n  KEY `ix_stock_period_warehouse_id` (`warehouse_id`),\n  UNIQUE KEY `stock_period_warehouse_id_starts_on_key` (`warehouse_id`,`starts_on`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `stored_file` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `storage_key` VARCHAR(240) NOT NULL,\n  `original_name` VARCHAR(240) NOT NULL,\n  `mime_type` VARCHAR(100) NOT NULL,\n  `sha256` CHAR(64) NOT NULL,\n  `size_bytes` BIGINT NOT NULL,\n  `uploaded_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `created_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `stored_file_size_bytes_check` CHECK ((`size_bytes` >= 0)),\n  KEY `ix_stored_file_uploaded_by` (`uploaded_by`),\n  UNIQUE KEY `stored_file_storage_key_key` (`storage_key`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `transfer_adjustment` (\n  `document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_transfer_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `discrepancy_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`document_id`),\n  KEY `ix_transfer_adjustment_source` (`source_transfer_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `transfer_discrepancy` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `transfer_document_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `dispatch_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` VARCHAR(20) NOT NULL,\n  `quantity` DECIMAL(20,6) NOT NULL,\n  `evidence_ref` VARCHAR(2000) NOT NULL,\n  `recorded_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `recorded_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`id`),\n  CONSTRAINT `transfer_discrepancy_evidence_ref_check` CHECK ((CHAR_LENGTH(TRIM(`evidence_ref`)) > 0)),\n  CONSTRAINT `transfer_discrepancy_kind_check` CHECK (((`kind`) IN ('MISSING', 'DAMAGED'))),\n  CONSTRAINT `transfer_discrepancy_quantity_check` CHECK ((`quantity` > CAST((0) AS DECIMAL)))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `transfer_line` (\n  `document_line_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `stock_item_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `source_location_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  PRIMARY KEY (`document_line_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `transfer_move` (\n  `move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `dispatch_move_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `disposition` VARCHAR(20) NOT NULL,\n  `evidence_ref` VARCHAR(2000) NOT NULL,\n  PRIMARY KEY (`move_id`),\n  CONSTRAINT `transfer_move_check` CHECK ((((`disposition`) = 'DISPATCH') = (`dispatch_move_id` IS NULL))),\n  CONSTRAINT `transfer_move_disposition_check` CHECK (((`disposition`) IN ('DISPATCH', 'GOOD', 'DAMAGED', 'LOSS'))),\n  CONSTRAINT `transfer_move_evidence_ref_check` CHECK ((CHAR_LENGTH(TRIM(`evidence_ref`)) > 0)),\n  KEY `ix_transfer_move_source` (`dispatch_move_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `uom` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(30) NOT NULL,\n  `name` VARCHAR(80) NOT NULL,\n  `decimal_places` INT NOT NULL,\n  `version` INT NOT NULL DEFAULT (1),\n  `is_active` BOOLEAN NOT NULL DEFAULT (TRUE),\n  CONSTRAINT `uom_is_active_bool` CHECK (`is_active` IN (0,1)),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `uom_decimal_places_check` CHECK (((`decimal_places` >= 0) AND (`decimal_places` <= 6))),\n  CONSTRAINT `uom_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `uom_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `user_avatar` (\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `image_base64` LONGTEXT,\n  `version` INT NOT NULL,\n  `updated_at` DATETIME(6) NOT NULL,\n  PRIMARY KEY (`user_id`),\n  CONSTRAINT `user_avatar_image_base64_check` CHECK (((`image_base64` IS NULL) OR ((OCTET_LENGTH(`image_base64`) >= 1) AND (OCTET_LENGTH(`image_base64`) <= 350000)))),\n  CONSTRAINT `user_avatar_version_check` CHECK ((`version` > 0))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `user_role_grant` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `user_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `role_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `scope_kind` VARCHAR(20) NOT NULL,\n  `warehouse_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin,\n  `valid_from` DATETIME(6) NOT NULL,\n  `valid_until` DATETIME(6),\n  `granted_by` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `revoked_at` DATETIME(6),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `user_role_grant_check` CHECK ((((`scope_kind`) = 'WAREHOUSE') = (`warehouse_id` IS NOT NULL))),\n  CONSTRAINT `user_role_grant_check1` CHECK (((`valid_until` IS NULL) OR (`valid_until` > `valid_from`))),\n  CONSTRAINT `user_role_grant_scope_kind_check` CHECK (((`scope_kind`) IN ('GLOBAL', 'WAREHOUSE', 'ALL_WAREHOUSES'))),\n  KEY `ix_user_role_grant_granted_by` (`granted_by`),\n  KEY `ix_user_role_grant_role_id` (`role_id`),\n  KEY `ix_user_role_grant_user_id` (`user_id`),\n  KEY `ix_user_role_grant_warehouse_id` (`warehouse_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `warehouse` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `code` VARCHAR(40) NOT NULL,\n  `name` VARCHAR(160) NOT NULL,\n  `address` LONGTEXT,\n  `is_active` BOOLEAN NOT NULL,\n  CONSTRAINT `warehouse_is_active_bool` CHECK (`is_active` IN (0,1)),\n  `version` INT NOT NULL DEFAULT (1),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `warehouse_version_check` CHECK ((`version` > 0)),\n  UNIQUE KEY `warehouse_code_key` (`code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin",
+    "CREATE TABLE `worker_status` (\n  `id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,\n  `kind` VARCHAR(20) NOT NULL,\n  `registry_hash` CHAR(64) NOT NULL,\n  `state` VARCHAR(10) NOT NULL,\n  `started_at` DATETIME(6) NOT NULL DEFAULT (CURRENT_TIMESTAMP(6)),\n  `heartbeat_at` DATETIME(6) NOT NULL DEFAULT (CURRENT_TIMESTAMP(6)),\n  `result_code` VARCHAR(40),\n  `completed_cycles` BIGINT NOT NULL DEFAULT (0),\n  PRIMARY KEY (`id`),\n  CONSTRAINT `worker_status_completed_cycles_check` CHECK ((`completed_cycles` >= 0)),\n  CONSTRAINT `worker_status_kind_check` CHECK (((`kind`) IN ('outbox', 'import', 'export', 'print', 'export-cleanup', 'print-cleanup'))),\n  CONSTRAINT `worker_status_state_check` CHECK (((`state`) IN ('STARTING', 'IDLE', 'BUSY', 'STOPPED', 'FAILED'))),\n  KEY `ix_worker_status_heartbeat` (`heartbeat_at`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin"
+  ],
+  "foreign_keys": [
+    "ALTER TABLE `approval_policy_step` ADD CONSTRAINT `approval_policy_step_alternative_role_id_fkey` FOREIGN KEY (`alternative_role_id`) REFERENCES `role` (`id`)",
+    "ALTER TABLE `approval_policy_step` ADD CONSTRAINT `approval_policy_step_policy_id_fkey` FOREIGN KEY (`policy_id`) REFERENCES `approval_policy` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `approval_policy_step` ADD CONSTRAINT `approval_policy_step_role_id_fkey` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `approval_request` ADD CONSTRAINT `approval_request_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `approval_request` ADD CONSTRAINT `approval_request_policy_id_fkey` FOREIGN KEY (`policy_id`) REFERENCES `approval_policy` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `approval_request` ADD CONSTRAINT `approval_request_requested_by_fkey` FOREIGN KEY (`requested_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `approval_step` ADD CONSTRAINT `approval_step_alternative_role_id_fkey` FOREIGN KEY (`alternative_role_id`) REFERENCES `role` (`id`)",
+    "ALTER TABLE `approval_step` ADD CONSTRAINT `approval_step_decided_by_fkey` FOREIGN KEY (`decided_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `approval_step` ADD CONSTRAINT `approval_step_request_id_fkey` FOREIGN KEY (`request_id`) REFERENCES `approval_request` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `approval_step` ADD CONSTRAINT `approval_step_required_role_id_fkey` FOREIGN KEY (`required_role_id`) REFERENCES `role` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `audit_event` ADD CONSTRAINT `audit_event_actor_id_fkey` FOREIGN KEY (`actor_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `audit_event` ADD CONSTRAINT `audit_event_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `auth_challenge` ADD CONSTRAINT `auth_challenge_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `auth_contact` ADD CONSTRAINT `auth_contact_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_contact_challenge` ADD CONSTRAINT `auth_contact_challenge_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_delivery` ADD CONSTRAINT `auth_delivery_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_google_flow` ADD CONSTRAINT `auth_google_flow_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `auth_session` (`id`)",
+    "ALTER TABLE `auth_google_flow` ADD CONSTRAINT `auth_google_flow_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_google_identity` ADD CONSTRAINT `auth_google_identity_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_password_reset` ADD CONSTRAINT `auth_password_reset_issued_by_fkey` FOREIGN KEY (`issued_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_password_reset` ADD CONSTRAINT `auth_password_reset_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_recovery_code` ADD CONSTRAINT `auth_recovery_code_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_self_reset` ADD CONSTRAINT `auth_self_reset_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `auth_session` ADD CONSTRAINT `auth_session_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `auth_token` ADD CONSTRAINT `auth_token_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `auth_session` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `barcode` ADD CONSTRAINT `barcode_product_uom_id_fkey` FOREIGN KEY (`product_uom_id`) REFERENCES `product_uom` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `consignment_agreement` ADD CONSTRAINT `consignment_agreement_owner_id_fkey` FOREIGN KEY (`owner_id`) REFERENCES `stock_owner` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `consignment_agreement` ADD CONSTRAINT `consignment_agreement_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `consignment_receipt` ADD CONSTRAINT `consignment_receipt_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `consignment_receipt` ADD CONSTRAINT `consignment_receipt_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`)",
+    "ALTER TABLE `consignment_receipt_line` ADD CONSTRAINT `consignment_receipt_line_destination_location_id_fkey` FOREIGN KEY (`destination_location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `consignment_receipt_line` ADD CONSTRAINT `consignment_receipt_line_document_line_id_fkey` FOREIGN KEY (`document_line_id`) REFERENCES `document_line` (`id`) ON DELETE CASCADE",
+    "ALTER TABLE `consumer_receipt` ADD CONSTRAINT `consumer_receipt_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `outbox_event` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_assignment` ADD CONSTRAINT `count_assignment_assigned_by_fkey` FOREIGN KEY (`assigned_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_assignment` ADD CONSTRAINT `count_assignment_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_assignment` ADD CONSTRAINT `count_assignment_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `count_session` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_assignment` ADD CONSTRAINT `count_assignment_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_decision` ADD CONSTRAINT `count_decision_decided_by_fkey` FOREIGN KEY (`decided_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `count_decision` ADD CONSTRAINT `count_decision_submission_id_fkey` FOREIGN KEY (`submission_id`) REFERENCES `count_submission` (`id`)",
+    "ALTER TABLE `count_empty_confirmation` ADD CONSTRAINT `count_empty_confirmation_counted_by_fkey` FOREIGN KEY (`counted_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `count_empty_confirmation` ADD CONSTRAINT `count_empty_confirmation_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `count_empty_confirmation` ADD CONSTRAINT `count_empty_confirmation_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `count_session` (`id`)",
+    "ALTER TABLE `count_execution` ADD CONSTRAINT `count_execution_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `count_session` (`id`)",
+    "ALTER TABLE `count_line` ADD CONSTRAINT `count_line_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_line` ADD CONSTRAINT `count_line_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `count_session` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_line` ADD CONSTRAINT `count_line_stock_item_id_fkey` FOREIGN KEY (`stock_item_id`) REFERENCES `stock_item` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_location_lock` ADD CONSTRAINT `count_location_lock_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_location_lock` ADD CONSTRAINT `count_location_lock_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `count_session` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_observation` ADD CONSTRAINT `count_observation_count_line_id_fkey` FOREIGN KEY (`count_line_id`) REFERENCES `count_line` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_observation` ADD CONSTRAINT `count_observation_counted_by_fkey` FOREIGN KEY (`counted_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_scope` ADD CONSTRAINT `count_scope_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `count_scope` ADD CONSTRAINT `count_scope_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `count_session` (`id`)",
+    "ALTER TABLE `count_session` ADD CONSTRAINT `count_session_adjustment_document_id_fkey` FOREIGN KEY (`adjustment_document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_session` ADD CONSTRAINT `count_session_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_session` ADD CONSTRAINT `count_session_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `count_submission` ADD CONSTRAINT `count_submission_requested_by_fkey` FOREIGN KEY (`requested_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `count_submission` ADD CONSTRAINT `count_submission_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `count_session` (`id`)",
+    "ALTER TABLE `custom_field_binding` ADD CONSTRAINT `custom_field_binding_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `custom_field_binding` ADD CONSTRAINT `custom_field_binding_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)",
+    "ALTER TABLE `custom_field_binding` ADD CONSTRAINT `custom_field_binding_revision_id_fkey` FOREIGN KEY (`revision_id`) REFERENCES `custom_field_revision` (`id`)",
+    "ALTER TABLE `custom_field_change` ADD CONSTRAINT `custom_field_change_binding_id_fkey` FOREIGN KEY (`binding_id`) REFERENCES `custom_field_binding` (`id`)",
+    "ALTER TABLE `custom_field_change` ADD CONSTRAINT `custom_field_change_changed_by_fkey` FOREIGN KEY (`changed_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `custom_field_change` ADD CONSTRAINT `custom_field_change_revision_id_fkey` FOREIGN KEY (`revision_id`) REFERENCES `custom_field_revision` (`id`)",
+    "ALTER TABLE `custom_field_definition` ADD CONSTRAINT `custom_field_definition_revision_id_fkey` FOREIGN KEY (`revision_id`) REFERENCES `custom_field_revision` (`id`)",
+    "ALTER TABLE `custom_field_revision` ADD CONSTRAINT `custom_field_revision_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `custom_field_revision` ADD CONSTRAINT `custom_field_revision_schema_id_fkey` FOREIGN KEY (`schema_id`) REFERENCES `custom_field_schema` (`id`)",
+    "ALTER TABLE `document` ADD CONSTRAINT `document_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document` ADD CONSTRAINT `document_destination_warehouse_id_fkey` FOREIGN KEY (`destination_warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document` ADD CONSTRAINT `document_partner_id_fkey` FOREIGN KEY (`partner_id`) REFERENCES `partner` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document` ADD CONSTRAINT `document_transit_location_id_fkey` FOREIGN KEY (`transit_location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document` ADD CONSTRAINT `document_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_assignment` ADD CONSTRAINT `document_assignment_assigned_by_fkey` FOREIGN KEY (`assigned_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_assignment` ADD CONSTRAINT `document_assignment_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_assignment` ADD CONSTRAINT `document_assignment_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_attachment` ADD CONSTRAINT `document_attachment_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_attachment` ADD CONSTRAINT `document_attachment_file_id_fkey` FOREIGN KEY (`file_id`) REFERENCES `stored_file` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_line` ADD CONSTRAINT `document_line_consignment_id_fkey` FOREIGN KEY (`consignment_id`) REFERENCES `consignment_agreement` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_line` ADD CONSTRAINT `document_line_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_line` ADD CONSTRAINT `document_line_owner_id_fkey` FOREIGN KEY (`owner_id`) REFERENCES `stock_owner` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_line` ADD CONSTRAINT `document_line_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_line` ADD CONSTRAINT `document_line_source_line_id_fkey` FOREIGN KEY (`source_line_id`) REFERENCES `document_line` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_line` ADD CONSTRAINT `document_line_uom_id_fkey` FOREIGN KEY (`uom_id`) REFERENCES `uom` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_link` ADD CONSTRAINT `document_link_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `document_link` ADD CONSTRAINT `document_link_related_document_id_fkey` FOREIGN KEY (`related_document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `export_job` ADD CONSTRAINT `export_job_file_id_fkey` FOREIGN KEY (`file_id`) REFERENCES `stored_file` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `export_job` ADD CONSTRAINT `export_job_requested_by_fkey` FOREIGN KEY (`requested_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `export_job` ADD CONSTRAINT `export_job_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `auth_session` (`id`)",
+    "ALTER TABLE `export_job` ADD CONSTRAINT `export_job_snapshot_id_fkey` FOREIGN KEY (`snapshot_id`) REFERENCES `report_snapshot` (`id`)",
+    "ALTER TABLE `export_task` ADD CONSTRAINT `export_task_job_id_fkey` FOREIGN KEY (`job_id`) REFERENCES `export_job` (`id`)",
+    "ALTER TABLE `fulfillment_consumption` ADD CONSTRAINT `fulfillment_consumption_package_line_id_fkey` FOREIGN KEY (`package_line_id`) REFERENCES `package_line` (`id`)",
+    "ALTER TABLE `fulfillment_consumption` ADD CONSTRAINT `fulfillment_consumption_reservation_consumption_id_fkey` FOREIGN KEY (`reservation_consumption_id`) REFERENCES `reservation_consumption` (`id`)",
+    "ALTER TABLE `grant_request` ADD CONSTRAINT `grant_request_approved_by_fkey` FOREIGN KEY (`approved_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `grant_request` ADD CONSTRAINT `grant_request_grant_id_fkey` FOREIGN KEY (`grant_id`) REFERENCES `user_role_grant` (`id`)",
+    "ALTER TABLE `grant_request` ADD CONSTRAINT `grant_request_requested_by_fkey` FOREIGN KEY (`requested_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `grant_request` ADD CONSTRAINT `grant_request_role_id_fkey` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)",
+    "ALTER TABLE `grant_request` ADD CONSTRAINT `grant_request_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `grant_request` ADD CONSTRAINT `grant_request_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`)",
+    "ALTER TABLE `idempotency_record` ADD CONSTRAINT `idempotency_record_actor_id_fkey` FOREIGN KEY (`actor_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `import_document_source` ADD CONSTRAINT `import_document_source_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `import_document_source` ADD CONSTRAINT `import_document_source_job_id_fkey` FOREIGN KEY (`job_id`) REFERENCES `import_job` (`id`)",
+    "ALTER TABLE `import_document_source` ADD CONSTRAINT `import_document_source_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`)",
+    "ALTER TABLE `import_file` ADD CONSTRAINT `import_file_actor_id_fkey` FOREIGN KEY (`actor_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `import_file` ADD CONSTRAINT `import_file_file_id_fkey` FOREIGN KEY (`file_id`) REFERENCES `stored_file` (`id`)",
+    "ALTER TABLE `import_file` ADD CONSTRAINT `import_file_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`)",
+    "ALTER TABLE `import_job` ADD CONSTRAINT `import_job_file_id_fkey` FOREIGN KEY (`file_id`) REFERENCES `stored_file` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `import_job` ADD CONSTRAINT `import_job_requested_by_fkey` FOREIGN KEY (`requested_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `import_job` ADD CONSTRAINT `import_job_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`)",
+    "ALTER TABLE `import_row` ADD CONSTRAINT `import_row_job_id_fkey` FOREIGN KEY (`job_id`) REFERENCES `import_job` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `import_task` ADD CONSTRAINT `import_task_job_id_fkey` FOREIGN KEY (`job_id`) REFERENCES `import_job` (`id`)",
+    "ALTER TABLE `inventory_transaction` ADD CONSTRAINT `inventory_transaction_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `inventory_transaction` ADD CONSTRAINT `inventory_transaction_posted_by_fkey` FOREIGN KEY (`posted_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `inventory_transaction` ADD CONSTRAINT `inventory_transaction_reverses_transaction_id_fkey` FOREIGN KEY (`reverses_transaction_id`) REFERENCES `inventory_transaction` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `issue_document` ADD CONSTRAINT `issue_document_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `issue_document` ADD CONSTRAINT `issue_document_source_order_id_fkey` FOREIGN KEY (`source_order_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `location` ADD CONSTRAINT `location_parent_id_fkey` FOREIGN KEY (`parent_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `location` ADD CONSTRAINT `location_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `lot` ADD CONSTRAINT `lot_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `mfa_factor` ADD CONSTRAINT `mfa_factor_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `move_line` ADD CONSTRAINT `move_line_destination_location_id_fkey` FOREIGN KEY (`destination_location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `move_line` ADD CONSTRAINT `move_line_document_line_id_fkey` FOREIGN KEY (`document_line_id`) REFERENCES `document_line` (`id`) ON DELETE CASCADE",
+    "ALTER TABLE `move_line` ADD CONSTRAINT `move_line_quality_decision_id_fkey` FOREIGN KEY (`quality_decision_id`) REFERENCES `quality_decision` (`id`)",
+    "ALTER TABLE `move_line` ADD CONSTRAINT `move_line_source_location_id_fkey` FOREIGN KEY (`source_location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `move_line` ADD CONSTRAINT `move_line_stock_item_id_fkey` FOREIGN KEY (`stock_item_id`) REFERENCES `stock_item` (`id`)",
+    "ALTER TABLE `opening_document` ADD CONSTRAINT `opening_document_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `opening_document` ADD CONSTRAINT `opening_document_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`)",
+    "ALTER TABLE `opening_line` ADD CONSTRAINT `opening_line_destination_location_id_fkey` FOREIGN KEY (`destination_location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `opening_line` ADD CONSTRAINT `opening_line_document_line_id_fkey` FOREIGN KEY (`document_line_id`) REFERENCES `document_line` (`id`) ON DELETE CASCADE",
+    "ALTER TABLE `package` ADD CONSTRAINT `package_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `package` ADD CONSTRAINT `package_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `package_line` ADD CONSTRAINT `package_line_document_line_id_fkey` FOREIGN KEY (`document_line_id`) REFERENCES `document_line` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `package_line` ADD CONSTRAINT `package_line_package_id_fkey` FOREIGN KEY (`package_id`) REFERENCES `package` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `package_line` ADD CONSTRAINT `package_line_pick_task_id_fkey` FOREIGN KEY (`pick_task_id`) REFERENCES `pick_task` (`id`)",
+    "ALTER TABLE `package_line` ADD CONSTRAINT `package_line_stock_item_id_fkey` FOREIGN KEY (`stock_item_id`) REFERENCES `stock_item` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `period_reopen_confirmation` ADD CONSTRAINT `period_reopen_confirmation_confirmed_by_fkey` FOREIGN KEY (`confirmed_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `period_reopen_confirmation` ADD CONSTRAINT `period_reopen_confirmation_period_id_fkey` FOREIGN KEY (`period_id`) REFERENCES `stock_period` (`id`)",
+    "ALTER TABLE `pick_task` ADD CONSTRAINT `pick_task_assigned_to_fkey` FOREIGN KEY (`assigned_to`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `pick_task` ADD CONSTRAINT `pick_task_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `pick_task` ADD CONSTRAINT `pick_task_reservation_id_fkey` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `print_attempt` ADD CONSTRAINT `print_attempt_actor_id_fkey` FOREIGN KEY (`actor_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `print_attempt` ADD CONSTRAINT `print_attempt_job_id_fkey` FOREIGN KEY (`job_id`) REFERENCES `print_job` (`id`)",
+    "ALTER TABLE `print_attempt` ADD CONSTRAINT `print_attempt_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `auth_session` (`id`)",
+    "ALTER TABLE `print_job` ADD CONSTRAINT `print_job_file_id_fkey` FOREIGN KEY (`file_id`) REFERENCES `stored_file` (`id`)",
+    "ALTER TABLE `print_job` ADD CONSTRAINT `print_job_requested_by_fkey` FOREIGN KEY (`requested_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `print_job` ADD CONSTRAINT `print_job_session_id_fkey` FOREIGN KEY (`session_id`) REFERENCES `auth_session` (`id`)",
+    "ALTER TABLE `print_job` ADD CONSTRAINT `print_job_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`)",
+    "ALTER TABLE `print_task` ADD CONSTRAINT `print_task_job_id_fkey` FOREIGN KEY (`job_id`) REFERENCES `print_job` (`id`)",
+    "ALTER TABLE `product` ADD CONSTRAINT `product_base_uom_id_fkey` FOREIGN KEY (`base_uom_id`) REFERENCES `uom` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `product` ADD CONSTRAINT `product_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `product_category` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `product_category` ADD CONSTRAINT `product_category_parent_id_fkey` FOREIGN KEY (`parent_id`) REFERENCES `product_category` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `product_image` ADD CONSTRAINT `product_image_file_id_fkey` FOREIGN KEY (`file_id`) REFERENCES `stored_file` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `product_image` ADD CONSTRAINT `product_image_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `product_uom` ADD CONSTRAINT `product_uom_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `product_uom` ADD CONSTRAINT `product_uom_uom_id_fkey` FOREIGN KEY (`uom_id`) REFERENCES `uom` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `quality_decision` ADD CONSTRAINT `quality_decision_decided_by_fkey` FOREIGN KEY (`decided_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `quality_decision` ADD CONSTRAINT `quality_decision_followup_document_id_fkey` FOREIGN KEY (`followup_document_id`) REFERENCES `document` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `quality_decision` ADD CONSTRAINT `quality_decision_receipt_move_id_fkey` FOREIGN KEY (`receipt_move_id`) REFERENCES `stock_move` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `reference_price` ADD CONSTRAINT `reference_price_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `reference_price` ADD CONSTRAINT `reference_price_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `report_request_guard` ADD CONSTRAINT `report_request_guard_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `report_snapshot` ADD CONSTRAINT `report_snapshot_requested_by_fkey` FOREIGN KEY (`requested_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `report_snapshot_row` ADD CONSTRAINT `report_snapshot_row_snapshot_id_fkey` FOREIGN KEY (`snapshot_id`) REFERENCES `report_snapshot` (`id`) ON DELETE CASCADE",
+    "ALTER TABLE `reservation` ADD CONSTRAINT `reservation_created_by_fkey` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `reservation` ADD CONSTRAINT `reservation_line_id_fkey` FOREIGN KEY (`line_id`) REFERENCES `document_line` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `reservation` ADD CONSTRAINT `reservation_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `reservation` ADD CONSTRAINT `reservation_stock_item_id_fkey` FOREIGN KEY (`stock_item_id`) REFERENCES `stock_item` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `reservation_consumption` ADD CONSTRAINT `reservation_consumption_move_id_fkey` FOREIGN KEY (`move_id`) REFERENCES `stock_move` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `reservation_consumption` ADD CONSTRAINT `reservation_consumption_reservation_id_fkey` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `return_document` ADD CONSTRAINT `return_document_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `return_document` ADD CONSTRAINT `return_document_source_document_id_fkey` FOREIGN KEY (`source_document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `return_line` ADD CONSTRAINT `return_line_document_line_id_fkey` FOREIGN KEY (`document_line_id`) REFERENCES `document_line` (`id`) ON DELETE CASCADE",
+    "ALTER TABLE `return_line` ADD CONSTRAINT `return_line_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `return_line` ADD CONSTRAINT `return_line_source_move_id_fkey` FOREIGN KEY (`source_move_id`) REFERENCES `stock_move` (`id`)",
+    "ALTER TABLE `reversal_document` ADD CONSTRAINT `reversal_document_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `reversal_document` ADD CONSTRAINT `reversal_document_source_transaction_id_fkey` FOREIGN KEY (`source_transaction_id`) REFERENCES `inventory_transaction` (`id`)",
+    "ALTER TABLE `reversal_line` ADD CONSTRAINT `reversal_line_document_line_id_fkey` FOREIGN KEY (`document_line_id`) REFERENCES `document_line` (`id`) ON DELETE CASCADE",
+    "ALTER TABLE `reversal_line` ADD CONSTRAINT `reversal_line_source_move_id_fkey` FOREIGN KEY (`source_move_id`) REFERENCES `stock_move` (`id`)",
+    "ALTER TABLE `role_permission` ADD CONSTRAINT `role_permission_permission_id_fkey` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `role_permission` ADD CONSTRAINT `role_permission_role_id_fkey` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `serial` ADD CONSTRAINT `serial_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `serial_position` ADD CONSTRAINT `serial_position_last_move_id_fkey` FOREIGN KEY (`last_move_id`) REFERENCES `stock_move` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `serial_position` ADD CONSTRAINT `serial_position_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `serial_position` ADD CONSTRAINT `serial_position_serial_id_fkey` FOREIGN KEY (`serial_id`) REFERENCES `serial` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `serial_warranty_record` ADD CONSTRAINT `serial_warranty_record_receipt_move_id_fkey` FOREIGN KEY (`receipt_move_id`) REFERENCES `stock_move` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `serial_warranty_record` ADD CONSTRAINT `serial_warranty_record_recorded_by_fkey` FOREIGN KEY (`recorded_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `serial_warranty_record` ADD CONSTRAINT `serial_warranty_record_serial_id_fkey` FOREIGN KEY (`serial_id`) REFERENCES `serial` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_balance` ADD CONSTRAINT `stock_balance_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_balance` ADD CONSTRAINT `stock_balance_stock_item_id_fkey` FOREIGN KEY (`stock_item_id`) REFERENCES `stock_item` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_item` ADD CONSTRAINT `stock_item_consignment_id_fkey` FOREIGN KEY (`consignment_id`) REFERENCES `consignment_agreement` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_item` ADD CONSTRAINT `stock_item_lot_id_fkey` FOREIGN KEY (`lot_id`) REFERENCES `lot` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_item` ADD CONSTRAINT `stock_item_owner_id_fkey` FOREIGN KEY (`owner_id`) REFERENCES `stock_owner` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_item` ADD CONSTRAINT `stock_item_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_item` ADD CONSTRAINT `stock_item_serial_id_fkey` FOREIGN KEY (`serial_id`) REFERENCES `serial` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_move` ADD CONSTRAINT `stock_move_base_uom_id_fkey` FOREIGN KEY (`base_uom_id`) REFERENCES `uom` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_move` ADD CONSTRAINT `stock_move_destination_location_id_fkey` FOREIGN KEY (`destination_location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_move` ADD CONSTRAINT `stock_move_line_id_fkey` FOREIGN KEY (`line_id`) REFERENCES `document_line` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_move` ADD CONSTRAINT `stock_move_reverses_move_id_fkey` FOREIGN KEY (`reverses_move_id`) REFERENCES `stock_move` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_move` ADD CONSTRAINT `stock_move_source_location_id_fkey` FOREIGN KEY (`source_location_id`) REFERENCES `location` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_move` ADD CONSTRAINT `stock_move_stock_item_id_fkey` FOREIGN KEY (`stock_item_id`) REFERENCES `stock_item` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_move` ADD CONSTRAINT `stock_move_transaction_id_fkey` FOREIGN KEY (`transaction_id`) REFERENCES `inventory_transaction` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_owner` ADD CONSTRAINT `stock_owner_partner_id_fkey` FOREIGN KEY (`partner_id`) REFERENCES `partner` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_period` ADD CONSTRAINT `stock_period_closed_by_fkey` FOREIGN KEY (`closed_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stock_period` ADD CONSTRAINT `stock_period_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `stored_file` ADD CONSTRAINT `stored_file_uploaded_by_fkey` FOREIGN KEY (`uploaded_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `transfer_adjustment` ADD CONSTRAINT `transfer_adjustment_discrepancy_id_fkey` FOREIGN KEY (`discrepancy_id`) REFERENCES `transfer_discrepancy` (`id`)",
+    "ALTER TABLE `transfer_adjustment` ADD CONSTRAINT `transfer_adjustment_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `transfer_adjustment` ADD CONSTRAINT `transfer_adjustment_source_transfer_id_fkey` FOREIGN KEY (`source_transfer_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `transfer_discrepancy` ADD CONSTRAINT `transfer_discrepancy_dispatch_move_id_fkey` FOREIGN KEY (`dispatch_move_id`) REFERENCES `stock_move` (`id`)",
+    "ALTER TABLE `transfer_discrepancy` ADD CONSTRAINT `transfer_discrepancy_recorded_by_fkey` FOREIGN KEY (`recorded_by`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `transfer_discrepancy` ADD CONSTRAINT `transfer_discrepancy_transfer_document_id_fkey` FOREIGN KEY (`transfer_document_id`) REFERENCES `document` (`id`)",
+    "ALTER TABLE `transfer_line` ADD CONSTRAINT `transfer_line_document_line_id_fkey` FOREIGN KEY (`document_line_id`) REFERENCES `document_line` (`id`) ON DELETE CASCADE",
+    "ALTER TABLE `transfer_line` ADD CONSTRAINT `transfer_line_source_location_id_fkey` FOREIGN KEY (`source_location_id`) REFERENCES `location` (`id`)",
+    "ALTER TABLE `transfer_line` ADD CONSTRAINT `transfer_line_stock_item_id_fkey` FOREIGN KEY (`stock_item_id`) REFERENCES `stock_item` (`id`)",
+    "ALTER TABLE `transfer_move` ADD CONSTRAINT `transfer_move_dispatch_move_id_fkey` FOREIGN KEY (`dispatch_move_id`) REFERENCES `stock_move` (`id`)",
+    "ALTER TABLE `transfer_move` ADD CONSTRAINT `transfer_move_move_id_fkey` FOREIGN KEY (`move_id`) REFERENCES `stock_move` (`id`)",
+    "ALTER TABLE `user_avatar` ADD CONSTRAINT `user_avatar_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`)",
+    "ALTER TABLE `user_role_grant` ADD CONSTRAINT `user_role_grant_granted_by_fkey` FOREIGN KEY (`granted_by`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `user_role_grant` ADD CONSTRAINT `user_role_grant_role_id_fkey` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `user_role_grant` ADD CONSTRAINT `user_role_grant_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`) ON DELETE RESTRICT",
+    "ALTER TABLE `user_role_grant` ADD CONSTRAINT `user_role_grant_warehouse_id_fkey` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouse` (`id`) ON DELETE RESTRICT"
+  ],
+  "inventory": [
+    {
+      "table": "app_user",
+      "columns": [
+        "id",
+        "username",
+        "display_name",
+        "password_hash",
+        "is_active",
+        "auth_version",
+        "created_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "approval_policy",
+      "columns": [
+        "id",
+        "document_kind",
+        "revision",
+        "is_active"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "approval_policy_step",
+      "columns": [
+        "id",
+        "policy_id",
+        "step_no",
+        "role_id",
+        "alternative_role_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "approval_request",
+      "columns": [
+        "id",
+        "document_id",
+        "document_version",
+        "policy_id",
+        "requested_by",
+        "status",
+        "created_at",
+        "content_snapshot"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "approval_step",
+      "columns": [
+        "id",
+        "request_id",
+        "step_no",
+        "required_role_id",
+        "status",
+        "decided_by",
+        "decided_at",
+        "comment",
+        "alternative_role_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "audit_event",
+      "columns": [
+        "id",
+        "actor_id",
+        "warehouse_id",
+        "action",
+        "entity_type",
+        "entity_id",
+        "request_id",
+        "occurred_at",
+        "before_data",
+        "after_data",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "auth_challenge",
+      "columns": [
+        "token_hash",
+        "user_id",
+        "device_id",
+        "auth_version",
+        "expires_at",
+        "consumed_at"
+      ],
+      "primary_key": [
+        "token_hash"
+      ]
+    },
+    {
+      "table": "auth_contact",
+      "columns": [
+        "user_id",
+        "kind",
+        "value",
+        "verified_at"
+      ],
+      "primary_key": [
+        "user_id",
+        "kind"
+      ]
+    },
+    {
+      "table": "auth_contact_challenge",
+      "columns": [
+        "id",
+        "user_id",
+        "kind",
+        "value",
+        "code_hash",
+        "auth_version",
+        "expires_at",
+        "consumed_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "auth_delivery",
+      "columns": [
+        "id",
+        "user_id",
+        "auth_version",
+        "ciphertext",
+        "expires_at",
+        "attempts",
+        "lease_until",
+        "lease_token",
+        "completed_at",
+        "last_error"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "auth_google_flow",
+      "columns": [
+        "state_hash",
+        "nonce_hash",
+        "verifier_ciphertext",
+        "redirect_uri",
+        "device_id",
+        "user_id",
+        "session_id",
+        "auth_version",
+        "expires_at",
+        "consumed_at"
+      ],
+      "primary_key": [
+        "state_hash"
+      ]
+    },
+    {
+      "table": "auth_google_identity",
+      "columns": [
+        "subject",
+        "user_id",
+        "linked_at"
+      ],
+      "primary_key": [
+        "subject"
+      ]
+    },
+    {
+      "table": "auth_password_reset",
+      "columns": [
+        "token_hash",
+        "user_id",
+        "issued_by",
+        "auth_version",
+        "created_at",
+        "expires_at",
+        "consumed_at"
+      ],
+      "primary_key": [
+        "token_hash"
+      ]
+    },
+    {
+      "table": "auth_recovery_code",
+      "columns": [
+        "code_hash",
+        "user_id",
+        "created_at",
+        "consumed_at",
+        "revoked_at"
+      ],
+      "primary_key": [
+        "code_hash"
+      ]
+    },
+    {
+      "table": "auth_self_reset",
+      "columns": [
+        "token_hash",
+        "user_id",
+        "kind",
+        "contact_value",
+        "auth_version",
+        "expires_at",
+        "consumed_at"
+      ],
+      "primary_key": [
+        "token_hash"
+      ]
+    },
+    {
+      "table": "auth_session",
+      "columns": [
+        "id",
+        "user_id",
+        "refresh_hash",
+        "device_id",
+        "auth_version",
+        "expires_at",
+        "revoked_at",
+        "mfa_verified_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "auth_throttle",
+      "columns": [
+        "key",
+        "failures",
+        "window_started_at",
+        "blocked_until"
+      ],
+      "primary_key": [
+        "key"
+      ]
+    },
+    {
+      "table": "auth_token",
+      "columns": [
+        "token_hash",
+        "session_id",
+        "kind",
+        "created_at",
+        "expires_at",
+        "used_at"
+      ],
+      "primary_key": [
+        "token_hash"
+      ]
+    },
+    {
+      "table": "barcode",
+      "columns": [
+        "id",
+        "code",
+        "product_uom_id",
+        "is_active",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "client_release",
+      "columns": [
+        "id",
+        "version",
+        "os",
+        "architecture",
+        "api_major",
+        "sha256",
+        "download_uri",
+        "is_minimum"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "consignment_agreement",
+      "columns": [
+        "id",
+        "code",
+        "owner_id",
+        "warehouse_id",
+        "valid_from",
+        "valid_until",
+        "source_ref",
+        "is_active",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "consignment_receipt",
+      "columns": [
+        "document_id",
+        "warehouse_id",
+        "batch_key",
+        "delivery_reference"
+      ],
+      "primary_key": [
+        "document_id"
+      ]
+    },
+    {
+      "table": "consignment_receipt_line",
+      "columns": [
+        "document_line_id",
+        "destination_location_id",
+        "lot_code",
+        "serial_code",
+        "manufactured_on",
+        "expires_on"
+      ],
+      "primary_key": [
+        "document_line_id"
+      ]
+    },
+    {
+      "table": "consumer_receipt",
+      "columns": [
+        "id",
+        "event_id",
+        "consumer",
+        "processed_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_assignment",
+      "columns": [
+        "id",
+        "session_id",
+        "location_id",
+        "user_id",
+        "assigned_by"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_decision",
+      "columns": [
+        "id",
+        "submission_id",
+        "step_no",
+        "decision",
+        "decided_by",
+        "decided_at",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_empty_confirmation",
+      "columns": [
+        "id",
+        "session_id",
+        "location_id",
+        "counted_by",
+        "counted_at",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_execution",
+      "columns": [
+        "session_id",
+        "execution_key",
+        "request_hash",
+        "response"
+      ],
+      "primary_key": [
+        "session_id"
+      ]
+    },
+    {
+      "table": "count_line",
+      "columns": [
+        "id",
+        "session_id",
+        "stock_item_id",
+        "location_id",
+        "snapshot_quantity",
+        "approved_quantity"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_location_lock",
+      "columns": [
+        "id",
+        "session_id",
+        "location_id",
+        "locked_at",
+        "released_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_observation",
+      "columns": [
+        "id",
+        "count_line_id",
+        "round_no",
+        "quantity",
+        "counted_by",
+        "counted_at",
+        "scan_event_key",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_scope",
+      "columns": [
+        "session_id",
+        "location_id"
+      ],
+      "primary_key": [
+        "session_id",
+        "location_id"
+      ]
+    },
+    {
+      "table": "count_session",
+      "columns": [
+        "id",
+        "warehouse_id",
+        "number",
+        "status",
+        "created_by",
+        "frozen_at",
+        "adjustment_document_id",
+        "version",
+        "business_date",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "count_submission",
+      "columns": [
+        "id",
+        "session_id",
+        "session_version",
+        "policy_revision",
+        "requested_by",
+        "created_at",
+        "content_snapshot"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "custom_field_binding",
+      "columns": [
+        "id",
+        "product_id",
+        "document_id",
+        "revision_id",
+        "values"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "custom_field_change",
+      "columns": [
+        "id",
+        "binding_id",
+        "revision_id",
+        "target_version",
+        "values",
+        "changed_by",
+        "changed_at",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "custom_field_definition",
+      "columns": [
+        "id",
+        "entity_type",
+        "code",
+        "value_type",
+        "required",
+        "validation",
+        "is_active",
+        "revision_id",
+        "label",
+        "visibility"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "custom_field_revision",
+      "columns": [
+        "id",
+        "schema_id",
+        "version",
+        "created_by",
+        "created_at",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "custom_field_schema",
+      "columns": [
+        "id",
+        "entity_type",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "document",
+      "columns": [
+        "id",
+        "number",
+        "kind",
+        "status",
+        "warehouse_id",
+        "destination_warehouse_id",
+        "transit_location_id",
+        "partner_id",
+        "business_date",
+        "created_by",
+        "created_at",
+        "version",
+        "reason",
+        "attributes"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "document_assignment",
+      "columns": [
+        "id",
+        "document_id",
+        "user_id",
+        "assigned_by"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "document_attachment",
+      "columns": [
+        "id",
+        "document_id",
+        "file_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "document_line",
+      "columns": [
+        "id",
+        "document_id",
+        "line_no",
+        "product_id",
+        "uom_id",
+        "quantity",
+        "factor_snapshot",
+        "base_quantity",
+        "source_line_id",
+        "reference_unit_price",
+        "owner_id",
+        "consignment_id",
+        "closed_base_quantity"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "document_link",
+      "columns": [
+        "id",
+        "document_id",
+        "related_document_id",
+        "relation"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "export_job",
+      "columns": [
+        "id",
+        "requested_by",
+        "report_code",
+        "filters",
+        "status",
+        "file_id",
+        "created_at",
+        "expires_at",
+        "snapshot_id",
+        "session_id",
+        "format",
+        "version",
+        "generation",
+        "error_code"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "export_task",
+      "columns": [
+        "id",
+        "job_id",
+        "generation",
+        "status",
+        "attempts",
+        "available_at",
+        "lease_token",
+        "lease_until"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "fulfillment_consumption",
+      "columns": [
+        "id",
+        "package_line_id",
+        "reservation_consumption_id",
+        "quantity"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "grant_request",
+      "columns": [
+        "id",
+        "user_id",
+        "role_id",
+        "scope_kind",
+        "warehouse_id",
+        "valid_until",
+        "reason",
+        "requested_by",
+        "requested_at",
+        "approved_by",
+        "grant_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "idempotency_record",
+      "columns": [
+        "id",
+        "actor_id",
+        "key",
+        "command",
+        "request_hash",
+        "response",
+        "http_status",
+        "completed_at",
+        "expires_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "import_document_source",
+      "columns": [
+        "warehouse_id",
+        "kind",
+        "source_key",
+        "document_id",
+        "job_id"
+      ],
+      "primary_key": [
+        "warehouse_id",
+        "kind",
+        "source_key"
+      ]
+    },
+    {
+      "table": "import_file",
+      "columns": [
+        "file_id",
+        "actor_id",
+        "warehouse_id",
+        "kind",
+        "upload_key",
+        "request_hash",
+        "ready"
+      ],
+      "primary_key": [
+        "file_id"
+      ]
+    },
+    {
+      "table": "import_job",
+      "columns": [
+        "id",
+        "kind",
+        "file_id",
+        "requested_by",
+        "status",
+        "file_hash",
+        "mapping_version",
+        "operation_key",
+        "created_at",
+        "warehouse_id",
+        "version",
+        "generation",
+        "auth_version",
+        "options",
+        "commit_token",
+        "token_expires_at",
+        "stage_hash",
+        "data_snapshot",
+        "total_rows",
+        "processed_rows",
+        "errors",
+        "result"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "import_row",
+      "columns": [
+        "id",
+        "job_id",
+        "row_no",
+        "payload",
+        "errors",
+        "target_id",
+        "status"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "import_task",
+      "columns": [
+        "id",
+        "job_id",
+        "generation",
+        "state",
+        "lease_token",
+        "lease_until",
+        "attempts",
+        "available_at",
+        "last_error"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "inventory_transaction",
+      "columns": [
+        "id",
+        "document_id",
+        "execution_key",
+        "operation",
+        "business_date",
+        "posted_at",
+        "posted_by",
+        "reverses_transaction_id",
+        "request_hash",
+        "response"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "issue_document",
+      "columns": [
+        "document_id",
+        "source_order_id"
+      ],
+      "primary_key": [
+        "document_id"
+      ]
+    },
+    {
+      "table": "location",
+      "columns": [
+        "id",
+        "warehouse_id",
+        "parent_id",
+        "code",
+        "name",
+        "kind",
+        "is_active",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "lot",
+      "columns": [
+        "id",
+        "product_id",
+        "code",
+        "manufactured_on",
+        "expires_on",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "mfa_factor",
+      "columns": [
+        "id",
+        "user_id",
+        "kind",
+        "credential_ciphertext",
+        "verified_at",
+        "revoked_at",
+        "last_counter",
+        "enrollment_expires_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "move_line",
+      "columns": [
+        "document_line_id",
+        "stock_item_id",
+        "source_location_id",
+        "destination_location_id",
+        "quality_decision_id"
+      ],
+      "primary_key": [
+        "document_line_id"
+      ]
+    },
+    {
+      "table": "opening_document",
+      "columns": [
+        "document_id",
+        "warehouse_id",
+        "batch_key",
+        "signed_count_reference"
+      ],
+      "primary_key": [
+        "document_id"
+      ]
+    },
+    {
+      "table": "opening_line",
+      "columns": [
+        "document_line_id",
+        "destination_location_id",
+        "lot_code",
+        "serial_code",
+        "manufactured_on",
+        "expires_on"
+      ],
+      "primary_key": [
+        "document_line_id"
+      ]
+    },
+    {
+      "table": "organization",
+      "columns": [
+        "id",
+        "code",
+        "name",
+        "timezone",
+        "currency"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "outbox_event",
+      "columns": [
+        "id",
+        "event_type",
+        "aggregate_id",
+        "payload",
+        "occurred_at",
+        "available_at",
+        "attempts",
+        "processed_at",
+        "last_error",
+        "version",
+        "replay_count",
+        "replayed_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "package",
+      "columns": [
+        "id",
+        "document_id",
+        "code",
+        "status",
+        "version",
+        "reason",
+        "created_by",
+        "created_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "package_line",
+      "columns": [
+        "id",
+        "package_id",
+        "document_line_id",
+        "stock_item_id",
+        "quantity",
+        "pick_task_id",
+        "consumed_quantity"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "partner",
+      "columns": [
+        "id",
+        "code",
+        "name",
+        "is_customer",
+        "is_supplier",
+        "tax_code",
+        "address",
+        "is_active",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "period_reopen_confirmation",
+      "columns": [
+        "id",
+        "period_id",
+        "period_version",
+        "confirmed_by",
+        "confirmed_at",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "permission",
+      "columns": [
+        "id",
+        "code",
+        "scope_kind",
+        "description"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "pick_task",
+      "columns": [
+        "id",
+        "reservation_id",
+        "assigned_to",
+        "picked_quantity",
+        "status",
+        "version",
+        "target_quantity",
+        "consumed_quantity",
+        "reason",
+        "created_by",
+        "created_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "print_attempt",
+      "columns": [
+        "id",
+        "job_id",
+        "generation",
+        "actor_id",
+        "session_id",
+        "printer",
+        "driver",
+        "copies",
+        "status",
+        "spool_id",
+        "error_code",
+        "created_at",
+        "finished_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "print_job",
+      "columns": [
+        "id",
+        "requested_by",
+        "session_id",
+        "warehouse_id",
+        "source_id",
+        "source_version",
+        "template",
+        "template_version",
+        "paper",
+        "include_price",
+        "criteria",
+        "snapshot",
+        "snapshot_hash",
+        "status",
+        "version",
+        "generation",
+        "file_id",
+        "created_at",
+        "expires_at",
+        "error_code"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "print_task",
+      "columns": [
+        "id",
+        "job_id",
+        "generation",
+        "status",
+        "attempts",
+        "available_at",
+        "lease_token",
+        "lease_until"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "product",
+      "columns": [
+        "id",
+        "sku",
+        "name",
+        "category_id",
+        "base_uom_id",
+        "tracking",
+        "expiry_required",
+        "is_active",
+        "version",
+        "attributes"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "product_category",
+      "columns": [
+        "id",
+        "code",
+        "name",
+        "parent_id",
+        "version",
+        "is_active"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "product_image",
+      "columns": [
+        "id",
+        "product_id",
+        "file_id",
+        "sort_order"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "product_uom",
+      "columns": [
+        "id",
+        "product_id",
+        "uom_id",
+        "factor",
+        "revision",
+        "is_active"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "quality_decision",
+      "columns": [
+        "id",
+        "receipt_move_id",
+        "quantity",
+        "result",
+        "reason",
+        "decided_by",
+        "decided_at",
+        "followup_document_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "reference_price",
+      "columns": [
+        "id",
+        "product_id",
+        "effective_on",
+        "amount",
+        "currency",
+        "source",
+        "created_by"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "report_request_guard",
+      "columns": [
+        "user_id",
+        "version"
+      ],
+      "primary_key": [
+        "user_id"
+      ]
+    },
+    {
+      "table": "report_snapshot",
+      "columns": [
+        "id",
+        "requested_by",
+        "report_code",
+        "criteria",
+        "required_warehouses",
+        "created_at",
+        "expires_at",
+        "row_count",
+        "columns",
+        "sha256"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "report_snapshot_row",
+      "columns": [
+        "snapshot_id",
+        "ordinal",
+        "payload"
+      ],
+      "primary_key": [
+        "snapshot_id",
+        "ordinal"
+      ]
+    },
+    {
+      "table": "reservation",
+      "columns": [
+        "id",
+        "line_id",
+        "stock_item_id",
+        "location_id",
+        "quantity",
+        "consumed",
+        "released",
+        "expires_at",
+        "created_by"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "reservation_consumption",
+      "columns": [
+        "id",
+        "reservation_id",
+        "move_id",
+        "quantity"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "return_document",
+      "columns": [
+        "document_id",
+        "source_document_id"
+      ],
+      "primary_key": [
+        "document_id"
+      ]
+    },
+    {
+      "table": "return_line",
+      "columns": [
+        "document_line_id",
+        "source_move_id",
+        "location_id"
+      ],
+      "primary_key": [
+        "document_line_id"
+      ]
+    },
+    {
+      "table": "reversal_document",
+      "columns": [
+        "document_id",
+        "source_transaction_id",
+        "source_version",
+        "reversal_reason"
+      ],
+      "primary_key": [
+        "document_id"
+      ]
+    },
+    {
+      "table": "reversal_line",
+      "columns": [
+        "document_line_id",
+        "source_move_id"
+      ],
+      "primary_key": [
+        "document_line_id"
+      ]
+    },
+    {
+      "table": "role",
+      "columns": [
+        "id",
+        "code",
+        "name",
+        "is_active"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "role_permission",
+      "columns": [
+        "id",
+        "role_id",
+        "permission_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "serial",
+      "columns": [
+        "id",
+        "product_id",
+        "code",
+        "warranty_version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "serial_position",
+      "columns": [
+        "id",
+        "serial_id",
+        "location_id",
+        "last_move_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "serial_warranty_record",
+      "columns": [
+        "id",
+        "serial_id",
+        "receipt_move_id",
+        "revision",
+        "starts_on",
+        "ends_on",
+        "evidence_ref",
+        "recorded_by",
+        "recorded_at",
+        "reason"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "stock_balance",
+      "columns": [
+        "id",
+        "stock_item_id",
+        "location_id",
+        "on_hand",
+        "reserved",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "stock_item",
+      "columns": [
+        "id",
+        "product_id",
+        "lot_id",
+        "serial_id",
+        "owner_id",
+        "consignment_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "stock_move",
+      "columns": [
+        "id",
+        "transaction_id",
+        "line_id",
+        "stock_item_id",
+        "source_location_id",
+        "destination_location_id",
+        "quantity_base",
+        "base_uom_id",
+        "reverses_move_id"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "stock_owner",
+      "columns": [
+        "id",
+        "code",
+        "name",
+        "kind",
+        "partner_id",
+        "is_active",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "stock_period",
+      "columns": [
+        "id",
+        "warehouse_id",
+        "starts_on",
+        "ends_on",
+        "status",
+        "closed_by",
+        "closed_at",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "stored_file",
+      "columns": [
+        "id",
+        "storage_key",
+        "original_name",
+        "mime_type",
+        "sha256",
+        "size_bytes",
+        "uploaded_by",
+        "created_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "transfer_adjustment",
+      "columns": [
+        "document_id",
+        "source_transfer_id",
+        "discrepancy_id"
+      ],
+      "primary_key": [
+        "document_id"
+      ]
+    },
+    {
+      "table": "transfer_discrepancy",
+      "columns": [
+        "id",
+        "transfer_document_id",
+        "dispatch_move_id",
+        "kind",
+        "quantity",
+        "evidence_ref",
+        "recorded_by",
+        "recorded_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "transfer_line",
+      "columns": [
+        "document_line_id",
+        "stock_item_id",
+        "source_location_id"
+      ],
+      "primary_key": [
+        "document_line_id"
+      ]
+    },
+    {
+      "table": "transfer_move",
+      "columns": [
+        "move_id",
+        "dispatch_move_id",
+        "disposition",
+        "evidence_ref"
+      ],
+      "primary_key": [
+        "move_id"
+      ]
+    },
+    {
+      "table": "uom",
+      "columns": [
+        "id",
+        "code",
+        "name",
+        "decimal_places",
+        "version",
+        "is_active"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "user_avatar",
+      "columns": [
+        "user_id",
+        "image_base64",
+        "version",
+        "updated_at"
+      ],
+      "primary_key": [
+        "user_id"
+      ]
+    },
+    {
+      "table": "user_role_grant",
+      "columns": [
+        "id",
+        "user_id",
+        "role_id",
+        "scope_kind",
+        "warehouse_id",
+        "valid_from",
+        "valid_until",
+        "granted_by",
+        "revoked_at"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "warehouse",
+      "columns": [
+        "id",
+        "code",
+        "name",
+        "address",
+        "is_active",
+        "version"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    },
+    {
+      "table": "worker_status",
+      "columns": [
+        "id",
+        "kind",
+        "registry_hash",
+        "state",
+        "started_at",
+        "heartbeat_at",
+        "result_code",
+        "completed_cycles"
+      ],
+      "primary_key": [
+        "id"
+      ]
+    }
+  ],
+  "bounded_text": [
+    {
+      "table": "auth_contact",
+      "column": "kind",
+      "max_length": 10
+    },
+    {
+      "table": "auth_contact",
+      "column": "value",
+      "max_length": 512
+    },
+    {
+      "table": "auth_google_identity",
+      "column": "subject",
+      "max_length": 255
+    },
+    {
+      "table": "auth_session",
+      "column": "refresh_hash",
+      "max_length": 64
+    },
+    {
+      "table": "stored_file",
+      "column": "storage_key",
+      "max_length": 240
+    }
+  ]
+}

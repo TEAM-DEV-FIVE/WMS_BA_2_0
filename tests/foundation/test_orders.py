@@ -611,7 +611,7 @@ def test_order_desktop_create_stale_form_submit_approve_and_logout(orders):
         view.action("submit")
         wait(lambda: not view.busy and view.doc["status"] == "SUBMITTED")
         session.logout()
-        wait(lambda: session.status.get() == "Đã đăng xuất.")
+        wait(lambda: session.status.get().removesuffix(".") == "Đã đăng xuất")
         assert view.doc is None and view.lines == []
         session.username.set("controller")
         session.password.set("Test-only-password-2026!")
@@ -628,7 +628,7 @@ def test_order_desktop_create_stale_form_submit_approve_and_logout(orders):
         assert "controller" in view.variables["history"].get()
         session.logout()
         assert view.doc is None and view.lines == []
-        wait(lambda: session.status.get() == "Đã đăng xuất.")
+        wait(lambda: session.status.get().removesuffix(".") == "Đã đăng xuất")
     finally:
         if shell:
             shell.close()

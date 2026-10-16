@@ -72,12 +72,12 @@ def main_graphs():
         'local': node('SQLite cục bộ', ['Nháp và nhật ký lệnh', 'Tách máy chủ / tài khoản / thiết bị']),
         'proxy': node('Reverse proxy Nginx', ['Cấu hình triển khai LAN', 'HTTPS; chuyển header phục hồi']),
         'api': node('FastAPI', ['create_app()', 'Xác thực và dịch vụ nghiệp vụ']),
-        'db': node('PostgreSQL', ['Schema wms', '108 bảng qua migration 001–026']),
+        'db': node('MySQL / PostgreSQL', ['Dữ liệu nghiệp vụ và sổ kho', 'Database theo cấu hình triển khai']),
         'workers': node('Worker nền', ['Outbox · import · export · print', 'Export cleanup · print cleanup', 'Auth delivery']),
         'files': node('Kho tệp riêng', ['Import / export / PDF', 'Truy cập qua API kiểm quyền']),
         'vault': node('Kho bí mật hệ điều hành', ['SessionVault', 'Nhớ phiên khi người dùng bật']),
         'print': node('Hệ thống in của máy', ['Spooler Windows / CUPS', 'Máy quét HID nhập bàn phím']),
-    }, [('desktop','proxy','HTTPS'),('proxy','api','HTTP nội bộ'),('api','db','SQLAlchemy / psycopg'),
+    }, [('desktop','proxy','HTTPS'),('proxy','api','HTTP nội bộ'),('api','db','SQLAlchemy\nPyMySQL / psycopg'),
         ('desktop','local','Nháp / key'),('desktop','vault','Refresh token'),('workers','db','Job / lease / ACK'),
         ('workers','files','Tác vụ tệp'),('api','files','Kiểm soát tải tệp'),('desktop','print','In / nhập mã')],
         ['apps/desktop/views/shell.py','apps/server/api/app.py','deploy/lan','apps/desktop/local_store/session_vault.py'])]
@@ -362,7 +362,7 @@ def main():
     drawio=ET.Element('mxfile',host='app.diagrams.net',type='device')
     pdfs=[]
     index=['# Sơ đồ hiện hành của WMS','',
-           'Sinh từ mã nguồn và schema PostgreSQL dựng bằng migration 001–026. '
+           'Kiến trúc hỗ trợ MySQL và PostgreSQL. ERD mô tả mô hình nghiệp vụ chung từ catalog PostgreSQL 001–026; DDL MySQL nằm trong mysql_migrations. '
            'Các luồng mô tả xử lý trong phần mềm; không đại diện cho khảo sát quy trình doanh nghiệp.', '',
            '[Ký pháp và nguồn giáo trình](../NOTATION_GUIDE.md). Use case và BPMN dùng bố cục riêng; '
            'ERD dùng Crow’s Foot và lực lượng quan hệ suy từ schema. Lớp dùng các ngăn UML.', '',

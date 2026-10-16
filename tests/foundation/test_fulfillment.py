@@ -89,14 +89,10 @@ def test_fulfillment_t15_pick_pack_unchanged_partial_issue_once(fulfillment):
 
 
 def reconcile_fulfillment(f):
+    from apps.server.infrastructure.reconciliation import reconciliation_results
     with f.engine.connect() as c:
-        with c.connection.driver_connection.cursor() as cursor:
-            cursor.execute((Path(__file__).resolve().parents[2] / "02_CSDL/reconcile_fulfillment.sql").read_text())
-            while True:
-                if cursor.description:
-                    assert cursor.fetchall() == []
-                if not cursor.nextset():
-                    break
+        for rows in reconciliation_results(c, (Path(__file__).resolve().parents[2] / "02_CSDL/reconcile_fulfillment.sql").read_text()):
+            assert rows == []
 
 
 def test_fulfillment_partial_shortage_reject_and_reallocate(fulfillment):

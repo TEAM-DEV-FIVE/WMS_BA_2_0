@@ -15,7 +15,7 @@ WHERE p.serial_id IS NULL OR i.serial_id IS NULL OR p.location_id<>i.location_id
 
 -- Consumption tracing must agree with the reservation aggregate.
 SELECT r.id FROM wms.reservation r LEFT JOIN wms.reservation_consumption c ON c.reservation_id=r.id
-GROUP BY r.id HAVING r.consumed<>coalesce(sum(c.quantity),0);
+GROUP BY r.id,r.consumed HAVING r.consumed<>coalesce(sum(c.quantity),0);
 
 -- Each reversal preserves identity/quantity and exactly swaps both legs.
 SELECT r.id FROM wms.stock_move r JOIN wms.stock_move s ON s.id=r.reverses_move_id

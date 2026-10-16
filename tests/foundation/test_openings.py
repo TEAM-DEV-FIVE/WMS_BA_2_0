@@ -8,6 +8,7 @@ import pytest
 from sqlalchemy import event, text
 from test_orders import ok, orders  # noqa: F401
 
+from apps.server.infrastructure.reconciliation import reconciliation_results
 from packages.contracts.traceability import COMPANY_OWNER
 
 pytestmark = pytest.mark.integration
@@ -177,13 +178,8 @@ def test_opening_lifecycle_replay_ack_and_reconciliation(opening):
         )
         assert c.execute(text("SELECT owner_id FROM wms.stock_item")).scalar_one() == COMPANY_OWNER
         for name in ["reconcile.sql", "reconcile_ownership.sql"]:
-            with c.connection.driver_connection.cursor() as cursor:
-                cursor.execute((Path(__file__).resolve().parents[2] / "02_CSDL" / name).read_text())
-                while True:
-                    if cursor.description:
-                        assert cursor.fetchall() == []
-                    if not cursor.nextset():
-                        break
+            for rows in reconciliation_results(c, (Path(__file__).resolve().parents[2] / "02_CSDL" / name).read_text()):
+                assert rows == []
 
 
 def test_opening_permissions_scope_sod_and_revoke_on_replay(opening):
@@ -360,7 +356,8 @@ def test_opening_failpoints_rollback_all_and_same_key_retry(opening, point):
         }
 
     def fail(conn, cursor, statement, parameters, context, executemany):
-        prefix = "UPDATE wms." if point == "stock_balance" else "INSERT INTO wms."
+        statement = statement.replace("`", "").replace("wms.", "")
+        prefix = "UPDATE " if point == "stock_balance" else "INSERT INTO "
         if statement.lstrip().startswith(prefix + point):
             raise RuntimeError("opening failpoint after " + point)
 

@@ -40,14 +40,14 @@ Nếu cần sửa ngoài phạm vi, ghi rõ đề xuất trong báo cáo bàn gi
 ## Bất biến và kiểm thử
 
 - Đọc `01_Tai_lieu/INVARIANTS.md`, hướng dẫn module liên quan và mã hiện có trước khi mở rộng.
-- PostgreSQL là dữ liệu chính thức. Không ghi DB từ desktop. Không lưu credential vào SQLite/log.
+- Database vận hành trên máy triển khai là MySQL (`wms_mysql`) từ 16/10/2026; PostgreSQL được giữ phục hồi. Không ghi DB từ desktop. Không lưu credential vào SQLite/log. Xem `07_Kiem_tra/mysql/STATUS.md`.
 - Lệnh ghi phải kiểm tra quyền hiện tại, version, chống trùng; ledger/balance/audit/outbox/ACK cùng transaction.
 - Giữ migration đã tích hợp `001`–`024` bất biến; số mới chốt từ 025 trở đi khi tích hợp. Revision phát triển đã phân tên riêng trong catalog,
   chỉ dùng DB tạm riêng worktree. Điều phối chốt số tăng tiếp khi merge và kiểm thử upgrade từ mốc tổng;
   không sửa revision đã tích hợp/phát hành. Đọc quy tắc prefix migration trong quy trình agent.
 - SQLite 001–003 đã tích hợp, giữ bất biến. B19 sở hữu SQLite revision003 và recovery chung sau các domain; không ghi secret vào journal.
 - Không đổi requirement/acceptance test sang PASS để né kiểm thử. T01–T28 vẫn PLANNED đến khi nghiệm thu đủ.
-- Kiểm thử DB dùng runner tạo cluster/database tạm; không dùng `WMS_DATABASE_URL` vận hành.
+- Kiểm thử DB dùng runner tạo cluster/database tạm: `scripts/check_mysql.py` cho MySQL, `scripts/check_application.py` cho PostgreSQL; không dùng database hay `WMS_DATABASE_URL` vận hành.
 - GUI và hủy tài nguyên Tk ở main thread; HTTP/SQLite qua worker và loại response thuộc phiên cũ.
 - Kiểm thử tình huống lỗi/race/replay phù hợp thay đổi; không xóa/skip test cũ để có kết quả xanh.
 - Không sửa tay `SHA256SUMS.txt`; sau khi review thay đổi, chạy `scripts/update_artifacts.py`, rồi `scripts/check_artifacts.py`.

@@ -8,6 +8,7 @@
   <tr>
     <td align="center" width="115"><a href="https://www.python.org/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons/python/python-original.svg" height="44" width="44" alt="Python · Tkinter"><br><strong>Python · Tkinter</strong></a><br><sub>Ngôn ngữ · Desktop</sub></td>
     <td align="center" width="115"><a href="https://fastapi.tiangolo.com/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons/fastapi/fastapi-original.svg" height="44" width="44" alt="FastAPI"><br><strong>FastAPI</strong></a><br><sub>HTTP API</sub></td>
+    <td align="center" width="115"><a href="https://www.mysql.com/"><img src="assets/platforms/mysql.svg" height="44" width="44" alt="MySQL"><br><strong>MySQL</strong></a><br><sub>Dữ liệu máy chủ</sub></td>
     <td align="center" width="115"><a href="https://www.postgresql.org/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons/postgresql/postgresql-original.svg" height="44" width="44" alt="PostgreSQL"><br><strong>PostgreSQL</strong></a><br><sub>Dữ liệu máy chủ</sub></td>
     <td align="center" width="115"><a href="https://www.sqlite.org/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons/sqlite/sqlite-original.svg" height="44" width="44" alt="SQLite"><br><strong>SQLite</strong></a><br><sub>Nháp cục bộ</sub></td>
     <td align="center" width="115"><a href="https://www.sqlalchemy.org/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons/sqlalchemy/sqlalchemy-original.svg" height="44" width="44" alt="SQLAlchemy"><br><strong>SQLAlchemy</strong></a><br><sub>Truy cập dữ liệu</sub></td>
@@ -16,9 +17,21 @@
   </tr>
 </table>
 
-WMS được viết bằng **Python**, dùng **Tkinter/ttk** cho giao diện, **FastAPI** cho API và **PostgreSQL** làm cơ sở dữ liệu trung tâm. Hệ thống theo dõi quá trình từ đơn mua, nhận hàng, lưu kho, soạn/đóng kiện đến xuất kho, trả hàng, kiểm kê và đối soát; đồng thời quản lý người dùng, phê duyệt, truy vết và phục hồi các lệnh bị gián đoạn.
+WMS được viết bằng **Python**, dùng **Tkinter/ttk** cho giao diện, **FastAPI** cho API và **MySQL 8.0 hoặc PostgreSQL** làm cơ sở dữ liệu trung tâm. Hệ thống theo dõi quá trình từ đơn mua, nhận hàng, lưu kho, soạn/đóng kiện đến xuất kho, trả hàng, kiểm kê và đối soát; đồng thời quản lý người dùng, phê duyệt, truy vết và phục hồi các lệnh bị gián đoạn.
 
 <a id="tai-ung-dung"></a>
+
+## Hỗ trợ MySQL
+
+Mã nguồn hỗ trợ **MySQL 8.0** qua SQLAlchemy và PyMySQL. WMS dùng database
+`wms_mysql`; KWS dùng `kws_mysql`, tài khoản và API riêng. Các migration PostgreSQL
+được giữ nguyên để phục hồi. Quy trình chuyển dữ liệu kiểm tra số bản ghi, SHA-256,
+khóa ngoại và đối soát nghiệp vụ trước khi đổi kết nối ứng dụng.
+
+Xem [triển khai MySQL](deploy/lan/mysql/README.md) và
+[công cụ chuyển dữ liệu](mysql_migrations/README.md).
+Bản triển khai ngày 16/10/2026 đã chuyển mã nguồn và dữ liệu sang MySQL;
+xem [kết quả đối chiếu và kiểm thử](07_Kiem_tra/mysql/STATUS.md).
 
 ## Tải ứng dụng
 
@@ -80,8 +93,8 @@ Các luồng mô tả chức năng đã có trong mã nguồn. Điều kiện qu
 | Giao tiếp | HTTPX | Client gọi API với timeout và xử lý phản hồi ngoài luồng giao diện |
 | Máy chủ HTTP | FastAPI, Uvicorn | Khai báo route, xử lý yêu cầu và phục vụ API |
 | Hợp đồng dữ liệu | Pydantic, pydantic-settings | Kiểm tra DTO, kiểu dữ liệu và cấu hình môi trường |
-| Truy cập PostgreSQL | SQLAlchemy 2.0, psycopg 3 | Kết nối, truy vấn có tham số, transaction và khóa dữ liệu |
-| Dữ liệu trung tâm | PostgreSQL 15/16, SQL migrations | Chứng từ, sổ/số dư, định danh hàng, quyền, audit và job |
+| Truy cập database | SQLAlchemy 2.0, PyMySQL, psycopg 3 | Kết nối, truy vấn có tham số, transaction và khóa dữ liệu |
+| Dữ liệu trung tâm | MySQL 8.0 / PostgreSQL 15–16, SQL migrations | Chứng từ, sổ/số dư, định danh hàng, quyền, audit và job |
 | Dữ liệu trên desktop | SQLite qua thư viện chuẩn Python | Nháp và nhật ký lệnh phục hồi tách theo máy chủ/tài khoản/thiết bị |
 | Xác thực | argon2-cffi, cryptography, PyOTP, keyring | Băm mật khẩu, bảo vệ dữ liệu bí mật, MFA và lưu phiên trong vault hệ điều hành |
 | Chứng từ và mã | ReportLab, pypdfium2, qrcode | Tạo PDF, xem trước PDF và mã QR; adapter hệ điều hành gửi máy in |
@@ -429,7 +442,7 @@ Yêu cầu phát triển: Python 3.12, Tkinter và PostgreSQL 15/16. Cài depend
 
 | Cấu hình | Dùng ở đâu | Ý nghĩa |
 |---|---|---|
-| `WMS_DATABASE_URL` | Server / migration | DSN PostgreSQL dùng driver `postgresql+psycopg`; desktop không cần biến này |
+| `WMS_DATABASE_URL` | Server / migration | DSN dùng driver `mysql+pymysql` hoặc `postgresql+psycopg`; desktop không cần biến này |
 | `WMS_API_URL` | Desktop | URL API kết thúc bằng `/api/v1`; LAN dùng HTTPS, local development cho phép HTTP loopback |
 | `WMS_CA_FILE` | Desktop | Đường dẫn CA nội bộ khi triển khai TLS với CA riêng |
 | `WMS_MFA_ENCRYPTION_KEY` | Server | Khóa Fernet do quản trị tạo và giữ riêng, cần cho đăng ký/sử dụng MFA |

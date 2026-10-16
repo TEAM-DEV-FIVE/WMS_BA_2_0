@@ -42,12 +42,12 @@ class Settings(BaseSettings):
 
     @field_validator("database_url")
     @classmethod
-    def postgres_only(cls, value: SecretStr) -> SecretStr:
+    def supported_database(cls, value: SecretStr) -> SecretStr:
         try:
             url = make_url(value.get_secret_value())
-            valid = url.drivername == "postgresql+psycopg" and bool(url.database)
+            valid = url.drivername in {"postgresql+psycopg", "mysql+pymysql"} and bool(url.database)
         except Exception:
             valid = False
         if not valid:
-            raise ValueError("WMS_DATABASE_URL must use postgresql+psycopg:// and name a database")
+            raise ValueError("WMS_DATABASE_URL must use mysql+pymysql:// or postgresql+psycopg:// and name a database")
         return value

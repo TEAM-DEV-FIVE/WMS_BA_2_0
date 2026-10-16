@@ -3,13 +3,38 @@ import json
 from typing import Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import Connection, Engine, create_engine, text
+from sqlalchemy import Connection, Engine, create_engine, event, text
 
 from apps.server.infrastructure.config import Settings
 
 
 def make_engine(settings: Settings) -> Engine:
     timeout = settings.database_timeout_seconds
+    if settings.database_url.get_secret_value().startswith("mysql+pymysql:"):
+        from apps.server.infrastructure.mysql import MySQLConnection, MySQLOptionEngine, TypedCursor
+
+        engine = create_engine(
+            settings.database_url.get_secret_value(), pool_pre_ping=True,
+            pool_size=settings.pool_size, max_overflow=0, pool_timeout=timeout,
+            hide_parameters=True, isolation_level="READ COMMITTED",
+            connect_args={"connect_timeout": timeout, "read_timeout": timeout,
+                          "write_timeout": timeout, "cursorclass": TypedCursor,
+                          "init_command": (
+                              "SET time_zone='+00:00', foreign_key_checks=1, unique_checks=1, group_concat_max_len=67108864, "
+                              "sql_mode='STRICT_ALL_TABLES,ONLY_FULL_GROUP_BY,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION', "
+                              f"innodb_lock_wait_timeout={timeout}, max_execution_time={timeout * 1000}"
+                          )},
+        )
+        engine._connection_cls = MySQLConnection
+        engine._option_cls = MySQLOptionEngine
+
+        @event.listens_for(engine, "connect")
+        def verify_timezone(dbapi_connection, _):
+            with dbapi_connection.cursor() as cursor:
+                cursor.execute("SELECT CONVERT_TZ(UTC_TIMESTAMP(6), '+00:00', %s)", (settings.business_timezone,))
+                if cursor.fetchone()[0] is None:
+                    raise ValueError("MySQL timezone tables must contain the configured business timezone")
+        return engine
     return create_engine(
         settings.database_url.get_secret_value(), pool_pre_ping=True,
         pool_size=settings.pool_size, max_overflow=0, pool_timeout=timeout,

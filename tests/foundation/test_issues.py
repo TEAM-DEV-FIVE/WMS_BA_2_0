@@ -11,6 +11,7 @@ from sqlalchemy import event, text
 from test_openings import opening  # noqa: F401
 from test_orders import ok, orders  # noqa: F401
 
+from apps.server.infrastructure.reconciliation import reconciliation_results
 from packages.contracts.traceability import COMPANY_OWNER
 
 pytestmark = pytest.mark.integration
@@ -91,13 +92,8 @@ def inventory(f):
 def reconcile(f):
     with f.engine.connect() as c:
         for name in ("reconcile.sql", "reconcile_ownership.sql"):
-            with c.connection.driver_connection.cursor() as cursor:
-                cursor.execute((Path(__file__).resolve().parents[2] / "02_CSDL" / name).read_text())
-                while True:
-                    if cursor.description:
-                        assert cursor.fetchall() == []
-                    if not cursor.nextset():
-                        break
+            for rows in reconciliation_results(c, (Path(__file__).resolve().parents[2] / "02_CSDL" / name).read_text()):
+                assert rows == []
 
 
 def test_issue_partial_complete_replay_execution_and_operation(issuing):
@@ -252,7 +248,8 @@ def test_failpoint_rollback_all_effects_then_retry_same_key(issuing, point):
                   for t in ("audit_event", "outbox_event", "idempotency_record")}
 
     def fail(c, cursor, statement, parameters, context, executemany):
-        if statement.lstrip().startswith(("INSERT", "UPDATE")) and "wms." + point in statement:
+        statement = statement.replace("`", "").replace("wms.", "")
+        if statement.lstrip().startswith(("INSERT", "UPDATE")) and point in statement:
             raise RuntimeError("Test failure after write")
 
     event.listen(f.engine, "after_cursor_execute", fail)

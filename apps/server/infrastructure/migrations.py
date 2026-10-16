@@ -29,6 +29,9 @@ def expected_revisions() -> dict[str, str]:
 
 def migrate(engine: Engine) -> list[str]:
     """Apply all pending revisions atomically under a database-wide advisory lock."""
+    if engine.dialect.name == "mysql":
+        from apps.server.infrastructure.mysql_migrations import migrate as migrate_mysql
+        return migrate_mysql(engine)
     applied = []
     with engine.begin() as connection:
         connection.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": MIGRATION_LOCK})
@@ -67,6 +70,9 @@ def migrate(engine: Engine) -> list[str]:
 
 
 def is_ready(engine: Engine) -> bool:
+    if engine.dialect.name == "mysql":
+        from apps.server.infrastructure.mysql_migrations import is_ready as mysql_ready
+        return mysql_ready(engine)
     with engine.connect() as connection:
         if connection.execute(text("SELECT to_regclass('public.wms_schema_migration')")).scalar_one() is None:
             return False
@@ -84,7 +90,7 @@ def main() -> None:
     try:
         settings = Settings()
     except ValidationError:
-        raise SystemExit("Cấu hình không hợp lệ. Kiểm tra WMS_DATABASE_URL (PostgreSQL), port và timeout.") from None
+        raise SystemExit("Cấu hình không hợp lệ. Kiểm tra WMS_DATABASE_URL (MySQL hoặc PostgreSQL), port và timeout.") from None
     engine = make_engine(settings)
     try:
         applied = migrate(engine)
@@ -92,7 +98,7 @@ def main() -> None:
     except MigrationError as exc:
         raise SystemExit(str(exc)) from None
     except SQLAlchemyError:
-        raise SystemExit("Migration thất bại; transaction đã rollback. Kiểm tra kết nối/quyền và log PostgreSQL.") from None
+        raise SystemExit("Migration thất bại. Kiểm tra kết nối, quyền và trạng thái migration; MySQL có thể đã áp dụng một phần DDL.") from None
     finally:
         engine.dispose()
 

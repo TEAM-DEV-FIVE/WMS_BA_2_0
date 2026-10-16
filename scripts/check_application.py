@@ -31,8 +31,9 @@ def tests(environment, options, pg_version=None):
     args = [sys.executable, "-m", "pytest", *[str(p) for p in (options.test_path or ["tests"])], "-q", "--tb=short", "--strict-markers",
             f"--junitxml={report}"]
     marker = {"unit": "not integration and not gui", "gui": "gui and not integration"}.get(options.suite)
-    if marker or not options.gui:
-        args += ["-m", marker or "not gui"]
+    if marker is None and not options.gui:
+        marker = "not gui"
+    args += ["-m", f"({marker}) and not mysql" if marker else "not mysql"]
     status = logged_run(args, report.with_suffix(".log"), cwd=ROOT, env=environment)
     counts = {}
     if report.exists():

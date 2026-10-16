@@ -32,10 +32,10 @@
         ]
       },
       "db": {
-        "name": "PostgreSQL",
+        "name": "MySQL / PostgreSQL",
         "lines": [
-          "Schema wms",
-          "108 bảng qua migration 001–026"
+          "Dữ liệu nghiệp vụ và sổ kho",
+          "Database theo cấu hình triển khai"
         ]
       },
       "workers": {
@@ -82,7 +82,7 @@
       [
         "api",
         "db",
-        "SQLAlchemy / psycopg"
+        "SQLAlchemy\nPyMySQL / psycopg"
       ],
       [
         "desktop",

@@ -110,6 +110,7 @@ def test_forgot_expiry_throttle_and_account_hint(iam, modern):
     body = dict(kind='email', value='operator@example.test', purpose='account')
     assert iam.client.post('/api/v1/auth/forgot', json=body).status_code == 200
     assert 'operator' in message(iam)['body']
+    iam.advance(1)  # Latest-message ordering must not depend on tied expiry times.
     body['purpose'] = 'password'
     for _ in range(4):
         assert iam.client.post('/api/v1/auth/forgot', json=body).status_code == 200
