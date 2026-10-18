@@ -1,7 +1,7 @@
 """Editorial sections for the root README; feature inventory is generated separately."""
 
 REPOSITORY = 'https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0'
-RELEASE = REPOSITORY + '/releases/download/v0.1.0-ui.20261018/'
+RELEASE = REPOSITORY + '/releases/download/v0.1.0-ui.20261018.1/'
 TECHNOLOGIES = [
     ('Python · Tkinter', 'python', 'https://www.python.org/', 'Ngôn ngữ · Desktop'),
     ('FastAPI', 'fastapi', 'https://fastapi.tiangolo.com/', 'HTTP API'),
@@ -12,7 +12,7 @@ TECHNOLOGIES = [
     ('pytest', 'pytest', 'https://docs.pytest.org/', 'Kiểm thử'),
 ]
 DOWNLOADS = [
-    ('Windows', 'windows', 'WMS-Setup-0.1.0-7398faad9810-x64.exe', 'Tải Windows (.exe)', 'Desktop x64 · bản thử nghiệm'),
+    ('Windows', 'windows', 'WMS-Setup-0.1.0-efa4df60261a-x64.exe', 'Tải Windows (.exe)', 'Desktop x64 · bản thử nghiệm'),
     ('macOS', 'macos', 'WMS-macos-arm64-TEST-ONLY.zip', 'Tải macOS (.zip)', 'Desktop ARM64 · bản thử nghiệm'),
     ('Linux Server', 'linux', 'WMS-Server-0.1.0-7398faad9810-linux-x64.tar.gz',
      'Tải Linux Server (.tar.gz)', 'Máy chủ Linux x64'),
@@ -53,7 +53,7 @@ WMS được viết bằng **Python**, dùng **Tkinter/ttk** cho giao diện, **
 
 **[Xem tất cả bản phát hành]({REPOSITORY}/releases)** · **[Tải mã nguồn main (.zip)]({REPOSITORY}/archive/refs/heads/main.zip)** · [Hướng dẫn cài đặt](01_Tai_lieu/OPERATIONS_RUNBOOK.md) · [Hướng dẫn sử dụng](01_Tai_lieu/USER_GUIDE.md)
 
-**Bản giao diện cập nhật ngày 18/10/2026**, đóng gói từ mã nguồn `7398faa`, gồm các thay đổi giao diện hiện hành và hỗ trợ máy chủ MySQL/PostgreSQL. Windows đã kiểm tra cài đặt trên Server 2022 x64; macOS trên 15 ARM64; gói Linux Server đã kiểm tra cài offline. [Kết quả đóng gói và SHA-256](07_Kiem_tra/release/UI_20261018.md).
+**Desktop cập nhật ngày 18/10/2026**, mã nguồn `efa4df6`: biểu tượng ứng dụng, shortcut và bộ cài dùng cùng logo màu có viền vàng như Linux. Windows đã kiểm tra cài đặt trên Server 2022 x64; macOS trên 15 ARM64. Gói Linux Server giữ nguyên bản `7398faa` đã kiểm tra cài offline. [Kết quả đóng gói và SHA-256](07_Kiem_tra/release/ICON_20261018.md).
 
 Đây là **bản thử nghiệm**: Windows dùng chứng thư TEST ONLY, macOS ký ad-hoc và chưa notarize. Chưa có chứng thư phát hành công khai hoặc kết quả nghiệm thu Windows 10/11 trên máy người dùng.
 

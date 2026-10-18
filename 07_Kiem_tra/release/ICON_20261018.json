@@ -1,0 +1,135 @@
+{
+  "release": "v0.1.0-ui.20261018.1",
+  "desktop_commit": "efa4df60261a1b9b2fd3a58f12c3d3293dfa5728",
+  "server_commit": "7398faad9810e11a885d39c2c34e42e48ac6e267",
+  "server_package": "unchanged from v0.1.0-ui.20261018; SHA-256 reverified",
+  "workflow": {
+    "url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/39134052299",
+    "conclusion": "success"
+  },
+  "source_icon_sha256": "d586527d821ac187abfa2c47d79b7e10e7a40ed30a0aad36646cd7b91876ddbf",
+  "source_validation": {
+    "tests_passed": 62,
+    "integration_deselected": 1,
+    "ico_frames_match_source_png": true
+  },
+  "windows_icons": {
+    "status": "PASS",
+    "icon_sha256": "adad823b86a041da19a813bfd313ffd35110cef362b9b0109cb6e56c79afa454",
+    "executables": [
+      {
+        "file": "WMS.exe",
+        "status": "PASS",
+        "sizes": [
+          "128x128",
+          "16x16",
+          "24x24",
+          "256x256",
+          "32x32",
+          "48x48",
+          "64x64"
+        ]
+      },
+      {
+        "file": "WMSHelper.exe",
+        "status": "PASS",
+        "sizes": [
+          "128x128",
+          "16x16",
+          "24x24",
+          "256x256",
+          "32x32",
+          "48x48",
+          "64x64"
+        ]
+      },
+      {
+        "file": "WMS-Setup-0.1.0-efa4df60261a-x64.exe",
+        "status": "PASS",
+        "sizes": [
+          "128x128",
+          "16x16",
+          "24x24",
+          "256x256",
+          "32x32",
+          "48x48",
+          "64x64"
+        ]
+      }
+    ]
+  },
+  "windows_resources": {
+    "status": "PASS",
+    "version": "0.1.0",
+    "frozen": true,
+    "tkinter": "8.6.15",
+    "resources": [
+      "SQLite003",
+      "TLS CA",
+      "PDFium",
+      "Pillow",
+      "Tk",
+      "Full-color app icon"
+    ],
+    "platform": "win32",
+    "python": "3.12.10",
+    "architecture": "AMD64",
+    "os_release": "Windows-2022Server-10.0.20348-SP0"
+  },
+  "windows_signature": {
+    "timestamped": true,
+    "commit": "efa4df60261a1b9b2fd3a58f12c3d3293dfa5728",
+    "test_only": true,
+    "signature": "Valid",
+    "signer": "17AD4A36D9E290A076E854C9832C3C1DA94B267D",
+    "public_release": false
+  },
+  "windows_install": "PASS per-user install and installed resource probe in native workflow",
+  "macos": {
+    "version": "0.1.0",
+    "commit": "efa4df60261a1b9b2fd3a58f12c3d3293dfa5728",
+    "platform": "macos-arm64",
+    "signing": "adhoc-test-only",
+    "notarized": false,
+    "public_release": false,
+    "python": "3.12.10 (v3.12.10:0cc81280367, Apr  8 2025, 08:46:59) [Clang 13.0.0 (clang-1300.0.29.30)]",
+    "os": "macOS-15.7.9-arm64-arm-64bit"
+  },
+  "macos_resources": {
+    "status": "PASS",
+    "version": "0.1.0",
+    "frozen": true,
+    "tkinter": "8.6.16",
+    "resources": [
+      "SQLite003",
+      "TLS CA",
+      "PDFium",
+      "Pillow",
+      "Tk",
+      "Full-color app icon"
+    ],
+    "platform": "darwin",
+    "python": "3.12.10",
+    "architecture": "arm64",
+    "os_release": "macOS-15.7.9-arm64-arm-64bit"
+  },
+  "limitations": [
+    "Windows TEST ONLY certificate; not a publicly trusted production signer",
+    "macOS ad-hoc signed; not notarized",
+    "Windows 10/11 user hardware acceptance not performed"
+  ],
+  "files": {
+    "WMS-Server-0.1.0-7398faad9810-linux-x64.tar.gz": {
+      "size": 53631780,
+      "sha256": "b1dcc1a841cae87d69a83273e10b4ee539e549802042abd76e05f34a5eba9285"
+    },
+    "WMS-Setup-0.1.0-efa4df60261a-x64.exe": {
+      "size": 30449824,
+      "sha256": "55d285129a625ebd8d1c2cd3aa66af9c471018a29f31c681467c66c6b782939b"
+    },
+    "WMS-macos-arm64-TEST-ONLY.zip": {
+      "size": 34134588,
+      "sha256": "256e55f50a34e56a2e54bfacfdb43569abdbfc5602ebed5c2959d3cee10197b8"
+    }
+  }
+}
