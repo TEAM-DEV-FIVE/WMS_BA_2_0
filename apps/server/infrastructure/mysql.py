@@ -20,8 +20,8 @@ from sqlglot import exp
 
 from apps.server.infrastructure.mysql_sql import lower, parse, translate
 
-COLUMN_TYPES = json.loads(files("mysql_migrations").joinpath("column_types.json").read_text())
-COLUMN_ORDER = json.loads(files("mysql_migrations").joinpath("column_order.json").read_text())
+COLUMN_TYPES = json.loads(files("mysql_migrations").joinpath("column_types.json").read_text(encoding="utf-8"))
+COLUMN_ORDER = json.loads(files("mysql_migrations").joinpath("column_order.json").read_text(encoding="utf-8"))
 
 
 def parameter(value):

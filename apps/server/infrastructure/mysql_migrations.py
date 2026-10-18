@@ -9,7 +9,7 @@ def assets():
     root = files("mysql_migrations")
     names = ["001_schema.staging.json", "002_guards.staging.json", "003_seed.json", "004_runtime.json", "column_types.json", "column_order.json"]
     return [(name, hashlib.sha256(root.joinpath(name).read_bytes()).hexdigest(),
-             json.loads(root.joinpath(name).read_text())) for name in names]
+             json.loads(root.joinpath(name).read_text(encoding="utf-8"))) for name in names]
 
 
 def native(connection, sql, parameters=None):

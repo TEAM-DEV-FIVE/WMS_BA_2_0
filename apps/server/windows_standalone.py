@@ -172,7 +172,7 @@ def command(component, *extra):
         module, args = "apps.server.worker", []
     else:
         module, args = "apps.server.operations_worker", ["--kind", component]
-    return [sys.executable, "-I", "-m", module, *args, *extra]
+    return [sys.executable, "-I", "-X", "utf8", "-m", module, *args, *extra]
 
 
 def check(home):
@@ -310,7 +310,7 @@ def main(argv=None):
             options = ("username", "display_name") if args.action == "admin" else (
                 "warehouse_code", "starts_on", "ends_on", "reason")
             extra = [part for key in options for part in ("--" + key.replace("_", "-"), getattr(args, key))]
-            return subprocess.call([sys.executable, "-I", "-m", module, *extra],
+            return subprocess.call([sys.executable, "-I", "-X", "utf8", "-m", module, *extra],
                                    env=load_environment(home), cwd=home)
     except SetupError as exc:
         print(str(exc), file=sys.stderr)
