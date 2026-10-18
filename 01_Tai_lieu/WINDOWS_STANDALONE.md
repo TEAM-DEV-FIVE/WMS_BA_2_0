@@ -50,7 +50,7 @@ $tzZip = Join-Path $env:TEMP 'timezone_2026e_posix_sql.zip'
 $tzDir = Join-Path $env:TEMP 'WMS_Timezones_2026e'
 $tzUrl = 'https://downloads.mysql.com/general/timezone_2026e_posix_sql.zip'
 Invoke-WebRequest -UseBasicParsing $tzUrl -OutFile $tzZip
-$tzSha = '1cdda5f330679b416603739c787bdefd66f3b238fcfd91faaba551550a36ec47'
+$tzSha = '2f959ec9cc8996889a7f2bc00b4a88860e4f3bba0c07b34c669cdd064a1a64ec'
 if ((Get-FileHash $tzZip -Algorithm SHA256).Hash -ne $tzSha) {
   throw 'Sai SHA256 goi mui gio. Dung lai.'
 }
