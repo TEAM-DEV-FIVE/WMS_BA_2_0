@@ -1,0 +1,51 @@
+name: Native Windows standalone MySQL server
+on:
+  push:
+    branches: ['feat/windows-standalone-20261018']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-server:
+    runs-on: windows-2022
+    timeout-minutes: 25
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install locked dependencies and wheel
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --only-binary=:all: -r requirements-app-lock.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+          python -m build --wheel --no-isolation
+          if ($LASTEXITCODE -ne 0) { throw 'Wheel build failed' }
+          python -m pip install --no-deps (Get-ChildItem dist/*.whl)[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw 'Wheel installation failed' }
+      - name: Native PDF rendering and worker regression tests
+        shell: pwsh
+        run: |
+          python -m pytest tests/foundation/test_print_render_scanner.py tests/foundation/test_outbox.py tests/foundation/test_windows_standalone.py -m 'not integration' -q
+          if ($LASTEXITCODE -ne 0) { throw 'Regression tests failed' }
+      - name: Real MySQL and installed server on NTFS
+        shell: pwsh
+        run: |
+          $script = Join-Path $env:RUNNER_TEMP 'check_windows_server.py'
+          Copy-Item scripts/check_windows_server.py $script
+          Push-Location $env:RUNNER_TEMP
+          python -I $script
+          $result = $LASTEXITCODE
+          Pop-Location
+          if ($result -ne 0) { throw 'Native MySQL server integration failed' }
+          Copy-Item (Join-Path $env:RUNNER_TEMP 'native-windows-server-result.json') dist/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Native-Windows-Server-${{ github.sha }}
+          path: dist/
+          retention-days: 14

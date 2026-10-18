@@ -1,4 +1,4 @@
-"""No-follow file opens on Linux and Windows; Windows is for client CI only."""
+"""No-follow file opens with owner-only protection on Linux and Windows."""
 
 import os
 import stat
@@ -83,7 +83,8 @@ def open_private(path, *, create=False):
 
 def sync_directory(path):
     if os.name == "nt":
-        # NTFS lacks POSIX directory fsync. Server deployment target remains Linux.
+        # NTFS lacks POSIX directory fsync; file content is flushed before linking.
+        # A Windows deployment needs its own tested backup/power-loss policy.
         return
     fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:

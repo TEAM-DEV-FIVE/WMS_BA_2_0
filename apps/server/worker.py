@@ -61,7 +61,10 @@ def stop_signals(stop: Event) -> Iterator[None]:
         stop.set()
 
     try:
-        for signum in (signal.SIGINT, signal.SIGTERM):
+        signals = [signal.SIGINT, signal.SIGTERM]
+        if hasattr(signal, "SIGBREAK"):
+            signals.append(signal.SIGBREAK)
+        for signum in signals:
             previous[signum] = signal.signal(signum, request_stop)
         yield
     finally:
