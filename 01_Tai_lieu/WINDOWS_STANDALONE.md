@@ -8,6 +8,8 @@ Mô hình kết nối: **WMS Desktop → API tại 127.0.0.1:8000 → MySQL tạ
 
 Nếu đã gặp lỗi `OperationalError` với MySQL **8.0.11**, dùng [hướng dẫn cài lại và nối database từng bước](WINDOWS_MYSQL_RECOVERY.md). Hướng dẫn đó giữ nguyên bản cũ và dùng cổng **3307**; không trộn lệnh 3306 ở trang này vào quy trình đó.
 
+Đã có MySQL bản khác: dùng [hướng dẫn kiểm tra tương thích và kết nối database hiện có](WINDOWS_MYSQL_CONNECT.md). Hỗ trợ dòng 8.0 từ 8.0.23 và 8.4 LTS, kèm kiểm tra tính năng trước khi tạo database. Không cần cài lại chỉ vì phiên bản khác 8.0.46.
+
 ## Bước 1 Chuẩn bị máy và hiểu các cửa sổ lệnh
 
 1. Vào Settings → System → About, kiểm tra máy dùng Windows x64. Hướng dẫn không dành cho Windows 32 bit hoặc ARM64.
@@ -39,7 +41,7 @@ $mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
 & $mysql -h 127.0.0.1 -P 3306 -u root -p -e "SELECT VERSION();"
 ```
 
-Kết quả cần có dịch vụ `Running`, phiên bản máy chủ **8.0.46** từ `SELECT VERSION()` (không phải chỉ phiên bản mysql.exe), và đăng nhập MySQL thành công. Đây là mật khẩu root vừa đặt, không phải mật khẩu Windows hay tài khoản WMS. Nếu cài đường dẫn khác, sửa biến `$mysql` cho đúng.
+Kết quả cần có dịch vụ `Running`, phiên bản máy chủ từ `SELECT VERSION()` (không phải chỉ phiên bản mysql.exe), và đăng nhập MySQL thành công. Với bộ cài minh họa phía trên kết quả là **8.0.46**. Nếu máy có dòng 8.0 từ 8.0.23 hoặc 8.4 LTS, có thể dùng luôn sau khi `preflight` đạt theo [hướng dẫn kết nối](WINDOWS_MYSQL_CONNECT.md). Đây là mật khẩu root vừa đặt, không phải mật khẩu Windows hay tài khoản WMS. Nếu cài đường dẫn khác, sửa biến `$mysql` cho đúng.
 
 ## Bước 3 Nạp múi giờ cho MySQL
 

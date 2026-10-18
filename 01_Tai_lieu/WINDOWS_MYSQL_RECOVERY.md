@@ -2,6 +2,8 @@
 
 Quy trình dành cho máy đã gặp `OperationalError` khi chạy `windows_standalone setup` với MySQL **8.0.11**, hoặc cần cài mới một bộ WMS độc lập. Làm từng bước trong Windows PowerShell, không chép dấu nhắc `PS C:\...>` và không chạy toàn bộ trang như một script.
 
+**Nếu MySQL đang có thuộc dòng 8.0 từ 8.0.23 hoặc 8.4 LTS, đọc [kiểm tra và dùng MySQL hiện có](WINDOWS_MYSQL_CONNECT.md) trước.** Không bắt buộc cài đúng 8.0.46 hoặc thêm instance 3307. Trang này là phương án cài riêng khi bản cũ không phù hợp hoặc cần một bộ hoàn toàn mới.
+
 **Kết quả là một database WMS mới, chưa có dữ liệu nghiệp vụ.** Quy trình này không chuyển chứng từ từ database cũ. Bản MySQL cũ, database `wms_mysql` ở cổng 3306 và thư mục `%LOCALAPPDATA%\WMS-Server` được giữ nguyên. Nếu database cũ đã có nghiệp vụ, chỉ nhập liệu trên bản mới sau khi có kế hoạch chuyển và đối chiếu dữ liệu.
 
 ## 1. Hiểu kết nối mới

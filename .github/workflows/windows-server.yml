@@ -26,7 +26,7 @@ jobs:
         shell: pwsh
         run: |
           $zip = Join-Path $env:RUNNER_TEMP 'mysql-8.4.11-winx64.zip'
-          Invoke-WebRequest 'https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.11-winx64.zip' -OutFile $zip
+          Invoke-WebRequest 'https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.11-winx64.zip' -OutFile $zip -MaximumRetryCount 3 -RetryIntervalSec 5
           if ((Get-FileHash $zip -Algorithm MD5).Hash -ne '2e833921898a9a030ea6bfe81bd811bc') { throw 'MySQL archive checksum mismatch' }
           $destination = Join-Path $env:RUNNER_TEMP 'wms-mysql84'
           Expand-Archive -LiteralPath $zip -DestinationPath $destination
@@ -51,7 +51,8 @@ jobs:
       - name: Validate PowerShell examples in Windows recovery guide
         shell: pwsh
         run: |
-          $guide = Get-Content -LiteralPath '01_Tai_lieu/WINDOWS_MYSQL_RECOVERY.md' -Raw -Encoding utf8
+          $guide = @('01_Tai_lieu/WINDOWS_MYSQL_RECOVERY.md', '01_Tai_lieu/WINDOWS_MYSQL_CONNECT.md') | ForEach-Object { Get-Content -LiteralPath $_ -Raw -Encoding utf8 }
+          $guide = $guide -join "`n"
           $blocks = [regex]::Matches($guide, '(?ms)^```powershell\r?\n(.*?)^```')
           if ($blocks.Count -lt 15) { throw 'Expected the complete numbered recovery guide' }
           foreach ($block in $blocks) {

@@ -47,7 +47,9 @@ xem [kết quả đối chiếu và kiểm thử](07_Kiem_tra/mysql/STATUS.md).
 
 **[Cài WMS độc lập trên Windows theo 15 bước](01_Tai_lieu/WINDOWS_STANDALONE.md)**: MySQL, API, worker và Desktop cùng máy, không cần Ubuntu/WSL. Đây là cài mới database; dữ liệu từ máy khác cần quy trình sao lưu/phục hồi riêng.
 
-**[Cài lại sau lỗi MySQL 8.0.11 và kết nối database](01_Tai_lieu/WINDOWS_MYSQL_RECOVERY.md)**: từng bước PowerShell, MySQL mới ở cổng 3307, giữ bản cũ để phục hồi; có kiểm tra API và cấu hình Desktop.
+**[Kết nối MySQL đang có trên Windows](01_Tai_lieu/WINDOWS_MYSQL_CONNECT.md)**: kiểm tra tương thích trước khi cài, dùng dòng MySQL 8.0 từ 8.0.23 hoặc 8.4 LTS; không bắt buộc cài đúng một bản 8.0.46. Có từng bước PowerShell để tạo database mới, chạy máy chủ và kết nối Desktop.
+
+**[Cài lại với MySQL riêng khi bản cũ không tương thích](01_Tai_lieu/WINDOWS_MYSQL_RECOVERY.md)**: 16 bước dùng cổng 3307, giữ bản cũ để phục hồi; áp dụng cho trường hợp như MySQL 8.0.11.
 
 
 **Desktop cập nhật ngày 18/10/2026**, mã nguồn `efa4df6`: biểu tượng ứng dụng, shortcut và bộ cài dùng cùng logo màu có viền vàng như Linux. Windows đã kiểm tra cài đặt trên Server 2022 x64; macOS trên 15 ARM64. Gói Linux Server giữ nguyên bản `7398faa` đã kiểm tra cài offline. [Kết quả đóng gói và SHA-256](07_Kiem_tra/release/ICON_20261018.md).
