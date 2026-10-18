@@ -92,19 +92,19 @@ Kết quả cần là Python `3.12.x` và `64`. Bản 3.12.10 là bản installe
 
 ## Bước 5 Tải bộ máy chủ WMS
 
-Tải [bộ Windows Standalone](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/tag/v0.1.0-windows-server.20261018), gồm `WMS-Windows-Standalone-20261018.zip` và tệp SHA-256 kèm theo. Trong PowerShell:
+Tải [bộ Windows Standalone](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/tag/v0.1.0-windows-server.20261018.1), gồm `WMS-Windows-Standalone-20261018.1.zip` và tệp SHA-256 kèm theo. Trong PowerShell:
 
 ```powershell
-$wmsZip = Join-Path $env:USERPROFILE 'Downloads\WMS-Windows-Standalone-20261018.zip'
+$wmsZip = Join-Path $env:USERPROFILE 'Downloads\WMS-Windows-Standalone-20261018.1.zip'
 Get-FileHash $wmsZip -Algorithm SHA256
 ```
 
-Đối chiếu với SHA-256 ở release. Nhấp phải ZIP → Extract All; đặt thư mục giải nén là `Downloads\WMS-Windows-Standalone-20261018`. Thư mục này phải chứa `requirements-app-lock.txt`, tệp `wms_lan-0.1.0-py3-none-any.whl` và hướng dẫn.
+Đối chiếu với SHA-256 ở release. Nhấp phải ZIP → Extract All; đặt thư mục giải nén là `Downloads\WMS-Windows-Standalone-20261018.1`. Thư mục này phải chứa `requirements-app-lock.txt`, tệp `wms_lan-0.1.0-py3-none-any.whl` và hướng dẫn.
 
 PowerShell thường — tạo môi trường cài mới:
 
 ```powershell
-$wmsBundle = Join-Path $env:USERPROFILE 'Downloads\WMS-Windows-Standalone-20261018'
+$wmsBundle = Join-Path $env:USERPROFILE 'Downloads\WMS-Windows-Standalone-20261018.1'
 $wmsVenv = Join-Path $env:LOCALAPPDATA 'WMS-Server-Python'
 if (Test-Path $wmsVenv) { throw 'Moi truong da ton tai. Khong ghi de.' }
 py -3.12 -m venv $wmsVenv
