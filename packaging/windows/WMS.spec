@@ -16,7 +16,7 @@ a = Analysis([str(repo/'apps/desktop/windows_entry.py')], pathex=[str(repo)],
              noarchive=False)
 pyz = PYZ(a.pure)
 common = dict(exclude_binaries=True, debug=False, bootloader_ignore_signals=False,
-              icon=str(repo/'apps/desktop/assets/wms-logo.png'),
+              icon=str(repo/'apps/desktop/assets/wms-app-icon.ico'),
               strip=False, upx=False, manifest=str(repo/'packaging/windows/app.manifest'))
 gui = EXE(pyz, a.scripts, [], name='WMS', console=False, **common)
 helper = EXE(pyz, a.scripts, [], name='WMSHelper', console=True, **common)

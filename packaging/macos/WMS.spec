@@ -19,6 +19,6 @@ exe = EXE(pyz, a.scripts, [], name='WMS', console=False, exclude_binaries=True,
           strip=False, upx=False, target_arch='arm64', codesign_identity=None)
 coll = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name='WMS')
 app = BUNDLE(coll, name='WMS.app', bundle_identifier='vn.interntechlead.wms.lab',
-             icon=str(repo/'apps/desktop/assets/wms-logo.png'),
+             icon=str(repo/'apps/desktop/assets/wms-app-icon.png'),
              info_plist={'CFBundleShortVersionString': '0.1.0',
                          'NSHighResolutionCapable': True, 'LSMinimumSystemVersion': '15.0'})

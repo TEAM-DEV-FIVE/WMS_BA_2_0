@@ -32,6 +32,7 @@ def installed_self_test():
     import pypdfium2 as pdfium
     from PIL import Image
 
+    from apps.desktop.application_icon import install_application_icon
     from apps.desktop.local_store.commands import CommandStore
     from apps.desktop.local_store.device import device_identity
     from apps.desktop.scanner.hid import HID
@@ -57,6 +58,8 @@ def installed_self_test():
     configure_display()
     root = tk.Tk()
     try:
+        icons = install_application_icon(root)
+        assert [(icon.width(), icon.height()) for icon in icons] == [(32, 32), (48, 48), (256, 256)]
         root.title("WMS — Kiểm tra tiếng Việt")
         label = tk.Label(root, text="Kho tiếng Việt — Nhập / Xuất / Phục hồi")
         label.pack()
@@ -88,7 +91,7 @@ def installed_self_test():
         version=CLIENT_VERSION,
         frozen=bool(manifest),
         tkinter=tk_version,
-        resources=["SQLite003", "TLS CA", "PDFium", "Pillow", "Tk"],
+        resources=["SQLite003", "TLS CA", "PDFium", "Pillow", "Tk", "Full-color app icon"],
         platform=sys.platform,
         python=sys.version.split()[0],
         architecture=platform.machine(),

@@ -31,6 +31,7 @@ Compression=lzma2
 SolidCompression=yes
 UninstallDisplayIcon={app}\WMS.exe
 WizardStyle=modern
+SetupIconFile=..\..\apps\desktop\assets\wms-app-icon.ico
 #ifdef WmsSignedBuild
 SignTool=WmsSign
 SignedUninstaller=yes

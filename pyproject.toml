@@ -27,7 +27,7 @@ migrations = ["*.sql"]
 mysql_migrations = ["*.json"]
 "apps.server.printing_assets" = ["*.ttf", "*.txt"]
 "apps.desktop.local_store" = ["*.sql"]
-"apps.desktop.assets" = ["*.png", "*.jpeg", "*.txt", "lucide/*.svg", "lucide/*.txt", "catalog/*.jpg", "catalog/*.json"]
+"apps.desktop.assets" = ["*.png", "*.ico", "*.jpeg", "*.txt", "lucide/*.svg", "lucide/*.txt", "catalog/*.jpg", "catalog/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

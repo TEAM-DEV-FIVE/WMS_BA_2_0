@@ -127,6 +127,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
     $setup = Join-Path $output "WMS-Setup-$releaseId-x64.exe"
     if (!$Unsigned) { Sign-ReleaseFile $setup }
+    & $python scripts/check_windows_icons.py --ico apps/desktop/assets/wms-app-icon.ico --report (Join-Path $output 'icon-verification.json') (Join-Path $bundle 'WMS.exe') (Join-Path $bundle 'WMSHelper.exe') $setup
+    if ($LASTEXITCODE -ne 0) { throw 'Packaged application or installer icon differs from the full-color logo' }
     Compress-Archive -LiteralPath $bundle -DestinationPath (Join-Path $output "WMS-$releaseId-x64.zip")
     Copy-Item -LiteralPath (Join-Path $bundle 'manifest.json') -Destination (Join-Path $output 'manifest.json')
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'Test-Install.ps1') -Destination $output

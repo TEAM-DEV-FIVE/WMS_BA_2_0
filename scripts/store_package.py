@@ -102,7 +102,7 @@ def stage(bundle, output, identity, version, test_only=False):
     (output / "AppxManifest.xml").write_bytes(manifest(identity, version))
     assets = output / "Assets"
     assets.mkdir()
-    logo_path = Path(__file__).resolve().parents[1] / "apps/desktop/assets/wms-logo.png"
+    logo_path = Path(__file__).resolve().parents[1] / "apps/desktop/assets/wms-app-icon.png"
     with Image.open(logo_path) as logo:
         for filename, size in (("StoreLogo.png", 50), ("Square44x44Logo.png", 44), ("Square150x150Logo.png", 150)):
             with logo.convert("RGBA").resize((size, size), Image.Resampling.LANCZOS) as icon:

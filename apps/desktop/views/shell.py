@@ -5,6 +5,7 @@ from tkinter import messagebox, ttk
 from PIL import Image, ImageOps, ImageTk
 
 from apps.desktop.api.client import ApiClient, DesktopSettings
+from apps.desktop.application_icon import install_application_icon
 from apps.desktop.lifecycle import await_workers
 from apps.desktop.presenters.connection import ConnectionPresenter
 from apps.desktop.printing.view import PrintView
@@ -45,12 +46,7 @@ class DesktopShell:
         self.root = root
         self.settings = settings
         self.root.title("WMS  Quản lý kho")
-        with as_file(files("apps.desktop.assets").joinpath("wms-logo-transparent.png")) as logo:
-            self.application_icon = tk.PhotoImage(master=root, file=str(logo))
-        factor = (max(self.application_icon.width(), self.application_icon.height()) + 255) // 256
-        if factor > 1:
-            self.application_icon = self.application_icon.subsample(factor, factor)
-        self.root.iconphoto(True, self.application_icon)
+        self.application_icons = install_application_icon(root)
         self.root.update_idletasks()
         if self.root.winfo_width() <= 200 and self.root.winfo_height() <= 200:
             self.root.geometry(f"{min(1366, self.root.winfo_screenwidth()-60)}x{max(690, min(900, self.root.winfo_screenheight()-80))}")

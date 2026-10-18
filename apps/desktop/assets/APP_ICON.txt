@@ -1,0 +1,13 @@
+WMS application icon
+
+wms-app-icon.png is the full-color, gold-bordered icon already used by the
+owner's Linux WMS launcher. It is copied without image or color changes.
+PNG SHA-256: d586527d821ac187abfa2c47d79b7e10e7a40ed30a0aad36646cd7b91876ddbf
+
+wms-app-icon.ico contains RGBA frames at 16, 24, 32, 48, 64, 128 and 256 px,
+converted from this PNG using Pillow 12.3.0 and LANCZOS resampling.
+The PNG is shared by Tk, macOS and MSIX; the ICO is embedded in Windows
+executables and the Inno Setup installer.
+
+The monochrome wms-logo-transparent.png and wms-logo-navy.png remain theme
+assets for the in-app header, not operating-system application icons.
