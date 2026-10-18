@@ -141,8 +141,10 @@ Tạo cả hai tài khoản trước khi thêm nhân viên thông thường. M�
 
 ```powershell
 $wmsPy = Join-Path $env:LOCALAPPDATA 'WMS-Server-Python\Scripts\python.exe'
-& $wmsPy -I -m apps.server.windows_standalone admin --username admin.one --display-name 'Quan tri mot'
-& $wmsPy -I -m apps.server.windows_standalone admin --username admin.two --display-name 'Quan tri hai'
+& $wmsPy -I -m apps.server.windows_standalone admin `
+  --username admin.one --display-name 'Quan tri mot'
+& $wmsPy -I -m apps.server.windows_standalone admin `
+  --username admin.two --display-name 'Quan tri hai'
 ```
 
 Cần thấy thông báo đã tạo SYSADMIN cho từng lệnh. Đây là hai người quản trị độc lập để yêu cầu và duyệt quyền; không dùng một tài khoản chung cho cả nhóm. Không có mật khẩu WMS mặc định. SYSADMIN chưa có quyền thao tác kho.
