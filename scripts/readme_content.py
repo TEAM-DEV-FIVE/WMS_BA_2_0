@@ -1,7 +1,7 @@
 """Editorial sections for the root README; feature inventory is generated separately."""
 
 REPOSITORY = 'https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0'
-RELEASE = REPOSITORY + '/releases/download/v0.1.0-handover.1/'
+RELEASE = REPOSITORY + '/releases/download/v0.1.0-ui.20261018/'
 TECHNOLOGIES = [
     ('Python · Tkinter', 'python', 'https://www.python.org/', 'Ngôn ngữ · Desktop'),
     ('FastAPI', 'fastapi', 'https://fastapi.tiangolo.com/', 'HTTP API'),
@@ -12,9 +12,9 @@ TECHNOLOGIES = [
     ('pytest', 'pytest', 'https://docs.pytest.org/', 'Kiểm thử'),
 ]
 DOWNLOADS = [
-    ('Windows', 'windows', 'WMS-Setup-0.1.0-97d4c510dab8-x64.exe', 'Tải Windows (.exe)', 'Desktop x64'),
+    ('Windows', 'windows', 'WMS-Setup-0.1.0-7398faad9810-x64.exe', 'Tải Windows (.exe)', 'Desktop x64 · bản thử nghiệm'),
     ('macOS', 'macos', 'WMS-macos-arm64-TEST-ONLY.zip', 'Tải macOS (.zip)', 'Desktop ARM64 · bản thử nghiệm'),
-    ('Linux Server', 'linux', 'WMS-Server-0.1.0-97d4c510dab8-linux-x64.tar.gz',
+    ('Linux Server', 'linux', 'WMS-Server-0.1.0-7398faad9810-linux-x64.tar.gz',
      'Tải Linux Server (.tar.gz)', 'Máy chủ Linux x64'),
 ]
 
@@ -53,7 +53,11 @@ WMS được viết bằng **Python**, dùng **Tkinter/ttk** cho giao diện, **
 
 **[Xem tất cả bản phát hành]({REPOSITORY}/releases)** · **[Tải mã nguồn main (.zip)]({REPOSITORY}/archive/refs/heads/main.zip)** · [Hướng dẫn cài đặt](01_Tai_lieu/OPERATIONS_RUNBOOK.md) · [Hướng dẫn sử dụng](01_Tai_lieu/USER_GUIDE.md)
 
-Ba bộ cài trên thuộc bản bàn giao **0.1.0 tại `97d4c51`**; mã nguồn `main` có các thay đổi giao diện và tính năng bổ sung sau mốc này. Windows đã thử trên Server 2022 x64, macOS trên 15 ARM64; phạm vi kiểm chứng nằm trong [biên bản bàn giao](07_Kiem_tra/release/FINAL_HANDOVER.md). Tải bộ cài theo hệ điều hành của máy, rồi cấu hình kết nối API do người quản trị cung cấp.
+**Bản giao diện cập nhật ngày 18/10/2026**, đóng gói từ mã nguồn `7398faa`, gồm các thay đổi giao diện hiện hành và hỗ trợ máy chủ MySQL/PostgreSQL. Windows đã kiểm tra cài đặt trên Server 2022 x64; macOS trên 15 ARM64; gói Linux Server đã kiểm tra cài offline. [Kết quả đóng gói và SHA-256](07_Kiem_tra/release/UI_20261018.md).
+
+Đây là **bản thử nghiệm**: Windows dùng chứng thư TEST ONLY, macOS ký ad-hoc và chưa notarize. Chưa có chứng thư phát hành công khai hoặc kết quả nghiệm thu Windows 10/11 trên máy người dùng.
+
+**Cập nhật từ bản cũ:** đóng WMS bình thường, tải và cài gói mới ở trên, rồi mở shortcut **WMS Desktop** mới trên Desktop hoặc Start Menu. Shortcut ghim ở taskbar có thể vẫn trỏ đến thư mục phiên bản cũ; nếu còn giao diện cũ, bỏ ghim rồi ghim lại từ shortcut mới. Giữ nguyên thư mục dữ liệu cá nhân và cấu hình API. Nút **Tải lại** chỉ khởi động lại bản đang cài, không tải bản cập nhật từ Internet.
 
 <a id="muc-luc"></a>
 

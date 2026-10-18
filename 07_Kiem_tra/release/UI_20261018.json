@@ -1,0 +1,59 @@
+{
+  "tag": "v0.1.0-ui.20261018",
+  "source_commit": "7398faad9810e11a885d39c2c34e42e48ac6e267",
+  "native_build_url": "https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/actions/runs/39129030243",
+  "native_build_result": "success",
+  "windows": {
+    "platform": "Windows Server 2022 x64",
+    "installer_smoke": "PASS",
+    "frozen_resources": "PASS",
+    "signing": "TEST ONLY, timestamped Authenticode",
+    "bundled_files_verified": 1195
+  },
+  "macos": {
+    "platform": "macOS 15.7.9 ARM64",
+    "installed_smoke": "PASS",
+    "signing": "ad-hoc",
+    "notarized": false
+  },
+  "linux_server": {
+    "platform": "Linux x86_64, CPython 3.12",
+    "offline_install": "PASS",
+    "pip_check": "PASS",
+    "installed_module_resource_api_sqlite_pdf_smoke": "PASS",
+    "bundle_manifest_sha256": "094f5b163c9196781dce1073597a06363dc90231c0ad55338c421b9ed99f9e50",
+    "archive_verified": true
+  },
+  "ui_tests": {
+    "passed": 18,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "files": [
+      "test_admin_workspace.py",
+      "test_compact_layout.py",
+      "test_desktop_lifecycle.py"
+    ],
+    "environment": "Linux/Xvfb"
+  },
+  "document_tests": {
+    "passed": 30
+  },
+  "operating_database_accessed": false,
+  "public_signing": false,
+  "windows_10_11_hardware_acceptance": "NOT_RUN",
+  "assets": {
+    "WMS-Server-0.1.0-7398faad9810-linux-x64.tar.gz": {
+      "sha256": "b1dcc1a841cae87d69a83273e10b4ee539e549802042abd76e05f34a5eba9285",
+      "bytes": 53631780
+    },
+    "WMS-Setup-0.1.0-7398faad9810-x64.exe": {
+      "sha256": "2f959ec9cc8996889a7f2bc00b4a88860e4f3bba0c07b34c669cdd064a1a64ec",
+      "bytes": 29283208
+    },
+    "WMS-macos-arm64-TEST-ONLY.zip": {
+      "sha256": "29a4cefce2a4f53c97d5191e678cbe1c84bedd987624387f6133261c1c87d59d",
+      "bytes": 33024196
+    }
+  }
+}
