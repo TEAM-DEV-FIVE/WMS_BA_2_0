@@ -9,6 +9,10 @@ jobs:
   native-server:
     runs-on: windows-2022
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        mysql: ['8.0', '8.4']
     env:
       PYTHONUTF8: '1'
     steps:
@@ -17,6 +21,18 @@ jobs:
         with:
           python-version: '3.12'
           architecture: x64
+      - name: Install isolated MySQL 8.4 LTS binaries
+        if: matrix.mysql == '8.4'
+        shell: pwsh
+        run: |
+          $zip = Join-Path $env:RUNNER_TEMP 'mysql-8.4.11-winx64.zip'
+          Invoke-WebRequest 'https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.11-winx64.zip' -OutFile $zip
+          if ((Get-FileHash $zip -Algorithm MD5).Hash -ne '2e833921898a9a030ea6bfe81bd811bc') { throw 'MySQL archive checksum mismatch' }
+          $destination = Join-Path $env:RUNNER_TEMP 'wms-mysql84'
+          Expand-Archive -LiteralPath $zip -DestinationPath $destination
+          $binary = Join-Path $destination 'mysql-8.4.11-winx64\bin\mysqld.exe'
+          if (!(Test-Path $binary)) { throw 'MySQL 8.4 binary missing' }
+          "WMS_NATIVE_MYSQL_BIN=$binary" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Install locked dependencies and wheel
         shell: pwsh
         run: |
@@ -59,6 +75,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Native-Windows-Server-${{ github.sha }}
+          name: Native-Windows-Server-${{ matrix.mysql }}-${{ github.sha }}
           path: dist/
           retention-days: 14

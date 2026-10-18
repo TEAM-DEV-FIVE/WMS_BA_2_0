@@ -46,13 +46,63 @@ class SetupError(RuntimeError):
 def require_mysql_version(version):
     # Invisible columns require 8.0.23; CHECKs and 0900_bin also need newer
     # versions than 8.0.11. Validate before creating any files, users or schema.
-    match = re.fullmatch(r"8\.0\.(\d+)(?:[-+][A-Za-z0-9_.+-]+)?", version)
-    if not match or "mariadb" in version.lower() or int(match[1]) < 23:
+    match = re.fullmatch(r"8\.(0|4)\.(\d+)(?:[-+][A-Za-z0-9_.+-]+)?", version)
+    if not match or "mariadb" in version.lower() or (match[1] == "0" and int(match[2]) < 23):
         raise SetupError(
-            "MySQL khong tuong thich: can MySQL 8.0.23 tro len trong dong 8.0; "
-            "ban Windows da kiem thu la 8.0.46. Khong dung MySQL 8.0.11/MariaDB. "
+            "MySQL ngoai pham vi ho tro: can dong 8.0 (tu 8.0.23) hoac 8.4 LTS. "
+            "Khong bat buoc dung dung ban 8.0.46. Khong dung MariaDB. "
             "Chua tao database/user/cau hinh. Giu nguyen ban cu de phuc hoi."
         )
+
+
+def verify_mysql(cursor):
+    """Probe required behavior in a session-local table, before any durable DDL."""
+    cursor.execute("SELECT VERSION(), CONVERT_TZ('2026-01-01 00:00:00','UTC','Asia/Ho_Chi_Minh')")
+    version, converted = cursor.fetchone()
+    require_mysql_version(version)
+    if converted is None or str(converted) != "2026-01-01 07:00:00":
+        raise SetupError("MySQL thieu mui gio. Nap goi timezone POSIX chinh thuc vao dung cong roi thu lai.")
+    table = f"mysql.`_wms_probe_{secrets.token_hex(12)}`"
+    created = False
+    try:
+        cursor.execute(f"CREATE TEMPORARY TABLE {table} (qty INT NOT NULL CHECK (qty >= 0), "
+                       "hidden INT INVISIBLE DEFAULT 0) ENGINE=InnoDB "
+                       "DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin")
+        created = True
+        cursor.execute(f"INSERT INTO {table} (qty) VALUES (1)")
+        cursor.execute(f"SELECT * FROM {table}")
+        if cursor.fetchone() != (1,):
+            raise SetupError("MySQL khong dap ung cot INVISIBLE. Chua tao database WMS.")
+        try:
+            cursor.execute(f"INSERT INTO {table} (qty) VALUES (-1)")
+        except pymysql.MySQLError as exc:
+            if not exc.args or exc.args[0] != 3819:
+                raise
+        else:
+            raise SetupError("MySQL khong thuc thi CHECK. Chua tao database WMS.")
+    except pymysql.MySQLError as exc:
+        raise SetupError("Kiem tra tinh nang MySQL that bai. " + failure_message(exc)) from None
+    finally:
+        if created:
+            cursor.execute(f"DROP TEMPORARY TABLE {table}")
+    return version
+
+
+def root_connection(password, port):
+    return pymysql.connect(host="127.0.0.1", port=port, user="root", password=password,
+                           charset="utf8mb4", autocommit=True, connect_timeout=10,
+                           read_timeout=30, write_timeout=30)
+
+
+def preflight(*, root_password, mysql_port=3306):
+    connection = root_connection(root_password, mysql_port)
+    try:
+        with connection.cursor() as cursor:
+            version = verify_mysql(cursor)
+    finally:
+        connection.close()
+    print(f"MYSQL_COMPATIBLE: MySQL {version}, cong {mysql_port}; "
+          "collation, INVISIBLE, CHECK va mui gio dat. Chua tao database WMS hoac doi ket noi.", flush=True)
 
 
 def failure_message(exc):
@@ -104,17 +154,11 @@ def setup(home, *, root_password, mysql_port=3306, api_port=8000,
     database, runtime_user = identifier(database), identifier(runtime_user)
     if home.exists() or home.is_symlink():
         raise SetupError("Thu muc WMS-Server da ton tai. Khong ghi de; dung lenh check/run.")
-    connection = pymysql.connect(host="127.0.0.1", port=mysql_port, user="root",
-                                 password=root_password, charset="utf8mb4", autocommit=True,
-                                 connect_timeout=10, read_timeout=30, write_timeout=30)
+    connection = root_connection(root_password, mysql_port)
     engine = None
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT VERSION(), CONVERT_TZ('2026-01-01 00:00:00','UTC','Asia/Ho_Chi_Minh')")
-            version, converted = cursor.fetchone()
-            require_mysql_version(version)
-            if converted is None or str(converted) != "2026-01-01 07:00:00":
-                raise SetupError("MySQL thieu mui gio. Nap goi timezone POSIX chinh thuc roi thu lai.")
+            verify_mysql(cursor)
             cursor.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME=%s", (database,))
             if cursor.fetchone():
                 raise SetupError("Database da ton tai. Cong cu chi tao database moi, khong xoa/ghi de.")
@@ -296,7 +340,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--home", type=Path, default=None)
     sub = parser.add_subparsers(dest="action", required=True)
-    fresh = sub.add_parser("setup", help="Only initialize a NEW local MySQL 8.0 database")
+    probe = sub.add_parser("preflight", help="Check MySQL compatibility without creating a WMS database")
+    probe.add_argument("--mysql-port", type=int, default=3306)
+    fresh = sub.add_parser("setup", help="Only initialize a NEW local MySQL 8.0/8.4 database")
     fresh.add_argument("--mysql-port", type=int, default=3306)
     fresh.add_argument("--api-port", type=int, default=8000)
     fresh.add_argument("--database", default="wms_mysql")
@@ -314,7 +360,12 @@ def main(argv=None):
         parser.error("Cong cu nay chi dung tren Windows native.")
     home = (args.home or default_home()).absolute()
     try:
-        if args.action == "setup":
+        if args.action == "preflight":
+            if not 1 <= args.mysql_port <= 65535:
+                raise SetupError("Cong phai nam trong 1..65535.")
+            preflight(root_password=getpass("Mat khau MySQL root (khong hien ky tu): "),
+                      mysql_port=args.mysql_port)
+        elif args.action == "setup":
             if not all(1 <= port <= 65535 for port in (args.mysql_port, args.api_port)):
                 raise SetupError("Cong phai nam trong 1..65535.")
             setup(home, root_password=getpass("Mat khau MySQL root (khong hien ky tu): "),

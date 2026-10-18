@@ -11,13 +11,15 @@ from apps.server.windows_standalone import (
     failure_message,
     identifier,
     load_environment,
+    preflight,
     require_mysql_version,
     setup,
+    verify_mysql,
     write_private,
 )
 
 
-@pytest.mark.parametrize("version", ["8.0.11", "8.0.16", "8.0.22", "5.7.44", "8.4.0", "8.0.46-MariaDB", "invalid"])
+@pytest.mark.parametrize("version", ["8.0.11", "8.0.16", "8.0.22", "5.7.44", "9.0.0", "8.0.46-MariaDB", "invalid"])
 def test_incompatible_server_refused_without_creating_destination(tmp_path, monkeypatch, version):
     connection = MagicMock()
     cursor = connection.cursor.return_value.__enter__.return_value
@@ -32,9 +34,60 @@ def test_incompatible_server_refused_without_creating_destination(tmp_path, monk
     connection.close.assert_called_once()
 
 
-@pytest.mark.parametrize("version", ["8.0.23", "8.0.46", "8.0.46-commercial"])
+@pytest.mark.parametrize("version", ["8.0.23", "8.0.46", "8.0.46-commercial", "8.4.0", "8.4.11"])
 def test_mysql_schema_feature_version_floor(version):
     require_mysql_version(version)
+
+
+@pytest.mark.parametrize("failure", [None, "ignored_check", "visible_column", "missing_collation"])
+def test_feature_probes_enforce_behavior_and_clean_temporary_table(failure):
+    cursor = MagicMock()
+    cursor.fetchone.side_effect = [("8.4.11", "2026-01-01 07:00:00"),
+                                   (1, 0) if failure == "visible_column" else (1,)]
+    def execute(query):
+        if query.startswith("CREATE TEMPORARY") and failure == "missing_collation":
+            raise pymysql.OperationalError(1273, "private database error")
+        if "VALUES (-1)" in query and failure != "ignored_check":
+            raise pymysql.OperationalError(3819, "private constraint error")
+    cursor.execute.side_effect = execute
+    if failure:
+        with pytest.raises(SetupError) as result:
+            verify_mysql(cursor)
+        assert "private" not in str(result.value)
+    else:
+        assert verify_mysql(cursor) == "8.4.11"
+    queries = [call.args[0] for call in cursor.execute.call_args_list]
+    assert not any(query.startswith("CREATE DATABASE") for query in queries)
+    if failure != "missing_collation":
+        assert queries[-1].startswith("DROP TEMPORARY TABLE mysql.`_wms_probe_")
+
+
+def test_failed_probe_does_not_create_home_or_application_objects(tmp_path, monkeypatch):
+    connection = MagicMock()
+    cursor = connection.cursor.return_value.__enter__.return_value
+    cursor.fetchone.return_value = ("8.4.11", "2026-01-01 07:00:00")
+    def execute(query):
+        if query.startswith("CREATE TEMPORARY"):
+            raise pymysql.OperationalError(1142, "private permission error")
+    cursor.execute.side_effect = execute
+    monkeypatch.setattr("pymysql.connect", lambda **kwargs: connection)
+    home = tmp_path / "new-home"
+    with pytest.raises(SetupError, match="MySQL 1142"):
+        setup(home, root_password="private")
+    assert not home.exists()
+    assert cursor.execute.call_count == 2
+    connection.close.assert_called_once()
+
+
+def test_preflight_connection_closes_on_failure(monkeypatch):
+    connection = MagicMock()
+    cursor = connection.cursor.return_value.__enter__.return_value
+    cursor.fetchone.return_value = ("8.0.46", None)
+    monkeypatch.setattr("pymysql.connect", lambda **kwargs: connection)
+    with pytest.raises(SetupError, match="mui gio"):
+        preflight(root_password="private")
+    assert cursor.execute.call_count == 1
+    connection.close.assert_called_once()
 
 
 def test_driver_error_code_is_visible_without_sql_or_secrets():

@@ -25,7 +25,7 @@ from apps.server.infrastructure.config import Settings
 from apps.server.infrastructure.database import make_engine
 from apps.server.infrastructure.file_storage import FileStorage, ImportSettings
 from apps.server.infrastructure.private_files import private_windows_acl
-from apps.server.windows_standalone import KINDS, SetupError, check, load_environment, setup
+from apps.server.windows_standalone import KINDS, SetupError, check, load_environment, preflight, setup
 
 TZ_URL = "https://downloads.mysql.com/general/timezone_2026e_posix_sql.zip"
 TZ_SHA = "1cdda5f330679b416603739c787bdefd66f3b238fcfd91faaba551550a36ec47"
@@ -42,6 +42,8 @@ def wait_for(predicate, timeout=90):
 
 def test_application(root, password):
     home = root / "WMS thử nghiệm"
+    preflight(root_password=password, mysql_port=3307)
+    assert not home.exists()
     setup(home, root_password=password, mysql_port=3307, api_port=18000)
     env = load_environment(home)
     check(home)
@@ -158,9 +160,10 @@ def test_application(root, password):
 def main():
     if os.name != "nt":
         raise SystemExit("Native Windows only")
-    candidates = list(Path(r"C:\Program Files\MySQL").glob("MySQL Server 8.0/bin/mysqld.exe"))
+    requested = os.environ.get("WMS_NATIVE_MYSQL_BIN")
+    candidates = [Path(requested)] if requested else list(Path(r"C:\Program Files\MySQL").glob("MySQL Server 8.0/bin/mysqld.exe"))
     if len(candidates) != 1:
-        raise SystemExit("Need native MySQL 8.0 server binary")
+        raise SystemExit("Need native MySQL test server binary")
     binary = candidates[0]
     with tempfile.TemporaryDirectory(prefix="wms-win-server-") as temporary:
         root = Path(temporary)
