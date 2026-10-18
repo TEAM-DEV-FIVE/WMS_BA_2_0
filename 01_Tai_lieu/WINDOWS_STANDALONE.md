@@ -46,20 +46,20 @@ Windows cần gói SQL múi giờ do MySQL cung cấp. Tải bản **POSIX** tr�
 PowerShell thường:
 
 ```powershell
-$tzZip = Join-Path $env:TEMP 'timezone_2026e_posix_sql.zip'
-$tzDir = Join-Path $env:TEMP 'WMS_Timezones_2026e'
-$tzUrl = 'https://downloads.mysql.com/general/timezone_2026e_posix_sql.zip'
-Invoke-WebRequest -UseBasicParsing $tzUrl -OutFile $tzZip
-$tzSha = '2f959ec9cc8996889a7f2bc00b4a88860e4f3bba0c07b34c669cdd064a1a64ec'
-if ((Get-FileHash $tzZip -Algorithm SHA256).Hash -ne $tzSha) {
-  throw 'Sai SHA256 goi mui gio. Dung lai.'
-}
+# Duong dan file ZIP da tai
+$tzZip = "C:\Users\tkien\Downloads\timezone_2026e_posix_sql.zip"
+
+# Thu muc se giai nen
+$tzDir = "C:\Users\tkien\Downloads\WMS_Timezones"
+
+# Kiem tra file ZIP
+Test-Path $tzZip
+
+# Giai nen file ZIP
 Expand-Archive -LiteralPath $tzZip -DestinationPath $tzDir -Force
-$tzSql = Join-Path $tzDir 'timezone_2026e_posix_sql\timezone_posix.sql'
-$tzSql = $tzSql.Replace('\', '/')
-$mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
-& $mysql -h 127.0.0.1 -P 3306 -u root -p mysql -e "source $tzSql"
-if ($LASTEXITCODE -ne 0) { throw 'Nap mui gio chua thanh cong.' }
+
+# Tim file SQL
+Get-ChildItem $tzDir -Recurse -Filter "*.sql"
 ```
 
 Mở một PowerShell **Run as administrator**, khởi động lại dịch vụ để MySQL dùng dữ liệu múi giờ vừa nạp:
