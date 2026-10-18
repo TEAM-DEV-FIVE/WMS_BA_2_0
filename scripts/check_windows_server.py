@@ -105,7 +105,7 @@ def test_application(root, password):
                     return {r[0] for r in actual if r[1] in {"BUSY", "IDLE"}} == set(KINDS)
                 wait_for(workers_ready)
                 duplicate = subprocess.run([*launcher_command, "run"], capture_output=True, text=True)
-                assert duplicate.returncode == 1 and "dang chay" in duplicate.stderr
+                assert duplicate.returncode == 1 and "dang chay" in duplicate.stderr, duplicate.stderr
                 with httpx.Client(base_url="http://127.0.0.1:18000/api/v1", trust_env=False) as client:
                     assert client.get("/health").json()["status"] == "ok"
                     login = client.post("/auth/login", json={"username": "admin.one", "password": admin_password,

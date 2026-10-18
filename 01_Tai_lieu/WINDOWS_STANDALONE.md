@@ -73,7 +73,9 @@ Quay lại PowerShell thường, kiểm tra:
 
 ```powershell
 $mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
-& $mysql -h 127.0.0.1 -P 3306 -u root -p -e "SELECT CONVERT_TZ('2026-01-01 00:00:00','UTC','Asia/Ho_Chi_Minh') AS gio_viet_nam;"
+$tzQuery = "SELECT CONVERT_TZ('2026-01-01 00:00:00'," +
+  "'UTC','Asia/Ho_Chi_Minh') AS gio_viet_nam;"
+& $mysql -h 127.0.0.1 -P 3306 -u root -p -e $tzQuery
 ```
 
 Phải trả `2026-01-01 07:00:00`, không phải `NULL`. Thời điểm trên chỉ dùng kiểm tra múi giờ, không tạo chứng từ hoặc đặt ngày hệ thống.

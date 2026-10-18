@@ -190,8 +190,9 @@ def instance_lock(home):
     if path.is_symlink() or path.is_junction():
         raise SetupError("Lock file khong hop le.")
     with path.open("a+b") as stream:
-        stream.seek(0)
-        if not stream.read(1):
+        # Windows byte-range locks also forbid reading the locked byte from a
+        # second launcher. Inspect length without reading before taking the lock.
+        if os.fstat(stream.fileno()).st_size == 0:
             stream.write(b"0")
             stream.flush()
         stream.seek(0)
