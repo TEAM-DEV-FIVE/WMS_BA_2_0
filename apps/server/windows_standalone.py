@@ -23,6 +23,7 @@ import httpx
 import pymysql
 from cryptography.fernet import Fernet
 from sqlalchemy.engine import URL, make_url
+from sqlalchemy.exc import DBAPIError
 
 from apps.server.infrastructure.config import Settings
 from apps.server.infrastructure.database import make_engine
@@ -40,6 +41,28 @@ ENV_KEYS = {
 
 class SetupError(RuntimeError):
     """A message safe to display without database URLs or passwords."""
+
+
+def require_mysql_version(version):
+    # Invisible columns require 8.0.23; CHECKs and 0900_bin also need newer
+    # versions than 8.0.11. Validate before creating any files, users or schema.
+    match = re.fullmatch(r"8\.0\.(\d+)(?:[-+][A-Za-z0-9_.+-]+)?", version)
+    if not match or "mariadb" in version.lower() or int(match[1]) < 23:
+        raise SetupError(
+            "MySQL khong tuong thich: can MySQL 8.0.23 tro len trong dong 8.0; "
+            "ban Windows da kiem thu la 8.0.46. Khong dung MySQL 8.0.11/MariaDB. "
+            "Chua tao database/user/cau hinh. Giu nguyen ban cu de phuc hoi."
+        )
+
+
+def failure_message(exc):
+    """Expose the numeric driver code, never SQL, parameters or credentials."""
+    driver = exc.orig if isinstance(exc, DBAPIError) else exc
+    code = driver.args[0] if isinstance(driver, pymysql.Error) and driver.args else None
+    detail = f"; MySQL {code}" if type(code) is int and 1000 <= code <= 9999 else ""
+    return (f"KHONG THANH CONG ({type(exc).__name__}{detail}). "
+            "Kiem tra phien ban MySQL, quyen, mui gio va thu muc. "
+            "Khong xoa database/cau hinh hien co de thu lai.")
 
 
 def default_home():
@@ -89,8 +112,7 @@ def setup(home, *, root_password, mysql_port=3306, api_port=8000,
         with connection.cursor() as cursor:
             cursor.execute("SELECT VERSION(), CONVERT_TZ('2026-01-01 00:00:00','UTC','Asia/Ho_Chi_Minh')")
             version, converted = cursor.fetchone()
-            if not version.startswith("8.0."):
-                raise SetupError("Huong dan nay yeu cau MySQL 8.0; khong dung MariaDB/XAMPP.")
+            require_mysql_version(version)
             if converted is None or str(converted) != "2026-01-01 07:00:00":
                 raise SetupError("MySQL thieu mui gio. Nap goi timezone POSIX chinh thuc roi thu lai.")
             cursor.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME=%s", (database,))
@@ -321,8 +343,7 @@ def main(argv=None):
         return 1
     except Exception as exc:
         # Never display raw SQL/URL-bearing driver exceptions.
-        print(f"KHONG THANH CONG ({type(exc).__name__}). Kiem tra MySQL, quyen, mui gio va thu muc. "
-              "Khong xoa database/cau hinh hien co de thu lai.", file=sys.stderr)
+        print(failure_message(exc), file=sys.stderr)
         return 1
     return 0
 

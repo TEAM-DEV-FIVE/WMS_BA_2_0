@@ -6,6 +6,8 @@ Hướng dẫn cài mới WMS trên máy Windows x64: giao diện, API, sáu wor
 
 Mô hình kết nối: **WMS Desktop → API tại 127.0.0.1:8000 → MySQL tại 127.0.0.1:3306**. Desktop không kết nối trực tiếp MySQL. Máy chủ API và sáu worker chạy trong cửa sổ riêng; MySQL chạy bằng dịch vụ Windows.
 
+Nếu đã gặp lỗi `OperationalError` với MySQL **8.0.11**, dùng [hướng dẫn cài lại và nối database từng bước](WINDOWS_MYSQL_RECOVERY.md). Hướng dẫn đó giữ nguyên bản cũ và dùng cổng **3307**; không trộn lệnh 3306 ở trang này vào quy trình đó.
+
 ## Bước 1 Chuẩn bị máy và hiểu các cửa sổ lệnh
 
 1. Vào Settings → System → About, kiểm tra máy dùng Windows x64. Hướng dẫn không dành cho Windows 32 bit hoặc ARM64.
@@ -37,29 +39,26 @@ $mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
 & $mysql -h 127.0.0.1 -P 3306 -u root -p -e "SELECT VERSION();"
 ```
 
-Kết quả cần có dịch vụ `Running`, phiên bản `8.0.x`, và đăng nhập MySQL thành công. Đây là mật khẩu root vừa đặt, không phải mật khẩu Windows hay tài khoản WMS. Nếu cài đường dẫn khác, sửa biến `$mysql` cho đúng.
+Kết quả cần có dịch vụ `Running`, phiên bản máy chủ **8.0.46** từ `SELECT VERSION()` (không phải chỉ phiên bản mysql.exe), và đăng nhập MySQL thành công. Đây là mật khẩu root vừa đặt, không phải mật khẩu Windows hay tài khoản WMS. Nếu cài đường dẫn khác, sửa biến `$mysql` cho đúng.
 
 ## Bước 3 Nạp múi giờ cho MySQL
 
-Windows cần gói SQL múi giờ do MySQL cung cấp. Tải bản **POSIX** trên [trang múi giờ chính thức](https://dev.mysql.com/downloads/timezones.html). Bộ lệnh dưới đây cố định gói đã kiểm tra; nếu nguồn tải thay đổi, đối chiếu trang chính thức thay vì dùng tệp SQL không rõ nguồn.
+Windows cần gói SQL múi giờ do MySQL cung cấp. Tải bản **POSIX** trên [trang múi giờ chính thức](https://dev.mysql.com/downloads/timezones.html), lưu vào Downloads. Ví dụ dưới đây dùng `timezone_2026e_posix_sql.zip`; nếu tên gói thay đổi, sửa đường dẫn cho đúng tệp chính thức đã tải.
 
 PowerShell thường:
 
 ```powershell
-# Duong dan file ZIP da tai
-$tzZip = "C:\Users\tkien\Downloads\timezone_2026e_posix_sql.zip"
-
-# Thu muc se giai nen
-$tzDir = "C:\Users\tkien\Downloads\WMS_Timezones"
-
-# Kiem tra file ZIP
-Test-Path $tzZip
-
-# Giai nen file ZIP
-Expand-Archive -LiteralPath $tzZip -DestinationPath $tzDir -Force
-
-# Tim file SQL
-Get-ChildItem $tzDir -Recurse -Filter "*.sql"
+$ErrorActionPreference = 'Stop'
+$tzZip = Join-Path $env:USERPROFILE 'Downloads\timezone_2026e_posix_sql.zip'
+if (!(Test-Path $tzZip)) { throw 'Chua thay ZIP mui gio.' }
+$tzDir = Join-Path $env:TEMP ('WMS-Timezones-' + [guid]::NewGuid().ToString('N'))
+Expand-Archive -LiteralPath $tzZip -DestinationPath $tzDir
+$tzFiles = @(Get-ChildItem -LiteralPath $tzDir -Recurse -File -Filter 'timezone_posix.sql')
+if ($tzFiles.Count -ne 1) { throw 'Can dung mot tep timezone_posix.sql trong goi POSIX.' }
+$tzSql = $tzFiles[0].FullName.Replace('\','/')
+$mysql = 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe'
+& $mysql -h 127.0.0.1 -P 3306 -u root -p mysql -e "source $tzSql"
+if ($LASTEXITCODE -ne 0) { throw 'Nap mui gio chua thanh cong.' }
 ```
 
 Mở một PowerShell **Run as administrator**, khởi động lại dịch vụ để MySQL dùng dữ liệu múi giờ vừa nạp:
@@ -300,6 +299,7 @@ Sao chép bản backup sang thiết bị lưu trữ được bảo vệ; bản c
 | Access denied for root | Kiểm tra mật khẩu MySQL root và port; không nhập mật khẩu Windows. |
 | CONVERT_TZ trả NULL | Làm lại bước 3, kiểm tra import thành công và restart MySQL80. |
 | SETUP báo đã tồn tại | Không xóa database hoặc cấu hình để thử lại. Nếu đã cài thành công, dùng check/run. |
+| MySQL 8.0.11 / lỗi 1273 hoặc 1064 khi tạo schema | Phiên bản không hỗ trợ cấu trúc WMS. Làm theo [cài lại riêng ở cổng 3307](WINDOWS_MYSQL_RECOVERY.md); giữ nguyên database cũ. |
 | Có setup-incomplete.json | Dừng thiết lập; kiểm tra quyền root, log MySQL, dung lượng. Giữ nguyên dữ liệu để xử lý có kiểm soát. |
 | API không lên hoặc port đã dùng | Chỉ chạy một launcher; kiểm tra port 8000 và logs/api.log. |
 | Không thấy kho | Hoàn thành tạo danh mục và cấp quyền WAREHOUSE, sau đó đăng nhập/tải lại phiên. |

@@ -1,9 +1,51 @@
 import json
+from unittest.mock import MagicMock
 
+import pymysql
 import pytest
 from cryptography.fernet import Fernet
+from sqlalchemy.exc import OperationalError
 
-from apps.server.windows_standalone import SetupError, identifier, load_environment, setup, write_private
+from apps.server.windows_standalone import (
+    SetupError,
+    failure_message,
+    identifier,
+    load_environment,
+    require_mysql_version,
+    setup,
+    write_private,
+)
+
+
+@pytest.mark.parametrize("version", ["8.0.11", "8.0.16", "8.0.22", "5.7.44", "8.4.0", "8.0.46-MariaDB", "invalid"])
+def test_incompatible_server_refused_without_creating_destination(tmp_path, monkeypatch, version):
+    connection = MagicMock()
+    cursor = connection.cursor.return_value.__enter__.return_value
+    cursor.fetchone.return_value = (version, "2026-01-01 07:00:00")
+    monkeypatch.setattr("pymysql.connect", lambda **kwargs: connection)
+    home = tmp_path / "new-home"
+    with pytest.raises(SetupError, match="8.0.46"):
+        setup(home, root_password="private-root-password")
+    assert not home.exists()
+    assert cursor.execute.call_count == 1
+    assert cursor.execute.call_args.args[0].startswith("SELECT VERSION()")
+    connection.close.assert_called_once()
+
+
+@pytest.mark.parametrize("version", ["8.0.23", "8.0.46", "8.0.46-commercial"])
+def test_mysql_schema_feature_version_floor(version):
+    require_mysql_version(version)
+
+
+def test_driver_error_code_is_visible_without_sql_or_secrets():
+    error = pymysql.OperationalError(1273, "secret-in-driver-message")
+    wrapped = OperationalError("CREATE USER private-user", {"password": "private-password"}, error)
+    for exc in (error, wrapped):
+        message = failure_message(exc)
+        assert "MySQL 1273" in message
+        assert "secret" not in message and "private" not in message and "CREATE" not in message
+    assert "secret" not in failure_message(RuntimeError("secret"))
+    assert "secret" not in failure_message(pymysql.OperationalError("secret-code", "secret-message"))
 
 
 @pytest.mark.parametrize("name", ["wms_mysql;DROP DATABASE x", "root@localhost", "../data", "", "a" * 33])

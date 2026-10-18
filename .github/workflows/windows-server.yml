@@ -32,6 +32,19 @@ jobs:
         run: |
           python -m pytest tests/foundation/test_print_render_scanner.py tests/foundation/test_outbox.py tests/foundation/test_windows_standalone.py -m 'not integration' -q
           if ($LASTEXITCODE -ne 0) { throw 'Regression tests failed' }
+      - name: Validate PowerShell examples in Windows recovery guide
+        shell: pwsh
+        run: |
+          $guide = Get-Content -LiteralPath '01_Tai_lieu/WINDOWS_MYSQL_RECOVERY.md' -Raw -Encoding utf8
+          $blocks = [regex]::Matches($guide, '(?ms)^```powershell\r?\n(.*?)^```')
+          if ($blocks.Count -lt 15) { throw 'Expected the complete numbered recovery guide' }
+          foreach ($block in $blocks) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseInput($block.Groups[1].Value, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
+          }
+          Write-Host "PASS: $($blocks.Count) PowerShell examples parsed; examples were not executed."
       - name: Real MySQL and installed server on NTFS
         shell: pwsh
         run: |
