@@ -45,6 +45,8 @@ xem [kết quả đối chiếu và kiểm thử](07_Kiem_tra/mysql/STATUS.md).
 
 **[Xem tất cả bản phát hành](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases)** · **[Tải mã nguồn main (.zip)](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/archive/refs/heads/main.zip)** · [Hướng dẫn cài đặt](01_Tai_lieu/OPERATIONS_RUNBOOK.md) · [Hướng dẫn sử dụng](01_Tai_lieu/USER_GUIDE.md)
 
+**[Cài WMS độc lập trên Windows theo 15 bước](01_Tai_lieu/WINDOWS_STANDALONE.md)**: MySQL, API, worker và Desktop cùng máy, không cần Ubuntu/WSL. Đây là cài mới database; dữ liệu từ máy khác cần quy trình sao lưu/phục hồi riêng.
+
 **Desktop cập nhật ngày 18/10/2026**, mã nguồn `efa4df6`: biểu tượng ứng dụng, shortcut và bộ cài dùng cùng logo màu có viền vàng như Linux. Windows đã kiểm tra cài đặt trên Server 2022 x64; macOS trên 15 ARM64. Gói Linux Server giữ nguyên bản `7398faa` đã kiểm tra cài offline. [Kết quả đóng gói và SHA-256](07_Kiem_tra/release/ICON_20261018.md).
 
 Đây là **bản thử nghiệm**: Windows dùng chứng thư TEST ONLY, macOS ký ad-hoc và chưa notarize. Chưa có chứng thư phát hành công khai hoặc kết quả nghiệm thu Windows 10/11 trên máy người dùng.
@@ -442,7 +444,7 @@ Cấu hình LAN có HTTPS, kiểm tra health/readiness, quyền DB runtime riên
 
 ## Chạy từ mã nguồn
 
-Yêu cầu phát triển: Python 3.12, Tkinter và PostgreSQL 15/16. Cài dependency theo [requirements-app-lock.txt](requirements-app-lock.txt), cấu hình API/cơ sở dữ liệu theo [hướng dẫn triển khai](01_Tai_lieu/LAN_DEPLOYMENT.md). PostgreSQL cần có database và tài khoản được chuẩn bị trước; Tkinter/Tcl-Tk phải có trên máy chạy desktop.
+Yêu cầu phát triển: Python 3.12, Tkinter và MySQL 8.0 hoặc PostgreSQL 15/16. Cài dependency theo [requirements-app-lock.txt](requirements-app-lock.txt), cấu hình MySQL theo [hướng dẫn MySQL](deploy/lan/mysql/README.md) hoặc [15 bước Windows độc lập](01_Tai_lieu/WINDOWS_STANDALONE.md). Database và tài khoản phải được chuẩn bị trước; Tkinter/Tcl-Tk cần có trên máy chạy desktop từ mã nguồn.
 
 | Cấu hình | Dùng ở đâu | Ý nghĩa |
 |---|---|---|
