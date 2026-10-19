@@ -9,10 +9,11 @@ datas += collect_data_files('migrations', includes=['*.sql'])
 datas += collect_data_files('apps.local_launcher', includes=['*.json'])
 datas += collect_data_files('apps.server.printing_assets')
 datas += collect_data_files('apps.desktop.assets', includes=['*.png', '*.jpeg', '*.txt'])
-datas += collect_data_files('certifi') + collect_data_files('tzdata')
+datas += collect_data_files('certifi') + collect_data_files('tzdata') + collect_data_files('reportlab')
 for name in ('sqlglot', 'pydantic', 'sqlalchemy', 'fastapi'):
     datas += copy_metadata(name)
 hidden = collect_submodules('apps.server') + collect_submodules('packages')
+hidden += collect_submodules('reportlab.graphics.barcode') + collect_submodules('sqlglot.dialects') + collect_submodules('uvicorn')
 hidden += collect_submodules('apps.local_launcher') + ['pymysql', 'sqlalchemy.dialects.mysql.pymysql', 'mysql_migrations', 'migrations']
 a = Analysis([str(repo/'apps/local_launcher/entry.py')], pathex=[str(repo)], datas=datas,
              hiddenimports=hidden, excludes=['pytest', 'IPython', 'matplotlib'], noarchive=False)
