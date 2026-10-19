@@ -43,22 +43,29 @@ if ($LASTEXITCODE -ne 0) { throw 'Cai WMS that bai.' }
 
 ## 2. Kiểm tra MySQL đang có
 
-Đặt `$mysqlPort` bằng cổng MySQL thật trên máy. Thông thường là 3306; không đổi thành 3307 trừ khi đã có MySQL chạy ở cổng đó.
+Đặt $mysqlPort bằng cổng MySQL thực tế. Dùng 3306 nếu MySQL đang chạy ở cổng đó; chỉ đổi thành 3307 khi đã có MySQL chạy ở 3307.
 
-```powershell
-$wmsPy = Join-Path $env:LOCALAPPDATA 'WMS-Server-Python-Recovery\Scripts\python.exe'
+$wmsPy = Join-Path $env:LOCALAPPDATA 'WMS-Server-Python\Scripts\python.exe'
 $mysqlPort = 3306
+
+if (-not (Test-Path -LiteralPath $wmsPy -PathType Leaf)) {
+    throw "Khong tim thay Python: $wmsPy"
+}
+
 & $wmsPy -I -m apps.server.windows_standalone preflight --mysql-port $mysqlPort
-if ($LASTEXITCODE -ne 0) { throw 'Chua tuong thich; doc thong bao truoc khi setup.' }
-```
 
-Nhập mật khẩu root của **đúng instance ở cổng đã chọn**. Lệnh kiểm tra phiên bản, collation, cột INVISIBLE, thực thi CHECK và múi giờ Việt Nam. Nó tạo rồi xóa một bảng tạm trong phiên kết nối; không tạo database WMS, user WMS, cấu hình hay sửa nghiệp vụ hiện có.
+if (-not $?) {
+    throw 'Preflight khong thanh cong. Doc loi o tren va khac phuc truoc khi setup.'
+}
 
-- Thấy **MYSQL_COMPATIBLE**: dùng bản MySQL đang có, sang bước 3. Không cần cài lại chỉ vì số phiên bản khác 8.0.46.
-- Báo thiếu múi giờ: nạp POSIX SQL timezone vào đúng instance theo [bước nạp múi giờ](WINDOWS_STANDALONE.md#bước-3-nạp-múi-giờ-cho-mysql), thay cổng và đường dẫn mysql.exe theo máy, khởi động lại đúng instance rồi chạy lại preflight.
-- Báo MySQL quá cũ/ngoài phạm vi: giữ bản cũ. Có thể làm [16 bước cài riêng ở 3307](WINDOWS_MYSQL_RECOVERY.md). Hướng dẫn đó là phương án thay thế, không phải yêu cầu cho mọi máy.
-- Báo 1045, không kết nối được hoặc thiếu quyền: kiểm tra dịch vụ/cổng/mật khẩu root; không kết luận chỉ do phiên bản. Mật khẩu không cần gửi cho người hỗ trợ.
+Nhập mật khẩu root của đúng instance ở cổng đã chọn. Không cần gửi mật khẩu cho người hỗ trợ.
 
+- Thấy MYSQL_COMPATIBLE: dùng MySQL đang có, sang bước 3. Không cần cài lại chỉ vì phiên bản khác 8.0.46.
+- Báo thiếu múi giờ: thực hiện bước nạp POSIX SQL timezone vào đúng instance, dùng đúng cổng và đường dẫn mysql.exe; khởi động lại instance đó rồi chạy lại preflight.
+- Báo MySQL quá cũ hoặc ngoài phạm vi: giữ bản cũ; dùng hướng dẫn cài riêng ở 3307 nếu cần.
+- Báo 1045, không kết nối được hoặc thiếu quyền: kiểm tra dịch vụ, cổng, tài khoản và mật khẩu root; chưa thể kết luận do phiên bản.
+
+Đoạn kiểm tra lỗi mới cũng tránh dùng nhầm $LASTEXITCODE từ lệnh trước khi Python không khởi chạy được.
 ## 3. Tạo database WMS mới, giữ database cũ
 
 Nếu máy chủ WMS cũ đang chạy, dùng lệnh `stop` của bản đó và chờ SERVER_STOPPED để giải phóng cổng 8000. Sao lưu bản cũ theo [bước sao lưu](WINDOWS_MYSQL_RECOVERY.md#2-giữ-lại-bản-cũ-và-sao-lưu) trước khi bắt đầu lại. Không dừng MySQL mà bản mới sắp dùng.
