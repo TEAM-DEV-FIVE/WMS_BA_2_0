@@ -156,7 +156,7 @@ $wmsHome = Join-Path $env:LOCALAPPDATA 'WMS-Server-Recovery'
 Khi tắt: đóng Desktop, mở PowerShell khác và chạy:
 
 ```powershell
-$wmsPy = Join-Path $env:LOCALAPPDATA 'WMS-Server-Python-Recovery\Scripts\python.exe'
+$wmsPy = "$env:LOCALAPPDATA\WMS-Server-Python\Scripts\python.exe"
 $wmsHome = Join-Path $env:LOCALAPPDATA 'WMS-Server-Recovery'
 & $wmsPy -I -m apps.server.windows_standalone --home $wmsHome stop
 ```
