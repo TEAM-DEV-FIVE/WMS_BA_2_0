@@ -456,6 +456,22 @@ class OrderService:
                 return False
             return doc["status"] in {"DRAFT", "REJECTED"} and doc["version"] == body["expected_version"]
 
+    def can_reject_invalid_issue_cancel(self, access, key, document_id, body):
+        """Certify an empty-reason rejection without executing cancellation."""
+        if (not isinstance(body, dict) or set(body) != {"expected_version", "reason"}
+                or type(body["expected_version"]) is not int or body["expected_version"] < 1
+                or not isinstance(body["reason"], str) or body["reason"].strip()):
+            return False
+        with self.bus.uow_factory() as uow:
+            auth = self.identity.authorization(uow.connection, access)
+            uow.commands.lock(auth.principal.user_id, key)
+            doc = self.document(auth, document_id, "ISSUE")
+            auth.require("document.cancel", doc["warehouse_id"])
+            if uow.commands.get(auth.principal.user_id, key) is not None:
+                return False
+            return (doc["status"] in {"DRAFT", "SUBMITTED", "REJECTED", "APPROVED"}
+                    and doc["version"] == body["expected_version"])
+
     def write(self, access, key, kind, action, payload, request_id, resource_id=None):
         with self.identity.engine.begin() as c:
             actor = self.identity.authorization(c, access).principal.user_id

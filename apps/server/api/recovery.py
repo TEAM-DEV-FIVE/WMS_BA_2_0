@@ -114,3 +114,26 @@ async def reject_invalid_transfer_post(request, exc):
     if confirmed:
         context.key, context.rejected = str(key), True
     return confirmed
+
+
+async def reject_invalid_issue_cancel(request, exc):
+    """Keep immutable legacy cancel envelopes recoverable after blank reasons."""
+    context = recovery_context.get()
+    parts = request.url.path.split("/")
+    if (context is None or request.method != "POST" or len(parts) != 6
+            or parts[:4] != ["", "api", "v1", "documents"] or parts[5] != "cancel"
+            or any(tuple(e["loc"]) != ("body", "reason") for e in exc.errors())):
+        return False
+    scheme, _, access = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or not access:
+        return False
+    try:
+        key, doc_id = UUID(request.headers["Idempotency-Key"]), UUID(parts[4])
+        confirmed = await run_in_threadpool(
+            request.app.state.orders.can_reject_invalid_issue_cancel,
+            access, key, doc_id, exc.body)
+    except (KeyError, ValueError, DomainError):
+        return False
+    if confirmed:
+        context.key, context.rejected = str(key), True
+    return confirmed

@@ -3,12 +3,15 @@ from datetime import date
 from tkinter import ttk
 from uuid import uuid4
 
+from pydantic import ValidationError
+
 from apps.desktop.presenters.issues import IssuePresenter
 from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
 from apps.desktop.views.orders import STATUS, OrderView
 from apps.desktop.views.pagination import install_pagination
 from apps.desktop.views.ui_help import StatusButton
 from packages.contracts.issues import IssueInput, IssuePost, IssueUpdate, ReleaseInput, ReserveInput
+from packages.contracts.orders import OrderAction
 
 
 class IssueView(ttk.Frame):
@@ -341,6 +344,8 @@ class IssueView(ttk.Frame):
             if not self.doc:
                 return
             body = dict(expected_version=self.doc["version"], reason=reason)
+            if action != "plan":
+                body = OrderAction.model_validate(body).model_dump(mode="json")
             qty = self.variables["qty"].get().strip()
             if action == "plan":
                 line = self.lines[int(self.line_table.selection()[0])]
@@ -366,6 +371,8 @@ class IssueView(ttk.Frame):
             else:
                 path = f"documents/{self.doc['id']}/{action}"
             self.presenter.command("POST", path, body)
+        except ValidationError:
+            self.orders_error("Kiểm tra dữ liệu; lý do phải có từ 3–2000 ký tự trước khi gửi lệnh")
         except Exception:
             self.orders_error("Kiểm tra dòng được chọn, số lượng, ngày và lý do; hạn giữ cần kèm múi giờ")
 
