@@ -289,6 +289,10 @@ class TransferView(WorkflowView):
         self.doc = None
         self.lines = []
         self.line_table.delete(*self.line_table.get_children())
+        self.variable("detail").set("Lệnh chuyển mới; chọn kho đích khác kho nguồn")
+        for name in ("destination", "stock", "reason", "evidence"):
+            self.variable(name).set("")
+        self.variable("quantity").set("1")
         self.variable("day").set(date.today().isoformat())
         self.tabs.select(self.pages["draft"])
         self.enable()
@@ -380,9 +384,13 @@ class TransferView(WorkflowView):
                 dest = self.destination_selector.current()
                 if dest < 0:
                     raise ValueError("Chọn kho đích")
+                source = self.doc["warehouse_id"] if self.doc else self.warehouse_id()
+                destination = str(self.warehouses[dest].id)
+                if str(source) == destination:
+                    raise ValueError("Kho nguồn và đích phải khác nhau. Chọn lại Kho đích.")
                 payload = dict(
-                    warehouse_id=self.doc["warehouse_id"] if self.doc else self.warehouse_id(),
-                    destination_warehouse_id=str(self.warehouses[dest].id),
+                    warehouse_id=source,
+                    destination_warehouse_id=destination,
                     business_date=self.variable("day").get(),
                     reason=reason,
                     lines=[

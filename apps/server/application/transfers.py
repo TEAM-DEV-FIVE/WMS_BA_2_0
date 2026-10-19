@@ -245,6 +245,10 @@ class TransferService:
                 self.orders.may_edit(auth, self.orders.document(auth, doc_id, "TRANSFER"))
 
         def handle(auth):
+            # Reject inside the command handler before INSERT reaches the DB CHECK.
+            # This lets recovery certify rejection of the exact legacy request.
+            if payload.warehouse_id == payload.destination_warehouse_id:
+                raise DomainError("INVALID_WAREHOUSE", "Kho nguồn và đích phải khác nhau.")
             c = auth.connection
             if doc_id:
                 doc = self.orders.document(auth, doc_id, "TRANSFER", lock=True)
