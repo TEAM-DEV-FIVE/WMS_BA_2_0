@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: KyotaFill/KWS
-          ref: b349d86524a6909b110a3deab169a77ce6ecfd4c
+          ref: 9a70934813c987c3bfa79486313d42f5cb511f64
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: KWS-MySQL-Local-b349d86524a6909b110a3deab169a77ce6ecfd4c
+          name: KWS-MySQL-Local-9a70934813c987c3bfa79486313d42f5cb511f64
           path: dist/windows-local-*/
           if-no-files-found: error
           retention-days: 14
