@@ -18,7 +18,7 @@ hidden += collect_submodules('apps.local_launcher') + ['pymysql', 'sqlalchemy.di
 a = Analysis([str(repo/'apps/local_launcher/entry.py')], pathex=[str(repo)], datas=datas,
              hiddenimports=hidden, excludes=['pytest', 'IPython', 'matplotlib'], noarchive=False)
 pyz = PYZ(a.pure)
-exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name=product+'Local', console=False,
+exe = EXE(pyz, a.scripts, [('X utf8', None, 'OPTION')], exclude_binaries=True, name=product+'Local', console=False,
           icon=str(repo/'apps/desktop/assets/wms-app-icon.ico'), strip=False, upx=False,
           manifest=str(repo/'packaging/windows/app.manifest'))
 coll = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name=product+'Local')

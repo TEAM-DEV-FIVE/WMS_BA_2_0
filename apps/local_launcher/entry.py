@@ -43,7 +43,9 @@ def self_test():
     from apps.server.infrastructure.mysql_migrations import assets
 
     assert len(assets()) == 6
-    assert json.loads(files("apps.local_launcher").joinpath("timezones.json").read_text())["zones"]["UTC"]
+    assert json.loads(files("apps.local_launcher").joinpath("timezones.json").read_text(encoding="utf-8"))[
+        "zones"
+    ]["UTC"]
     assert pymysql and sqlglot and argon2
     return {
         "product": PRODUCT,
@@ -67,10 +69,13 @@ def main(argv=None):
             verify_bundle()
             result = self_test()
         except Exception as exc:
+            import traceback
+
             result = {
                 "product": PRODUCT,
                 "status": "FAIL",
                 "error_type": type(exc).__name__,
+                "traceback": traceback.format_exc(),
                 "error": str(exc),
                 "scope": "resource-only self-test; no database",
             }

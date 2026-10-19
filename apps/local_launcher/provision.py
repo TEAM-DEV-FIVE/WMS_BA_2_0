@@ -40,7 +40,9 @@ def server_environment(home):
 
 def add_missing_timezones(password, port):
     """Only insert absent named zones from pinned Oracle POSIX data; no TRUNCATE/UPDATE."""
-    zones = json.loads(files("apps.local_launcher").joinpath("timezones.json").read_text())["zones"]
+    zones = json.loads(files("apps.local_launcher").joinpath("timezones.json").read_text(encoding="utf-8"))[
+        "zones"
+    ]
     connection = root_connection(password, port)
     locked = False
     try:
