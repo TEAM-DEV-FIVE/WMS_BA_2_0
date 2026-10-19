@@ -2,12 +2,22 @@ from datetime import date
 from tkinter import ttk
 from uuid import uuid4
 
+from pydantic import ValidationError
+
 from apps.desktop.presenters.transfers import POST_ACTIONS, TransferPresenter
 from apps.desktop.views.document_pages import DocumentPages, reset_document_page, show_document
 from apps.desktop.views.document_review import ScrollPanel
 from apps.desktop.views.moves import WorkflowView
 from apps.desktop.views.pagination import install_pagination
-from packages.contracts.transfers import TransferInput, TransferUpdate
+from packages.contracts.orders import OrderAction
+from packages.contracts.transfers import (
+    TransferDiscrepancy,
+    TransferDispatch,
+    TransferInput,
+    TransferLossInput,
+    TransferReceive,
+    TransferUpdate,
+)
 
 
 class TransferView(WorkflowView):
@@ -413,7 +423,7 @@ class TransferView(WorkflowView):
                 return
             if not self.doc:
                 return
-            payload = dict(expected_version=self.doc["version"], reason=reason)
+            payload = OrderAction(expected_version=self.doc["version"], reason=reason).model_dump(mode="json")
             if action in {"approve", "reject"}:
                 req = next(r for r in reversed(self.doc["approvals"]) if r["status"] == "PENDING")
                 self.presenter.command(
@@ -475,7 +485,17 @@ class TransferView(WorkflowView):
                     quantity_base=self.variable("loss_qty").get(),
                     business_date=self.variable("loss_day").get(),
                 )
+            model = {"dispatch": TransferDispatch, "post": TransferDispatch, "receive": TransferReceive,
+                     "discrepancy": TransferDiscrepancy, "loss": TransferLossInput}.get(action)
+            if model:
+                payload = model.model_validate(payload).model_dump(mode="json")
             self.presenter.command("POST", path, payload)
+        except ValidationError as exc:
+            fields = {error["loc"][0] for error in exc.errors() if error["loc"]}
+            if fields & {"reason", "evidence_ref"}:
+                self.workflow_error("Nhập Lý do và Chứng cứ giao/nhận từ 3–2000 ký tự trước khi ghi nhận chuyển kho.")
+            else:
+                self.workflow_error("Kiểm tra số lượng, ngày và dòng chuyển kho trước khi gửi.")
         except Exception as exc:
             self.workflow_error(str(exc))
 

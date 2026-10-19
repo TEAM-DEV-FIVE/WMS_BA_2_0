@@ -89,3 +89,28 @@ async def reject_invalid_return_submit(request, exc):
     if confirmed:
         context.key, context.rejected = str(key), True
     return confirmed
+
+
+async def reject_invalid_transfer_post(request, exc):
+    """Certify only authorized blank reason/evidence transfer posting failures."""
+    context = recovery_context.get()
+    parts = request.url.path.split("/")
+    if (context is None or request.method != "POST" or len(parts) != 6
+            or parts[:4] != ["", "api", "v1", "transfers"]
+            or parts[5] not in {"dispatch", "receive"}
+            or any(tuple(e["loc"]) not in {("body", "reason"), ("body", "evidence_ref")}
+                   for e in exc.errors())):
+        return False
+    scheme, _, access = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or not access:
+        return False
+    try:
+        key, doc_id = UUID(request.headers["Idempotency-Key"]), UUID(parts[4])
+        confirmed = await run_in_threadpool(
+            request.app.state.orders.transfers.can_reject_invalid_post, access, key, doc_id, exc.body,
+            "DISPATCH" if parts[5] == "dispatch" else "ARRIVE")
+    except (KeyError, ValueError, DomainError):
+        return False
+    if confirmed:
+        context.key, context.rejected = str(key), True
+    return confirmed

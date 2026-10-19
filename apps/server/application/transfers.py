@@ -15,7 +15,13 @@ from apps.server.application.transfer_stock import LOSS, lock_route, prepare_leg
 from apps.server.domain.errors import DomainError, require_version
 from packages.contracts.orders import OrderSummary
 from packages.contracts.traceability import COMPANY_OWNER
-from packages.contracts.transfers import TransferPostResult, TransferResult, TransferView
+from packages.contracts.transfers import (
+    TransferDispatch,
+    TransferPostResult,
+    TransferReceive,
+    TransferResult,
+    TransferView,
+)
 
 PLAN_SQL = """SELECT p.*,l.product_id,l.owner_id,l.consignment_id,l.uom_id,l.base_quantity AS quantity_base,
  i.product_id AS item_product,i.owner_id AS item_owner,i.consignment_id AS item_agreement,
@@ -347,6 +353,35 @@ class TransferService:
             authorize,
             handle,
         )
+
+    def can_reject_invalid_post(self, access, key, doc_id, body, operation):
+        """Read-only proof for legacy blank reason/evidence, never executes posting."""
+        model = {"DISPATCH": TransferDispatch, "ARRIVE": TransferReceive}.get(operation)
+        if model is None or not isinstance(body, dict) or set(body) != set(model.model_fields):
+            return False
+        blank = {field for field in ("reason", "evidence_ref")
+                 if isinstance(body[field], str) and not body[field].strip()}
+        if not blank:
+            return False
+        # Validate the remaining shape locally. This candidate is never executed,
+        # journalled or substituted for the immutable request body.
+        try:
+            candidate = model.model_validate({**body, **{field: "Validation only" for field in blank}})
+        except ValueError:
+            return False
+        with self.bus.uow_factory() as uow:
+            auth = self.identity.authorization(uow.connection, access)
+            uow.commands.lock(auth.principal.user_id, key)
+            doc = self.document(auth, doc_id)
+            self.may_post(auth, doc, operation)
+            if uow.commands.get(auth.principal.user_id, key) is not None:
+                return False
+            executed = one(uow.connection,
+                "SELECT id FROM wms.inventory_transaction WHERE document_id=:id AND execution_key=:key",
+                id=doc_id, key=candidate.execution_key)
+            expected_status = "APPROVED" if operation == "DISPATCH" else "PARTIAL"
+            return (executed is None and doc["status"] == expected_status
+                    and doc["version"] == candidate.expected_version)
 
     def post(self, access, key, doc_id, payload, request_id, operation):
         def target(auth, lock=False):
