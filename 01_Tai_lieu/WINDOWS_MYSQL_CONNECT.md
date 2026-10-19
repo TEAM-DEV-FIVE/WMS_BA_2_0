@@ -44,7 +44,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Cai WMS that bai.' }
 ## 2. Kiểm tra MySQL đang có
 
 Đặt $mysqlPort bằng cổng MySQL thực tế. Dùng 3306 nếu MySQL đang chạy ở cổng đó; chỉ đổi thành 3307 khi đã có MySQL chạy ở 3307.
-
+```powershell
 $wmsPy = Join-Path $env:LOCALAPPDATA 'WMS-Server-Python\Scripts\python.exe'
 $mysqlPort = 3306
 
@@ -57,7 +57,7 @@ if (-not (Test-Path -LiteralPath $wmsPy -PathType Leaf)) {
 if (-not $?) {
     throw 'Preflight khong thanh cong. Doc loi o tren va khac phuc truoc khi setup.'
 }
-
+```
 Nhập mật khẩu root của đúng instance ở cổng đã chọn. Không cần gửi mật khẩu cho người hỗ trợ.
 
 - Thấy MYSQL_COMPATIBLE: dùng MySQL đang có, sang bước 3. Không cần cài lại chỉ vì phiên bản khác 8.0.46.
