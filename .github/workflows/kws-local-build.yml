@@ -1,0 +1,47 @@
+name: Build public KWS local installer on team Windows CI
+on:
+  push:
+    branches: ['build/kws-local-ci-20261020']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local:
+    runs-on: windows-2022
+    timeout-minutes: 50
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: KyotaFill/KWS
+          ref: 44a733bfb9f1473392c709be07940190f80fe508
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install verified Inno Setup 6.7.3
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Join-Path $env:RUNNER_TEMP 'innosetup-6.7.3.exe'
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe' -OutFile $installer
+          $signature = Get-AuthenticodeSignature -LiteralPath $installer
+          if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'CN=Pyrsys B\.V\.') { throw 'Invalid compiler publisher' }
+          $target = Join-Path $env:RUNNER_TEMP 'InnoSetup673'
+          $p = Start-Process $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/CURRENTUSER',"/DIR=`"$target`"" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Compiler install failed' }
+          "LOCAL_ISCC=$target\ISCC.exe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Build original desktop and separate local server installer
+        shell: pwsh
+        run: |
+          ./packaging/windows/Build-Local.ps1 -ISCC $env:LOCAL_ISCC -Unsigned
+          if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: KWS-MySQL-Local-44a733bfb9f1473392c709be07940190f80fe508
+          path: dist/windows-local-*/
+          if-no-files-found: error
+          retention-days: 14
