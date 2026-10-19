@@ -73,9 +73,30 @@ Nếu máy chủ WMS cũ đang chạy, dùng lệnh `stop` của bản đó và 
 Tiếp tục trong cửa sổ đã đặt `$wmsPy` và `$mysqlPort`:
 
 ```powershell
-$wmsHome = Join-Path $env:LOCALAPPDATA 'WMS-Server-Recovery'
-& $wmsPy -I -m apps.server.windows_standalone --home $wmsHome setup --mysql-port $mysqlPort --api-port 8000 --database wms_mysql_recovery --runtime-user wms_runtime_recovery
-if ($LASTEXITCODE -ne 0) { throw 'Setup chua thanh cong. Giu nguyen du lieu va cau hinh.' }
+$wmsPy = "$env:LOCALAPPDATA\WMS-Server-Python\Scripts\python.exe"
+$mysqlPort = 3306
+$suffix = Get-Date -Format 'yyyyMMdd_HHmmss'
+
+$wmsHome = "$env:LOCALAPPDATA\WMS-Server-Recovery-$suffix"
+$wmsDatabase = "wms_rec_$suffix"
+$wmsRuntimeUser = "wms_rt_$suffix"
+
+Write-Host "Thu muc moi: $wmsHome"
+Write-Host "Database moi: $wmsDatabase"
+
+& $wmsPy -I -m apps.server.windows_standalone `
+    --home $wmsHome setup `
+    --mysql-port $mysqlPort `
+    --api-port 8000 `
+    --database $wmsDatabase `
+    --runtime-user $wmsRuntimeUser
+
+if ($?) {
+    & $wmsPy -I -m apps.server.windows_standalone `
+        --home $wmsHome check
+} else {
+    Write-Host 'Setup that bai. Dung tai day va gui thong bao loi.'
+}
 ```
 
 Nhập mật khẩu root của instance đã kiểm tra. Phải thấy **SETUP_OK**. Tên mới `wms_mysql_recovery`/`wms_runtime_recovery` tránh ghi đè `wms_mysql` cũ đang dở dang. Nếu tên hoặc home mới đã tồn tại, công cụ dừng; không tự xóa chúng hoặc đổi marker thành COMPLETE.
