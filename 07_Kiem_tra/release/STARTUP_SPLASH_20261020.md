@@ -28,3 +28,14 @@ Không thay đổi API, quyền, chứng từ, migration hoặc dữ liệu nghi
 Bản tương ứng KWS được cập nhật riêng với logo KWS và thanh tiến độ xanh lá;
 11 kiểm tra startup/lifecycle và smoke entry point tương tự cũng đạt tại KWS.
 Không thay đổi mốc nghiệm thu T01–T28 hay các cổng phát hành hiện hành.
+
+## Điều chỉnh hình thức theo phản hồi
+
+Thu nhỏ splash từ 420×340 xuống 340×280, logo tối đa 114×124; bo góc 22 px
+và viền ngoài 2 px (WMS xanh dương, KWS xanh lá). Canvas vẽ khung; X11 Shape
+cắt thực sự góc cửa sổ trên Linux. Windows dùng transparent color, chưa kiểm
+thử native Windows; nền tảng không hỗ trợ giữ cửa sổ thường.
+
+Kiểm chứng lại: 11/11 test startup/lifecycle mỗi ứng dụng; smoke entry point
+với dữ liệu tạm xác nhận main window ẩn đến khi splash đóng. Ảnh Xvfb của cả
+hai ứng dụng xác nhận kích thước mới, góc cắt và viền. Ruff và diff check đạt.
