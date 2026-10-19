@@ -23,6 +23,7 @@ wms-migrate = "apps.server.infrastructure.migrations:main"
 include = ["apps*", "packages*", "migrations*", "mysql_migrations*"]
 
 [tool.setuptools.package-data]
+"apps.local_launcher" = ["*.json"]
 migrations = ["*.sql"]
 mysql_migrations = ["*.json"]
 "apps.server.printing_assets" = ["*.ttf", "*.txt"]
