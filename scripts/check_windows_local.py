@@ -15,6 +15,7 @@ import pymysql
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
+from apps.local_launcher import runtime
 from apps.local_launcher.database import SetupError, load_environment
 from apps.local_launcher.product import PREFIX, PRODUCT
 from apps.local_launcher.provision import provision
@@ -104,6 +105,12 @@ def test_app(root, password):
         else:
             raise AssertionError("Existing database adopted")
         assert not (root / "another").exists()
+    except Exception:
+        for log in (home / "logs").glob("*.log"):
+            value = log.read_text(encoding="utf-8", errors="replace")[-3000:]
+            value = value.replace(password, "[redacted]").replace(app_password, "[redacted]")
+            print(log.name, value)
+        raise
     finally:
         supervisor.stop()
         engine.dispose()
@@ -112,6 +119,18 @@ def test_app(root, password):
 def main():
     if os.name != "nt":
         raise SystemExit("Native Windows only")
+    frozen = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else None
+    if frozen:
+        assert frozen.is_file()
+        runtime.executable = lambda component, home, session: [
+            str(frozen),
+            "--component",
+            component,
+            "--home",
+            str(home),
+            "--session",
+            session,
+        ]
     requested = os.environ.get(PREFIX + "NATIVE_MYSQL_BIN")
     candidates = (
         [Path(requested)]
@@ -171,9 +190,9 @@ def main():
                     {
                         "result": "PASS",
                         "mysql": version,
-                        "scope": "Windows Server 2022 source launcher: empty database, runtime grants, NTFS ACL, missing timezone setup, HTTP login, MFA gate, all workers, stop/restart, preserve database",
+                        "scope": "Windows Server 2022 launcher: empty database, runtime grants, NTFS ACL, missing timezone setup, HTTP login, MFA gate, all workers, stop/restart, preserve database",
                         "interactive_uac": "NOT_RUN",
-                        "frozen_full_database": "NOT_RUN",
+                        "frozen_full_database": "PASS" if frozen else "NOT_RUN",
                     },
                     indent=2,
                 ),

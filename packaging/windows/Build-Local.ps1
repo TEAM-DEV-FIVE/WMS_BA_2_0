@@ -48,6 +48,8 @@ try {
         $p=Start-Process (Join-Path $payload 'server\WMSLocal.exe') -ArgumentList '--self-test','--report',("`""+(Join-Path $output 'local-smoke.json')+"`"") -Wait -PassThru
         if ($p.ExitCode -ne 0) { throw 'Frozen backend resource smoke failed' }
     } finally { Pop-Location; $env:PYTHONPATH=$savedPath }
+    & $python scripts/check_windows_local.py (Join-Path $output 'frozen-local-mysql.json') (Join-Path $payload 'server\WMSLocal.exe')
+    if ($LASTEXITCODE -ne 0) { throw 'Frozen API and all workers failed native MySQL acceptance' }
     & $ISCC "/DBundleDir=$payload" "/DReleaseId=$releaseId" "/DOutputDir=$output" packaging/windows/local_setup.iss
     if ($LASTEXITCODE -ne 0) { throw 'Local installer failed' }
     $installer=Join-Path $output "WMS-MySQL-Setup-$releaseId-x64.exe"
@@ -61,7 +63,7 @@ try {
     $uninstall=Start-Process (Join-Path $installed 'unins000.exe') -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
     if ($uninstall.ExitCode -ne 0) { throw 'Local uninstaller failed' }
     Copy-Item packaging/windows/LOCAL_MYSQL.md (Join-Path $output 'HUONG_DAN.md')
-    @{ product='WMS'; commit=$commit; signing='unsigned'; database='fresh only; no business/demo data'; native_install_uninstall='PASS'; native_source_mysql='PASS'; native_resource_smoke='PASS'; windows_10_11_uac='NOT_RUN' } | ConvertTo-Json | Set-Content (Join-Path $output 'release-evidence.json') -Encoding utf8
+    @{ product='WMS'; commit=$commit; signing='unsigned'; database='fresh only; no business/demo data'; native_install_uninstall='PASS'; native_frozen_mysql='PASS'; native_source_mysql='PASS'; native_resource_smoke='PASS'; windows_10_11_uac='NOT_RUN' } | ConvertTo-Json | Set-Content (Join-Path $output 'release-evidence.json') -Encoding utf8
     $checksums=Get-ChildItem $output -File | Sort-Object Name | ForEach-Object {
         (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()+'  '+$_.Name
     }
