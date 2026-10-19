@@ -68,7 +68,7 @@ def test_close_wait_keeps_window_alive_until_workers_finish():
 @pytest.mark.parametrize("restart", [False, True])
 def test_restart_happens_only_after_cleanup_and_lock_release(monkeypatch, tmp_path, restart):
     steps = []
-    root = SimpleNamespace(mainloop=lambda: steps.append("mainloop"))
+    root = SimpleNamespace(mainloop=lambda: steps.append("mainloop"), withdraw=lambda: steps.append("hide"))
     shell = SimpleNamespace(
         restart_requested=restart,
         finish=lambda: steps.append("finish"),
@@ -79,10 +79,15 @@ def test_restart_happens_only_after_cleanup_and_lock_release(monkeypatch, tmp_pa
     monkeypatch.setattr(entry, "preflight_cache", lambda _: None)
     monkeypatch.setattr(entry, "configure_display", lambda: None)
     monkeypatch.setattr(entry.tk, "Tk", lambda **kwargs: root)
-    monkeypatch.setattr(entry, "DesktopShell", lambda *args: shell)
+    splash = Mock()
+    splash.finish.side_effect = lambda: steps.append("ready")
+    monkeypatch.setattr(entry, "StartupSplash", lambda _: splash)
+    monkeypatch.setattr(entry, "create_shell", lambda *args: shell)
     monkeypatch.setattr(entry, "restart_application", lambda: steps.append("restart"))
     entry.main()
-    assert steps == ["mainloop", "finish", "unlock"] + (["restart"] if restart else [])
+    splash.finish.assert_called_once()
+    splash.close.assert_called_once()
+    assert steps == ["hide", "ready", "mainloop", "finish", "unlock"] + (["restart"] if restart else [])
 
 
 @pytest.mark.parametrize("frozen", [False, True])
