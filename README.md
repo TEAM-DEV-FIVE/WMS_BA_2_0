@@ -37,7 +37,7 @@ xem [kết quả đối chiếu và kiểm thử](07_Kiem_tra/mysql/STATUS.md).
 
 <table align="center">
   <tr>
-    <td align="center" width="260"><strong>Windows</strong><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-ui.20261018.1/WMS-Setup-0.1.0-efa4df60261a-x64.exe"><img src="assets/platforms/windows.svg" width="60" height="60" alt="Tải Windows (.exe)"></a><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-ui.20261018.1/WMS-Setup-0.1.0-efa4df60261a-x64.exe"><strong>Tải Windows (.exe)</strong></a><br><sub>Desktop x64 · bản thử nghiệm</sub></td>
+    <td align="center" width="260"><strong>Windows</strong><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-mysql-local.20261020/WMS-MySQL-Setup-0.1.0-c8b400374389-x64.exe"><img src="assets/platforms/windows.svg" width="60" height="60" alt="Tải Windows (.exe)"></a><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-mysql-local.20261020/WMS-MySQL-Setup-0.1.0-c8b400374389-x64.exe"><strong>Tải Windows (.exe)</strong></a><br><sub>MySQL Local x64 · bản thử nghiệm</sub></td>
     <td align="center" width="260"><strong>macOS</strong><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-ui.20261018.1/WMS-macos-arm64-TEST-ONLY.zip"><img src="assets/platforms/macos.svg" width="60" height="60" alt="Tải macOS (.zip)"></a><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-ui.20261018.1/WMS-macos-arm64-TEST-ONLY.zip"><strong>Tải macOS (.zip)</strong></a><br><sub>Desktop ARM64 · bản thử nghiệm</sub></td>
     <td align="center" width="260"><strong>Linux Server</strong><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-ui.20261018.1/WMS-Server-0.1.0-7398faad9810-linux-x64.tar.gz"><img src="assets/platforms/linux.svg" width="60" height="60" alt="Tải Linux Server (.tar.gz)"></a><br><br><a href="https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/download/v0.1.0-ui.20261018.1/WMS-Server-0.1.0-7398faad9810-linux-x64.tar.gz"><strong>Tải Linux Server (.tar.gz)</strong></a><br><sub>Máy chủ Linux x64</sub></td>
   </tr>
@@ -45,18 +45,29 @@ xem [kết quả đối chiếu và kiểm thử](07_Kiem_tra/mysql/STATUS.md).
 
 **[Xem tất cả bản phát hành](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases)** · **[Tải mã nguồn main (.zip)](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/archive/refs/heads/main.zip)** · [Hướng dẫn cài đặt](01_Tai_lieu/OPERATIONS_RUNBOOK.md) · [Hướng dẫn sử dụng](01_Tai_lieu/USER_GUIDE.md)
 
-**[Cài WMS độc lập trên Windows theo 15 bước](01_Tai_lieu/WINDOWS_STANDALONE.md)**: MySQL, API, worker và Desktop cùng máy, không cần Ubuntu/WSL. Đây là cài mới database; dữ liệu từ máy khác cần quy trình sao lưu/phục hồi riêng.
+**Windows cập nhật ngày 20/10/2026 — WMS MySQL Local**, mã nguồn `c8b400374389`. Bộ cài chứa Desktop, API và worker để chạy cùng MySQL trên máy; giữ nguyên giao diện và nghiệp vụ dùng thuyết trình.
 
-**[Kết nối MySQL đang có trên Windows](01_Tai_lieu/WINDOWS_MYSQL_CONNECT.md)**: kiểm tra tương thích trước khi cài, dùng dòng MySQL 8.0 từ 8.0.23 hoặc 8.4 LTS; không bắt buộc cài đúng một bản 8.0.46. Có từng bước PowerShell để tạo database mới, chạy máy chủ và kết nối Desktop.
+1. Bấm **Tải Windows (.exe)** ở trên, chạy bộ cài rồi mở shortcut **WMS MySQL Local**.
+2. App kiểm tra và tự bật dịch vụ MySQL đang tắt; chọn **Yes** nếu Windows hỏi quyền UAC. Nếu có nhiều dịch vụ, chọn đúng dịch vụ và cổng. Nếu chưa phát hiện MySQL Server, app mở trang tải chính thức; cài Server rồi quay lại kiểm tra.
+3. Lần đầu nhập mật khẩu MySQL root và tạo tài khoản quản trị app. App tạo database mới chỉ có cấu trúc và tài khoản quản trị, **không nạp dữ liệu mẫu**; mật khẩu root không được lưu. Hỗ trợ MySQL 8.0 từ 8.0.23 hoặc 8.4 LTS.
+4. Những lần sau mở cùng shortcut để app dùng cấu hình đã lưu. Database có sẵn không được tự ghi đè; nếu trùng tên mà chưa có cấu hình local, app báo kiểm tra và giữ nguyên dữ liệu.
 
-**[Cài lại với MySQL riêng khi bản cũ không tương thích](01_Tai_lieu/WINDOWS_MYSQL_RECOVERY.md)**: 16 bước dùng cổng 3307, giữ bản cũ để phục hồi; áp dụng cho trường hợp như MySQL 8.0.11.
+[Hướng dẫn bộ cài Windows](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/blob/v0.1.0-mysql-local.20261020/packaging/windows/LOCAL_MYSQL.md) · [Bản phát hành, báo cáo kiểm thử và SHA-256](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/releases/tag/v0.1.0-mysql-local.20261020) · [Mã nguồn đúng phiên bản Windows](https://github.com/TEAM-DEV-FIVE/WMS_BA_2_0/tree/c8b4003743890a17660a07b53604977f1e5a9ed3)
 
+Đây là **bản thử nghiệm**: bộ cài Windows mới **chưa ký số**, Windows có thể cảnh báo hoặc chặn. Đã kiểm tra cài/gỡ, khởi tạo MySQL trống, đăng nhập/MFA, worker và dừng/mở lại máy chủ ứng dụng trên Windows Server 2022 x64 với MySQL 8.0.46. Chưa kiểm thử thao tác UAC trực tiếp hoặc nghiệm thu đầy đủ trên Windows 10/11.
 
-**Desktop cập nhật ngày 18/10/2026**, mã nguồn `efa4df6`: biểu tượng ứng dụng, shortcut và bộ cài dùng cùng logo màu có viền vàng như Linux. Windows đã kiểm tra cài đặt trên Server 2022 x64; macOS trên 15 ARM64. Gói Linux Server giữ nguyên bản `7398faa` đã kiểm tra cài offline. [Kết quả đóng gói và SHA-256](07_Kiem_tra/release/ICON_20261018.md).
+**Cập nhật từ bản cũ:** đóng WMS bình thường rồi cài gói mới. Mở shortcut **WMS MySQL Local**; nếu tiếp tục dùng máy chủ cũ, chọn **Mở bản dùng máy chủ đã cấu hình trước** trong cửa sổ thiết lập. Giữ nguyên dữ liệu cá nhân và cấu hình API. Shortcut ghim ở taskbar có thể vẫn trỏ đến bản cũ; ghim lại từ shortcut mới nếu cần. Nút **Tải lại** chỉ khởi động lại bản đang cài, không tải bản cập nhật từ Internet.
 
-Đây là **bản thử nghiệm**: Windows dùng chứng thư TEST ONLY, macOS ký ad-hoc và chưa notarize. Chưa có chứng thư phát hành công khai hoặc kết quả nghiệm thu Windows 10/11 trên máy người dùng.
+**macOS và Linux Server:** các nút tải vẫn dùng bản ngày 18/10/2026. macOS đã kiểm tra trên 15 ARM64, ký ad-hoc và chưa notarize; Linux Server dùng bản `7398faa` đã kiểm tra cài offline. [Kết quả đóng gói các bản này](07_Kiem_tra/release/ICON_20261018.md).
 
-**Cập nhật từ bản cũ:** đóng WMS bình thường, tải và cài gói mới ở trên, rồi mở shortcut **WMS Desktop** mới trên Desktop hoặc Start Menu. Shortcut ghim ở taskbar có thể vẫn trỏ đến thư mục phiên bản cũ; nếu còn giao diện cũ, bỏ ghim rồi ghim lại từ shortcut mới. Giữ nguyên thư mục dữ liệu cá nhân và cấu hình API. Nút **Tải lại** chỉ khởi động lại bản đang cài, không tải bản cập nhật từ Internet.
+<details>
+<summary>Hướng dẫn triển khai Windows thủ công và phục hồi MySQL</summary>
+
+- [Cài WMS độc lập trên Windows theo 15 bước](01_Tai_lieu/WINDOWS_STANDALONE.md): cấu hình MySQL, API, worker và Desktop cùng máy, không cần Ubuntu/WSL. Dữ liệu từ máy khác cần quy trình sao lưu/phục hồi riêng.
+- [Kết nối MySQL đang có trên Windows](01_Tai_lieu/WINDOWS_MYSQL_CONNECT.md): kiểm tra tương thích và từng bước PowerShell để tạo database mới, chạy máy chủ và kết nối Desktop.
+- [Cài lại với MySQL riêng khi bản cũ không tương thích](01_Tai_lieu/WINDOWS_MYSQL_RECOVERY.md): dùng cổng 3307, giữ bản cũ để phục hồi; áp dụng cho trường hợp như MySQL 8.0.11.
+
+</details>
 
 <a id="muc-luc"></a>
 
