@@ -13,7 +13,7 @@ datas += collect_data_files('certifi') + collect_data_files('tzdata')
 for name in ('sqlglot', 'pydantic', 'sqlalchemy', 'fastapi'):
     datas += copy_metadata(name)
 hidden = collect_submodules('apps.server') + collect_submodules('packages')
-hidden += collect_submodules('apps.local_launcher') + ['pymysql', 'sqlalchemy.dialects.mysql.pymysql']
+hidden += collect_submodules('apps.local_launcher') + ['pymysql', 'sqlalchemy.dialects.mysql.pymysql', 'mysql_migrations', 'migrations']
 a = Analysis([str(repo/'apps/local_launcher/entry.py')], pathex=[str(repo)], datas=datas,
              hiddenimports=hidden, excludes=['pytest', 'IPython', 'matplotlib'], noarchive=False)
 pyz = PYZ(a.pure)

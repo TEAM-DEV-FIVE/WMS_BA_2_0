@@ -61,12 +61,23 @@ def main(argv=None):
     parser.add_argument("--self-test", action="store_true")
     parser.add_argument("--report", type=Path)
     args = parser.parse_args(argv)
-    verify_bundle()
     if args.self_test:
-        result = self_test()
+        # Resource-only smoke has no database/password input: record a useful CI failure.
+        try:
+            verify_bundle()
+            result = self_test()
+        except Exception as exc:
+            result = {
+                "product": PRODUCT,
+                "status": "FAIL",
+                "error_type": type(exc).__name__,
+                "error": str(exc),
+                "scope": "resource-only self-test; no database",
+            }
         if args.report:
             args.report.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-        return 0
+        return 0 if result["status"] == "PASS" else 1
+    verify_bundle()
     if args.component:
         from apps.local_launcher.runtime import run_component, worker_kinds
 
