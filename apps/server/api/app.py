@@ -167,7 +167,11 @@ def create_app(settings: Settings | None = None, *, engine: Engine | None = None
         # Pydantic errors contain input values: never return/log them (e.g. passwords).
         fields = [FieldError(field=".".join(map(str, item["loc"])), code=item["type"],
                              message="Giá trị không hợp lệ.") for item in exc.errors()]
-        return error(request, 422, "VALIDATION_ERROR", "Dữ liệu không hợp lệ.", field_errors=fields)
+        from apps.server.api.recovery import reject_invalid_return_submit
+        rejected = await reject_invalid_return_submit(request, exc)
+        message = ("Lệnh gửi duyệt chưa thực hiện vì thiếu lý do. Tải lại phiếu, nhập lý do từ 3–2000 ký tự rồi gửi duyệt."
+                   if rejected else "Dữ liệu không hợp lệ.")
+        return error(request, 422, "VALIDATION_ERROR", message, field_errors=fields)
 
     @app.exception_handler(DomainError)
     async def domain_error(request, exc):

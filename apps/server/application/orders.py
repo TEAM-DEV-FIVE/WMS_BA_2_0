@@ -435,6 +435,27 @@ class OrderService:
             },
         )
 
+    def can_reject_invalid_return_submit(self, access, key, document_id, body):
+        """Read-only proof for legacy empty-reason commands; never runs submit.
+
+        Refuse a terminal rejection for any existing key, changed document or
+        revoked permission. The original immutable envelope remains in the client.
+        """
+        if (not isinstance(body, dict) or set(body) != {"expected_version", "reason"}
+                or type(body["expected_version"]) is not int or body["expected_version"] < 1
+                or not isinstance(body["reason"], str) or body["reason"].strip()):
+            return False
+        with self.bus.uow_factory() as uow:
+            auth = self.identity.authorization(uow.connection, access)
+            uow.commands.lock(auth.principal.user_id, key)
+            doc = self.document(auth, document_id)
+            if doc["kind"] not in {"CUSTOMER_RETURN", "SUPPLIER_RETURN"}:
+                return False
+            self.may_edit(auth, doc)
+            if uow.commands.get(auth.principal.user_id, key) is not None:
+                return False
+            return doc["status"] in {"DRAFT", "REJECTED"} and doc["version"] == body["expected_version"]
+
     def write(self, access, key, kind, action, payload, request_id, resource_id=None):
         with self.identity.engine.begin() as c:
             actor = self.identity.authorization(c, access).principal.user_id

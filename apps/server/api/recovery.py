@@ -3,7 +3,10 @@
 import json
 from uuid import UUID
 
+from starlette.concurrency import run_in_threadpool
+
 from apps.server.application.recovery import RecoveryContext, recovery_context
+from apps.server.domain.errors import DomainError
 from packages.contracts.recovery import acknowledgement, request_digest, route_policy
 
 
@@ -62,3 +65,27 @@ async def recovery_request(request, call_next, error):
         return response
     finally:
         recovery_context.reset(token)
+
+
+async def reject_invalid_return_submit(request, exc):
+    """Only certify a known pre-handler failure after live authorization/key lookup."""
+    context = recovery_context.get()
+    parts = request.url.path.split("/")
+    if (context is None or request.method != "POST" or len(parts) != 6
+            or parts[:4] != ["", "api", "v1", "documents"] or parts[5] != "submit"
+            or any(tuple(e["loc"]) != ("body", "reason") for e in exc.errors())):
+        return False
+    scheme, _, access = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or not access:
+        return False
+    try:
+        key = UUID(request.headers["Idempotency-Key"])
+        document_id = UUID(parts[4])
+        confirmed = await run_in_threadpool(
+            request.app.state.orders.can_reject_invalid_return_submit,
+            access, key, document_id, exc.body)
+    except (KeyError, ValueError, DomainError):
+        return False
+    if confirmed:
+        context.key, context.rejected = str(key), True
+    return confirmed

@@ -8,6 +8,7 @@ from apps.desktop.views.document_review import ScrollPanel
 from apps.desktop.views.moves import WorkflowView
 from apps.desktop.views.pagination import install_pagination
 from apps.desktop.views.ui_help import HelpButton
+from packages.contracts.orders import OrderAction
 from packages.contracts.returns import ReturnInput, ReturnPost, ReturnUpdate
 
 
@@ -240,7 +241,7 @@ class ReturnView(WorkflowView):
                 body = (ReturnUpdate if self.doc else ReturnInput).model_validate(body).model_dump(mode="json")
                 self.presenter.command("PUT" if self.doc else "POST", "returns" + ("/" + self.doc["id"] if self.doc else ""), body)
             elif self.doc:
-                body = {"expected_version": self.doc["version"], "reason": reason}
+                body = OrderAction(expected_version=self.doc["version"], reason=reason).model_dump(mode="json")
                 path = "documents/" + self.doc["id"] + "/" + action
                 if action == "post":
                     body = ReturnPost(**body, execution_key=uuid4()).model_dump(mode="json")
@@ -251,4 +252,4 @@ class ReturnView(WorkflowView):
                     body["decision"] = action.upper()
                 self.presenter.command("POST", path, body)
         except (ValueError, TypeError, StopIteration):
-            self.workflow_error("Kiểm tra nguồn, lượng cơ sở, ngày YYYY-MM-DD, lý do và quyền duyệt")
+            self.workflow_error("Nhập lý do từ 3–2000 ký tự; kiểm tra nguồn, lượng cơ sở, ngày YYYY-MM-DD và quyền duyệt")

@@ -22,9 +22,13 @@ def recovery_work(api, generation, action, key, warehouse, body=None):
         rows, result = api.in_session(generation, run)
         return rows, result, ""
     except ApiError as error:
-        return [], None, str(error)
+        try:
+            rows = api.in_session(generation, lambda: api.recovery_records(warehouse))
+        except Exception:
+            rows = None
+        return rows, None, str(error)
     except Exception:
-        return [], None, "Không đọc được phục hồi; Giữ dữ liệu cục bộ để đối chiếu"
+        return None, None, "Không đọc được phục hồi; Giữ dữ liệu cục bộ để đối chiếu"
 
 
 class RecoveryView(ttk.Frame):
@@ -222,6 +226,10 @@ class RecoveryView(ttk.Frame):
                 self.session_changed()
                 continue
             rows, result, error = future.result()
+            if rows is None:
+                # A failed lookup must not look like an empty/deleted journal.
+                self.status.set(error)
+                continue
             self.clear_detail()
             self.rows = {r["key"]: r for r in rows}
             self.tree.delete(*self.tree.get_children())

@@ -54,6 +54,10 @@ def recover_command(api, record, *, retry=False):
     try:
         result = api._recovery_request(method, path, body, key, lookup=True)
     except ApiError as error:
+        if (getattr(error, "confirmed_rejection", False)
+                and record["state"] == "UNKNOWN"):
+            api._journal_call("command_transition", key, "CONFLICT", {"code": "COMMAND_REJECTED"})
+            raise
         if error.code != "OPERATION_UNCONFIRMED" or not retry:
             raise
         if record["state"] == "COMMITTED":

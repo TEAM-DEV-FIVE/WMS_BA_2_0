@@ -9,7 +9,7 @@ from packages.contracts.recovery import digest, route_policy
 
 TRANSITIONS = {
     "DRAFT": {"READY"}, "READY": {"SENDING"}, "SENDING": {"UNKNOWN", "COMMITTED", "CONFLICT"},
-    "UNKNOWN": {"SENDING", "COMMITTED"}, "COMMITTED": set(), "CONFLICT": set(),
+    "UNKNOWN": {"SENDING", "COMMITTED", "CONFLICT"}, "COMMITTED": set(), "CONFLICT": set(),
 }
 
 
